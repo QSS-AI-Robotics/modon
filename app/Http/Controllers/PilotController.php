@@ -9,6 +9,8 @@ use App\Models\Mission;
 use App\Models\PilotReport;
 use App\Models\PilotReportImage;
 use Illuminate\Support\Facades\Log; // ✅ Import Log Facade
+use Illuminate\Support\Facades\Storage;
+
 
 class PilotController extends Controller
 {
@@ -120,61 +122,92 @@ class PilotController extends Controller
         return response()->json($report);
     }
 
+
     /**
      * Update an existing report.
      */
-    public function updateReport(Request $request, $id)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
-    
-        $request->validate([
-            'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
-            'description' => 'nullable|string',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-    
-        $report = PilotReport::findOrFail($id);
-        
-        // Update report details
-        $report->update([
-            'start_datetime' => $request->start_datetime,
-            'end_datetime' => $request->end_datetime,
-            'description' => $request->description,
-        ]);
-    
-        // Handle image deletions: Remove only images that were removed in frontend
-        $existingImages = json_decode($request->existing_images, true);
-        
-        // Fetch all existing images from the database
-        $storedImages = $report->images->pluck('image_path')->toArray();
-        
-        foreach ($storedImages as $storedImage) {
-            // If the stored image is NOT in the existingImages array, delete it
-            if (!in_array(url($storedImage), $existingImages)) {
-                $imageRecord = PilotReportImage::where('image_path', $storedImage)->first();
-                if ($imageRecord) {
-                    $imageRecord->delete(); // Remove from database
-                }
-            }
-        }
-    
-        // Handle new images if uploaded
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('reports', 'public');
-                PilotReportImage::create([
-                    'pilot_report_id' => $report->id,
-                    'image_path' => "storage/$path",
-                ]);
-            }
-        }
-    
-        return response()->json(['message' => 'Report updated successfully!']);
-    }
 
+
+     public function updateReport(Request $request, $id)
+     {
+         if (!Auth::check()) {
+             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+         }
+     
+         $request->validate([
+             'start_datetime' => 'required|date',
+             'end_datetime' => 'required|date|after:start_datetime',
+             'description' => 'nullable|string',
+             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+         ]);
+     
+         // ✅ Find the report
+         $report = PilotReport::findOrFail($id);
+     
+         // ✅ Update report details
+         $report->update([
+             'start_datetime' => $request->start_datetime,
+             'end_datetime' => $request->end_datetime,
+             'description' => $request->description,
+         ]);
+     
+         // ✅ Get existing images from frontend
+         $existingImages = json_decode($request->existing_images, true) ?? [];
+         
+         // 🔥 Fix path inconsistencies
+         $existingImages = array_map(fn($img) => ltrim($img, "/"), $existingImages);
+         Log::info("🔍 Existing Images from Frontend (Cleaned Paths):", $existingImages);
+     
+         // ✅ Fetch all current images from the database (without `/storage/`)
+         $currentImages = PilotReportImage::where('pilot_report_id', $report->id)
+             ->pluck('image_path')
+             ->map(fn($img) => ltrim($img, "/"))
+             ->toArray();
+         Log::info("📂 Current Images in Database (Cleaned Paths):", $currentImages);
+     
+         // ✅ Delete only images that were removed by the user
+         $imagesToDelete = array_diff($currentImages, $existingImages);
+         Log::info("🗑️ Images to be Deleted:", $imagesToDelete);
+     
+         foreach ($imagesToDelete as $imagePath) {
+             Storage::disk('public')->delete(str_replace("storage/", "", $imagePath)); // ✅ Delete from storage
+             PilotReportImage::where('image_path', $imagePath)->delete(); // ✅ Remove record from DB
+         }
+     
+         // ✅ Handle new images (avoid duplication)
+         if ($request->hasFile('images')) {
+             $newImages = [];
+             foreach ($request->file('images') as $image) {
+                 $path = $image->store('reports', 'public'); 
+                 $imagePath = "storage/$path";
+     
+                 // ✅ Check if this file already exists in the database before adding
+                 $imageExists = PilotReportImage::where('pilot_report_id', $report->id)
+                     ->where('image_path', $imagePath)
+                     ->exists();
+     
+                 if (!$imageExists) { // Only insert if the image is NOT already in the DB
+                     PilotReportImage::create([
+                         'pilot_report_id' => $report->id,
+                         'image_path' => $imagePath,
+                     ]);
+     
+                     $newImages[] = $imagePath; // Track uploaded images
+                     $existingImages[] = ltrim($imagePath, "/"); // 🔥 Update existing images list
+                 }
+             }
+             Log::info("📸 New Images Uploaded (Without Duplicates):", $newImages);
+         }
+     
+         // ✅ Debugging Response
+         $finalImages = PilotReportImage::where('pilot_report_id', $report->id)->pluck('image_path')->toArray();
+         Log::info("✅ Final Existing Images after Update:", $finalImages);
+     
+         return response()->json([
+             'message' => 'Report updated successfully!',
+             'final_images' => $finalImages
+         ]);
+     }
     /**
      * Delete a report.
      */

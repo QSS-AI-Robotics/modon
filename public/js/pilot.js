@@ -3,6 +3,50 @@ $(document).ready(function () {
     fetchReports();
 
     // ✅ Fetch Missions
+    // function fetchMissions() {
+    //     $.ajax({
+    //         url: "/pilot/missions",
+    //         type: "GET",
+    //         success: function (response) {
+    //             $('#missionTableBody').empty();
+    //             $('#mission_id').empty().append('<option value="">Select a Mission</option>');
+               
+    //             if (response.missions.length === 0) {
+    //                 $('#missionTableBody').append(`
+    //                     <tr>
+    //                         <td colspan="4" class="text-center text-muted">
+    //                             No new missions available.
+    //                         </td>
+    //                     </tr>
+    //                 `);
+               
+    //                 return;
+    //             }
+
+    //             $.each(response.missions, function (index, mission) {
+    //                 let inspectionTypes = mission.inspection_types.map(type => type.name).join("<br>");
+    //                 let locations = mission.locations.map(loc => loc.name).join("<br>");
+
+    //                 let row = `
+    //                     <tr>
+    //                         <td>${inspectionTypes}</td>
+    //                         <td>${mission.start_datetime}</td>
+    //                         <td>${mission.end_datetime}</td>
+    //                         <td>${mission.status}</td>
+    //                         <td>${locations}</td>
+    //                     </tr>
+    //                 `;
+
+    //                 $('#missionTableBody').append(row);
+    //                 if (mission.report_submitted === 0) { 
+    //                     $('#mission_id').append(`<option value="${mission.id}">${inspectionTypes}</option>`); 
+    //                 }
+                    
+    //             });
+               
+    //         }
+    //     });
+    // }
     function fetchMissions() {
         $.ajax({
             url: "/pilot/missions",
@@ -10,38 +54,53 @@ $(document).ready(function () {
             success: function (response) {
                 $('#missionTableBody').empty();
                 $('#mission_id').empty().append('<option value="">Select a Mission</option>');
-
+                
+                let allCompleted = true; // Assume all are completed until found otherwise
+    
                 if (response.missions.length === 0) {
                     $('#missionTableBody').append(`
                         <tr>
-                            <td colspan="4" class="text-center text-muted">
+                            <td colspan="5" class="text-center text-muted">
                                 No new missions available.
                             </td>
                         </tr>
                     `);
+                    $("#addReportBtn").prop("disabled", true);
                     return;
                 }
-
+    
                 $.each(response.missions, function (index, mission) {
                     let inspectionTypes = mission.inspection_types.map(type => type.name).join("<br>");
                     let locations = mission.locations.map(loc => loc.name).join("<br>");
-
+    
                     let row = `
                         <tr>
                             <td>${inspectionTypes}</td>
                             <td>${mission.start_datetime}</td>
                             <td>${mission.end_datetime}</td>
+                            <td>${mission.status}</td>
                             <td>${locations}</td>
                         </tr>
                     `;
-
+    
                     $('#missionTableBody').append(row);
-                    $('#mission_id').append(`<option value="${mission.id}">${mission.id} - ${inspectionTypes}</option>`);
+    
+                    if (mission.report_submitted === 0) { 
+                        $('#mission_id').append(`<option value="${mission.id}">${inspectionTypes}</option>`); 
+                    }
+    
+                    // Check if any mission is not completed
+                    if (mission.status !== "Completed") {
+                        allCompleted = false;
+                    }
                 });
+    
+                // Disable or enable the button based on mission status
+                $("#addReportBtn").prop("disabled", allCompleted);
             }
         });
     }
-
+    
     // ✅ Fetch Reports
     function fetchReports() {
         $.ajax({
@@ -120,28 +179,7 @@ $(document).ready(function () {
     let newImagesArray = []; 
     let existingImages = [];
 
-    // $('#edit_images').on('change', function () {
-    //     let files = this.files;
-    //     let previewContainer = $('#editImagePreview');
 
-    //     Array.from(files).forEach((file, index) => {
-    //         let fileIndex = newImagesArray.length;
-    //         newImagesArray.push(file);
-
-    //         let reader = new FileReader();
-    //         reader.onload = function (e) {
-    //             previewContainer.append(`
-    //                 <div class="image-container d-inline-block position-relative me-2" data-index="${fileIndex}">
-    //                     <img src="${e.target.result}" width="50">
-    //                     <button type="button" class="delete-new-image btn btn-danger btn-sm position-absolute top-0 end-0">&times;</button>
-    //                 </div>
-    //             `);
-    //         };
-    //         reader.readAsDataURL(file);
-    //     });
-
-    //     console.log("New Images Array After Adding:", newImagesArray);
-    // });
 
     // ✅ Delete New Image
     $(document).on('click', '.delete-new-image', function () {
@@ -201,14 +239,16 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
+                fetchMissions();
+                fetchReports();
                 existingImages = [];
                 newImagesArray = [];
-                alert(response.message);
+                console.log(response.message);
                 $('#editReportModal').modal('hide');
-                fetchReports();
+               
             },
             error: function (xhr) {
-                alert("Error updating report: " + xhr.responseText);
+                console.log("Error updating report: " + xhr.responseText);
                 existingImages = [];
                 newImagesArray = [];
             }
@@ -228,15 +268,20 @@ $(document).ready(function () {
             type: "POST",
             data: { _token: $('meta[name="csrf-token"]').attr('content') },
             success: function (response) {
-                alert(response.message);
+                console.log(response.message);
+                fetchMissions();
                 fetchReports();
             },
             error: function (xhr) {
-                alert("Error deleting report: " + xhr.responseText);
+                console.log("Error deleting report: " + xhr.responseText);
             }
         });
     });
-
+    // Reset form fields when modal is opened
+    $('#addReportModal').on('shown.bs.modal', function () {
+        $('#addReportForm')[0].reset(); // Reset form fields
+        $('#imagePreview').empty(); // Clear image preview if applicable
+    });
     // ✅ Add Report
     $('#addReportForm').on('submit', function (e) {
         e.preventDefault();
@@ -249,9 +294,10 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function () {
-                alert('Report submitted successfully!');
-                $('#addReportModal').modal('hide');
                 fetchReports();
+                console.log('Report submitted successfully!');
+                $('#addReportModal').modal('hide');
+                fetchMissions();
             }
         });
     });

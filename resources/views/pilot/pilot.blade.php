@@ -25,7 +25,10 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between">
         <h2>Missions Assigned to Your Region</h2>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addReportModal">Add Report</button>
+        {{-- <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addReportModal">Add Report</button> --}}
+        <button id="addReportBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addReportModal">
+            Add Report
+        </button>
     </div>
 
     <!-- Missions Table -->
@@ -35,6 +38,7 @@
                 <th>Inspection Types</th>
                 <th>Start Date</th>
                 <th>End Date</th>
+                <th>Status</th>
                 <th>Locations</th>
             </tr>
         </thead>
@@ -103,7 +107,7 @@
                         <label for="video_url" class="form-label">Video URL (Optional)</label>
                         <input type="url" class="form-control" id="video_url" name="video_url" placeholder="Enter video link">
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="images" class="form-label">Upload Images</label>
                         <input type="file" class="form-control" id="images" name="images[]" multiple accept="image/*">

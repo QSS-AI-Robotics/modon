@@ -74,7 +74,7 @@ class PilotController extends Controller
             'end_datetime' => 'required|date|after:start_datetime',
             'video_url' => 'nullable|url',
             'description' => 'nullable|string',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:102048',
         ]);
 
         // Generate unique report reference
@@ -138,7 +138,7 @@ class PilotController extends Controller
              'start_datetime' => 'required|date',
              'end_datetime' => 'required|date|after:start_datetime',
              'description' => 'nullable|string',
-             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:102048',
          ]);
      
          // ✅ Find the report

@@ -98,7 +98,12 @@
                         <label for="end_datetime" class="form-label">End Date & Time</label>
                         <input type="datetime-local" class="form-control" id="end_datetime" name="end_datetime" required>
                     </div>
-
+                    <!-- Upload Video URL -->
+                    <div class="mb-3">
+                        <label for="video_url" class="form-label">Video URL (Optional)</label>
+                        <input type="url" class="form-control" id="video_url" name="video_url" placeholder="Enter video link">
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="images" class="form-label">Upload Images</label>
                         <input type="file" class="form-control" id="images" name="images[]" multiple accept="image/*">
@@ -118,7 +123,7 @@
 </div>
 
 
-<!-- Bootstrap Modal for Updating Reports -->
+
 <!-- Bootstrap Modal for Updating Reports -->
 <div class="modal fade" id="editReportModal" tabindex="-1" aria-labelledby="editReportModalLabel" aria-hidden="true">
     <div class="modal-dialog">

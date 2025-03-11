@@ -2,7 +2,6 @@ $(document).ready(function () {
     fetchMissions();
     fetchReports();
 
-    // ✅ Fetch Missions
     function fetchMissions() {
         $.ajax({
             url: "/pilot/missions",
@@ -42,7 +41,6 @@ $(document).ready(function () {
         });
     }
 
-    // ✅ Fetch Reports
     function fetchReports() {
         $.ajax({
             url: "/pilot/reports",
@@ -74,6 +72,7 @@ $(document).ready(function () {
                             <td>${videoLink}</td>
                             <td class="imgPanel">${images}</td>
                             <td>${report.description || "N/A"}</td>
+                            
                             <td>
                                 <button class="btn btn-warning edit-report" data-id="${report.id}">Edit</button>
                                 <button class="btn btn-danger delete-report" data-id="${report.id}">Delete</button>
@@ -86,114 +85,119 @@ $(document).ready(function () {
         });
     }
 
-    // ✅ Handle Edit Report Button Click
-    $(document).on('click', '.edit-report', function () {
-        let reportId = $(this).data('id');
-        let reportRow = $(`#reportRow-${reportId}`);
+  // Handle Edit Report Button Click
+  $(document).on('click', '.edit-report', function () {
+    let reportId = $(this).data('id');
+    let reportRow = $(`#reportRow-${reportId}`);
+    
+    // Open modal
+    $('#editReportModal').modal('show');
 
-        // Open modal
-        $('#editReportModal').modal('show');
+    // Get values from the table
+    $('#edit_report_id').val(reportId);
+    $('#edit_start_datetime').val(reportRow.find('td:eq(2)').text().trim());
+    $('#edit_end_datetime').val(reportRow.find('td:eq(3)').text().trim());
+    $('#edit_description').val(reportRow.find('td:eq(6)').text().trim());
 
-        // Get values from the table
-        $('#edit_report_id').val(reportId);
-        $('#edit_start_datetime').val(reportRow.find('td:eq(2)').text().trim());
-        $('#edit_end_datetime').val(reportRow.find('td:eq(3)').text().trim());
-        $('#edit_description').val(reportRow.find('td:eq(6)').text().trim());
-
-        // Get existing images dynamically
-        let existingImagesHtml = "";
-        reportRow.find('.imgPanel img').each(function () {
-            let imgSrc = $(this).attr('src');
-            existingImagesHtml += `
-                <div class="image-container d-inline-block position-relative me-2">
-                    <img src="${imgSrc}" width="50">
-                    <button type="button" class="delete-existing-image btn btn-danger btn-sm position-absolute top-0 end-0" data-src="${imgSrc}">&times;</button>
-                </div>
-            `;
-        });
-
-        // Update preview
-        $('#editImagePreview').html(existingImagesHtml);
+    // Get existing images dynamically from the row using .imgPanel class
+    let existingImages = "";
+    reportRow.find('.imgPanel img').each(function () {
+        let imgSrc = $(this).attr('src');
+        existingImages += `
+            <div class="image-container d-inline-block position-relative me-2">
+                <img src="${imgSrc}" width="50">
+                <button type="button" class="delete-existing-image btn btn-danger btn-sm position-absolute top-0 end-0" data-src="${imgSrc}">&times;</button>
+            </div>
+        `;
     });
 
-    // ✅ Handle New Image Preview
-    let newImagesArray = []; 
+    // Append existing images without replacing them
+        $('#editImagePreview').html(existingImages);
+    });
+
+
+    // Handle New Image Preview (Appending New Images)
+    let newImagesArray = []; // ✅ Track newly added images
     let existingImages = [];
+    $('#edit_images').on('change', function () {
+        let files = this.files;
+        let previewContainer = $('#editImagePreview');
+    
+        Array.from(files).forEach((file, index) => {
+            let fileIndex = newImagesArray.length; // Unique index
+            newImagesArray.push(file); // ✅ Store new image
+    
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                previewContainer.append(`
+                    <div class="image-container d-inline-block position-relative me-2" data-index="${fileIndex}">
+                        <img src="${e.target.result}" width="50">
+                        <button type="button" class="delete-new-image btn btn-danger btn-sm position-absolute top-0 end-0">&times;</button>
+                    </div>
+                `);
+            };
+            reader.readAsDataURL(file);
+        });
+    
+        console.log("New Images Array After Adding:", newImagesArray); // ✅ Debugging
+    });
+    
+    
 
-    // $('#edit_images').on('change', function () {
-    //     let files = this.files;
-    //     let previewContainer = $('#editImagePreview');
-
-    //     Array.from(files).forEach((file, index) => {
-    //         let fileIndex = newImagesArray.length;
-    //         newImagesArray.push(file);
-
-    //         let reader = new FileReader();
-    //         reader.onload = function (e) {
-    //             previewContainer.append(`
-    //                 <div class="image-container d-inline-block position-relative me-2" data-index="${fileIndex}">
-    //                     <img src="${e.target.result}" width="50">
-    //                     <button type="button" class="delete-new-image btn btn-danger btn-sm position-absolute top-0 end-0">&times;</button>
-    //                 </div>
-    //             `);
-    //         };
-    //         reader.readAsDataURL(file);
-    //     });
-
-    //     console.log("New Images Array After Adding:", newImagesArray);
-    // });
-
-    // ✅ Delete New Image
     $(document).on('click', '.delete-new-image', function () {
         let imageContainer = $(this).closest('.image-container');
-        let imageIndex = parseInt(imageContainer.attr('data-index'), 10);
-
+        let imageIndex = parseInt(imageContainer.attr('data-index'), 10); // ✅ Get image index
+    
+        // ✅ Remove from array
         if (imageIndex >= 0) {
             newImagesArray.splice(imageIndex, 1);
         }
-
-        imageContainer.remove();
-        console.log("Updated New Images Array After Deletion:", newImagesArray);
+    
+        imageContainer.remove(); // ✅ Remove image preview
+        console.log("Updated New Images Array After Deletion:", newImagesArray); // ✅ Debugging
     });
-
-    // ✅ Delete Existing Image
+    
     $(document).on('click', '.delete-existing-image', function () {
         let imageContainer = $(this).closest('.image-container');
         let imgSrc = imageContainer.find('img').attr('src');
-
+    
+        // ✅ Remove from `existingImages`
         existingImages = existingImages.filter(image => image !== imgSrc);
-
-        imageContainer.remove();
+    
+        imageContainer.remove(); // ✅ Remove from UI
         console.log("Updated Existing Images Array After Deletion:", existingImages);
     });
 
-    // ✅ Handle Report Update
+
+
+    // Handle Update Report Form Submission
     $('#editReportForm').on('submit', function (e) {
         e.preventDefault();
+        $('#edit_images').val(''); 
         let reportId = $('#edit_report_id').val();
         let formData = new FormData(this);
-
-        $('#edit_images').val(''); 
-
-        existingImages = [];
+    
+        // ✅ Collect existing images from preview container
+     
         $('#editImagePreview .image-container img').each(function () {
             let src = $(this).attr('src');
-            if (!src.startsWith("data:image")) {
+            if (!src.startsWith("data:image")) { // ✅ Only keep existing server images
                 existingImages.push(src);
             }
         });
-
+    
         formData.append('existing_images', JSON.stringify(existingImages));
-
+    
+        // ✅ Append only remaining new images
         if (newImagesArray.length > 0) {
             newImagesArray.forEach(file => {
                 formData.append('images[]', file);
             });
         }
-
+    
         console.log("Existing Images:", existingImages);
         console.log("New Images Sent:", newImagesArray);
-
+    
         $.ajax({
             url: `/pilot/reports/${reportId}/update`,
             type: "POST",
@@ -201,31 +205,30 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
-                existingImages = [];
-                newImagesArray = [];
                 alert(response.message);
                 $('#editReportModal').modal('hide');
                 fetchReports();
             },
             error: function (xhr) {
                 alert("Error updating report: " + xhr.responseText);
-                existingImages = [];
-                newImagesArray = [];
             }
         });
     });
+    
+    
+    
 
     // ✅ Delete Report
     $(document).on('click', '.delete-report', function () {
         let reportId = $(this).data('id');
-
+    
         if (!confirm("Are you sure you want to delete this report?")) return;
-
-        console.log("Deleting report ID:", reportId);
-
+    
+        console.log("Deleting report ID:", reportId); // ✅ Debugging
+    
         $.ajax({
             url: `/pilot/reports/${reportId}`,
-            type: "POST",
+            type: "POST", // ✅ DELETE method
             data: { _token: $('meta[name="csrf-token"]').attr('content') },
             success: function (response) {
                 alert(response.message);
@@ -236,12 +239,20 @@ $(document).ready(function () {
             }
         });
     });
+    
+
+
+
+    
+    
 
     // ✅ Add Report
+
     $('#addReportForm').on('submit', function (e) {
         e.preventDefault();
-        let formData = new FormData(this);
 
+        let formData = new FormData(this);
+        
         $.ajax({
             url: "/pilot/reports/store",
             type: "POST",

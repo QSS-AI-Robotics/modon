@@ -83,23 +83,33 @@
             </tr>
         </thead>
         <tbody id="missionTableBody">
-            @foreach($missions as $mission)
-                <tr id="missionRow-{{ $mission->id }}">
-                    <td>{{ $mission->inspectionType->name }}</td>
-                    <td>{{ $mission->start_datetime }}</td>
-                    <td>{{ $mission->end_datetime }}</td>
-                    <td>
-                        @foreach($mission->inspectionTypes as $type)
-                            {{ $type->name }}<br>
-                        @endforeach
-                    </td>
-                    
-                    <td>
-                        <button class="btn btn-danger delete-mission" data-id="{{ $mission->id }}">Delete</button>
-                    </td>
+            @if($missions->isEmpty())
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No missions yet.</td>
                 </tr>
-            @endforeach
+            @else
+                @foreach($missions as $mission)
+                    <tr id="missionRow-{{ $mission->id }}">
+                        <td>
+                            @foreach($mission->inspectionTypes as $type)
+                                {{ $type->name }}<br>
+                            @endforeach
+                        </td>
+                        <td>{{ $mission->start_datetime }}</td>
+                        <td>{{ $mission->end_datetime }}</td>
+                        <td>
+                            @foreach($mission->locations as $location)
+                                {{ $location->name }}<br>
+                            @endforeach
+                        </td>
+                        <td>
+                            <button class="btn btn-danger delete-mission" data-id="{{ $mission->id }}">Delete</button>
+                        </td>
+                    </tr>
+                @endforeach
+            @endif
         </tbody>
+        
     </table>
 </div>
 

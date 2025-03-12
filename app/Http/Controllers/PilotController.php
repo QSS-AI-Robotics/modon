@@ -62,100 +62,103 @@ class PilotController extends Controller
     /**
      * Store a new pilot report.
      */
-    // public function storeReport(Request $request)
-    // {
-    //     if (!Auth::check()) {
-    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-    //     }
-
-    //     $request->validate([
-    //         'mission_id' => 'required|exists:missions,id',
-    //         'start_datetime' => 'required|date',
-    //         'end_datetime' => 'required|date|after:start_datetime',
-    //         'video_url' => 'nullable|url',
-    //         'description' => 'nullable|string',
-    //         'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:102048',
-    //     ]);
-
-    //     // Generate unique report reference
-    //     $reportReference = 'REP-' . Str::random(8);
-
-    //     $report = PilotReport::create([
-    //         'report_reference' => $reportReference,
-    //         'mission_id' => $request->mission_id,
-    //         'start_datetime' => $request->start_datetime,
-    //         'end_datetime' => $request->end_datetime,
-    //         'video_url' => $request->video_url,
-    //         'description' => $request->description,
-    //     ]);
-
-    //     // Handle multiple image uploads
-    //     if ($request->hasFile('images')) {
-    //         foreach ($request->file('images') as $image) {
-    //             $path = $image->store('reports', 'public'); // ✅ Store in 'public' disk
-        
-    //             PilotReportImage::create([
-    //                 'pilot_report_id' => $report->id,
-    //                 'image_path' => "storage/$path", // ✅ Save correct path
-    //             ]);
-    //         }
-    //     }
-        
-
-    //     return response()->json(['message' => 'Report created successfully!', 'report' => $report]);
-    // }
-
-    public function storeReport(Request $request)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
     
-        $request->validate([
-            'mission_id' => 'required|exists:missions,id',
-            'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
-            'video_url' => 'nullable|url',
-            'description' => 'nullable|string',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:102048',
+
+ 
+
+public function storeReport(Request $request)
+{
+    Log::info("🚀 Incoming Report Submission:", $request->all());
+
+    // ✅ Validate the request
+    $request->validate([
+        'mission_id' => 'required|exists:missions,id',
+        'start_datetime' => 'required|date',
+        'end_datetime' => 'required|date|after:start_datetime',
+        'video_url' => 'nullable|url',
+        'description' => 'nullable|string',
+
+        'inspection_id' => 'required|array',
+        'inspection_id.*' => 'required|exists:inspection_types,id',
+
+        'location_id' => 'required|array',
+        'location_id.*' => 'required|exists:locations,id',
+
+        'inspectiondescrption.*' => 'nullable|string',
+
+        'images_*.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:102048',
+    ]);
+
+    // ✅ Generate a unique report reference
+    $reportReference = 'REP-' . Str::random(8);
+
+    // ✅ Create the report
+    $report = PilotReport::create([
+        'report_reference' => $reportReference,
+        'mission_id' => $request->mission_id,
+        'start_datetime' => $request->start_datetime,
+        'end_datetime' => $request->end_datetime,
+        'video_url' => $request->video_url,
+        'description' => $request->description,
+    ]);
+
+    Log::info("✅ Report Created Successfully", ['report_id' => $report->id]);
+
+    // ✅ Process each incident (inspection, location, description)
+    foreach ($request->inspection_id as $index => $inspectionId) {
+        $locationId = $request->location_id[$index] ?? null;
+        $inspectionDescription = $request->inspectiondescrption[$index] ?? '';
+
+        Log::info("📌 Processing Incident #$index", [
+            'inspection_id' => $inspectionId,
+            'location_id' => $locationId,
+            'description' => $inspectionDescription
         ]);
-    
-        // Generate unique report reference
-        $reportReference = 'REP-' . Str::random(8);
-    
-        $report = PilotReport::create([
-            'report_reference' => $reportReference,
-            'mission_id' => $request->mission_id,
-            'start_datetime' => $request->start_datetime,
-            'end_datetime' => $request->end_datetime,
-            'video_url' => $request->video_url,
-            'description' => $request->description,
-        ]);
-    
-        // ✅ Handle multiple image uploads
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('reports', 'public'); // ✅ Store in 'public' disk
-        
+
+        // ✅ Process images for this inspection-location pair
+        $imageField = "images_{$index}";
+        if ($request->hasFile($imageField)) {
+            foreach ($request->file($imageField) as $image) {
+                $path = $image->store('reports', 'public');
+
+                // ✅ Ensure the correct values are logged
+                Log::info("📸 Saving Image for Incident #$index", [
+                    'inspection_id' => $inspectionId,
+                    'location_id' => $locationId,
+                    'description' => $inspectionDescription,
+                    'image_path' => "storage/$path"
+                ]);
+
+                // ✅ Insert into database
                 PilotReportImage::create([
                     'pilot_report_id' => $report->id,
-                    'image_path' => "storage/$path", // ✅ Save correct path
+                    'inspection_type_id' => $inspectionId, // ✅ Ensure this is set
+                    'location_id' => $locationId, // ✅ Ensure this is set
+                    'description' => $inspectionDescription, // ✅ Ensure this is set
+                    'image_path' => "storage/$path",
                 ]);
             }
+        } else {
+            Log::warning("⚠ No images found for Incident #$index");
         }
-    
-        // ✅ Update the mission's `report_submitted` column to `1`
-        Mission::where('id', $request->mission_id)->update([
-            'report_submitted' => 1,
-            'status' => 'Completed' // ✅ Also update status to 'Completed'
-        ]);
-        
-    
-        return response()->json([
-            'message' => 'Report created successfully!',
-            'report' => $report
-        ]);
     }
+
+    // ✅ Update the mission's status and report submission
+    Mission::where('id', $request->mission_id)->update([
+        'report_submitted' => 1,
+        'status' => 'Completed'
+    ]);
+
+    Log::info("✅ Mission Updated as Completed", ['mission_id' => $request->mission_id]);
+
+    return response()->json([
+        'message' => '✅ Report created successfully!',
+        'report' => $report
+    ]);
+}
+
+    
+
 
     /**
      * Fetch a single report for editing.
@@ -264,104 +267,84 @@ class PilotController extends Controller
     /**
      * Delete a report.
      */
-    // public function destroyReport($id)
-    // {
-    //     // ✅ Write a log before processing the deletion
-    //     file_put_contents(storage_path('logs/debug_reportlog.txt'), "DELETE request received for report ID: $id\n", FILE_APPEND);
-    
-    //     if (!Auth::check()) {
-    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-    //     }
-    
-    //     $report = PilotReport::find($id);
-    
-    //     if (!$report) {
-    //         return response()->json(['error' => 'Report not found.'], 404);
-    //     }
-    
-    //     // ✅ Log deletion attempt
-    //     file_put_contents(storage_path('logs/debug_reportlog.txt'), "Deleting report ID: $id\n", FILE_APPEND);
-    
-    //     // ✅ Delete images from storage and database
-    //     $images = PilotReportImage::where('pilot_report_id', $report->id)->get();
-    //     foreach ($images as $image) {
-    //         $imagePath = public_path($image->image_path);
-    //         if (file_exists($imagePath)) {
-    //             unlink($imagePath); // ✅ Delete image from storage
-    //         }
-    //         $image->delete(); // ✅ Delete image record from database
-    //     }
-    
-    //     // ✅ Delete the report
-    //     $report->delete();
-    
-    //     // ✅ Confirm the report was deleted
-    //     file_put_contents(storage_path('logs/debug_reportlog.txt'), "Report ID $id and its images successfully deleted.\n", FILE_APPEND);
-    
-    //     return response()->json([
-    //         'message' => 'Report and relevant images deleted successfully.',
-    //         'status' => 'success'
-    //     ], 200);
-    // }
+
     public function destroyReport($id)
-{
-    // ✅ Write a log before processing the deletion
-    file_put_contents(storage_path('logs/debug_reportlog.txt'), "DELETE request received for report ID: $id\n", FILE_APPEND);
+    {
+        // ✅ Write a log before processing the deletion
+        file_put_contents(storage_path('logs/debug_reportlog.txt'), "DELETE request received for report ID: $id\n", FILE_APPEND);
 
-    if (!Auth::check()) {
-        return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-    }
-
-    $report = PilotReport::find($id);
-
-    if (!$report) {
-        return response()->json(['error' => 'Report not found.'], 404);
-    }
-
-    // ✅ Log deletion attempt
-    file_put_contents(storage_path('logs/debug_reportlog.txt'), "Deleting report ID: $id\n", FILE_APPEND);
-
-    // ✅ Delete images from storage and database
-    $images = PilotReportImage::where('pilot_report_id', $report->id)->get();
-    foreach ($images as $image) {
-        $imagePath = public_path($image->image_path);
-        if (file_exists($imagePath)) {
-            unlink($imagePath); // ✅ Delete image from storage
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
-        $image->delete(); // ✅ Delete image record from database
+
+        $report = PilotReport::find($id);
+
+        if (!$report) {
+            return response()->json(['error' => 'Report not found.'], 404);
+        }
+
+        // ✅ Log deletion attempt
+        file_put_contents(storage_path('logs/debug_reportlog.txt'), "Deleting report ID: $id\n", FILE_APPEND);
+
+        // ✅ Delete images from storage and database
+        $images = PilotReportImage::where('pilot_report_id', $report->id)->get();
+        foreach ($images as $image) {
+            $imagePath = public_path($image->image_path);
+            if (file_exists($imagePath)) {
+                unlink($imagePath); // ✅ Delete image from storage
+            }
+            $image->delete(); // ✅ Delete image record from database
+        }
+
+        // ✅ Store mission ID before deleting the report
+        $missionId = $report->mission_id;
+
+        // ✅ Delete the report
+        $report->delete();
+
+        // ✅ Check if there are still reports for this mission
+        $remainingReports = PilotReport::where('mission_id', $missionId)->exists();
+
+        // ✅ If no reports remain, update `report_submitted` to 0
+        if (!$remainingReports) {
+            // Mission::where('id', $missionId)->update(['report_submitted' => 0]);
+            Mission::where('id', $missionId)->update([
+                'report_submitted' => 0,
+                'status' => 'Pending' // ✅ Also update status to 'Completed'
+            ]);
+            
+            file_put_contents(storage_path('logs/debug_reportlog.txt'), "Mission ID $missionId updated: report_submitted = 0\n", FILE_APPEND);
+        }
+
+        // ✅ Confirm the report was deleted
+        file_put_contents(storage_path('logs/debug_reportlog.txt'), "Report ID $id and its images successfully deleted.\n", FILE_APPEND);
+
+        return response()->json([
+            'message' => 'Report and relevant images deleted successfully. Mission updated if needed.',
+            'status' => 'success'
+        ], 200);
     }
 
-    // ✅ Store mission ID before deleting the report
-    $missionId = $report->mission_id;
-
-    // ✅ Delete the report
-    $report->delete();
-
-    // ✅ Check if there are still reports for this mission
-    $remainingReports = PilotReport::where('mission_id', $missionId)->exists();
-
-    // ✅ If no reports remain, update `report_submitted` to 0
-    if (!$remainingReports) {
-        // Mission::where('id', $missionId)->update(['report_submitted' => 0]);
-        Mission::where('id', $missionId)->update([
-            'report_submitted' => 0,
-            'status' => 'pending' // ✅ Also update status to 'Completed'
+    
+        /**
+     * Update mission status.
+     */
+    public function updateMissionStatus(Request $request)
+    {
+        $request->validate([
+            'mission_id' => 'required|exists:missions,id',
+            'status' => 'required|string'
         ]);
-        
-        file_put_contents(storage_path('logs/debug_reportlog.txt'), "Mission ID $missionId updated: report_submitted = 0\n", FILE_APPEND);
+
+        $mission = Mission::findOrFail($request->mission_id);
+        $mission->status = $request->status;
+        $mission->save();
+
+        return response()->json([
+            'message' => 'Mission status updated successfully.',
+            'mission' => $mission
+        ]);
     }
-
-    // ✅ Confirm the report was deleted
-    file_put_contents(storage_path('logs/debug_reportlog.txt'), "Report ID $id and its images successfully deleted.\n", FILE_APPEND);
-
-    return response()->json([
-        'message' => 'Report and relevant images deleted successfully. Mission updated if needed.',
-        'status' => 'success'
-    ], 200);
-}
-
-    
-    
     
     
     

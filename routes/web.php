@@ -60,5 +60,7 @@ Route::middleware(['auth'])->group(function () {
     // Delete Report
     Route::post('/pilot/reports/{id}', [PilotController::class, 'destroyReport'])->name('pilot.reports.delete');
 
+    //update mission status
+    Route::post('/pilot/missions/update-status', [PilotController::class, 'updateMissionStatus']);
 
 });

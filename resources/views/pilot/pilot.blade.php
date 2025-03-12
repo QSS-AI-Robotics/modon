@@ -38,8 +38,10 @@
                 <th>Inspection Types</th>
                 <th>Start Date</th>
                 <th>End Date</th>
-                <th>Status</th>
                 <th>Locations</th>
+                <th>Status</th>
+                <th>Action</th>
+                
             </tr>
         </thead>
         <tbody id="missionTableBody">
@@ -77,8 +79,9 @@
 </div>
 
 <!-- Bootstrap Modal for Adding Reports -->
+
 <div class="modal fade" id="addReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addReportModalLabel">Submit a New Report</h5>
@@ -87,12 +90,92 @@
             <div class="modal-body">
                 <form id="addReportForm">
                     @csrf
+                    <input type="hidden" class="form-control" id="mission_id" name="mission_id" required>
 
+
+                    <div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="start_datetime" class="form-label">Start Date & Time</label>
+                                    <input type="datetime-local" class="form-control" id="start_datetime" name="start_datetime" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="end_datetime" class="form-label">End Date & Time</label>
+                                    <input type="datetime-local" class="form-control" id="end_datetime" name="end_datetime" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <!-- Upload Video URL -->
+                                <div class="mb-3">
+                                    <label for="video_url" class="form-label">Video URL</label>
+                                    <input type="url" class="form-control" id="video_url" name="video_url" placeholder="Enter video link" value="http://localhost:8080/phpmyadmin/index.php?route=/sql&db=modon&table=pilot_report_images&pos=0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                
+
+                   
+                    <!-- Grouped Select Fields -->
+                    <div id="inspectionLocationGroup">
+                        <div class="row mb-3 inspection-location-item">
+                            <label class="form-label">Incident Detail</label>
+                            <div class="col-md-3">
+                                <select class="form-select inspection_id" name="inspection_id[]" id="inspection_id" required></select> 
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select location_id" name="location_id[]" id="location_id" required></select> 
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control inspectiondescrption" name="inspectiondescrption[]" placeholder="Inspection Description">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="file" class="form-control images" name="images_0[]" multiple accept="image/*">
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="button" class="btn btn-success addInspectionRow">+</button>
+                                <button type="button" class="btn btn-danger removeInspectionRow">-</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="mb-3">
-                        <label for="mission_id" class="form-label">Select Mission</label>
-                        <select class="form-select" id="mission_id" name="mission_id" required></select>
+                        <label for="description" class="form-label">Notes</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                     </div>
 
+                    <button type="submit" class="btn btn-primary w-100">Submit Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{{-- <div class="modal fade" id="addReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addReportModalLabel">Submit a New Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addReportForm">
+                    @csrf
+                    <input type="hidden" class="form-control" id="mission_id" name="mission_id" required>
+                    <div class="mb-3">
+                        <label for="inspection_id" class="form-label">Select Inspection</label>
+                        <select class="form-select" id="inspection_id" name="inspection_id" required></select>                       
+                    </div>
+                    <div class="mb-3">
+                        <label for="location_id" class="form-label">Select Location</label>
+                        <select class="form-select" id="location_id" name="location_id" required></select>                       
+                    </div>
                     <div class="mb-3">
                         <label for="start_datetime" class="form-label">Start Date & Time</label>
                         <input type="datetime-local" class="form-control" id="start_datetime" name="start_datetime" required>
@@ -104,7 +187,7 @@
                     </div>
                     <!-- Upload Video URL -->
                     <div class="mb-3">
-                        <label for="video_url" class="form-label">Video URL (Optional)</label>
+                        <label for="video_url" class="form-label">Video URL </label>
                         <input type="url" class="form-control" id="video_url" name="video_url" placeholder="Enter video link">
                     </div>
 
@@ -124,7 +207,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 

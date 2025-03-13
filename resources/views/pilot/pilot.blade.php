@@ -117,12 +117,8 @@
                         </div>
                     </div>
                     
-
-                
-
-                   
                     <!-- Grouped Select Fields -->
-                    <div id="inspectionLocationGroup">
+                    <div id="inspectionLocationGroup" class="inspectionLocationGroup">
                         <div class="row mb-3 inspection-location-item">
                             <label class="form-label">Incident Detail</label>
                             <div class="col-md-3">
@@ -157,105 +153,62 @@
 </div>
 
 
-{{-- <div class="modal fade" id="addReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addReportModalLabel">Submit a New Report</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addReportForm">
-                    @csrf
-                    <input type="hidden" class="form-control" id="mission_id" name="mission_id" required>
-                    <div class="mb-3">
-                        <label for="inspection_id" class="form-label">Select Inspection</label>
-                        <select class="form-select" id="inspection_id" name="inspection_id" required></select>                       
-                    </div>
-                    <div class="mb-3">
-                        <label for="location_id" class="form-label">Select Location</label>
-                        <select class="form-select" id="location_id" name="location_id" required></select>                       
-                    </div>
-                    <div class="mb-3">
-                        <label for="start_datetime" class="form-label">Start Date & Time</label>
-                        <input type="datetime-local" class="form-control" id="start_datetime" name="start_datetime" required>
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="end_datetime" class="form-label">End Date & Time</label>
-                        <input type="datetime-local" class="form-control" id="end_datetime" name="end_datetime" required>
-                    </div>
-                    <!-- Upload Video URL -->
-                    <div class="mb-3">
-                        <label for="video_url" class="form-label">Video URL </label>
-                        <input type="url" class="form-control" id="video_url" name="video_url" placeholder="Enter video link">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="images" class="form-label">Upload Images</label>
-                        <input type="file" class="form-control" id="images" name="images[]" multiple accept="image/*">
-                        <div class="image-preview mt-2" id="imagePreview"></div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Submit Report</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div> --}}
 
 
 
 <!-- Bootstrap Modal for Updating Reports -->
+
+<!-- Bootstrap Modal for Editing Reports -->
 <div class="modal fade" id="editReportModal" tabindex="-1" aria-labelledby="editReportModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Update Report</h5>
+                <h5 class="modal-title" id="editReportModalLabel">Edit Report</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="editReportForm">
                     @csrf
-                    <input type="hidden" id="edit_report_id" name="report_id"> <!-- ✅ Added name attribute -->
-                
-                    <div class="mb-3">
-                        <label for="edit_start_datetime" class="form-label">Start Date & Time</label>
-                        <input type="datetime-local" class="form-control" id="edit_start_datetime" name="start_datetime" required> <!-- ✅ Added name -->
+                    <input type="hidden" class="form-control" id="edit_report_id" name="report_id" required>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_start_datetime" class="form-label">Start Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="edit_start_datetime" name="start_datetime" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_end_datetime" class="form-label">End Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="edit_end_datetime" name="end_datetime" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_video_url" class="form-label">Video URL</label>
+                                <input type="url" class="form-control" id="edit_video_url" name="video_url">
+                            </div>
+                        </div>
                     </div>
-                
+
+                    <!-- Incident Details -->
+                    <div id="editInspectionLocationGroup"></div>
+
                     <div class="mb-3">
-                        <label for="edit_end_datetime" class="form-label">End Date & Time</label>
-                        <input type="datetime-local" class="form-control" id="edit_end_datetime" name="end_datetime" required> <!-- ✅ Added name -->
+                        <label for="edit_description" class="form-label">Notes</label>
+                        <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
                     </div>
-                
-                    <div class="mb-3">
-                        <label for="edit_description" class="form-label">Description</label>
-                        <textarea class="form-control" id="edit_description" name="description"></textarea> <!-- ✅ Added name -->
-                    </div>
-                
-                    <div class="mb-3">
-                        <label class="form-label">Current Images</label>
-                        <div class="image-preview" id="editImagePreview"></div>
-                    </div>
-                
-                    <div class="mb-3">
-                        <label for="edit_images" class="form-label">Upload New Images</label>
-                        <input type="file" class="form-control" id="edit_images" name="images[]" multiple accept="image/*"> <!-- ✅ Added name -->
-                    </div>
-                
+
                     <button type="submit" class="btn btn-primary w-100">Update Report</button>
                 </form>
-                
             </div>
         </div>
     </div>
 </div>
+
+
 
 
 

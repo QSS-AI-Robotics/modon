@@ -290,7 +290,7 @@ $(document).ready(function () {
             start_datetime: $("#edit_start_datetime").val(),
             end_datetime: $("#edit_end_datetime").val(),
             video_url: $("#video_url").val(),
-            description: String($("#description").val()), // ✅ Ensure it's a string
+            description: String($("#edit_description").val()), // ✅ Ensure it's a string
             pilot_report_images: []
         };
     
@@ -353,20 +353,30 @@ $(document).ready(function () {
 
         // Function to add a new Incident Detail row dynamically
         $(document).on("click", ".addEditInspectionRow", function () {
+            // Fetch available options from the first row in `#editInspectionLocationGroup`
+            let firstRow = $("#editInspectionLocationGroup .editinspection-location-item:first");
+        
+            let inspectionOptions = firstRow.find(".inspection_id").html(); // Get all options for inspection
+            let locationOptions = firstRow.find(".location_id").html(); // Get all options for location
+        
             let newGroup = `
                 <div class="row mb-3 editinspection-location-item">
                     <label class="form-label">Incident Detail</label>
                     <div class="col-md-3">
-                        <select class="form-select inspection_id" name="inspection_id[]" id="inspection_id"  required></select>
+                        <select class="form-select inspection_id" name="inspection_id[]" required>
+                            ${inspectionOptions} <!-- Inject fetched options here -->
+                        </select>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select location_id" name="location_id[]" id="location_id"  required></select>
+                        <select class="form-select location_id" name="location_id[]" required>
+                            ${locationOptions} <!-- Inject fetched options here -->
+                        </select>
                     </div>
                     <div class="col-md-3">
                         <input type="text" class="form-control inspectiondescrption" name="inspectiondescrption[]" placeholder="Inspection Description">
                     </div>
                     <div class="col-md-2">
-                        <input type="file" class="form-control images" name="images_${groupIndex}[]" multiple accept="image/*">
+                        <input type="file" class="form-control images" name="images_${editgroupIndex}[]" multiple accept="image/*">
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
                         <button type="button" class="btn btn-success addEditInspectionRow me-2">+</button>
@@ -374,12 +384,11 @@ $(document).ready(function () {
                     </div>
                 </div>
             `;
-    
+        
             $("#editInspectionLocationGroup").append(newGroup);
-            updateDropdowns(); // Populate dropdowns with existing values
             editgroupIndex++;
         });
-    
+        
         // Function to remove an Incident Detail row
         $(document).on("click", ".removeEditInspectionRow", function () {
             if ($(".editinspection-location-item").length > 1) {

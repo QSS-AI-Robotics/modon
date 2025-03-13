@@ -29,18 +29,40 @@ class PilotController extends Controller
      */
     public function getMissions()
     {
+        // ✅ Ensure the user is authenticated
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
-
-        $regionId = Auth::user()->region_id;
-
+    
+        // ✅ Get the authenticated pilot's region
+        $user = Auth::user();
+        $regionId = $user->region_id;
+    
+        Log::info("Fetching Missions for Region ID:", ['region_id' => $regionId, 'user_id' => $user->id]);
+    
+        // ✅ Fetch only missions for the pilot's region
         $missions = Mission::where('region_id', $regionId)
             ->with(['inspectionTypes:id,name', 'locations:id,name'])
             ->get();
-
+    
         return response()->json(['missions' => $missions]);
     }
+    
+    //this belong to show all missions 
+    // public function getMissions()
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
+
+    //     $regionId = Auth::user()->region_id;
+
+    //     $missions = Mission::where('region_id', $regionId)
+    //         ->with(['inspectionTypes:id,name', 'locations:id,name'])
+    //         ->get();
+
+    //     return response()->json(['missions' => $missions]);
+    // }
 
     /**
      * Fetch pilot reports assigned to missions in the pilot's region.
@@ -206,32 +228,7 @@ public function storeReport(Request $request)
         ]);
     }
     
-//      public function editReport($id)
-// {
-//     $report = PilotReport::with('images')->findOrFail($id);
 
-//     // ✅ Fetch associated incidents with images
-//     $incidents = $report->images->map(function ($image) {
-//         return [
-//             'id' => $image->id,
-//             'inspection_type_id' => $image->inspection_type_id,
-//             'location_id' => $image->location_id,
-//             'description' => $image->description,
-//             'images' => [$image->image_path], // You can extend this if multiple images per incident
-//         ];
-//     });
-
-//     return response()->json([
-//         'mission_id' => $report->mission_id,
-//         'start_datetime' => $report->start_datetime,
-//         'end_datetime' => $report->end_datetime,
-//         'video_url' => $report->video_url,
-//         'description' => $report->description,
-//         'incidents' => $incidents,
-//         'inspections' => InspectionType::all(['id', 'name']), // Send all available inspections
-//         'locations' => Location::all(['id', 'name']), // Send all available locations
-//     ]);
-// }
 
 
 
@@ -257,15 +254,17 @@ public function storeReport(Request $request)
     }
 
     // ✅ Update Report Fields
-    $report->start_datetime = $requestData['start_datetime'];
-    $report->end_datetime = $requestData['end_datetime'];
-    $report->video_url = $requestData['video_url'] ?? null;
-    $report->description = $requestData['description'] ?? '';
-    $report->save();
+    $report->update([
+        'start_datetime' => $requestData['start_datetime'],
+        'end_datetime' => $requestData['end_datetime'],
+        'video_url' => $requestData['video_url'] ?? null,
+        'description' => $requestData['description'] ?? '',
+    ]);
+
     Log::info("✅ Updated Main Report", ['report' => $report]);
 
     // ✅ Fetch Existing Images From Database
-    $existingImages = PilotReportImage::where('pilot_report_id', $report->id)->get();
+    $existingImages = PilotReportImage::where('pilot_report_id', $report->id)->get()->keyBy('id'); // Store in key-value for easy access
     Log::info("📌 Existing Images Before Update", ['images' => $existingImages]);
 
     // ✅ Extract Incoming Image IDs
@@ -276,12 +275,12 @@ public function storeReport(Request $request)
         if (!in_array($existingImage->id, $incomingImageIds)) {
             Log::info("🗑️ Deleting Removed Image", ['image_id' => $existingImage->id, 'path' => $existingImage->image_path]);
 
-            // Delete the file from storage (optional)
+            // ✅ Delete the file from storage (optional)
             if (Storage::exists(str_replace("storage/", "", $existingImage->image_path))) {
                 Storage::delete(str_replace("storage/", "", $existingImage->image_path));
             }
 
-            // Delete record from the database
+            // ✅ Delete record from the database
             $existingImage->delete();
         }
     }
@@ -293,39 +292,51 @@ public function storeReport(Request $request)
             continue;
         }
 
-        if (!empty($imageData['id'])) {
-            // ✅ Update Existing Image
-            $imageRecord = PilotReportImage::find($imageData['id']);
-            if ($imageRecord) {
-                $imageRecord->inspection_type_id = $imageData['inspection_id'];
-                $imageRecord->location_id = $imageData['location_id'];
-                $imageRecord->description = $imageData['description'] ?? '';
+        if (!empty($imageData['id']) && isset($existingImages[$imageData['id']])) {
+            // ✅ Update Existing Image Record
+            $imageRecord = $existingImages[$imageData['id']];
+            $imageRecord->update([
+                'inspection_type_id' => $imageData['inspection_id'],
+                'location_id' => $imageData['location_id'],
+                'description' => $imageData['description'] ?? '',
+            ]);
 
-                // ✅ Handle New Image Uploads
-                if (!empty($imageData['new_images']) && $request->hasFile("images_{$index}")) {
-                    foreach ($request->file("images_{$index}") as $image) {
-                        $path = $image->store('reports', 'public');
-                        $imageRecord->image_path = "storage/$path";
-                        Log::info("🔄 Updated Image Path", ['image_path' => "storage/$path"]);
-                    }
-                }
-
-                $imageRecord->save();
-                Log::info("🔄 Updated Image Record", ['image' => $imageRecord]);
-            }
-        } else {
-            // ✅ Add New Image
+            // ✅ Handle New Image Uploads (Only Update Image if a New One is Uploaded)
             if (!empty($imageData['new_images']) && $request->hasFile("images_{$index}")) {
                 foreach ($request->file("images_{$index}") as $image) {
                     $path = $image->store('reports', 'public');
-                    PilotReportImage::create([
-                        'pilot_report_id' => $report->id,
-                        'inspection_type_id' => $imageData['inspection_id'],
-                        'location_id' => $imageData['location_id'],
-                        'description' => $imageData['description'] ?? '',
-                        'image_path' => "storage/$path",
-                    ]);
-                    Log::info("✅ Created New Image", ['image_path' => "storage/$path"]);
+
+                    // ✅ Prevent Duplicate Images
+                    if ($imageRecord->image_path !== "storage/$path") {
+                        $imageRecord->update(['image_path' => "storage/$path"]);
+                        Log::info("🔄 Updated Image Path", ['image_path' => "storage/$path"]);
+                    } else {
+                        Log::warning("⚠️ Duplicate Image Prevented", ['image_path' => "storage/$path"]);
+                    }
+                }
+            }
+
+            Log::info("🔄 Updated Image Record", ['image' => $imageRecord]);
+        } else {
+            // ✅ Add New Image (Only if it does not already exist)
+            if (!empty($imageData['new_images']) && $request->hasFile("images_{$index}")) {
+                foreach ($request->file("images_{$index}") as $image) {
+                    $path = $image->store('reports', 'public');
+
+                    // ✅ Ensure Unique Image Before Inserting
+                    if (!PilotReportImage::where('image_path', "storage/$path")->exists()) {
+                        PilotReportImage::create([
+                            'pilot_report_id' => $report->id,
+                            'inspection_type_id' => $imageData['inspection_id'],
+                            'location_id' => $imageData['location_id'],
+                            'description' => $imageData['description'] ?? '',
+                            'image_path' => "storage/$path",
+                        ]);
+
+                        Log::info("✅ Created New Image", ['image_path' => "storage/$path"]);
+                    } else {
+                        Log::warning("⚠️ Duplicate Image Prevented", ['image_path' => "storage/$path"]);
+                    }
                 }
             }
         }
@@ -345,39 +356,54 @@ public function storeReport(Request $request)
 //         return response()->json(['error' => 'Invalid JSON format'], 400);
 //     }
 
-//     // ✅ Ensure required fields are present
-//     if (!isset($requestData['report_id']) || !isset($requestData['start_datetime']) || !isset($requestData['end_datetime'])) {
-//         return response()->json(['error' => 'Missing required fields'], 400);
-//     }
-
-//     // ✅ Find and Update Main Report
+//     // ✅ Fetch Existing Report
 //     $report = PilotReport::find($reportId);
 
 //     if (!$report) {
 //         return response()->json(['error' => 'Report not found'], 404);
 //     }
 
+//     // ✅ Update Report Fields
 //     $report->start_datetime = $requestData['start_datetime'];
 //     $report->end_datetime = $requestData['end_datetime'];
 //     $report->video_url = $requestData['video_url'] ?? null;
 //     $report->description = $requestData['description'] ?? '';
 //     $report->save();
-
 //     Log::info("✅ Updated Main Report", ['report' => $report]);
 
-//     // ✅ Process Pilot Report Images
+//     // ✅ Fetch Existing Images From Database
+//     $existingImages = PilotReportImage::where('pilot_report_id', $report->id)->get();
+//     Log::info("📌 Existing Images Before Update", ['images' => $existingImages]);
+
+//     // ✅ Extract Incoming Image IDs
+//     $incomingImageIds = collect($requestData['pilot_report_images'])->pluck('id')->filter()->toArray();
+
+//     // ✅ Delete Images That Are Not in the Incoming Data
+//     foreach ($existingImages as $existingImage) {
+//         if (!in_array($existingImage->id, $incomingImageIds)) {
+//             Log::info("🗑️ Deleting Removed Image", ['image_id' => $existingImage->id, 'path' => $existingImage->image_path]);
+
+//             // Delete the file from storage (optional)
+//             if (Storage::exists(str_replace("storage/", "", $existingImage->image_path))) {
+//                 Storage::delete(str_replace("storage/", "", $existingImage->image_path));
+//             }
+
+//             // Delete record from the database
+//             $existingImage->delete();
+//         }
+//     }
+
+//     // ✅ Process Incoming Images
 //     foreach ($requestData['pilot_report_images'] as $index => $imageData) {
-//         // ✅ Ensure required fields exist
 //         if (!isset($imageData['inspection_id']) || !isset($imageData['location_id'])) {
 //             Log::warning("⚠️ Missing data for image entry", ['index' => $index]);
 //             continue;
 //         }
 
-//         // ✅ Check if the image record exists
 //         if (!empty($imageData['id'])) {
+//             // ✅ Update Existing Image
 //             $imageRecord = PilotReportImage::find($imageData['id']);
 //             if ($imageRecord) {
-//                 // ✅ Update Existing Image Record
 //                 $imageRecord->inspection_type_id = $imageData['inspection_id'];
 //                 $imageRecord->location_id = $imageData['location_id'];
 //                 $imageRecord->description = $imageData['description'] ?? '';
@@ -395,7 +421,7 @@ public function storeReport(Request $request)
 //                 Log::info("🔄 Updated Image Record", ['image' => $imageRecord]);
 //             }
 //         } else {
-//             // ✅ Create New Image Record if Needed
+//             // ✅ Add New Image
 //             if (!empty($imageData['new_images']) && $request->hasFile("images_{$index}")) {
 //                 foreach ($request->file("images_{$index}") as $image) {
 //                     $path = $image->store('reports', 'public');
@@ -414,6 +440,8 @@ public function storeReport(Request $request)
 
 //     return response()->json(['message' => '✅ Report updated successfully!']);
 // }
+
+
 
     
     /**

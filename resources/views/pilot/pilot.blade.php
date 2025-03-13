@@ -198,7 +198,7 @@
 
                     <div class="mb-3">
                         <label for="edit_description" class="form-label">Notes</label>
-                        <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                        <textarea class="form-control" id="edit_description" name="editdescription" rows="3"></textarea>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">Update Report</button>

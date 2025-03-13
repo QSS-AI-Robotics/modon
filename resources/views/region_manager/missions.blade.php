@@ -11,7 +11,53 @@
 
 <div class="container mt-5">
     <h2>Manage Missions</h2>
+<!-- Bootstrap Modal for Editing a Mission -->
+<div class="modal fade" id="editMissionModal" tabindex="-1" aria-labelledby="editMissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMissionModalLabel">Edit Mission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editMissionForm">
+                    @csrf
+                    <input type="hidden" id="edit_mission_id" name="mission_id">
 
+                    <!-- Inspection Types -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Inspection Types</label>
+                        <div id="editInspectionTypeCheckboxes" class="d-flex"></div>
+                    </div>
+
+                    <!-- Start & End Datetime -->
+                    <div class="mb-3">
+                        <label for="edit_start_datetime" class="form-label">Start Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="edit_start_datetime" name="start_datetime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_end_datetime" class="form-label">End Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="edit_end_datetime" name="end_datetime" required>
+                    </div>
+
+                    <!-- Locations -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Locations</label>
+                        <div id="editLocationCheckboxes"></div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-3">
+                        <label for="edit_note" class="form-label">Note (Optional)</label>
+                        <textarea class="form-control" id="edit_note" name="note"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Update Mission</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Add Mission Form -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
@@ -23,7 +69,7 @@
             
                 <div class="mb-3">
                     <label class="form-label">Select Inspection Types</label>
-                    <div id="inspectionTypeCheckboxes">
+                    <div id="inspectionTypeCheckboxes" class="d-flex">
                         @foreach($inspectionTypes as $type)
                             <div class="form-check">
                                 <input class="form-check-input inspection-type-checkbox" type="checkbox" name="inspection_types[]" value="{{ $type->id }}" id="inspection_{{ $type->id }}">
@@ -79,37 +125,16 @@
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Locations</th>
-                <th>Actions</th>
+                <th>Note</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="missionTableBody">
-            @if($missions->isEmpty())
-                <tr>
-                    <td colspan="5" class="text-center text-muted">No missions yet.</td>
-                </tr>
-            @else
-                @foreach($missions as $mission)
-                    <tr id="missionRow-{{ $mission->id }}">
-                        <td>
-                            @foreach($mission->inspectionTypes as $type)
-                                {{ $type->name }}<br>
-                            @endforeach
-                        </td>
-                        <td>{{ $mission->start_datetime }}</td>
-                        <td>{{ $mission->end_datetime }}</td>
-                        <td>
-                            @foreach($mission->locations as $location)
-                                {{ $location->name }}<br>
-                            @endforeach
-                        </td>
-                        <td>
-                            <button class="btn btn-danger delete-mission" data-id="{{ $mission->id }}">Delete</button>
-                        </td>
-                    </tr>
-                @endforeach
-            @endif
+            <tr>
+                <td colspan="5" class="text-center text-muted">Loading missions...</td>
+            </tr>
         </tbody>
-        
     </table>
 </div>
 

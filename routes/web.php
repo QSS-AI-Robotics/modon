@@ -34,15 +34,19 @@ Route::middleware('auth')->group(function () {
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/locations', [RegionManagerController::class, 'index'])->name('locations.index');
+    Route::get('/locations', [RegionManagerController::class, 'locations'])->name('locations.locations');
     Route::post('/locations/store', [RegionManagerController::class, 'store'])->name('locations.store');
     Route::get('/locations/{id}/edit', [RegionManagerController::class, 'edit'])->name('locations.edit');
     Route::post('/locations/{id}/update', [RegionManagerController::class, 'update'])->name('locations.update');
     Route::delete('/locations/{id}', [RegionManagerController::class, 'destroy'])->name('locations.destroy');
     
-        Route::get('/missions', [RegionManagerController::class, 'missions'])->name('missions.index');
-        Route::post('/missions/store', [RegionManagerController::class, 'storeMission'])->name('missions.store'); // ✅ Ensure this is POST
-        Route::delete('/missions/{id}', [RegionManagerController::class, 'destroyMission'])->name('missions.destroy');
+    Route::get('/missions', [RegionManagerController::class, 'index'])->name('missions.index');
+    Route::get('/getmanagermissions', [RegionManagerController::class, 'getmanagermissions'])->name('missions.getmanagermissions');
+    Route::post('/missions/store', [RegionManagerController::class, 'storeMission'])->name('missions.store'); 
+    Route::delete('/missions/{id}', [RegionManagerController::class, 'destroyMission'])->name('missions.destroy');
+    Route::get('/missions/{id}/edit', [RegionManagerController::class, 'editMission'])->name('missions.edit');
+    Route::post('/missions/update', [RegionManagerController::class, 'updateMission'])->name('missions.update');
+
    
 });
 

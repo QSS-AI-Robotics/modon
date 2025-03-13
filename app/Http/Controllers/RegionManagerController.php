@@ -8,7 +8,7 @@ use App\Models\Mission;
 use App\Models\InspectionType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // ✅ Import Auth facade
-
+use Illuminate\Support\Facades\Log;
 class RegionManagerController extends Controller
 {
     /**
@@ -20,13 +20,35 @@ class RegionManagerController extends Controller
         if (!Auth::check()) {
             return redirect()->route('signin.form')->with('error', 'Please log in first.');
         }
+    
+        $regionId = Auth::user()->region_id;
+    
+        // ✅ Fetch missions related to the user's region
+        $missions = Mission::where('region_id', $regionId)
+            ->with(['inspectionTypes:id,name', 'locations:id,name'])
+            ->get();
+    
+        // ✅ Fetch inspection types (Global)
+        $inspectionTypes = InspectionType::all();
+    
+        // ✅ Fetch locations **only for this region**
+        $locations = Location::where('region_id', $regionId)->get();
+    
+        return view('region_manager.missions', compact('missions', 'inspectionTypes', 'locations'));
+    }
+    
+    public function locations()
+    {
+        // ✅ Ensure the user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('signin.form')->with('error', 'Please log in first.');
+        }
 
         $regionId = Auth::user()->region_id;
         $locations = Location::where('region_id', $regionId)->get(); // ✅ Show only locations of user's region
 
         return view('region_manager.locations', compact('locations'));
     }
-
     /**
      * Store a new location, assigning it to the authenticated user's region.
      */
@@ -149,27 +171,25 @@ class RegionManagerController extends Controller
        /**
      * Display the missions page for the authenticated user's region.
      */
-    public function missions()
+    public function getmanagermissions()
     {
         if (!Auth::check()) {
-            return redirect()->route('signin.form')->with('error', 'Please log in first.');
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
     
         $regionId = Auth::user()->region_id;
     
-        // Get all missions for the region and include relationships
+        // ✅ Fetch all missions for the logged-in region manager
         $missions = Mission::where('region_id', $regionId)
-            ->with(['inspectionTypes', 'locations']) // ✅ Ensure we load inspectionTypes
+            ->with(['inspectionTypes:id,name', 'locations:id,name']) // Load relationships efficiently
             ->get();
     
-        // Get locations for the region
-        $locations = Location::where('region_id', $regionId)->get();
-    
-        // Get all available inspection types
-        $inspectionTypes = InspectionType::all();
-    
-        return view('region_manager.missions', compact('missions', 'locations', 'inspectionTypes'));
+        // ✅ Ensure a proper JSON response
+        return response()->json([
+            'missions' => $missions
+        ]);
     }
+    
     
 
     /**
@@ -246,6 +266,45 @@ class RegionManagerController extends Controller
         $mission->delete();
 
         return response()->json(['message' => 'Mission deleted successfully!']);
+    }
+
+    // edit a mission
+    public function editMission($id)
+    {
+        // ✅ Fetch the mission details
+        $mission = Mission::with(['inspectionTypes:id,name', 'locations:id,name'])->findOrFail($id);
+
+        // ✅ Fetch all available inspection types and locations (for selection)
+        $allInspectionTypes = InspectionType::all();
+        $allLocations = Location::where('region_id', Auth::user()->region_id)->get();
+
+        return response()->json([
+            'mission' => $mission,
+            'all_inspection_types' => $allInspectionTypes,
+            'selected_inspections' => $mission->inspectionTypes,
+            'all_locations' => $allLocations,
+            'selected_locations' => $mission->locations
+        ]);
+    }
+    // update a mission
+    public function updateMission(Request $request)
+    {
+        Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
+
+        // ✅ Find mission
+        $mission = Mission::findOrFail($request->mission_id);
+
+        // ✅ Update mission fields
+        $mission->start_datetime = $request->start_datetime;
+        $mission->end_datetime = $request->end_datetime;
+        $mission->note = $request->note ?? "";
+        $mission->save();
+
+        // ✅ Sync relationships
+        $mission->inspectionTypes()->sync($request->inspection_types);
+        $mission->locations()->sync($request->locations);
+
+        return response()->json(['message' => '✅ Mission updated successfully!']);
     }
 }
     

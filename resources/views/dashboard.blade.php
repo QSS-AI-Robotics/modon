@@ -38,15 +38,18 @@
           <div class="col-lg-9 d-flex flex-column h-100">
                     
             <div class="row">
+              
                        <!-- Control Panel Section -->
                      <div class="col-lg-12 p-3 bg-section  d-flex flex-column align-items-start">
                         <p class="gray-text">Control Panel</p>
                         <h3 class="fw-bold">Mission Control</h3>
                     </div>
-
+                </div>
+                    <div class="row h-100">
                         <!-- Reports List Section (Takes Remaining Space) -->
-                        <div class="col-lg-12 col-xl-12 col-md-12 flex-grow-1 d-flex flex-column overflow-hidden p-2 bg-section mt-2">
-                            <!-- Header -->
+                        <div class="col-lg-12 col-xl-12 col-md-12 flex-grow-1 d-flex flex-column overflow-hidden bg-section mt-2">
+                       
+
                             <div class="border-bottom-qss p-2">
                                 <div class="row d-flex justify-content-between">
                                     <div class="col-lg-4">
@@ -107,13 +110,13 @@
                         </div>
                     </div>
                 </div>
-
+            
             {{-- first col end --}}
             {{-- second col start --}}
-            {{-- <div class="col-lg-3 d-flex p-0 flex-column">
+            <div class="col-lg-3 d-flex p-0 flex-column">
                 <!-- Mission Analytics: Height based on content -->
-                <div class="bg-section mb-2">
-                    <div class="row g-0 ">
+                <div class=" mx-2">
+                    <div class="row g-0 bg-section">
                         <div class="col-lg-6 label-text col-md-6 p-3">
                             <h6>Mission Analytics</h6>
                         </div>
@@ -151,7 +154,7 @@
                 </div>
             
                 <!-- Create New Mission: Occupies Remaining Space -->
-                <div class="d-flex flex-column bg-section  p-3 flex-grow-1">
+                <div class="d-flex flex-column bg-section  p-3 flex-grow-1 mx-2 my-1">
                     <h6 class="text-left pt-2">Create New Mission</h6>
                     <label class="form-check-label label-text mb-2">Select Inspection</label>
                 
@@ -237,7 +240,7 @@
                             </div>
                 
                             <!-- New Mission Button -->
-                            <div class="col-md-5 col-sm-12">
+                            <div class="col-md-6 col-sm-12">
                                 <div class="btn mission-btn btn-sm d-flex align-items-center gap-1 w-100">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M19 12V8.7241C19 8.25623 18.836 7.80316 18.5364 7.44373L14.5997 2.71963C14.2197 2.26365 13.6568 2 13.0633 2H11H7C4.79086 2 3 3.79086 3 6V18C3 20.2091 4.79086 22 7 22H12" stroke="#101625" stroke-width="1.5" stroke-linecap="round"/>
@@ -252,7 +255,7 @@
                     </div>
                 </div>
                 
-            </div> --}}
+            </div>
             {{-- second col end --}}
             
 

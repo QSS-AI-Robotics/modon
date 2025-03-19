@@ -33,84 +33,7 @@
         </div>
 
         <div class="row shadows mainPanel p-0 flex-grow-1 ">  
-            
-            {{-- first col start --}}
-          <div class="col-lg-9 d-flex flex-column h-100">
-                    
-            <div class="row">
-                       <!-- Control Panel Section -->
-                     <div class="col-lg-12 p-3 bg-section  d-flex flex-column align-items-start">
-                        <p class="gray-text">Control Panel</p>
-                        <h3 class="fw-bold">Mission Control</h3>
-                    </div>
-
-                        <!-- Reports List Section (Takes Remaining Space) -->
-                        <div class="col-lg-12 col-xl-12 col-md-12 flex-grow-1 d-flex flex-column overflow-hidden p-2 bg-section mt-2">
-                            <!-- Header -->
-                            <div class="border-bottom-qss p-2">
-                                <div class="row d-flex justify-content-between">
-                                    <div class="col-lg-4">
-                                        <h5>Reports List</h5>
-                                    </div>
-                                    <div class="col-lg-4 text-end search-container">
-                                        <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                        <input type="search" placeholder="Search Reports Here" class="search-input">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Table (Scrolls if Needed) -->
-                            <div class="table-responsive flex-grow-1 overflow-auto">
-                                <table class="table table-text">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Event Name</th>
-                                            <th scope="col">Event Type</th>
-                                            <th scope="col">Response Status</th>
-                                            <th scope="col">Location</th>
-                                            <th scope="col">Detection Rate</th>
-                                            <th scope="col">View</th>
-                                            <th scope="col">Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Gas Emission</td>
-                                            <td class="text-danger">High Priority</td>
-                                            <td>Successful</td>
-                                            <td>Western Riyadh</td>
-                                            <td>10% <img src="./images/up.png" alt=""></td>
-                                            <td><img src="./images/view.png" alt="" class="viewReport img-fluid"></td>
-                                            <td><img src="./images/trash.png" alt="" class="viewReport img-fluid"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Street Pothole</td>
-                                            <td class="text-warning">High Priority</td>
-                                            <td>Unsuccessful</td>
-                                            <td>Eastern Riyadh</td>
-                                            <td>No change</td>
-                                            <td><img src="./images/view.png" alt="" class="viewReport img-fluid"></td>
-                                            <td><img src="./images/trash.png" alt="" class="viewReport img-fluid"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Street Pothole</td>
-                                            <td class="text-success">High Priority</td>
-                                            <td>Unsuccessful</td>
-                                            <td>Eastern Riyadh</td>
-                                            <td>99% <img src="./images/down.png" alt=""></td>
-                                            <td><img src="./images/view.png" alt="" class="viewReport img-fluid"></td>
-                                            <td><img src="./images/trash.png" alt="" class="viewReport img-fluid"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            {{-- first col end --}}
-            {{-- second col start --}}
-            {{-- <div class="col-lg-3 d-flex p-0 flex-column">
+            <div class="col-lg-3 d-flex p-0 flex-column">
                 <!-- Mission Analytics: Height based on content -->
                 <div class="bg-section mb-2">
                     <div class="row g-0 ">
@@ -155,7 +78,7 @@
                     <h6 class="text-left pt-2">Create New Mission</h6>
                     <label class="form-check-label label-text mb-2">Select Inspection</label>
                 
-                    <div class="p-2 " >
+                    <div class="p-2">
                         <div class="row">
                             <!-- Checkboxes -->
                             <div class="col-6 col-md-6 col-sm-12">
@@ -215,7 +138,7 @@
                             <div class="col-md-6 col-sm-12 p-2">
                                 <div class="row p-2">
                                     <label class="form-check-label label-text py-2">Select Locations</label>
-                                    <div class="col-12 scroll-container" style=" max-height: 70px;">
+                                    <div class="col-12 scroll-container">
                                         <div class="form-check">
                                             <input type="checkbox" id="location1" class="form-check-input">
                                             <label class="form-check-label checkbox-text" for="location1">A</label>
@@ -252,8 +175,8 @@
                     </div>
                 </div>
                 
-            </div> --}}
-            {{-- second col end --}}
+            </div>
+            
             
 
 
@@ -263,25 +186,6 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $(".search-icon").click(function () {
-                $(".search-input").toggleClass("active").show().focus();
-            });
-            $('.upl-video').click(function() {
-                $('#videoInput').click();
-            });
-
-            // Show video preview when a file is selected
-            $('#videoInput').change(function(event) {
-                var file = event.target.files[0]; // Get the selected file
-                if (file && file.type.startsWith('video/')) {
-                var videoURL = URL.createObjectURL(file); // Create URL for the video file
-                $('#videoPreview').attr('src', videoURL).show(); // Set video source and display it
-                }
-            });
-        });
-    </script>
+    
 </body>
 </html>

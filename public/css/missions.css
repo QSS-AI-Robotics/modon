@@ -1,5 +1,5 @@
 .label-text{
-    font-size: 12px
+    font-size: 0.8rem;
 }
 .progress {
     background-color: #323849 !important; /* Custom background */
@@ -11,3 +11,137 @@
 .progress-bar {
     border-radius:5px; /* Keep rounded edges for the bar */
 }
+.checkbox-text{
+    font-size: 0.8rem;
+}
+.form-check-input {
+    width: 18px;  /* Adjust size */
+    height: 18px;
+    border: 2px solid #101625 !important; /* Change border color */
+    background-color: #242C45 !important; /* Change background color */
+    appearance: none; /* Removes default browser styling */
+    border-radius: 4px; /* Optional: Add rounded corners */
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+/* Add a checkmark when selected */
+.form-check-input:checked {
+    background-color: #101625 !important; /* Change background color when checked */
+    border-color: #101625 !important; /* Change border color when checked */
+}
+
+/* Default state */
+.dateInput {
+    background-color: #242C45 !important; /* Set background color */
+    color: white !important; /* Text color */
+    height: 32px !important; /* Reduce height */
+    border: 1px solid #101625 !important; /* Soft border */
+    border-radius: 4px; /* Slight rounded corners */
+    padding: 5px 10px; /* Padding for spacing */
+    font-size: 12px;
+}
+
+/* Change placeholder color */
+.dateInput::placeholder {
+    color: white !important; /* White placeholder */
+    opacity: 0.7; /* Make it slightly transparent */
+}
+
+/* On focus */
+.dateInput:focus {
+    background-color: #1E253B !important; /* Darker background on focus */
+    color: white !important;
+    border-color: #007bff !important; /* Highlight border */
+    outline: none; /* Remove default focus outline */
+}
+
+.scroll-container {
+    /* Show only two checkboxes at a time */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding-right: 5px; /* Adjust spacing */
+    overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+.scroll-container::-webkit-scrollbar {
+    width: 6px; /* Narrow scrollbar */
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background-color: black; /* Black scrollbar */
+    border-radius: 4px; /* Smooth rounded edges */
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background-color: #2C2F3F; /* Dark track */
+}
+.notes-textarea{
+    background-color: #242C45 !important; /* Set background color */
+    color: white !important; /* Text color */
+    /* height: 32px !important;  */
+    border: 1px solid #101625 !important; /* Soft border */
+    border-radius: 4px; /* Slight rounded corners */
+    padding: 5px 10px; /* Padding for spacing */
+    font-size: 12px;
+}
+.mission-btn{
+    background:#47D16C;
+    
+}
+.mission-btn:hover{
+    border:1px solid #1E253B;
+    background:#47D16C;
+
+}
+.gray-text{
+    color: #FFFFFF33;
+
+}
+.table {
+    background-color: transparent !important;
+    font-size: 0.8rem;
+}
+
+.table th,
+.table td {
+    background-color:  transparent !important; /* Slight transparency */
+    color: white; /* Text color for contrast */
+    border-color: rgba(255, 255, 255, 0.2); /* Light transparent borders */
+}
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.search-input {
+    background: #101625 !important;
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    outline: none;
+    border: 1px solid #494E5D;
+    color: rgb(202, 201, 201);
+
+    width: 0;
+    opacity: 0;
+    transition: width 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    position: absolute;
+    right: 50px;  /* Keeps it aligned near the icon */
+}
+
+.search-input.active {
+    width: 200px;  /* Adjust as needed */
+    opacity: 1;
+    padding-left: 20px;
+}
+
+.search-icon {
+    cursor: pointer;
+    z-index: 2;
+    position: relative;
+}
+
+

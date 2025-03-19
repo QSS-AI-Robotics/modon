@@ -1,0 +1,146 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Manrope:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body{
+    background:#101625;
+    color:white;
+    font-family: "Poppins", sans-serif;
+}
+.vh-100 {
+    height: 100vh; /* Full viewport height */
+}
+
+.flex-column-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ensures the column takes full height */
+}
+
+.flex-grow-1 {
+    flex-grow: 1; /* Allows the rows to grow equally */
+}
+
+.gap3 {
+    gap: 1rem; /* Adds a gap between elements */
+}
+
+.bg-section {
+    background-color: #1C2235; /* Light background for visual distinction */
+    border-radius: 10px /* Optional: adds a border for better visibility */
+}
+
+.padded-container {
+    padding: 20px; /* Add padding around the entire page */
+}
+
+.column-gap {
+    margin-left: 15px; /* Adjust the gap between columns */
+}
+.txt{
+    color: #FFFFFF33;
+}
+.cont-btn{
+    color: #FFFFFF33;
+
+}
+.cont-btn:hover{
+    background: #101625;
+    color:white;
+}
+.selected{
+    background: #101625;
+    color:white;
+}
+.dropdown:hover .dropdown-menu {
+    display: block; /* Show dropdown on hover */
+}
+.recent-alerts {
+    min-height: 200px; /* Set a minimum height for the Recent Alerts section */
+    flex-grow: 0; /* Prevent the Recent Alerts section from growing */
+    /* Optional: Add a border or background for visual distinction */
+  
+}
+.align-items-center {
+    align-items: center; /* Vertically centers items within the flex container */
+}
+.centers{
+ 
+        margin: 0; /* Remove default margin */
+         /* Center text horizontally */
+        flex: 1; /* Allow the h1 to grow and take available space */
+    
+}
+.alertpanel{
+    background: #101625;
+    border-radius: 8px;
+}
+.w-90{
+    width: 98%;
+
+}
+.bg-sect {
+    position: relative; /* To position the child img absolutely */
+    overflow: hidden; /* Ensure no overflow */
+    min-height: 200px; /* Adjust as necessary */
+}
+
+.bg-sect img {
+    border-radius: 8px;
+    position: absolute; /* Positioning relative to parent */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    width: 95%; /* Full width */
+    height: 95%; /* Full height */
+    object-fit: cover; /* Cover the entire div */
+    transform: translate(-50%, -50%); /* Centering adjustment */
+}
+.cust-gray{
+    color: #494E5D;
+}
+.qss-btn{
+    background:#0D121F
+}
+.bcolor{
+    color: #494E5D;
+    border-bottom:1px solid #494E5D;
+}
+.offline{
+    color :#FF0000;
+}
+.online{
+    color:#81FF76;
+   
+}
+.parked{
+    color: #FFE500;
+}
+.textsuccess{
+    color: #81FF76 !important;;
+}
+
+/* For customizing the scrollbar in the whole page */
+::-webkit-scrollbar {
+    width: 2px; /* Change the width of the scrollbar */
+    height: 7px; /* Change the height of horizontal scrollbar */
+}
+
+/* For the scrollbar track (background of the scrollbar) */
+::-webkit-scrollbar-track {
+    background-color: #101625; /* Change to your desired background color */
+    border-radius: 10px;
+}
+
+/* For the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+    background-color: #101625; /* Change to your desired color */
+    border-radius: 10px;
+}
+
+/* On hover, change the thumb color */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #101625; /* Change to your desired hover color */
+}

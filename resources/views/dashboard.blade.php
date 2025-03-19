@@ -1,106 +1,151 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- ✅ Ensure CSRF Token is present -->
+    <title>Flex Layout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/modon.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/missions.css') }}">
 
 </head>
 <body>
-<!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="container-fluid vh-100 d-flex flex-column padded-container">
+        <div class="row header shadows bg-section p-2 mb-2 align-items-center">
+            <div class="col-2 d-flex align-items-center">
+                <img src="{{ asset('images/qss.png') }}" alt="Logo" class="" style="">
             </div>
-            <div class="modal-body">
-                <form id="editUserForm">
-                    @csrf
-                    <input type="hidden" id="editUserId">
-
-                    <div class="mb-3">
-                        <label for="editFullname" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="editFullname" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="editEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editEmail" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="editRegion" class="form-label">Region</label>
-                        <select class="form-select" id="editRegion"></select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="editUserType" class="form-label">User Type</label>
-                        <select class="form-select" id="editUserType"></select>
-                    </div>
-
-                    <button type="submit" class="btn btn-success">Update User</button>
-                </form>
+            <div class="col-7 d-flex ">
+                <button class="btn cont-btn selected mx-1"> Overview</button>
+                <button class="btn cont-btn mx-1">Map View</button>
+                <button class="btn cont-btn mx-1">All Drones</button>
+                <button class="btn cont-btn mx-1">Controller</button>
+                <button class="btn cont-btn mx-1">Reports</button>
+            </div>
+            <div class="col-3 d-flex justify-content-end">
+                <div class="dropdown">
+                    <img src="{{ asset('images/user.png') }}" alt="Profile" class="img-fluid rounded-circle" style="max-height: 50px; cursor: pointer;">
+                  
+                </div>
             </div>
         </div>
-    </div>
-</div>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Modon Dashboard</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link">Welcome, {{ $user->name }}</a>
-                </li>
-                <li class="nav-item">
-                    <button id="logoutButton" class="btn btn-danger">Logout</button>
-                </li>
-            </ul>
+
+        <div class="row shadows mainPanel p-0 flex-grow-1">  
+            <div class="col-lg-3 gap3 flex-column-full">
+                <div class="row flex-grow-1 pe-2">
+                    <div class="col-lg-12 d-flex mb-2  p-0 flex-column">
+                        <div class=" flex-grow-1   bg-section">
+                          <div class="row g-0 ">
+                            <div class="col-lg-6 col-md-6 p-3  ">
+                                <h6>Mission Analytics</h6>
+                            </div>
+                            <div class="col-lg-6 col-md-6  p-3 text-end">
+                                <p>Last 7 Days</p>
+                            </div>
+                            <div class="col-lg-12 p-2 ">
+                                <div class="d-flex justify-content-between align-items-center  label-text p-1">
+                                    <label class="form-check-label label-text mb-0" for="exampleCheck1">Pending Missions</label>
+                                    <p class="mb-0 fw-bold">75%</p>
+                                </div>
+                                
+                                <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar text-bg-danger" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 p-2">
+                                <div class="d-flex justify-content-between align-items-center  label-text p-1">
+                                    <label class="form-check-label label-text mb-0" for="exampleCheck1">Finished Missions</label>
+                                    <p class="mb-0 fw-bold">25%</p>
+                                </div>
+                                <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar text-bg-success" style="width: 25%"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 p-2">
+                                <div class="d-flex justify-content-between align-items-center  label-text p-1">
+                                    <label class="form-check-label label-text mb-0" for="exampleCheck1">Total Missions</label>
+                                    <p class="mb-0 fw-bold">102</p>
+                                </div>
+                                <div class="progress " role="progressbar" aria-label="Warning example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar text-bg-warning text-white" style="width: 100%"></div>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                       
+                    </div>
+            
+                    <div class="col-lg-12 d-flex flex-column bg-section recent-alerts">
+                        <h6 class="text-left pt-1">Recent Alerts</h6>
+                            <div class="alertpanel d-flex justify-content-between mb-2 p-3">
+                                <div class="col-lg-1 d-flex justify-content-center align-items-center  text-center">
+                                    <img src="./images/danger.png" alt="" class="w-75">
+                                </div>
+                                <div class="col-lg-10 d-flex flex-column justify-content-center">
+                                    <h6 class="m-0">No2 Emission Detected</h6>
+                                    <p class="m-0 txt">Sector A- Drone Q12</p>
+                                </div>
+                                
+                            </div>
+                            <div class="alertpanel d-flex justify-content-between mb-2 p-3">
+                                <div class="col-lg-1 d-flex justify-content-center align-items-center  text-center">
+                                    <img src="../images/danger.png" alt="" class="w-75">
+                                </div>
+                                <div class="col-lg-10 d-flex flex-column justify-content-center">
+                                    <h6 class="m-0">Broken Equipement</h6>
+                                    <p class="m-0 txt">Sector B- Drone Q12</p>
+                                </div>
+                                
+                            </div>
+                            <div class="alertpanel d-flex justify-content-between mb-2 p-3 ">
+                                <div class="col-lg-1 d-flex justify-content-center align-items-center  text-center">
+                                    <img src="../images/danger.png" alt="" class="w-75">
+                                </div>
+                                <div class="col-lg-10 d-flex flex-column justify-content-center">
+                                    <h6 class="m-0">No2 Emission Detected</h6>
+                                    <p class="m-0 txt">Sector A- Drone Q12</p>
+                                </div>
+                                
+                            </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="col-lg-9 gap3 flex-column-full">
+                <div class="row flex-grow-1">
+                   
+                    <div class="col-lg-6 gap3 flex-column-full">
+                        <div class="row flex-grow-1 pe-2">
+                            <div class="col-lg-12 d-flex align-items-center justify-content-center flex-grow-1 bg-section bg-sect" style="margin-bottom: 10px;">
+                                <img src="../images/cam1.png" alt="" class="w-90">
+                            </div>
+                            <div class="col-lg-12 d-flex align-items-center justify-content-center flex-grow-1 bg-section bg-sect">
+                                <img src="../images/cam2.png" alt="" class="w-90">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 gap3 flex-column-full">
+                        <div class="row flex-grow-1">
+                            <div class="col-lg-12 d-flex align-items-center justify-content-center flex-grow-1 bg-section bg-sect" style="margin-bottom: 10px;">
+                                <img src="../images/cam3.png" alt="" class="w-90">
+                            </div>
+                            <div class="col-lg-12 d-flex align-items-center justify-content-center flex-grow-1 bg-section bg-sect">
+                                <img src="../images/cam4.png" alt="" class="w-90">
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+
+            </div>
+
+
+            
         </div>
     </div>
-</nav>
-
-<div class="container mt-5">
-    <h2>Welcome, {{ $user->name }}!</h2>
-    <p>You are now logged in.</p>
-
-    @if($user->userType->name === 'qss_admin')
-        <h3 class="mt-4">All Users</h3>
-        <table class="table table-bordered mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>User Type</th>
-                    <th>Region</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $u)
-                    <tr>
-                        <td>{{ $u->name }}</td>
-                        <td>{{ $u->email }}</td>
-                        <td>{{ $u->userType->name }}</td>
-                        <td>{{ $u->region->name }}</td>
-                        <td>
-                            <button class="btn btn-warning edit-user" data-id="{{ $u->id }}">Edit</button>
-                            <button class="btn btn-danger delete-user" data-id="{{ $u->id }}">Delete</button>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/modon.js') }}"></script>
-<script src="{{ asset('js/users.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
 </body>
 </html>

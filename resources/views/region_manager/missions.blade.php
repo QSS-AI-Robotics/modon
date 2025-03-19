@@ -66,55 +66,70 @@
         <div class="card-body">
             <form id="addMissionForm">
                 @csrf
-            
-                <div class="mb-3">
-                    <label class="form-label">Select Inspection Types</label>
-                    <div id="inspectionTypeCheckboxes" class="d-flex">
-                        @foreach($inspectionTypes as $type)
-                            <div class="form-check">
-                                <input class="form-check-input inspection-type-checkbox" type="checkbox" name="inspection_types[]" value="{{ $type->id }}" id="inspection_{{ $type->id }}">
-                                <label class="form-check-label" for="inspection_{{ $type->id }}">
-                                    {{ $type->name }}
-                                </label>
-                            </div>
-                        @endforeach
+        
+                <!-- Inspection Types -->
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Select Inspection Types</label>
+                        <div id="inspectionTypeCheckboxes" class="row">
+                            @foreach($inspectionTypes as $type)
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input inspection-type-checkbox" type="checkbox" name="inspection_types[]" value="{{ $type->id }}" id="inspection_{{ $type->id }}">
+                                        <label class="form-check-label" for="inspection_{{ $type->id }}">{{ $type->name }}</label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-                
-            
-                <div class="mb-3">
-                    <label for="start_datetime" class="form-label">Start Date & Time</label>
-                    <input type="datetime-local" class="form-control" id="start_datetime" name="start_datetime" required>
-                </div>
-            
-                <div class="mb-3">
-                    <label for="end_datetime" class="form-label">End Date & Time</label>
-                    <input type="datetime-local" class="form-control" id="end_datetime" name="end_datetime" required>
-                </div>
-            
-                <div class="mb-3">
-                    <label class="form-label">Select Locations</label>
-                    <div id="locationCheckboxes">
-                        @foreach($locations as $location)
-                            <div class="form-check">
-                                <input class="form-check-input location-checkbox" type="checkbox" name="locations[]" value="{{ $location->id }}" id="location_{{ $location->id }}">
-                                <label class="form-check-label" for="location_{{ $location->id }}">
-                                    {{ $location->name }}
-                                </label>
-                            </div>
-                        @endforeach
+        
+                <!-- Start & End Datetime -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="start_datetime" class="form-label fw-bold">Start Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="start_datetime" name="start_datetime" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="end_datetime" class="form-label fw-bold">End Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="end_datetime" name="end_datetime" required>
                     </div>
                 </div>
-            
-                <div class="mb-3">
-                    <label for="note" class="form-label">Note (Optional)</label>
-                    <textarea class="form-control" id="note" name="note"></textarea>
+        
+                <!-- Locations -->
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Select Locations</label>
+                        <div id="locationCheckboxes" class="row">
+                            @foreach($locations as $location)
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input location-checkbox" type="checkbox" name="locations[]" value="{{ $location->id }}" id="location_{{ $location->id }}">
+                                        <label class="form-check-label" for="location_{{ $location->id }}">{{ $location->name }}</label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
-            
-                <button type="submit" class="btn btn-success w-100">Create Mission</button>
+        
+                <!-- Notes -->
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="note" class="form-label fw-bold">Note (Optional)</label>
+                        <textarea class="form-control" id="note" name="note" rows="3" placeholder="Enter any additional notes..."></textarea>
+                    </div>
+                </div>
+        
+                <!-- Submit Button -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-success w-100">Create Mission</button>
+                    </div>
+                </div>
             </form>
-            
         </div>
+        
     </div>
 
     <!-- Mission List Table -->

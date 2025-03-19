@@ -1,0 +1,13 @@
+.label-text{
+    font-size: 12px
+}
+.progress {
+    background-color: #323849 !important; /* Custom background */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Adds shadow effect */
+    height: 5px; /* Reduce height */
+    border-radius: 5px; /* Slightly rounded edges */
+}
+
+.progress-bar {
+    border-radius:5px; /* Keep rounded edges for the bar */
+}

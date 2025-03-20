@@ -204,44 +204,7 @@ $(document).ready(function () {
         });
     });
 
-    
-    // $('#addMissionForm').on('submit', function (e) {
-    //     e.preventDefault();
-
-    //     // Get selected inspection types
-    //     let selectedInspectionTypes = [];
-    //     $('.inspection-type-checkbox:checked').each(function () {
-    //         selectedInspectionTypes.push($(this).val());
-    //     });
-
-    //     // Get selected locations
-    //     let selectedLocations = [];
-    //     $('.location-checkbox:checked').each(function () {
-    //         selectedLocations.push($(this).val());
-    //     });
-
-    //     let formData = {
-    //         inspection_types: selectedInspectionTypes, // ✅ Sending multiple inspection types
-    //         start_datetime: $('#start_datetime').val(),
-    //         end_datetime: $('#end_datetime').val(),
-    //         note: $('#note').val(),
-    //         locations: selectedLocations, // ✅ Sending multiple locations
-    //     };
-
-    //     $.ajax({
-    //         url: "/missions/store",
-    //         type: "POST",
-    //         data: formData,
-    //         success: function (response) {
-    //             alert(response.message);
-    //             getRegionManagerMissions(); // Refresh mission table
-    //             $('#addMissionForm')[0].reset(); // Reset form
-    //         },
-    //         error: function (xhr) {
-    //             alert("Error: " + xhr.responseText);
-    //         }
-    //     });
-    // });
+   
 
     // Delete Mission
     $(document).on('click', '.delete-mission', function () {
@@ -333,53 +296,7 @@ $(document).ready(function () {
             $(".cancel-btn").addClass("d-none");
         });
         
-        // $(document).on("click", ".edit-mission", function () {
-        //     let missionId = $(this).data("id");
     
-        //     $.ajax({
-        //         url: `/missions/${missionId}/edit`,
-        //         type: "GET",
-        //         success: function (response) {
-        //             console.log("✅ Loaded Mission Data:", response);
-    
-        //             // Populate Modal Fields
-        //             $("#edit_mission_id").val(response.mission.id);
-        //             $("#edit_start_datetime").val(response.mission.start_datetime.replace(" ", "T"));
-        //             $("#edit_end_datetime").val(response.mission.end_datetime.replace(" ", "T"));
-        //             $("#edit_note").val(response.mission.note);
-    
-        //             // Populate Inspection Type Checkboxes
-        //             $("#editInspectionTypeCheckboxes").empty();
-        //             response.all_inspection_types.forEach(type => {
-        //                 let checked = response.selected_inspections.some(selected => selected.id === type.id) ? "checked" : "";
-        //                 $("#editInspectionTypeCheckboxes").append(`
-        //                     <div class="form-check me-3">
-        //                         <input class="form-check-input edit-inspection-type-checkbox" type="checkbox" name="inspection_types[]" value="${type.id}" ${checked}>
-        //                         <label class="form-check-label">${type.name}</label>
-        //                     </div>
-        //                 `);
-        //             });
-    
-        //             // Populate Location Checkboxes
-        //             $("#editLocationCheckboxes").empty();
-        //             response.all_locations.forEach(location => {
-        //                 let checked = response.selected_locations.some(selected => selected.id === location.id) ? "checked" : "";
-        //                 $("#editLocationCheckboxes").append(`
-        //                     <div class="form-check">
-        //                         <input class="form-check-input edit-location-checkbox" type="checkbox" name="locations[]" value="${location.id}" ${checked}>
-        //                         <label class="form-check-label">${location.name}</label>
-        //                     </div>
-        //                 `);
-        //             });
-    
-        //             // Show the Edit Modal
-        //             $("#editMissionModal").modal("show");
-        //         },
-        //         error: function () {
-        //             alert("❌ Error fetching mission details.");
-        //         }
-        //     });
-        // });
 
           // Submit Edit Mission Form via AJAX
     $("#editMissionForm").on("submit", function (e) {

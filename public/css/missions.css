@@ -78,7 +78,7 @@
     background-color: #2C2F3F; /* Dark track */
 }
 .notes-textarea{
-    background-color: #101625 !important; /* Set background color */
+    background-color: #242C45; /* Set background color */
     color: white !important; /* Text color */
     /* height: 32px !important;  */
     border: 1px solid #242C45  !important; /* Soft border */
@@ -280,4 +280,7 @@ table tr {
     background-color: #171f33 !important;
     box-shadow: 0px 4px 10px rgba(10, 10, 10, 0.3); /* Adds shadow effect */
     border-radius: 12px;
+}
+textarea:focus{
+    background-color: #171f33 !important;
 }

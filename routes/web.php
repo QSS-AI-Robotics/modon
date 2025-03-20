@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/locations', [RegionManagerController::class, 'locations'])->name('locations.locations');
+    Route::get('/get-locations', [RegionManagerController::class, 'fetchLocations'])->name('locations.get');
     Route::post('/locations/store', [RegionManagerController::class, 'store'])->name('locations.store');
     Route::get('/locations/{id}/edit', [RegionManagerController::class, 'edit'])->name('locations.edit');
     Route::post('/locations/{id}/update', [RegionManagerController::class, 'update'])->name('locations.update');

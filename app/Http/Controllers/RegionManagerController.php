@@ -39,16 +39,33 @@ class RegionManagerController extends Controller
     
     public function locations()
     {
-        // ✅ Ensure the user is authenticated
+        // ✅ Ensure user is authenticated
         if (!Auth::check()) {
             return redirect()->route('signin.form')->with('error', 'Please log in first.');
         }
+    
+        // ✅ Simply return the view (data is fetched via AJAX)
+        return view('region_manager.locations');
+    }
+    public function fetchLocations()
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
 
         $regionId = Auth::user()->region_id;
-        $locations = Location::where('region_id', $regionId)->get(); // ✅ Show only locations of user's region
 
-        return view('region_manager.locations', compact('locations'));
+        // ✅ Fetch locations with their respective region names
+        $locations = Location::where('region_id', $regionId)
+            ->with('region:id,name') // Load only region name
+            ->get();
+
+        return response()->json([
+            'locations' => $locations
+        ]);
     }
+
+
     /**
      * Store a new location, assigning it to the authenticated user's region.
      */

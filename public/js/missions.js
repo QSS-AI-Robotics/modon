@@ -7,6 +7,34 @@ $(document).ready(function () {
     });
 
     getRegionManagerMissions();
+    getMissionStats();
+    function getMissionStats() {
+        $.ajax({
+            url: "/missions/stats",
+            type: "GET",
+            success: function (response) {
+                let totalMissions = response.total_missions || 0;
+                let completedMissions = response.completed_missions || 0;
+                let pendingMissions = totalMissions - completedMissions;
+    
+                // ✅ Avoid division by zero errors
+                let completedPercentage = totalMissions > 0 ? (completedMissions / totalMissions) * 100 : 0;
+                let pendingPercentage = totalMissions > 0 ? (pendingMissions / totalMissions) * 100 : 0;
+    
+                // ✅ Update Text
+                $("#totalMissions").text(totalMissions);
+                $("#completedMissions").text(completedMissions);
+                $("#pendingMissions").text(pendingMissions);
+    
+                // ✅ Update Progress Bars
+                $("#pendingMissionsBar").css("width", pendingPercentage + "%");
+                $("#completedMissionsBar").css("width", completedPercentage + "%");
+            },
+            error: function (xhr) {
+                console.error("❌ Error fetching mission stats:", xhr.responseText);
+            }
+        });
+    }
     function getRegionManagerMissions() {
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
@@ -167,6 +195,7 @@ $(document).ready(function () {
     
                 // ✅ Refresh Mission List
                 getRegionManagerMissions(); 
+                getMissionStats()
             },
             error: function (xhr) {
                 alert("❌ Error processing mission. Please try again.");
@@ -226,6 +255,7 @@ $(document).ready(function () {
             success: function (response) {
                 alert(response.message);
                 $('#missionRow-' + missionId).remove(); // Remove row from table
+                getMissionStats();
             },
             error: function (xhr) {
                 alert("Error: " + xhr.responseText);
@@ -372,6 +402,7 @@ $(document).ready(function () {
                 alert(response.message);
                 $("#editMissionModal").modal("hide");
                 getRegionManagerMissions();
+                getMissionStats();
             },
             error: function (xhr) {
                 alert("❌ Error updating mission: " + xhr.responseText);

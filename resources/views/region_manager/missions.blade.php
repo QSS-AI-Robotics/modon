@@ -111,25 +111,25 @@
                         <div class="col-lg-12 p-2">
                             <div class="d-flex justify-content-between align-items-center label-text p-1">
                                 <label class="form-check-label label-text mb-0">Pending Missions</label>
-                                <p class="mb-0 fw-bold">75%</p>
+                                <p class="mb-0 fw-bold" id="pendingMissions">0</p>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar text-bg-danger" style="width: 75%"></div>
+                                <div class="progress-bar text-bg-danger" id="pendingMissionsBar" style="width: 0%"></div>
                             </div>
                         </div>
                         <div class="col-lg-12 p-2">
                             <div class="d-flex justify-content-between align-items-center label-text p-1">
                                 <label class="form-check-label label-text mb-0">Finished Missions</label>
-                                <p class="mb-0 fw-bold">25%</p>
+                                <p class="mb-0 fw-bold" id="completedMissions">0</p>
                             </div>
                             <div class="progress">
-                                <div class="progress-bar text-bg-success" style="width: 25%"></div>
+                                <div class="progress-bar text-bg-success" id="completedMissionsBar" style="width: 0%"></div>
                             </div>
                         </div>
                         <div class="col-lg-12 p-2 mb-2">
                             <div class="d-flex justify-content-between align-items-center label-text p-1">
                                 <label class="form-check-label label-text mb-0">Total Missions</label>
-                                <p class="mb-0 fw-bold">102</p>
+                                <p class="mb-0 fw-bold" id="totalMissions">0</p>
                             </div>
                             <div class="progress">
                                 <div class="progress-bar text-bg-warning text-white" style="width: 100%"></div>

@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/missions/{id}', [RegionManagerController::class, 'destroyMission'])->name('missions.destroy');
     Route::get('/missions/{id}/edit', [RegionManagerController::class, 'editMission'])->name('missions.edit');
     Route::post('/missions/update', [RegionManagerController::class, 'updateMission'])->name('missions.update');
-
+    Route::get('/missions/stats', [RegionManagerController::class, 'getMissionStats'])->name('missions.stats');
    
 });
 

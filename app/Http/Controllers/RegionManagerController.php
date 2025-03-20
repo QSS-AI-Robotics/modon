@@ -306,6 +306,29 @@ class RegionManagerController extends Controller
 
         return response()->json(['message' => '✅ Mission updated successfully!']);
     }
+
+    public function getMissionStats()
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+
+        $regionId = Auth::user()->region_id;
+
+        // ✅ Count Total Missions in the Region
+        $totalMissions = Mission::where('region_id', $regionId)->count();
+
+        // ✅ Count Completed Missions in the Region
+        $completedMissions = Mission::where('region_id', $regionId)
+            ->where('status', 'Completed')
+            ->count();
+
+        // ✅ Return JSON Response
+        return response()->json([
+            'total_missions' => $totalMissions,
+            'completed_missions' => $completedMissions
+        ]);
+    }
 }
     
 

@@ -26,9 +26,9 @@
             </div>
             <div class="col-7 d-flex">
                 <button class="btn cont-btn selected mx-1">Overview</button>
-                <button class="btn cont-btn mx-1">Map View</button>
-                <button class="btn cont-btn mx-1">All Drones</button>
-                <button class="btn cont-btn mx-1">Controller</button>
+                <button class="btn cont-btn mx-1"><a href="/missions">Missions</a></button>
+                <button class="btn cont-btn mx-1"><a href="/locations">Locations</a></button>
+                <button class="btn cont-btn mx-1"><a href="/pilot">Pilot</a></button>
                 <button class="btn cont-btn mx-1">Reports</button>
             </div>
             <div class="col-3 d-flex justify-content-end">
@@ -175,6 +175,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/modon.js') }}"></script>
     <script src="{{ asset('js/locations.js') }}"></script>
 
 </body>

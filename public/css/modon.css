@@ -146,3 +146,14 @@ body{
 ::-webkit-scrollbar-thumb:hover {
     background-color: #101625; /* Change to your desired hover color */
 }
+/* Remove underline and change default color */
+a {
+    text-decoration: none !important;
+    color: inherit !important; /* Uses the parent element's color */
+}
+
+/* Optional: Change color on hover */
+a:hover {
+    color: white !important; /* Change to your preferred hover color */
+    text-decoration: none !important;
+}

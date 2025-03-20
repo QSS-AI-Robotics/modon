@@ -26,9 +26,9 @@
             </div>
             <div class="col-7 d-flex">
                 <button class="btn cont-btn selected mx-1">Overview</button>
-                <button class="btn cont-btn mx-1">Map View</button>
-                <button class="btn cont-btn mx-1">All Drones</button>
-                <button class="btn cont-btn mx-1">Controller</button>
+                <button class="btn cont-btn mx-1"><a href="/missions">Missions</a></button>
+                <button class="btn cont-btn mx-1"><a href="/locations">Locations</a></button>
+                <button class="btn cont-btn mx-1"><a href="/pilot">Pilot</a></button>
                 <button class="btn cont-btn mx-1">Reports</button>
             </div>
             <div class="col-3 d-flex justify-content-end">
@@ -176,7 +176,7 @@
                                 <input type="datetime-local" class="form-control dateInput" id="end_datetime" name="end_datetime" required>
                             </div>
 
-                            <div class="col-md-6 col-sm-12 p-2">
+                            <div class="col-md-12 col-sm-12 p-2">
                                 <div class="row p-2">
                                     <label class="form-check-label label-text py-2">Select Locations</label>
                                     <div class="col-12 scroll-container d-flex" style=" max-height: 70px;">
@@ -225,6 +225,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/modon.js') }}"></script>
     <script src="{{ asset('js/missions.js') }}"></script>
 
 </body>

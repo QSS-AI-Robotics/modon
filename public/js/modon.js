@@ -73,6 +73,8 @@ $(document).ready(function () {
             }
         });
     });
-
+    $(".search-icon").click(function () {
+        $(".search-input").toggleClass("active").show().focus();
+    });
     
 });

@@ -59,9 +59,9 @@
 
 .scroll-container {
     /* Show only two checkboxes at a time */
-    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: auto; /* Enable vertical scrolling */
     padding-right: 5px; /* Adjust spacing */
-    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 /* Custom scrollbar */
@@ -78,10 +78,10 @@
     background-color: #2C2F3F; /* Dark track */
 }
 .notes-textarea{
-    background-color: #242C45 !important; /* Set background color */
+    background-color: #101625 !important; /* Set background color */
     color: white !important; /* Text color */
     /* height: 32px !important;  */
-    border: 1px solid #101625 !important; /* Soft border */
+    border: 1px solid #242C45  !important; /* Soft border */
     border-radius: 4px; /* Slight rounded corners */
     padding: 5px 10px; /* Padding for spacing */
     font-size: 12px;
@@ -145,3 +145,139 @@
 }
 
 
+/* Action icons: View, Delete, Search */
+.actions {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    cursor: pointer; /* Changes cursor to indicate clickability */
+}
+
+/* Scale up slightly on hover */
+.actions:hover {
+    transform: scale(1.15); /* Slightly enlarges */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Soft shadow effect */
+}
+/* Ensures a proper layout without affecting row height */
+.toggle-container {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+}
+
+/* Hide extra text initially */
+.extra-text {
+    display: none;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8); /* Dark background for readability */
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    width: max-content;
+    max-width: 250px;
+    z-index: 10;
+    transition: all 0.5s ease-in-out;
+}
+
+/* Smooth slide effect */
+.extra-text.slide {
+    display: block;
+    opacity: 1;
+}
+/* Style the dropdown button */
+.dropdown p {
+    /* background-color: #242C45 !important;  */
+    color: white !important; /* White text */
+    /* border: none !important;  */
+    /* padding: 5px 10px; */
+    font-size: 14px;
+
+}
+
+/* Remove the default Bootstrap dropdown arrow */
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+/* Style the dropdown menu */
+/* Center text inside the dropdown toggle */
+.dropdown-toggle {
+    display: inline-flex; /* Keeps inline but centers */
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Center dropdown items */
+.dropdown-menu {
+    text-align: center;
+    background-color: #171f33 !important;
+    /* border: 1px solid rgb(177, 175, 175) !important; */
+}
+
+/* Fix item alignment */
+.dropdown-item {
+    font-size: 14px;
+    color: white !important;
+}
+
+/* Hover effect */
+.dropdown-item:hover {
+    background-color: #323849 !important;
+    cursor:pointer;
+}
+table tr {
+    text-align: center;
+    vertical-align: middle !important;
+}
+
+/* Mission Note Preview */
+.note-preview {
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 5px 10px;
+    font-size: 14px;
+
+    color: white !important;
+    border: none !important;
+}
+
+.note-dropdown {
+    width: auto !important; /* Adjust width dynamically */
+    max-width: 300px !important; /* Prevents dropdown from becoming too wide */
+    min-width: 150px;
+    text-align: left;
+    border: none !important;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 5px;
+}
+
+/* Ensures text stays in a single block and wraps naturally */
+.note-dropdown .dropdown-item {
+    font-size: 14px;
+    color: white !important;
+    padding: 8px 10px;
+    display: block; /* Ensures text is in a block element */
+    white-space: normal; /* Allows wrapping */
+    overflow-wrap: break-word; /* Ensures words do not stretch outside */
+    text-align: left;
+    line-height: 1.4; /* Ensures better spacing */
+}
+
+/* Responsive Behavior: Adjust for Small Screens */
+@media (max-width: 768px) {
+    .note-dropdown {
+        max-width: 90vw !important; /* Uses screen width without breaking */
+    }
+}
+
+/* Dropdown Hover Effect */
+.note-dropdown .dropdown-item:hover {
+    background-color: #171f33 !important;
+    box-shadow: 0px 4px 10px rgba(10, 10, 10, 0.3); /* Adds shadow effect */
+    border-radius: 12px;
+}

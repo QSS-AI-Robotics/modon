@@ -67,44 +67,23 @@
                                 <table class="table table-text">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Event Name</th>
-                                            <th scope="col">Event Type</th>
-                                            <th scope="col">Response Status</th>
+                                            <th scope="col">Ispection Type</th>
+                                            <th scope="col">Start Date</th>
+                                            <th scope="col">End Date</th>
                                             <th scope="col">Location</th>
-                                            <th scope="col">Detection Rate</th>
+                                            <th scope="col">Note</th>
+                                            <th scope="col">Status</th>
                                             <th scope="col">View</th>
-                                            <th scope="col">Delete</th>
+                                            <th scope="col">Action</th>
+                                           
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="missionTableBody" class="align-items-center">
                                         <tr>
-                                            <td>Gas Emission</td>
-                                            <td class="text-danger">High Priority</td>
-                                            <td>Successful</td>
-                                            <td>Western Riyadh</td>
-                                            <td>10% <img src="./images/up.png" alt=""></td>
-                                            <td><img src="./images/view.png" alt="" class="viewReport img-fluid"></td>
-                                            <td><img src="./images/trash.png" alt="" class="viewReport img-fluid"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Street Pothole</td>
-                                            <td class="text-warning">High Priority</td>
-                                            <td>Unsuccessful</td>
-                                            <td>Eastern Riyadh</td>
-                                            <td>No change</td>
-                                            <td><img src="./images/view.png" alt="" class="viewReport img-fluid"></td>
-                                            <td><img src="./images/trash.png" alt="" class="viewReport img-fluid"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Street Pothole</td>
-                                            <td class="text-success">High Priority</td>
-                                            <td>Unsuccessful</td>
-                                            <td>Eastern Riyadh</td>
-                                            <td>99% <img src="./images/down.png" alt=""></td>
-                                            <td><img src="./images/view.png" alt="" class="viewReport img-fluid"></td>
-                                            <td><img src="./images/trash.png" alt="" class="viewReport img-fluid"></td>
+                                            <td colspan="8" class="text-center text-muted">Loading missions...</td>
                                         </tr>
                                     </tbody>
+                                    
                                 </table>
                             </div>
                         </div>
@@ -267,6 +246,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/missions.js') }}"></script>
     <script>
         $(document).ready(function () {
             $(".search-icon").click(function () {
@@ -277,13 +257,13 @@
             });
 
             // Show video preview when a file is selected
-            $('#videoInput').change(function(event) {
-                var file = event.target.files[0]; // Get the selected file
-                if (file && file.type.startsWith('video/')) {
-                var videoURL = URL.createObjectURL(file); // Create URL for the video file
-                $('#videoPreview').attr('src', videoURL).show(); // Set video source and display it
-                }
-            });
+            // $('#videoInput').change(function(event) {
+            //     var file = event.target.files[0]; // Get the selected file
+            //     if (file && file.type.startsWith('video/')) {
+            //     var videoURL = URL.createObjectURL(file); // Create URL for the video file
+            //     $('#videoPreview').attr('src', videoURL).show(); // Set video source and display it
+            //     }
+            // });
         });
     </script>
 </body>

@@ -1,6 +1,6 @@
 $(document).ready(function () {
     fetchMissions();
-    // fetchReports();
+    fetchReports();
     // fetch mission
     function fetchMissions() {
         $.ajax({
@@ -137,11 +137,6 @@ $(document).ready(function () {
             }
     
             return; // Stop here - no status update when opening report modal
-        } else if (currentSrc.includes("view.png")) {
-            $('#viewReportModal').modal('show');
-           
-            fetchReports(missionId);
-            return;
         } else {
             return; // Completed or unknown state
         }
@@ -243,147 +238,51 @@ $(document).ready(function () {
     //     });
     // });
 
-    function extractYouTubeID(url) {
-        const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/);
-        return match ? match[1] : null;
-    }
-    
+
 
     // ✅ Fetch Reports
-    function fetchReports(missionId = null) {
-        $('#reportTableBody').html(`
-            <tr><td colspan="8" class="text-center text-muted">Loading reports...</td></tr>
-        `);
-    
+    function fetchReports() {
         $.ajax({
             url: "/pilot/reports",
             type: "GET",
-            data: missionId ? { mission_id: missionId } : {},
             success: function (response) {
-                console.log("🚀 Reports Fetched:", response);
                 $('#reportTableBody').empty();
-    
+
                 if (response.reports.length === 0) {
                     $('#reportTableBody').append(`
                         <tr>
-                            <td colspan="8" class="text-center text-muted">No reports submitted yet.</td>
+                            <td colspan="8" class="text-center text-muted">
+                                No reports submitted yet.
+                            </td>
                         </tr>
                     `);
                     return;
                 }
-                console.log(response.reports[0].video_url); // Logs video URL of the first report
-                const videoId = extractYouTubeID(response.reports[0].video_url);
-                if (videoId) {
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-                    $('#pilotVideo').attr('src', embedUrl);
-                }
-                
-
-                
 
                 $.each(response.reports, function (index, report) {
-                    // Top row: Summary info
+                    let images = report.images.map(img => `<img src="/${img.image_path}" width="50">`).join(" ");
                     let videoLink = report.video_url ? `<a href="${report.video_url}" target="_blank">Watch</a>` : "N/A";
-                   
-                    let summaryRow = `
-                        <tr class=" text-white">
-                            <td colspan="2"><strong>Report Ref:</strong> ${report.report_reference}</td>
-                            <td colspan="2"><strong>Start:</strong> ${report.start_datetime}</td>
-                            <td colspan="2"><strong>End:</strong> ${report.end_datetime}</td>
-                            <td colspan="2" class="text-end">
-                        
-                                <img src="./images/edit.png" alt="" class=" edit-report img-fluid actions" data-id="${report.id}">
-                                <img src="./images/delete.png" alt="" class="delete-report img-fluid actions" data-id="${report.id}">
+
+                    let row = `
+                        <tr id="reportRow-${report.id}">
+                            <td>${report.mission.id}</td>
+                            <td>${report.report_reference}</td>
+                            <td>${report.start_datetime}</td>
+                            <td>${report.end_datetime}</td>
+                            <td>${videoLink}</td>
+                            <td class="imgPanel">${images}</td>
+                            <td>${report.description || "N/A"}</td>
+                            <td>
+                                <button class="btn btn-warning edit-report" data-id="${report.id}">Edit</button>
+                                <button class="btn btn-danger delete-report" data-id="${report.id}">Delete</button>
                             </td>
                         </tr>
                     `;
-                    $('#reportTableBody').append(summaryRow);
-    
-                    // Group images by inspection_type_id
-                    const grouped = {};
-                    report.images.forEach(img => {
-                        const key = `${img.inspection_type_id}-${img.description}`;
-                        if (!grouped[key]) grouped[key] = [];
-                        grouped[key].push(img);
-                    });
-    
-                    // Add rows for each group
-                    $.each(grouped, function (key, imagesGroup) {
-                        const firstImg = imagesGroup[0];
-                        const description = firstImg.description || "No Description";
-    
-                        let imagesHtml = imagesGroup.map(img => `
-                            <img src="/${img.image_path}" class="" style="width: 80px; height: 80px;">
-                        `).join("");
-    
-                        let groupRow = `
-                            <tr>
-                                <td colspan="2">${firstImg.inspection_type.name}</td>
-                                <td colspan="2">${firstImg.location.name}</td>
-                                <td colspan="3">${description}</td>
-                                <td colspan="3">${imagesHtml}</td>
-                            </tr>
-                        `;
-                        $('#reportTableBody').append(groupRow);
-                    });
+                    $('#reportTableBody').append(row);
                 });
-            },
-            error: function () {
-                $('#reportTableBody').html(`
-                    <tr><td colspan="8" class="text-center text-danger">Error loading reports</td></tr>
-                `);
             }
         });
     }
-    
-    
-    // function fetchReports(missionId) {
-    //     console.log("🚀 Fetching reports for mission ID:", missionId);
-    //     $('#reportTableBody').html(`
-    //         <tr><td colspan="8" class="text-center text-muted">Loading reports...</td></tr>
-    //     `);
-    //     $.ajax({
-    //         url: "/pilot/reports",
-    //         type: "GET",
-
-    //         success: function (response) {
-    //             $('#reportTableBody').empty();
-
-    //             if (response.reports.length === 0) {
-    //                 $('#reportTableBody').append(`
-    //                     <tr>
-    //                         <td colspan="8" class="text-center text-muted">
-    //                             No reports submitted yet.
-    //                         </td>
-    //                     </tr>
-    //                 `);
-    //                 return;
-    //             }
-
-    //             $.each(response.reports, function (index, report) {
-    //                 let images = report.images.map(img => `<img src="/${img.image_path}" width="50">`).join(" ");
-    //                 let videoLink = report.video_url ? `<a href="${report.video_url}" target="_blank">Watch</a>` : "N/A";
-
-    //                 let row = `
-    //                     <tr id="reportRow-${report.id}">
-    //                         <td>${report.mission.id}</td>
-    //                         <td>${report.report_reference}</td>
-    //                         <td>${report.start_datetime}</td>
-    //                         <td>${report.end_datetime}</td>
-    //                         <td>${videoLink}</td>
-    //                         <td class="imgPanel">${images}</td>
-    //                         <td>${report.description || "N/A"}</td>
-    //                         <td>
-    //                             <button class="btn btn-warning edit-report" data-id="${report.id}">Edit</button>
-    //                             <button class="btn btn-danger delete-report" data-id="${report.id}">Delete</button>
-    //                         </td>
-    //                     </tr>
-    //                 `;
-    //                 $('#reportTableBody').append(row);
-    //             });
-    //         }
-    //     });
-    // }
 
     // ✅ Handle Edit Report Button Click start
 
@@ -518,7 +417,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function () {
-       
+                fetchReports();
                 console.log('✅ Report updated successfully!');
                 $('#editReportModal').modal('hide');
                 fetchMissions();
@@ -679,7 +578,7 @@ $(document).ready(function () {
             success: function (response) {
                 console.log(response.message);
                 fetchMissions();
-          
+                fetchReports();
             },
             error: function (xhr) {
                 console.log("Error deleting report: " + xhr.responseText);
@@ -767,7 +666,7 @@ $(document).ready(function () {
             contentType: false,
             success: function (response) {
                 console.log('✅ Report submitted successfully!', response);
-    
+                fetchReports();
                 $('#addReportModal').modal('hide');
                 fetchMissions();
             },
@@ -789,26 +688,26 @@ $(document).ready(function () {
     // Function to add a new Incident Detail row dynamically
     $(document).on("click", ".addInspectionRow", function () {
         let newGroup = `
-                <div class="col-lg-3 col-md-3 col-sm-12  mb-4 inspection-location-item">
-                    <div class="row ">
-                            <div class="col-12 mb-2">
-                                <select class="form-select inspection_id dateInput  dateInput form-control-lg" name="inspection_id[]" id="inspection_id" required></select> 
-                            </div>
-                            <div class="col-12 mb-2">
-                                <select class="form-select location_id dateInput  dateInput form-control-lg" name="location_id[]" id="location_id" required></select> 
-                            </div>
-                            <div class="col-12 mb-2 ">
-                                <div class="image-upload-box  border-secondary rounded p-3 text-center text-white" style="" onclick="this.querySelector('input[type=file]').click()">
-                                    <p class="mb-2">Click to Upload Images</p>
-                                    <div class="image-preview d-flex flex-wrap gap-2 justify-content-start"></div>
-                                    <input type="file" class="form-control d-none images" name="images_${groupIndex}[]" multiple accept="image/*">
-                                </div>
-                            </div>
-                            <div class="col-12 mb-2">
-                                <input type="text" class="form-control inspectiondescrption dateInput text-white form-control-lg" name="inspectiondescrption[]" placeholder="Inspection Description">
-                            </div>
-                        </div>
+            <div class="row mb-3 inspection-location-item">
+                <label class="form-label">Incident Detail</label>
+                <div class="col-md-3">
+                    <select class="form-select inspection_id" name="inspection_id[]" id="inspection_id"  required></select>
                 </div>
+                <div class="col-md-3">
+                    <select class="form-select location_id" name="location_id[]" id="location_id"  required></select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control inspectiondescrption" name="inspectiondescrption[]" placeholder="Inspection Description">
+                </div>
+                <div class="col-md-2">
+                    <input type="file" class="form-control images" name="images_${groupIndex}[]" multiple accept="image/*">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-success addInspectionRow me-2">+</button>
+                    <button type="button" class="btn btn-danger removeInspectionRow">-</button>
+                </div>
+            </div>
+            
         `;
 
         $("#inspectionLocationGroup").append(newGroup);
@@ -817,23 +716,13 @@ $(document).ready(function () {
     });
 
     // Function to remove an Incident Detail row
-    $(document).on('click', '.removeInspectionRow', function () {
-        // Target the container holding all inspection rows
-        const $group = $('#inspectionLocationGroup');
-    
-        // Only remove if there's more than one item (optional safety check)
-        if ($group.find('.inspection-location-item').length > 1) {
-            $group.find('.inspection-location-item').last().remove();
+    $(document).on("click", ".removeInspectionRow", function () {
+        if ($(".inspection-location-item").length > 1) {
+            $(this).closest(".inspection-location-item").remove();
+        } else {
+            alert("At least one Incident Detail is required.");
         }
     });
-    
-    // $(document).on("click", ".removeInspectionRow", function () {
-    //     if ($(".inspection-location-item").length > 1) {
-    //         $(this).closest(".inspection-location-item").remove();
-    //     } else {
-    //         alert("At least one Incident Detail is required.");
-    //     }
-    // });
 
     // Function to populate dropdowns with available options
     function updateDropdowns() {

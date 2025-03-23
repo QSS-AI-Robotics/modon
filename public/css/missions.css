@@ -32,30 +32,7 @@
     border-color: #101625 !important; /* Change border color when checked */
 }
 
-/* Default state */
-.dateInput {
-    background-color: #242C45 !important; /* Set background color */
-    color: white !important; /* Text color */
-    height: 32px !important; /* Reduce height */
-    border: 1px solid #101625 !important; /* Soft border */
-    border-radius: 4px; /* Slight rounded corners */
-    padding: 5px 10px; /* Padding for spacing */
-    font-size: 12px;
-}
 
-/* Change placeholder color */
-.dateInput::placeholder {
-    color: white !important; /* White placeholder */
-    opacity: 0.7; /* Make it slightly transparent */
-}
-
-/* On focus */
-.dateInput:focus {
-    background-color: #1E253B !important; /* Darker background on focus */
-    color: white !important;
-    border-color: #007bff !important; /* Highlight border */
-    outline: none; /* Remove default focus outline */
-}
 
 .scroll-container {
     /* Show only two checkboxes at a time */
@@ -77,15 +54,7 @@
 .scroll-container::-webkit-scrollbar-track {
     background-color: #2C2F3F; /* Dark track */
 }
-.notes-textarea{
-    background-color: #242C45; /* Set background color */
-    color: white !important; /* Text color */
-    /* height: 32px !important;  */
-    border: 1px solid #242C45  !important; /* Soft border */
-    border-radius: 4px; /* Slight rounded corners */
-    padding: 5px 10px; /* Padding for spacing */
-    font-size: 12px;
-}
+
 .mission-btn{
     background:#47D16C;
     

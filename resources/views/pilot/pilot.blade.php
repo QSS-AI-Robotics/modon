@@ -77,7 +77,7 @@
                                     </div>
                                 </div>
         
-                                <!-- Reports Table -->
+                                <!-- Missions Table -->
                                 <div class="table-responsive flex-grow-1 overflow-auto">
                                     <table class="table table-text">
                                         <thead>
@@ -92,7 +92,7 @@
                                         </thead>
                                         <tbody id="missionTableBody">
                                             <tr>
-                                                <td colspan="4" class="text-center text-muted">Loading missions...</td>
+                                                <td colspan="6" class="text-center text-muted">Loading missions...</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -137,13 +137,48 @@
     
 </div> --}}
 
+
+<!-- Bootstrap Modal for Show Report -->
+<div class="modal fade" id="viewReportModal" tabindex="-1" aria-labelledby="viewReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-modal">
+            <div class="modal-header border-0">
+                <h6 class="modal-title" id="addReportModalLabel">Detailed Report</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+       
+               <div class="row">
+                <div class="col-lg-7">
+                    <div class="table-responsive flex-grow-1 overflow-auto">
+                        <table class="table table-text">
+    
+                            <tbody id="reportTableBody">
+                                <tr>
+                                   <td colspan="8" class="text-center text-muted">Loading reports...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    {{-- <video src="" autoplay muted class="pilot_video" controls width="100%" height="auto"></video> --}}
+                    <iframe id="pilotVideo" width="100%" height="315" frameborder="0" ></iframe>
+
+
+                </div>
+               </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Bootstrap Modal for Adding Reports -->
 
 <div class="modal fade" id="addReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addReportModalLabel">Submit a New Report</h5>
+        <div class="modal-content bg-modal">
+            <div class="modal-header border-0">
+                <h6 class="modal-title" id="addReportModalLabel">Submit a New Report</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -154,57 +189,83 @@
 
                     <div>
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="start_datetime" class="form-label">Start Date & Time</label>
-                                    <input type="datetime-local" class="form-control" id="start_datetime" name="start_datetime" required>
+                           
+                            <div class="col-lg-6">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="start_datetime" class="form-label ">Start Date & Time</label>
+                                        <input type="datetime-local" class="form-control dateInput form-control-lg" id="start_datetime" name="start_datetime" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="end_datetime" class="form-label">End Date & Time</label>
+                                        <input type="datetime-local" class="form-control dateInput form-control-lg"  id="end_datetime" name="end_datetime" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <!-- Upload Video URL -->
+    
+                                    <div class="mb-3">
+                                        <label for="video_url" class="form-label">Video URL</label>
+                                        <input type="url" class="form-control dateInput  form-control-lg" id="video_url" name="video_url" placeholder="Enter video link" value="http://localhost:8080/phpmyadmin/index.php?route=/sql&db=modon&table=pilot_report_images&pos=0">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label for="end_datetime" class="form-label">End Date & Time</label>
-                                    <input type="datetime-local" class="form-control" id="end_datetime" name="end_datetime" required>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Upload Video URL -->
-                                <div class="mb-3">
-                                    <label for="video_url" class="form-label">Video URL</label>
-                                    <input type="url" class="form-control" id="video_url" name="video_url" placeholder="Enter video link" value="http://localhost:8080/phpmyadmin/index.php?route=/sql&db=modon&table=pilot_report_images&pos=0">
+                                    <label for="description" class="form-label">Notes</label>
+                                    <textarea type="text" class="form-control notes-textarea " id="description" name="description" rows="11"></textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Grouped Select Fields -->
-                    <div id="inspectionLocationGroup" class="inspectionLocationGroup">
-                        <div class="row mb-3 inspection-location-item">
-                            <label class="form-label">Incident Detail</label>
-                            <div class="col-md-3">
-                                <select class="form-select inspection_id" name="inspection_id[]" id="inspection_id" required></select> 
+                    <div class="col-lg-12 col-md-12" style="border: 1px solid #FFFFFF33; padding: 10px;border-radius: 10px;">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label class="form-label">Incident Detail</label>
                             </div>
-                            <div class="col-md-3">
-                                <select class="form-select location_id" name="location_id[]" id="location_id" required></select> 
+                            <div class="col-lg-6 text-end pb-1">
+                                <button type="button" class="btn updForm addInspectionRow">+</button>
+                                <button type="button" class="btn updForm removeInspectionRow">-</button>
                             </div>
-                            <div class="col-md-3">
-                                <input type="text" class="form-control inspectiondescrption" name="inspectiondescrption[]" placeholder="Inspection Description">
+                            <div class="col-lg-12">
+                                <div class="inspectionLocationWrapper overflow-auto">
+                                    <div class="d-flex flex-nowrap gap-3 inspectionLocationGroup" id="inspectionLocationGroup">
+                                        <!-- Each inspection-location-item -->
+                                        <div class="col-lg-3 col-md-3 col-sm-6 mb-3 inspection-location-item">
+                                            <div class="row">
+                                                <div class="col-12 mb-2">
+                                                    <select class="form-select inspection_id dateInput  dateInput form-control-lg" name="inspection_id[]" id="inspection_id" required></select> 
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <select class="form-select location_id dateInput  dateInput form-control-lg" name="location_id[]" id="location_id" required></select> 
+                                                </div>
+                                                <div class="col-12 mb-2 ">
+                                                    <div class="image-upload-box  border-secondary rounded p-3 text-center text-white" style="" onclick="this.querySelector('input[type=file]').click()">
+                                                        <p class="mb-2">Click to Upload Images</p>
+                                                        <div class="image-preview d-flex flex-wrap gap-2 justify-content-start"></div>
+                                                        <input type="file" class="form-control d-none images" name="images_0[]" multiple accept="image/*">
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <input type="text" class="form-control inspectiondescrption dateInput text-white form-control-lg" name="inspectiondescrption[]" placeholder="Inspection Description">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-2">
-                                <input type="file" class="form-control images" name="images_0[]" multiple accept="image/*">
-                            </div>
-                            <div class="col-md-1 d-flex align-items-end">
-                                <button type="button" class="btn btn-success addInspectionRow">+</button>
-                                <button type="button" class="btn btn-danger removeInspectionRow">-</button>
-                            </div>
+                            
+                  
                         </div>
                     </div>
+                   
+                        <button type="submit" class="btn btn-primary w-25 mt-2">Submit Report</button>
+                   
                     
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Notes</label>
-                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Submit Report</button>
                 </form>
             </div>
         </div>
@@ -275,6 +336,24 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ asset('js/pilot.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Image preview logic
+    $(document).on('change', '.images', function () {
+        const previewContainer = $(this).closest('.image-upload-box').find('.image-preview');
+        previewContainer.empty();
 
+        const files = this.files;
+        if (files.length > 0) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = $('<img>').attr('src', e.target.result).css({ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' });
+                    previewContainer.append(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    });
+</script>
 </body>
 </html>

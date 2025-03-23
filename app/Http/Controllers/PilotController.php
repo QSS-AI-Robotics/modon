@@ -67,21 +67,46 @@ class PilotController extends Controller
     /**
      * Fetch pilot reports assigned to missions in the pilot's region.
      */
-    public function getReports()
+    // public function getReports()
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
+    
+    //     $regionId = Auth::user()->region_id;
+    
+    //     $reports = PilotReport::whereHas('mission', function ($query) use ($regionId) {
+    //         $query->where('region_id', $regionId);
+    //     })->with('mission', 'images')->get();
+    
+    //     return response()->json(['reports' => $reports]);
+    // }
+    public function getReports(Request $request)
     {
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
     
         $regionId = Auth::user()->region_id;
+        $missionId = $request->input('mission_id');
     
-        $reports = PilotReport::whereHas('mission', function ($query) use ($regionId) {
+        $reports = PilotReport::whereHas('mission', function ($query) use ($regionId, $missionId) {
             $query->where('region_id', $regionId);
-        })->with('mission', 'images')->get();
+            if ($missionId) {
+                $query->where('id', $missionId);
+            }
+        })
+        ->with([
+            'mission',
+            'images.inspectionType', // 👈 eager load inspection type
+            'images.location'        // 👈 eager load location
+        ])
+        ->get();
     
         return response()->json(['reports' => $reports]);
     }
     
+
 
     /**
      * Store a new pilot report.

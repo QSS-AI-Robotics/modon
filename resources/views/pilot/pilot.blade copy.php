@@ -66,7 +66,7 @@
                 <th>Video</th>
                 <th>Images</th>
                 <th>Description</th>
-                <th>Actions</th> <!-- ✅ Added -->
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody id="reportTableBody">

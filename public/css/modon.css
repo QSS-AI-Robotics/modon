@@ -161,3 +161,76 @@ a:hover {
     padding: 0.3rem;
     border-radius: 12px;
 }
+.notes-textarea{
+    background-color: #242C45; /* Set background color */
+    color: white !important; /* Text color */
+    /* height: 32px !important;  */
+    border: 1px solid #242C45  !important; /* Soft border */
+    border-radius: 4px; /* Slight rounded corners */
+    padding: 5px 10px; /* Padding for spacing */
+    font-size: 12px;
+}
+/* Default state */
+.dateInput {
+    background-color: #242C45 !important; /* Set background color */
+    color: #cfcaca !important; /* Text color */
+    height: 32px !important; /* Reduce height */
+    border: 1px solid #101625 !important; /* Soft border */
+    border-radius: 4px; /* Slight rounded corners */
+    padding: 5px 10px; /* Padding for spacing */
+    font-size: 12px;
+}
+
+/* Change placeholder color */
+.dateInput::placeholder {
+    color: white !important; /* White placeholder */
+    opacity: 0.7; /* Make it slightly transparent */
+}
+
+/* On focus */
+.dateInput:focus {
+    background-color: #1E253B !important; /* Darker background on focus */
+    color: white !important;
+    border-color: #007bff !important; /* Highlight border */
+    outline: none; /* Remove default focus outline */
+}
+.bg-modal{
+    background: #1C2235;
+    color: white;
+}
+.image-preview {
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.image-preview img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.updForm{
+    color: white;
+    background: #323849;
+    padding: 3px 10px;
+    border-radius: 8px;
+}
+.image-upload-box {
+    min-height:200px;
+    cursor: pointer;
+     background: #242C45;
+}
+.formDropdown{
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+}
+.inspectionLocationWrapper {
+    overflow-x: auto;
+    padding-bottom: 10px; 
+}

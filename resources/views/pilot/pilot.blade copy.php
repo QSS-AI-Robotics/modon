@@ -6,10 +6,6 @@
     <title>Pilot Missions & Reports</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-        <!-- Custom CSS -->
-        <link rel="stylesheet" href="{{ asset('css/modon.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/missions.css') }}">
-
     <style>
         .image-preview {
             display: flex;
@@ -25,93 +21,38 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid vh-100 d-flex flex-column padded-container">
-        <!-- Header -->
-        <div class="row header shadows bg-section p-1 mb-2 align-items-center">
-            <div class="col-2 d-flex align-items-center">
-                <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50">
-            </div>
-            <div class="col-7 d-flex">
-                <button class="btn cont-btn selected mx-1">Overview</button>
-                <button class="btn cont-btn mx-1"><a href="/missions">Missions</a></button>
-                <button class="btn cont-btn mx-1"><a href="/locations">Locations</a></button>
-                <button class="btn cont-btn mx-1"><a href="/pilot">Pilot</a></button>
-                <button class="btn cont-btn mx-1">Reports</button>
-            </div>
-            <div class="col-3 d-flex justify-content-end">
-                <div class="dropdown">
-                    <img src="{{ asset('images/user.png') }}" alt="Profile" class="img-fluid rounded-circle" style="max-height: 50px; cursor: pointer;">
-                </div>
-            </div>
-        </div>
-        <!-- End Header -->
 
-                <!-- Main Panel -->
-                <div class="row shadows mainPanel p-0 flex-grow-1">
-
-                    <!-- Left Column (Mission Control & Reports) -->
-                    <div class="col-lg-12 d-flex flex-column h-100">
-                        
-                        <!-- Mission Control Header -->
-                        <div class="row">
-                            <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                                <p class="gray-text">Control Panel</p>
-                                <h3 class="fw-bold">Pilot Missions</h3>
-                            </div>
-                        </div>
-        
-                        <!-- Reports List -->
-                        <div class="row h-100">
-                            <div class="col-lg-12 col-xl-12 col-md-12 flex-grow-1 d-flex flex-column overflow-hidden bg-section mt-2">
-                                
-                                <!-- Reports Header -->
-                                <div class="border-bottom-qss p-2">
-                                    <div class="row d-flex justify-content-between">
-                                        <div class="col-lg-4">
-                                            <p>Detailed Summery</p>
-                                        </div>
-                                        <div class="col-lg-4 text-end search-container">
-                                            <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                            <input type="search" placeholder="Search Reports Here" class="search-input">
-                                        </div>
-                                    </div>
-                                </div>
-        
-                                <!-- Reports Table -->
-                                <div class="table-responsive flex-grow-1 overflow-auto">
-                                    <table class="table table-text">
-                                        <thead>
-                                            <tr>
-                                                <th>Inspection Types</th>
-                                                <th>Start Date</th>
-                                                <th>End Date</th>
-                                                <th>Locations</th>
-                                                <th>Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="missionTableBody">
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted">Loading missions...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-        
-                    </div> <!-- End Left Column -->
-        
-
-                    
-                </div> 
-                <!-- End Main Panel -->
-
-
+<div class="container mt-5">
+    <div class="d-flex justify-content-between">
+        <h2>Missions Assigned to Your Region</h2>
+        {{-- <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addReportModal">Add Report</button> --}}
+        <button id="addReportBtn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addReportModal">
+            Add Report
+        </button>
     </div>
 
+    <!-- Missions Table -->
+    <table class="table table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Inspection Types</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Locations</th>
+                <th>Status</th>
+                <th>Action</th>
+                
+            </tr>
+        </thead>
+        <tbody id="missionTableBody">
+            <tr>
+                <td colspan="4" class="text-center text-muted">Loading missions...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-{{-- <div class="container mt-5">
+<div class="container mt-5">
     <h2>Submitted Reports</h2>
 
     <!-- Reports Table -->
@@ -135,7 +76,7 @@
         </tbody>
     </table>
     
-</div> --}}
+</div>
 
 <!-- Bootstrap Modal for Adding Reports -->
 

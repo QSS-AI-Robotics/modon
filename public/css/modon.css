@@ -157,3 +157,7 @@ a:hover {
     color: white !important; /* Change to your preferred hover color */
     text-decoration: none !important;
 }
+.pilotEvents{
+    padding: 0.3rem;
+    border-radius: 12px;
+}

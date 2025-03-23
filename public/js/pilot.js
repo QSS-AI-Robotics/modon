@@ -27,41 +27,52 @@ $(document).ready(function () {
                 $.each(response.missions, function (index, mission) {
                     let inspectionTypes = mission.inspection_types.map(type => type.name).join("<br>");
                     let locations = mission.locations.map(loc => loc.name).join("<br>");
-    
-                    // Determine button text based on mission status
+                
+                    // Determine button text and image source based on mission status
                     let buttonText = "";
-                    let buttonClass = "btn-danger"; // Default class for styling
-    
+                    let buttonClass = "btn-danger";
+                    let ImgClass = "bg-danger";
+                    let imageSrc = "/images/start.png"; // Default
+                
                     if (mission.status === "Pending") {
                         buttonText = "Start";
                         buttonClass = "btn-danger";
+                        ImgClass = "bg-danger";
+                        imageSrc = "/images/start.png";
                     } else if (mission.status === "In Progress") {
                         buttonText = "Finish";
                         buttonClass = "btn-warning";
+                        ImgClass = "bg-warning";
+                        imageSrc = "/images/finish.png";
                     } else if (mission.status === "Awaiting Report") {
                         buttonText = "Add Report";
                         buttonClass = "btn-primary";
+                        ImgClass = "bg-primary";
+                        imageSrc = "/images/uploadreport.png";
                     } else if (mission.status === "Completed") {
                         buttonText = "Done";
                         buttonClass = "btn-success";
+                        ImgClass= "bg-success";
+                        imageSrc = "/images/view.png";
                     }
-    
+                
                     let row = `
                         <tr>
                             <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypes}</td>
                             <td>${mission.start_datetime}</td>
                             <td>${mission.end_datetime}</td>
                             <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locations}</td>
-                           
                             <td>${mission.status}</td>
                             <td>
-                                <button class="btn ${buttonClass} mission_status" data-id="${mission.id}"> ${buttonText}</button>
+                          
+                                <img src="${imageSrc}" data-id="${mission.id}" class="img-fluid actions pilotEvents mission_status ${ImgClass}" >
                             </td>
                         </tr>
                     `;
-    
+                
                     $('#missionTableBody').append(row);
                 });
+                
             }
         });
     }
@@ -85,76 +96,147 @@ $(document).ready(function () {
 
     // Handle mission status button click
     $(document).on('click', '.mission_status', function () {
-
-    
-    
-        let button = $(this);
-        let missionId = button.data('id');
-        let currentText = button.text().trim();
-    
-        let newStatus, newButtonText, newButtonClass;
-    
-        if (currentText === "Start") {
+        let image = $(this); // .pilotEvents image
+        let missionId = image.data('id');
+        let row = image.closest('tr');
+        let currentSrc = image.attr("src") // Ensure case-insensitivity
+        let wrapper = image.closest('.status-icon-wrapper');
+        let newStatus = "";
+        let newImageSrc = "";
+        let newBgClass = "";
+        if (currentSrc.includes("start.png")) {
             newStatus = "In Progress";
-            newButtonText = "Finish";
-            newButtonClass = "btn-warning"; // Change color for progress
-        } else if (currentText === "Finish") {
+            newImageSrc = "/images/finish.png";
+            newBgClass = "bg-danger";
+        } else if (currentSrc.includes("finish.png")) {
             newStatus = "Awaiting Report";
-            newButtonText = "Add Report";
-            newButtonClass = "btn-primary";
-        } else if (currentText === "Add Report") {
-            // Open modal and set mission_id
-            $("#inspectionLocationGroup .inspection-location-item").not(":first").remove(); // Remove all but the first row
+            newImageSrc = "/images/uploadreport.png";
+            newBgClass = "bg-danger";
+        } else if (currentSrc.includes("uploadreport.png")) {
+            // Show modal for report
+            $("#inspectionLocationGroup .inspection-location-item").not(":first").remove();
             $('#addReportModal').modal('show');
             $('#mission_id').val(missionId).trigger('change');
-        
-            // Get relevant inspections for the selected mission
-            let inspectionsData = button.closest('tr').find('.inspection_list').data('inspections');
-            let locationData = button.closest('tr').find('.locations_list').data('locations');
-        
-            // Populate inspection dropdown
+    
+            // Get related inspections and locations
+            let inspectionsData = row.find('.inspection_list').data('inspections');
+            let locationData = row.find('.locations_list').data('locations');
+    
             if (inspectionsData) {
                 $('#inspection_id').empty().append('<option value="">Inspection Type</option>');
-        
-                $.each(inspectionsData, function (i, inspection) {
-                    $('#inspection_id').append(`<option value="${inspection.id}">${inspection.name}</option>`);
+                inspectionsData.forEach(item => {
+                    $('#inspection_id').append(`<option value="${item.id}">${item.name}</option>`);
                 });
             }
-        
-            // Populate location dropdown (Fixed: Corrected `#locations_id` to `#location_id`)
+    
             if (locationData) {
                 $('#location_id').empty().append('<option value="">Select Location</option>');
-        
-                $.each(locationData, function (i, location) {
-                    $('#location_id').append(`<option value="${location.id}">${location.name}</option>`);
+                locationData.forEach(loc => {
+                    $('#location_id').append(`<option value="${loc.id}">${loc.name}</option>`);
                 });
             }
-        
-            return; // Stop further execution, no AJAX request needed
-        } else {
-            return;
-        }
-        
     
-        // Update mission status via AJAX
+            return; // Stop here - no status update when opening report modal
+        } else {
+            return; // Completed or unknown state
+        }
+    
+        // Update the image
+        image.attr("src", newImageSrc);
+        wrapper.removeClass("bg-danger bg-warning bg-primary bg-success").addClass(newBgClass);
+        // Update the status cell visually (optional)
+        row.find("td:nth-child(5)").text(newStatus); // assuming 5th column is status
+    
+        // Send status update to backend
         $.ajax({
             url: "/pilot/missions/update-status",
             type: "POST",
             data: {
-                _token: $('meta[name="csrf-token"]').attr('content'), // Include CSRF token
+                _token: $('meta[name="csrf-token"]').attr('content'),
                 mission_id: missionId,
                 status: newStatus
             },
             success: function () {
-                // Update button text & class dynamically
-                button.text(newButtonText).removeClass("btn-success btn-warning btn-primary").addClass(newButtonClass);
-                fetchMissions(); // Refresh missions list after updating status
+                fetchMissions(); // Optional: refresh table if needed
             },
             error: function () {
-                alert("Failed to update mission status. Please try again.");
+                alert("Failed to update mission status.");
             }
         });
     });
+    
+    
+    // $(document).on('click', '.mission_status', function () {
+
+    
+    
+    //     let button = $(this);
+    //     let missionId = button.data('id');
+    //     let currentText = button.text().trim();
+    
+    //     let newStatus, newButtonText, newButtonClass;
+    
+    //     if (currentText === "Start") {
+    //         newStatus = "In Progress";
+    //         newButtonText = "Finish";
+    //         newButtonClass = "btn-warning"; // Change color for progress
+    //     } else if (currentText === "Finish") {
+    //         newStatus = "Awaiting Report";
+    //         newButtonText = "Add Report";
+    //         newButtonClass = "btn-primary";
+    //     } else if (currentText === "Add Report") {
+    //         // Open modal and set mission_id
+    //         $("#inspectionLocationGroup .inspection-location-item").not(":first").remove(); // Remove all but the first row
+    //         $('#addReportModal').modal('show');
+    //         $('#mission_id').val(missionId).trigger('change');
+        
+    //         // Get relevant inspections for the selected mission
+    //         let inspectionsData = button.closest('tr').find('.inspection_list').data('inspections');
+    //         let locationData = button.closest('tr').find('.locations_list').data('locations');
+        
+    //         // Populate inspection dropdown
+    //         if (inspectionsData) {
+    //             $('#inspection_id').empty().append('<option value="">Inspection Type</option>');
+        
+    //             $.each(inspectionsData, function (i, inspection) {
+    //                 $('#inspection_id').append(`<option value="${inspection.id}">${inspection.name}</option>`);
+    //             });
+    //         }
+        
+    //         // Populate location dropdown (Fixed: Corrected `#locations_id` to `#location_id`)
+    //         if (locationData) {
+    //             $('#location_id').empty().append('<option value="">Select Location</option>');
+        
+    //             $.each(locationData, function (i, location) {
+    //                 $('#location_id').append(`<option value="${location.id}">${location.name}</option>`);
+    //             });
+    //         }
+        
+    //         return; // Stop further execution, no AJAX request needed
+    //     } else {
+    //         return;
+    //     }
+        
+    
+    //     // Update mission status via AJAX
+    //     $.ajax({
+    //         url: "/pilot/missions/update-status",
+    //         type: "POST",
+    //         data: {
+    //             _token: $('meta[name="csrf-token"]').attr('content'), // Include CSRF token
+    //             mission_id: missionId,
+    //             status: newStatus
+    //         },
+    //         success: function () {
+    //             // Update button text & class dynamically
+    //             button.text(newButtonText).removeClass("btn-success btn-warning btn-primary").addClass(newButtonClass);
+    //             fetchMissions(); // Refresh missions list after updating status
+    //         },
+    //         error: function () {
+    //             alert("Failed to update mission status. Please try again.");
+    //         }
+    //     });
+    // });
 
 
 

@@ -219,7 +219,8 @@
 
             </div> <!-- End Right Column -->
             
-        </div> <!-- End Main Panel -->
+        </div> 
+        <!-- End Main Panel -->
     </div>
 
     <!-- Scripts -->

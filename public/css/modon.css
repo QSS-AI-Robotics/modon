@@ -234,3 +234,73 @@ a:hover {
     overflow-x: auto;
     padding-bottom: 10px; 
 }
+iframe {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* subtle shadow */
+    border-radius: 8px; /* optional rounded corners */
+}
+
+
+
+    .modal-body {
+        /* height: 100vh; */
+    }
+
+    .report-modal-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .report-table-container {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .video-section {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .video-section iframe {
+        flex: 3;
+        min-height: 200px;
+    }
+
+    .video-section textarea {
+        flex: 1;
+        resize: none;
+    }
+    .image-scroll-wrapper {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-height: 100px;
+        padding: 5px;
+        gap: 8px;
+        min-width: 100%;
+        max-width: 165px;
+        }
+
+        .image-scroll-wrapper img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        flex-shrink: 0;
+        }
+        .image-scroll-wrapper:hover{
+            cursor: pointer;
+        }
+        .image-scroll-wrapper::-webkit-scrollbar {
+            height: 4px; /* Scrollbar height for horizontal */
+        }
+
+        .image-scroll-wrapper::-webkit-scrollbar-thumb {
+            background-color: #242C45; /* Color of the scrollbar thumb */
+            border-radius: 4px;
+        }
+
+        .image-scroll-wrapper::-webkit-scrollbar-track {
+            background-color: #1e253b; /* Background of scrollbar track */
+        }

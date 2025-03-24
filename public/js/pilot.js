@@ -1,4 +1,9 @@
 $(document).ready(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
     fetchMissions();
     // fetchReports();
     // fetch mission
@@ -79,19 +84,7 @@ $(document).ready(function () {
     
 
 
-    function getRandomDateTime() {
-        let now = new Date();
-        let randomDays = Math.floor(Math.random() * 10); // Random days within the next 10 days
-        let randomHours = Math.floor(Math.random() * 24);
-        let randomMinutes = Math.floor(Math.random() * 60);
-        
-        let randomDate = new Date();
-        randomDate.setDate(now.getDate() + randomDays);
-        randomDate.setHours(randomHours);
-        randomDate.setMinutes(randomMinutes);
-        
-        return randomDate.toISOString().slice(0, 16);
-    }
+
 
 
     // Handle mission status button click
@@ -170,78 +163,7 @@ $(document).ready(function () {
         });
     });
     
-    
-    // $(document).on('click', '.mission_status', function () {
 
-    
-    
-    //     let button = $(this);
-    //     let missionId = button.data('id');
-    //     let currentText = button.text().trim();
-    
-    //     let newStatus, newButtonText, newButtonClass;
-    
-    //     if (currentText === "Start") {
-    //         newStatus = "In Progress";
-    //         newButtonText = "Finish";
-    //         newButtonClass = "btn-warning"; // Change color for progress
-    //     } else if (currentText === "Finish") {
-    //         newStatus = "Awaiting Report";
-    //         newButtonText = "Add Report";
-    //         newButtonClass = "btn-primary";
-    //     } else if (currentText === "Add Report") {
-    //         // Open modal and set mission_id
-    //         $("#inspectionLocationGroup .inspection-location-item").not(":first").remove(); // Remove all but the first row
-    //         $('#addReportModal').modal('show');
-    //         $('#mission_id').val(missionId).trigger('change');
-        
-    //         // Get relevant inspections for the selected mission
-    //         let inspectionsData = button.closest('tr').find('.inspection_list').data('inspections');
-    //         let locationData = button.closest('tr').find('.locations_list').data('locations');
-        
-    //         // Populate inspection dropdown
-    //         if (inspectionsData) {
-    //             $('#inspection_id').empty().append('<option value="">Inspection Type</option>');
-        
-    //             $.each(inspectionsData, function (i, inspection) {
-    //                 $('#inspection_id').append(`<option value="${inspection.id}">${inspection.name}</option>`);
-    //             });
-    //         }
-        
-    //         // Populate location dropdown (Fixed: Corrected `#locations_id` to `#location_id`)
-    //         if (locationData) {
-    //             $('#location_id').empty().append('<option value="">Select Location</option>');
-        
-    //             $.each(locationData, function (i, location) {
-    //                 $('#location_id').append(`<option value="${location.id}">${location.name}</option>`);
-    //             });
-    //         }
-        
-    //         return; // Stop further execution, no AJAX request needed
-    //     } else {
-    //         return;
-    //     }
-        
-    
-    //     // Update mission status via AJAX
-    //     $.ajax({
-    //         url: "/pilot/missions/update-status",
-    //         type: "POST",
-    //         data: {
-    //             _token: $('meta[name="csrf-token"]').attr('content'), // Include CSRF token
-    //             mission_id: missionId,
-    //             status: newStatus
-    //         },
-    //         success: function () {
-    //             // Update button text & class dynamically
-    //             button.text(newButtonText).removeClass("btn-success btn-warning btn-primary").addClass(newButtonClass);
-    //             fetchMissions(); // Refresh missions list after updating status
-    //         },
-    //         error: function () {
-    //             alert("Failed to update mission status. Please try again.");
-    //         }
-    //     });
-    // });
 
     function extractYouTubeID(url) {
         const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/);
@@ -260,7 +182,7 @@ $(document).ready(function () {
             type: "GET",
             data: missionId ? { mission_id: missionId } : {},
             success: function (response) {
-                console.log("🚀 Reports Fetched:", response);
+                // console.log("🚀 Reports Fetched:", response);
                 $('#reportTableBody').empty();
     
                 if (response.reports.length === 0) {
@@ -271,15 +193,14 @@ $(document).ready(function () {
                     `);
                     return;
                 }
-                console.log(response.reports[0].video_url); // Logs video URL of the first report
+                // console.log(response.reports[0].video_url); 
                 const videoId = extractYouTubeID(response.reports[0].video_url);
                 if (videoId) {
                     const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
                     $('#pilotVideo').attr('src', embedUrl);
                 }
                 
-
-                
+                $(".pilot_note").text(response.reports[0].description);                
 
                 $.each(response.reports, function (index, report) {
                     // Top row: Summary info
@@ -312,10 +233,21 @@ $(document).ready(function () {
                         const firstImg = imagesGroup[0];
                         const description = firstImg.description || "No Description";
     
-                        let imagesHtml = imagesGroup.map(img => `
-                            <img src="/${img.image_path}" class="" style="width: 80px; height: 80px;">
-                        `).join("");
-    
+                        // let imagesHtml = imagesGroup.map(img => `
+                        //     <img   src="/${img.image_path}" class="" style="width: 80px; height: 80px;">
+                        // `).join("");
+                        let imagesHtml = `
+                        <div style="width: 100%; overflow-x: auto;">
+                          <div class="image-scroll-wrapper">
+                            ${imagesGroup.map(img => `
+                              <img src="/${img.image_path}" class="" />
+                            `).join("")}
+                          </div>
+                        </div>
+                      `;
+
+
+                    
                         let groupRow = `
                             <tr>
                                 <td colspan="2">${firstImg.inspection_type.name}</td>
@@ -336,123 +268,87 @@ $(document).ready(function () {
         });
     }
     
-    
-    // function fetchReports(missionId) {
-    //     console.log("🚀 Fetching reports for mission ID:", missionId);
-    //     $('#reportTableBody').html(`
-    //         <tr><td colspan="8" class="text-center text-muted">Loading reports...</td></tr>
-    //     `);
-    //     $.ajax({
-    //         url: "/pilot/reports",
-    //         type: "GET",
 
-    //         success: function (response) {
-    //             $('#reportTableBody').empty();
-
-    //             if (response.reports.length === 0) {
-    //                 $('#reportTableBody').append(`
-    //                     <tr>
-    //                         <td colspan="8" class="text-center text-muted">
-    //                             No reports submitted yet.
-    //                         </td>
-    //                     </tr>
-    //                 `);
-    //                 return;
-    //             }
-
-    //             $.each(response.reports, function (index, report) {
-    //                 let images = report.images.map(img => `<img src="/${img.image_path}" width="50">`).join(" ");
-    //                 let videoLink = report.video_url ? `<a href="${report.video_url}" target="_blank">Watch</a>` : "N/A";
-
-    //                 let row = `
-    //                     <tr id="reportRow-${report.id}">
-    //                         <td>${report.mission.id}</td>
-    //                         <td>${report.report_reference}</td>
-    //                         <td>${report.start_datetime}</td>
-    //                         <td>${report.end_datetime}</td>
-    //                         <td>${videoLink}</td>
-    //                         <td class="imgPanel">${images}</td>
-    //                         <td>${report.description || "N/A"}</td>
-    //                         <td>
-    //                             <button class="btn btn-warning edit-report" data-id="${report.id}">Edit</button>
-    //                             <button class="btn btn-danger delete-report" data-id="${report.id}">Delete</button>
-    //                         </td>
-    //                     </tr>
-    //                 `;
-    //                 $('#reportTableBody').append(row);
-    //             });
-    //         }
-    //     });
-    // }
 
     // ✅ Handle Edit Report Button Click start
-
     $(document).on("click", ".edit-report", function () {
         let reportId = $(this).data("id");
+        $('#viewReportModal').modal('hide');
     
         $.ajax({
             url: `/pilot/reports/${reportId}/edit`,
             type: "GET",
             success: function (response) {
-                console.log("✅ Report Data Loaded: ", response);
+                const report = response;
     
-                function formatDateTime(dateTime) {
-                    return dateTime ? dateTime.replace(" ", "T").slice(0, 16) : "";
-                }
+                // ✅ Show modal
+                $('#updateReportModal').modal('show');
     
-                // ✅ Set main fields
-                $("#edit_report_id").val(response.report_id);
-                $("#edit_mission_id").val(response.mission_id);
-                $("#edit_start_datetime").val(formatDateTime(response.start_datetime));
-                $("#edit_end_datetime").val(formatDateTime(response.end_datetime));
-                $("#edit_video_url").val(response.video_url);
-                $("#edit_description").val(response.description);
+                // ✅ Fill general report data
+                $('#edit_report_id').val(reportId);
+                $('#edit_start_datetime').val(report.start_datetime);
+                $('#edit_end_datetime').val(report.end_datetime);
+                $('#edit_video_url').val(report.video_url);
+                $('#edit_description').val(report.description);
     
                 // ✅ Clear previous incident rows
-                $("#editInspectionLocationGroup").html("");
+                const groupContainer = $('#updateInspectionLocationGroup');
+                groupContainer.empty();
     
-                // ✅ Populate incidents dynamically
-                response.incidents.forEach((incident, index) => {
-                    let newGroup = `
-                        <div class="row mb-3 editinspection-location-item">
-                            <label class="form-label">Incident Detail</label>
-                              <input type="hidden" class="form-control image_id" id="id" name="id"  value="${incident.id}" required>
-                            <div class="col-md-3">
-                                <select class="form-select inspection_id" name="inspection_id[]" required>
-                                    ${populateDropdown(response.inspections, incident.inspection_type_id)}
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select location_id" name="location_id[]" required>
-                                    ${populateDropdown(response.locations, incident.location_id)}
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="text" class="form-control inspectiondescrption" name="inspectiondescrption[]" value="${incident.description}">
-                            </div>
-                            <div class="col-md-2">
-                                <input type="file" class="form-control images" name="images_${index}[]" multiple accept="image/*">
-                                <div class="image-preview">
-                                    ${incident.images.map(image => `<img src="${image}" width="50">`).join(" ")}
+                // ✅ Loop through incidents and build UI
+                report.incidents.forEach((incident, index) => {
+                    const inspectionOptions = report.inspections.map(ins =>
+                        `<option value="${ins.id}" ${ins.id === incident.inspection_type_id ? 'selected' : ''}>${ins.name}</option>`
+                    ).join("");
+    
+                    const locationOptions = report.locations.map(loc =>
+                        `<option value="${loc.id}" ${loc.id === incident.location_id ? 'selected' : ''}>${loc.name}</option>`
+                    ).join("");
+    
+                    const imagePreview = incident.images.map(img =>
+                        `<img src="/${img}" width="80" height="80" style="object-fit:cover;" />`
+                    ).join("");
+    
+                    const incidentHTML = `
+                        <div class="col-lg-3 col-md-3 col-sm-6 mb-3 updateinspection-location-item">
+                            <div class="row">
+                                <div class="col-12 mb-2">
+                                    <select class="form-select inspection_id dateInput form-control-lg" name="inspection_id[]" required>
+                                        ${inspectionOptions}
+                                    </select>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <select class="form-select location_id dateInput form-control-lg" name="location_id[]" required>
+                                        ${locationOptions}
+                                    </select>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <div class="image-upload-box border-secondary rounded p-3 text-center text-white" onclick="this.querySelector('input[type=file]').click()">
+                                        <p class="mb-2">Click to Upload Images</p>
+                                        <div class="image-preview d-flex flex-wrap gap-2 justify-content-start" data-image="${incident.images}">
+                                            ${imagePreview}
+                                        </div>
+                                        <input type="file" class="form-control d-none images" name="images_${index}[]" multiple accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <input type="text" class="form-control inspectiondescrption dateInput text-white form-control-lg" name="inspectiondescrption[]" value="${incident.description}" placeholder="Inspection Description">
                                 </div>
                             </div>
-                            <div class="col-md-1 d-flex align-items-end">
-                                <button type="button" class="btn btn-success addEditInspectionRow">+</button>
-                                <button type="button" class="btn btn-danger removeEditInspectionRow">-</button>
-                            </div>
-                        </div>`;
+                        </div>
+                    `;
     
-                    $("#editInspectionLocationGroup").append(newGroup);
+                    groupContainer.append(incidentHTML);
                 });
-                $("#edit_report_id").val(reportId);
-                // ✅ Show the edit modal
-                $("#editReportModal").modal("show");
             },
             error: function () {
-                alert("❌ Error fetching report details. Please try again.");
+                alert("❌ Failed to fetch report data for editing.");
             }
         });
     });
+    
+    
+   
     
     // ✅ Helper function to populate dropdowns
     function populateDropdown(options, selectedValue) {
@@ -462,73 +358,159 @@ $(document).ready(function () {
     }
 
     // update report
-    $('#editReportForm').on('submit', function (e) {
+    $(document).on("submit", "#updateReportForm", function (e) {
         e.preventDefault();
-        let formData = new FormData(this);
-        let reportId = $("#edit_report_id").val(); // Get report ID
     
-        let jsonData = {
-            _token: $('input[name="_token"]').val(),
-            report_id: reportId,
-            start_datetime: $("#edit_start_datetime").val(),
-            end_datetime: $("#edit_end_datetime").val(),
-            video_url: $("#video_url").val(),
-            description: String($("#edit_description").val()), // ✅ Ensure it's a string
+        const reportId = $('#edit_report_id').val();
+    
+        const structuredData = {
+            start_datetime: $('#edit_start_datetime').val(),
+            end_datetime: $('#edit_end_datetime').val(),
+            video_url: $('#edit_video_url').val(),
+            description: $('#edit_description').val(),
             pilot_report_images: []
         };
     
-        $(".editinspection-location-item").each(function (index) {
-            let imageId = $(this).find(".image_id").val() || null;
-            let inspectionId = $(this).find(".inspection_id").val() || null;
-            let locationId = $(this).find(".location_id").val() || null;
-            let description = $(this).find(".inspectiondescrption").val() || ""; // ✅ Ensure a string
-            let existingImage = $(this).find(".image-preview img").attr("src") || null;
-            let newImages = $(this).find("input[type='file']")[0].files;
+        const formData = new FormData();
     
-            let imageObject = {
-                id: imageId,
-                inspection_id: inspectionId,
-                location_id: locationId,
-                description: String(description), // ✅ Ensure it's a string
-                image_path: existingImage,
-                new_images: []
-            };
+        $('#updateInspectionLocationGroup .updateinspection-location-item').each(function (index) {
+            const $item = $(this);
     
-            if (newImages.length > 0) {
-                $.each(newImages, function (i, file) {
-                    formData.append(`images_${index}[]`, file);
-                    imageObject.new_images.push(file.name); // Store names for debugging
-                });
+            const inspectionId = $item.find('.inspection_id').val();
+            const locationId = $item.find('.location_id').val();
+            const description = $item.find('.inspectiondescrption').val();
+            const fileInput = $item.find('input[type="file"]')[0];
+            const hasNewImages = fileInput && fileInput.files.length > 0;
+            
+            let previousImage = $item.find('.image-preview').attr('data-image') || "N/A";
+            const existingImages = [];
+
+            $item.find('.image-preview img').each(function () {
+                const src = $(this).attr('src');
+                if (src && src.startsWith('data:image')) {
+                    // New uploaded base64 image
+                    existingImages.push(src);
+                }
+            });
+
+
+
+    
+            // Append new images to FormData
+            if (hasNewImages) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append(`images_${index}[]`, fileInput.files[i]);
+                }
             }
     
-            jsonData.pilot_report_images.push(imageObject);
+            structuredData.pilot_report_images.push({
+                index: index,
+                inspection_id: inspectionId,
+                location_id: locationId,
+                description: description,
+                new_images: hasNewImages ? fileInput.files.length : 0,
+                new_image_data: hasNewImages ? existingImages.filter(src => src.startsWith('data:image')) : [],
+                previous_image: previousImage
+            });
         });
     
-        // ✅ Convert JSON to FormData
-        formData.append("data", JSON.stringify(jsonData));
+        // Log final JSON structure
+        console.log("📝 Final JSON to Submit:", JSON.stringify(structuredData, null, 2));
     
-        // 🚀 Log JSON before submission
-        console.log("🚀 Incoming Report Update Request", JSON.stringify(jsonData, null, 2));
+        formData.append("data", JSON.stringify(structuredData));
     
-        // ✅ Send AJAX Request
         $.ajax({
             url: `/pilot/reports/${reportId}/update`,
-            type: "POST",
+            method: "POST",
             data: formData,
             processData: false,
             contentType: false,
-            success: function () {
-       
-                console.log('✅ Report updated successfully!');
-                $('#editReportModal').modal('hide');
-                fetchMissions();
+            success: function (response) {
+                console.log(response.message);
+                $('#updateReportModal').modal('hide');
+                fetchReports();
             },
             error: function (xhr) {
-                console.error("❌ Error updating report:", xhr.responseText);
-                alert("Error updating report. Please check your inputs.");
+                console.error("❌ Update Error:", xhr.responseText);
+                alert("Failed to update the report.");
             }
         });
     });
+    
+// Submit Update Report Form
+
+// Submit Update Report Form
+// $(document).on("submit", "#updateReportForm", function (e) {
+//     e.preventDefault();
+
+//     const reportId = $('#edit_report_id').val();
+
+//     const structuredData = {
+//         start_datetime: $('#edit_start_datetime').val(),
+//         end_datetime: $('#edit_end_datetime').val(),
+//         video_url: $('#edit_video_url').val(),
+//         description: $('#edit_description').val(),
+//         pilot_report_images: []
+//     };
+
+//     const formData = new FormData();
+
+//     $('#updateInspectionLocationGroup .updateinspection-location-item').each(function (index) {
+//         const $item = $(this);
+
+//         const inspectionId = $item.find('.inspection_id').val();
+//         const locationId = $item.find('.location_id').val();
+//         const description = $item.find('.inspectiondescrption').val();
+//         const fileInput = $item.find('input[type="file"]')[0];
+//         const hasNewImages = fileInput && fileInput.files.length > 0;
+
+//         // Collect existing image previews
+//         const existingImages = $item.find('.image-preview img').map(function () {
+//             return $(this).attr('src');
+//         }).get();
+
+//         // Append new images to FormData
+//         if (hasNewImages) {
+//             for (let i = 0; i < fileInput.files.length; i++) {
+//                 formData.append(`images_${index}[]`, fileInput.files[i]);
+//             }
+//         }
+
+//         structuredData.pilot_report_images.push({
+//             index: index,
+//             inspection_id: inspectionId,
+//             location_id: locationId,
+//             description: description,
+//             new_images: hasNewImages ? fileInput.files.length : 0,
+//             existing_images: existingImages
+//         });
+//     });
+
+//     // Log final JSON structure
+//     console.log("📝 Final JSON to Submit:", JSON.stringify(structuredData, null, 2));
+
+//     formData.append("data", JSON.stringify(structuredData));
+
+//     // $.ajax({
+//     //     url: `/pilot/reports/${reportId}/update`,
+//     //     method: "POST",
+//     //     data: formData,
+//     //     processData: false,
+//     //     contentType: false,
+//     //     success: function (response) {
+//     //         alert(response.message);
+//     //         $('#updateReportModal').modal('hide');
+//     //         fetchReports();
+//     //     },
+//     //     error: function (xhr) {
+//     //         console.error("❌ Update Error:", xhr.responseText);
+//     //         alert("Failed to update the report.");
+//     //     }
+//     // });
+// });
+
+
+
     
         // for editing add adn remove row
 
@@ -582,80 +564,7 @@ $(document).ready(function () {
         });
         // end here
     
-    // $('#editReportForm').on('submit', function (e) {
-    //     e.preventDefault();
-    //     let formData = new FormData(this);
-    //     let reportId = $("#edit_report_id").val(); // Get report ID
-    
-    //     let pilotReportData = {
-    //         report_id: reportId,
-    //         _token: $('input[name="_token"]').val(),
-    //         start_datetime: $("#start_datetime").val(),
-    //         end_datetime: $("#end_datetime").val(),
-    //         video_url: $("#video_url").val(),
-    //         description: $("#description").val(),
-    //     };
-    
-    //     let pilotReportImages = [];
-    
-    //     $(".inspection-location-item").each(function (index) {
-    //         let imageId = $(this).find(".image_id").val();
-    //         let imageInput = $(this).find("input[type='file']")[0].files;
-    //         let existingImage = $(this).find(".image-preview img").attr("src");
-    //         let inspectionId = $(this).find(".inspection_id").val();
-    //         let locationId = $(this).find(".location_id").val();
-    //         let description = $(this).find(".inspectiondescrption").val();
-    
-    //         // ✅ Skip if Inspection ID and Location ID are missing
-    //         if (!inspectionId || !locationId) {
-    //             console.warn(`⚠️ Skipping empty row #${index}`);
-    //             return;
-    //         }
-    
-    //         let imageData = {
-    //             id: imageId || null,
-    //             inspection_id: inspectionId,
-    //             location_id: locationId,
-    //             description: description || "",
-    //             image_path: existingImage || null,
-    //             new_images: []
-    //         };
-    
-    //         if (imageInput.length > 0) {
-    //             $.each(imageInput, function (i, file) {
-    //                 formData.append(`images_${index}[]`, file);
-    //                 imageData.new_images.push(file.name);
-    //             });
-    //         }
-    
-    //         pilotReportImages.push(imageData);
-    //     });
-    
-    //     // 🚀 **Improved Debugging: Log Everything Clearly**
-    //     console.log("🚀 Incoming Report Update Request", JSON.stringify({
-    //         pilot_report: pilotReportData,
-    //         pilot_report_images: pilotReportImages
-    //     }, null, 2));
-    
-    //     // ✅ **Send AJAX Request**
-    //     $.ajax({
-    //         url: `/pilot/reports/${reportId}/update`,
-    //         type: "POST",
-    //         data: formData,
-    //         processData: false,
-    //         contentType: false,
-    //         success: function () {
-    //             fetchReports();
-    //             console.log('✅ Report updated successfully!');
-    //             $('#editReportModal').modal('hide');
-    //             fetchMissions();
-    //         },
-    //         error: function (xhr) {
-    //             console.error("❌ Error updating report:", xhr.responseText);
-    //             alert("Error updating report. Please check your inputs.");
-    //         }
-    //     });
-    // });
+   
     
     
    
@@ -679,7 +588,7 @@ $(document).ready(function () {
             success: function (response) {
                 console.log(response.message);
                 fetchMissions();
-          
+                $('#viewReportModal').modal('hide');
             },
             error: function (xhr) {
                 console.log("Error deleting report: " + xhr.responseText);
@@ -826,7 +735,57 @@ $(document).ready(function () {
             $group.find('.inspection-location-item').last().remove();
         }
     });
+
+ 
+        
+    let updgroupIndex = 1; // Unique index for naming input fields dynamically
+
+    // Function to add a new Incident Detail row dynamically
+    $(document).on("click", ".updaddInspectionRow", function () {
+        let firstRow = $("#updateInspectionLocationGroup .updateinspection-location-item:first");
     
+        let inspectionOptions = firstRow.find(".inspection_id").html(); // Get all options for inspection
+        let locationOptions = firstRow.find(".location_id").html(); // Get all options for location
+        let newGroup = `
+                <div class="col-lg-3 col-md-3 col-sm-12  mb-4 updateinspection-location-item">
+                    <div class="row ">
+                            <div class="col-12 mb-2">
+                                <select class="form-select inspection_id dateInput   form-control-lg" name="inspection_id[]" id="inspection_id" required>
+                                ${inspectionOptions} 
+                                </select> 
+                            </div>
+                            <div class="col-12 mb-2">
+                                <select class="form-select location_id dateInput  form-control-lg" name="location_id[]" id="location_id" required>
+                                ${locationOptions}
+                                </select> 
+                            </div>
+                            <div class="col-12 mb-2 ">
+                                <div class="image-upload-box  border-secondary rounded p-3 text-center text-white" style="" onclick="this.querySelector('input[type=file]').click()">
+                                    <p class="mb-2">Click to Upload Images</p>
+                                    <div class="image-preview d-flex flex-wrap gap-2 justify-content-start"></div>
+                                    <input type="file" class="form-control d-none images" name="images_${updgroupIndex}[]" multiple accept="image/*">
+                                </div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <input type="text" class="form-control inspectiondescrption dateInput text-white form-control-lg" name="inspectiondescrption[]" placeholder="Inspection Description">
+                            </div>
+                        </div>
+                </div>
+        `;
+
+        $("#updateInspectionLocationGroup").append(newGroup);
+        updateDropdowns(); // Populate dropdowns with existing values
+        updgroupIndex++;
+    });
+    $(document).on('click', '.updremoveInspectionRow', function () {
+        // Target the container holding all inspection rows
+        const $group = $('#updateInspectionLocationGroup');
+    
+        // Only remove if there's more than one item (optional safety check)
+        if ($group.find('.updateinspection-location-item').length > 1) {
+            $group.find('.updateinspection-location-item').last().remove();
+        }
+    });
     // $(document).on("click", ".removeInspectionRow", function () {
     //     if ($(".inspection-location-item").length > 1) {
     //         $(this).closest(".inspection-location-item").remove();

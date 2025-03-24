@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Models\User;
+use App\Models\UserType;
+use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,8 +12,13 @@ class AdminController extends Controller
     // Show the main admin dashboard/index page
     public function index()
     {
-        // You can fetch any needed data here and pass to view
-        return view('admin.index');
+        $userTypes = UserType::all();
+        $regions = Region::all();
+    
+        return view('admin.index', [
+            'userTypes' => $userTypes,
+            'regions' => $regions
+        ]);
     }
     public function getAllUsers()
     {

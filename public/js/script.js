@@ -78,7 +78,7 @@ $(document).ready(function () {
                     $(".mission-btn svg").attr({ "width": "20", "height": "20" }); // Increase SVG size
                 
                     // ✅ Store Location ID in Form (Hidden Input)
-                    $("#locationForm").attr("data-location-id", locationId);
+                    $("#signupForm").attr("data-location-id", locationId);
                 
                     // ✅ Show Cancel Button
                     $(".cancel-btn").removeClass("d-none");
@@ -91,8 +91,8 @@ $(document).ready(function () {
     });
 
     function resetForm(){
-        $("#locationForm")[0].reset(); // Reset Form Fields
-        $("#locationForm").removeAttr("data-location-id"); // Remove Edit Mode
+        $("#signupForm")[0].reset(); // Reset Form Fields
+        $("#signupForm").removeAttr("data-location-id"); // Remove Edit Mode
         $(".form-title").text("Create New Location");
         $(".mission-btn span").text("New Location");
         $(".cancel-btn").addClass("d-none"); // Hide Cancel Button
@@ -103,7 +103,7 @@ $(document).ready(function () {
 
 
     // Submit Form (Create)
-    $('#locationForm').on('submit', function (e) {
+    $('#signupForm').on('submit', function (e) {
         e.preventDefault();
 
         let locationId = $('#locationId').val();

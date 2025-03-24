@@ -104,7 +104,7 @@
                     
                     <div class="row">
                         <div class="col-lg-8">
-                            <h6 class="form-title">Create New Location</h6>
+                            <h6 class="form-title">Create New User</h6>
                         </div>
                         <div class="col-lg-4  text-end">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none p-1">
@@ -112,7 +112,7 @@
                             </button>
                         </div>
                     </div>
-                    <form id="locationForm">
+                    <form id="signupForm">
                         @csrf
                         <div class="row">
 
@@ -122,29 +122,42 @@
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text">Location Name</label>
-                                <input type="text" class="form-control dateInput" id="name" name="start_datetime" required>
+                                <label class="form-label label-text">Full Name</label>
+                                <input type="text" class="form-control dateInput" id="fullname" name="fullname" required>
                             </div>
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Latitude</label>
-                                <input type="Number" class="form-control dateInput" id="latitude" name="latitude" required>
+                                <label class="form-label label-text">Email</label>
+                                <input type="email" class="form-control dateInput"  id="email" name="email" required>
                             </div>
 
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Longitude</label>
-                                <input type="Number" class="form-control dateInput" id="longitude" name="longitude" required>
+                                <label class="form-label label-text">Password</label>
+                                <input type="Number" class="form-control dateInput" id="password" name="password" required>
                             </div>
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text">Map</label>
-                                <input type="text" class="form-control dateInput" id="map_url" name="map_url" placeholder="google map url" required>
+                               
+                                <label for="region" class="form-label">Region</label>
+                                <select class="form-select  dateInput" id="region" name="region" required>
+                                    <option value="">Select Region</option>
+                                    @foreach($regions as $region)
+                                        <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                    @endforeach
+                                </select>
+                                <span class="text-danger" id="region_error"></span>
                             </div>
 
 
 
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-check-label label-text py-2">Description</label>
-                                <textarea id="description" name="description" class="form-control notes-textarea flex-grow-1" rows="5"></textarea>
+                                <label for="user_type" class="form-label">User Type</label>
+                                <select class="form-select dateInput" id="user_type" name="user_type" required>
+                                    <option value="">Select User Type</option>
+                                    @foreach($userTypes as $userType)
+                                        <option value="{{ $userType->id }}">{{ $userType->name }}</option>
+                                    @endforeach
+                                </select>
+                                <span class="text-danger" id="user_type_error"></span>
 
                             </div>
                            
@@ -157,7 +170,7 @@
                                             <path d="M19 16L19 22" stroke="#101625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M14 2.5V6C14 7.10457 14.8954 8 16 8H18.5" stroke="#101625" stroke-width="1.5" stroke-linecap="round"/>
                                         </svg>
-                                        <span>New Location</span>
+                                        <span>New User</span>
                                     </button>
                                 </div>
 

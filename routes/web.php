@@ -5,6 +5,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegionManagerController;
 use App\Http\Controllers\PilotController;
+use App\Http\Controllers\AdminController;
+
 // ✅ Public Routes (Accessible Without Authentication)
 Route::get('/', [AuthController::class, 'showSigninForm'])->name('signin.form'); // Sign-in Page
 Route::post('/signin', [AuthController::class, 'loginUser'])->name('signin.store'); // Login
@@ -18,7 +20,7 @@ Route::get('/login', function () {
 
 // ✅ Protected Routes (Requires Authentication)
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard'); // Dashboard
+    Route::get('/users', [UserController::class, 'index'])->name('dashboard'); // Dashboard
 
     // User Management (Only for authenticated users)
     Route::get('/users/{id}/edit', [UserController::class, 'edit']);
@@ -68,4 +70,11 @@ Route::middleware(['auth'])->group(function () {
     //update mission status
     Route::post('/pilot/missions/update-status', [PilotController::class, 'updateMissionStatus']);
 
+});
+
+// Admin Routes
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/dashboard/users', [AdminController::class, 'getAllUsers'])->name('admin.getUsers');
 });

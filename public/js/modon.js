@@ -1,65 +1,4 @@
 $(document).ready(function () {
-
-    $('#signupForm').on('submit', function (e) {
-        e.preventDefault(); // Prevent form from reloading
-
-        let formData = {
-            fullname: $('#fullname').val(),
-            email: $('#email').val(),
-            password: $('#password').val(),
-            region: $('#region').val(),
-            user_type: $('#user_type').val(),
-            _token: $('input[name="_token"]').val() // CSRF Token
-        };
-
-        $.ajax({
-            url: "/signup", // Use relative URL
-            type: "POST",
-            data: formData,
-            success: function (response) {
-                $('#successMessage').text(response.message).removeClass('d-none');
-                $('#signupForm')[0].reset(); // Reset form after success
-                $('.text-danger').text(''); // Clear previous errors
-            },
-            error: function (xhr) {
-                let errors = xhr.responseJSON.errors;
-                $('#fullname_error').text(errors.fullname ? errors.fullname[0] : '');
-                $('#email_error').text(errors.email ? errors.email[0] : '');
-                $('#password_error').text(errors.password ? errors.password[0] : '');
-                $('#region_error').text(errors.region ? errors.region[0] : '');
-                $('#user_type_error').text(errors.user_type ? errors.user_type[0] : '');
-            }
-        });
-    });
-
-    $('#signinForm').on('submit', function (e) {
-        e.preventDefault();
-
-        let formData = {
-            email: $('#email').val(),
-            password: $('#password').val(),
-            _token: $('input[name="_token"]').val()
-        };
-
-        $.ajax({
-            url: "/signin",
-            type: "POST",
-            data: formData,
-            success: function (response) {
-                window.location.href = response.redirect; // Redirect on success
-            },
-            error: function (xhr) {
-                let errors = xhr.responseJSON.errors;
-                $('#email_error').text(errors.email ? errors.email[0] : '');
-                $('#password_error').text(errors.password ? errors.password[0] : '');
-                
-                if (xhr.responseJSON.error) {
-                    $('#errorMessage').text(xhr.responseJSON.error).removeClass('d-none');
-                }
-            }
-        });
-    });
-
     // Logout AJAX Request
     $('#logoutButton').on('click', function () {
         $.ajax({
@@ -77,7 +16,48 @@ $(document).ready(function () {
         $(".search-input").toggleClass("active").show().focus();
     });
     
-
+    // $(document).on("input", ".search-input", function () {
+    //     const searchValue = $(this).val().toLowerCase().trim();
+    
+    //     // Find the closest table within the same section
+    //     const $table = $(this).closest(".search-container").closest(".border-bottom-qss").siblings(".table-responsive").find("table");
+    
+    //     $table.find("tbody tr").each(function () {
+    //         const rowText = $(this).text().toLowerCase();
+    //         if (rowText.includes(searchValue)) {
+    //             $(this).show();
+    //         } else {
+    //             $(this).hide();
+    //         }
+    //     });
+    // });
+    
+    $(document).on('input', '.search-input', function () {
+        const searchTerm = $(this).val().toLowerCase();
+        const $table = $(this).closest('.bg-section').find('table');
+        const $rows = $table.find('tbody tr');
+        let matchFound = false;
+    
+        $rows.each(function () {
+            const rowText = $(this).text().toLowerCase();
+            const isMatch = rowText.includes(searchTerm);
+            $(this).toggle(isMatch);
+            if (isMatch) matchFound = true;
+        });
+    
+        // Remove any existing "no match" row
+        $table.find('tbody .no-record').remove();
+    
+        // If no match found, show fallback row
+        if (!matchFound) {
+            $table.find('tbody').append(`
+                <tr class="no-record text-center text-muted">
+                    <td colspan="${$table.find('thead th').length}">No matching records found.</td>
+                </tr>
+            `);
+        }
+    });
+    
 
 
 

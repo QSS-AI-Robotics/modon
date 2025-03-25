@@ -249,9 +249,7 @@
     <script src="{{ asset('js/missions.js') }}"></script>
     <script>
         $(document).ready(function () {
-            $(".search-icon").click(function () {
-                $(".search-input").toggleClass("active").show().focus();
-            });
+
             $('.upl-video').click(function() {
                 $('#videoInput').click();
             });

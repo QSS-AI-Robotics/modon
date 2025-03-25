@@ -33,7 +33,7 @@
             </div>
             <div class="col-3 d-flex justify-content-end">
                 <div class="dropdown">
-                    <img src="{{ asset('images/user.png') }}" alt="Profile" class="img-fluid rounded-circle" style="max-height: 50px; cursor: pointer;">
+                    <img src="{{ asset('images/user.png') }}" alt="Profile" class="img-fluid  rounded-circle" style="max-height: 50px; cursor: pointer;">
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
                                 </div>
                                 <div class="col-lg-4 text-end search-container">
                                     <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input">
+                                    <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
                                 </div>
                             </div>
                         </div>
@@ -123,16 +123,16 @@
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text">Full Name</label>
-                                <input type="text" class="form-control dateInput" id="fullname" name="fullname" required>
+                                <input type="text" class="form-control dateInput" id="fullname" name="fullname" value="z" required>
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text">Email</label>
-                                <input type="email" class="form-control dateInput"  id="email" name="email" required>
+                                <input type="email" class="form-control dateInput"  id="email" name="email" value="z@gmail.com" required>
                             </div>
 
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text">Password</label>
-                                <input type="Number" class="form-control dateInput" id="password" name="password" required>
+                                <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" required>
                             </div>
                             <div class="col-md-12 col-sm-12">
                                
@@ -163,14 +163,8 @@
                            
                                <!-- Button (Update or Create) -->
                                 <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
-                                    <button class="btn mission-btn btn-sm d-flex align-items-center gap-1 w-100 " type="submit">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 12V8.7241C19 8.25623 18.836 7.80316 18.5364 7.44373L14.5997 2.71963C14.2197 2.26365 13.6568 2 13.0633 2H11H7C4.79086 2 3 3.79086 3 6V18C3 20.2091 4.79086 22 7 22H12" stroke="#101625" stroke-width="1.5" stroke-linecap="round"/>
-                                            <path d="M16 19H22" stroke="#101625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M19 16L19 22" stroke="#101625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M14 2.5V6C14 7.10457 14.8954 8 16 8H18.5" stroke="#101625" stroke-width="1.5" stroke-linecap="round"/>
-                                        </svg>
-                                        <span>New User</span>
+                                    <button class="btn mission-btn btn-sm d-flex align-items-center " type="submit">
+                                        Create User
                                     </button>
                                 </div>
 

@@ -53,6 +53,42 @@ body{
     background: #101625;
     color:white;
 }
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.search-input {
+    /* background: #101625 !important;
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    outline: none;
+    border: 1px solid #494E5D;
+    color: rgb(202, 201, 201); */
+
+    width: 0;
+    opacity: 0;
+    transition: width 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    position: absolute;
+    right: 50px;  /* Keeps it aligned near the icon */
+}
+
+.search-input.active {
+    width: 200px;  /* Adjust as needed */
+    opacity: 1;
+    padding-left: 20px;
+  
+}
+
+.search-icon {
+    cursor: pointer;
+    z-index: 2;
+    position: relative;
+    width: 22px;
+}
+
 .selected{
     background: #101625;
     color:white;

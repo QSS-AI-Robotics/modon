@@ -1,8 +1,43 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex Layout</title>
 
-@section('title', 'Admin Dashboard')
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/modon.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/missions.css') }}">
 
-@section('content')
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+
+<body>
+    <div class="container-fluid vh-100 d-flex flex-column padded-container">
+        
+        <!-- Header -->
+        <div class="row header shadows bg-section p-1 mb-2 align-items-center">
+            <div class="col-2 d-flex align-items-center">
+                <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50">
+            </div>
+            <div class="col-7 d-flex">
+                <button class="btn cont-btn selected mx-1">Overview</button>
+                <button class="btn cont-btn mx-1"><a href="/missions">Missions</a></button>
+                <button class="btn cont-btn mx-1"><a href="/locations">Locations</a></button>
+                <button class="btn cont-btn mx-1"><a href="/pilot">Pilot</a></button>
+                <button class="btn cont-btn mx-1">Reports</button>
+            </div>
+            <div class="col-3 d-flex justify-content-end">
+                <div class="dropdown">
+                    <img src="{{ asset('images/user.png') }}" alt="Profile" class="img-fluid  rounded-circle" style="max-height: 50px; cursor: pointer;">
+                </div>
+            </div>
+        </div>
+
         <!-- Main Panel -->
         <div class="row shadows mainPanel p-0 flex-grow-1">
 
@@ -140,6 +175,14 @@
 
             </div> <!-- End Right Column -->
             
-        </div> 
-        <!-- End Main Panel -->
-@endsection
+        </div> <!-- End Main Panel -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('js/modon.js') }}"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
+
+</body>
+</html>

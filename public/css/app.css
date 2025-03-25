@@ -1,0 +1,343 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Manrope:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body{
+    background:#101625;
+    color:white;
+    font-family: "Poppins", sans-serif;
+    transition: all 0.3s ease-in-out;
+    /* overflow: hidden; */
+}
+.vh-100 {
+    height: 100vh; /* Full viewport height */
+}
+
+.flex-column-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ensures the column takes full height */
+}
+
+.flex-grow-1 {
+    flex-grow: 1; /* Allows the rows to grow equally */
+}
+
+.gap3 {
+    gap: 1rem; /* Adds a gap between elements */
+}
+
+.bg-section {
+    background-color: #1C2235; /* Light background for visual distinction */
+    border-radius: 10px /* Optional: adds a border for better visibility */
+}
+
+.padded-container {
+    padding: 15px; /* Add padding around the entire page */
+}
+
+.column-gap {
+    margin-left: 15px; /* Adjust the gap between columns */
+}
+.txt{
+    color: #FFFFFF33;
+}
+.cont-btn{
+    color: #FFFFFF33;
+    font-size: 14px;
+
+}
+.cont-btn:hover{
+    background: #101625;
+    color:white;
+}
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.search-input {
+    /* background: #101625 !important;
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    outline: none;
+    border: 1px solid #494E5D;
+    color: rgb(202, 201, 201); */
+
+    width: 0;
+    opacity: 0;
+    transition: width 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    position: absolute;
+    right: 50px;  /* Keeps it aligned near the icon */
+}
+
+.search-input.active {
+    width: 200px;  /* Adjust as needed */
+    opacity: 1;
+    padding-left: 20px;
+  
+}
+
+.search-icon {
+    cursor: pointer;
+    z-index: 2;
+    position: relative;
+    width: 22px;
+}
+
+.selected{
+    background: #101625;
+    color:white;
+}
+.dropdown:hover .dropdown-menu {
+    display: block; /* Show dropdown on hover */
+}
+.recent-alerts {
+    min-height: 200px; /* Set a minimum height for the Recent Alerts section */
+    flex-grow: 0; /* Prevent the Recent Alerts section from growing */
+    /* Optional: Add a border or background for visual distinction */
+  
+}
+.align-items-center {
+    align-items: center; /* Vertically centers items within the flex container */
+}
+.centers{
+ 
+        margin: 0; /* Remove default margin */
+         /* Center text horizontally */
+        flex: 1; /* Allow the h1 to grow and take available space */
+    
+}
+.alertpanel{
+    background: #101625;
+    border-radius: 8px;
+}
+.w-90{
+    width: 98%;
+
+}
+.bg-sect {
+    position: relative; /* To position the child img absolutely */
+    overflow: hidden; /* Ensure no overflow */
+    min-height: 200px; /* Adjust as necessary */
+}
+
+.bg-sect img {
+    border-radius: 8px;
+    position: absolute; /* Positioning relative to parent */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    width: 95%; /* Full width */
+    height: 95%; /* Full height */
+    object-fit: cover; /* Cover the entire div */
+    transform: translate(-50%, -50%); /* Centering adjustment */
+}
+.cust-gray{
+    color: #494E5D;
+}
+.qss-btn{
+    background:#0D121F
+}
+.bcolor{
+    color: #494E5D;
+    border-bottom:1px solid #494E5D;
+}
+.offline{
+    color :#FF0000;
+}
+.online{
+    color:#81FF76;
+   
+}
+.parked{
+    color: #FFE500;
+}
+.textsuccess{
+    color: #81FF76 !important;;
+}
+
+/* For customizing the scrollbar in the whole page */
+::-webkit-scrollbar {
+    width: 2px; /* Change the width of the scrollbar */
+    height: 7px; /* Change the height of horizontal scrollbar */
+}
+
+/* For the scrollbar track (background of the scrollbar) */
+::-webkit-scrollbar-track {
+    background-color: #101625; /* Change to your desired background color */
+    border-radius: 10px;
+}
+
+/* For the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+    background-color: #101625; /* Change to your desired color */
+    border-radius: 10px;
+}
+
+/* On hover, change the thumb color */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #101625; /* Change to your desired hover color */
+}
+/* Remove underline and change default color */
+a {
+    text-decoration: none !important;
+    color: inherit !important; /* Uses the parent element's color */
+}
+
+/* Optional: Change color on hover */
+a:hover {
+    color: white !important; /* Change to your preferred hover color */
+    text-decoration: none !important;
+}
+.pilotEvents{
+    padding: 0.3rem;
+    border-radius: 12px;
+}
+.notes-textarea{
+    background-color: #242C45; /* Set background color */
+    color: white !important; /* Text color */
+    /* height: 32px !important;  */
+    border: 1px solid #242C45  !important; /* Soft border */
+    border-radius: 4px; /* Slight rounded corners */
+    padding: 5px 10px; /* Padding for spacing */
+    font-size: 12px;
+}
+/* Default state */
+.dateInput {
+    background-color: #242C45 !important; /* Set background color */
+    color: #cfcaca !important; /* Text color */
+    height: 32px !important; /* Reduce height */
+    border: 1px solid #101625 !important; /* Soft border */
+    border-radius: 4px; /* Slight rounded corners */
+    padding: 5px 10px; /* Padding for spacing */
+    font-size: 12px;
+}
+
+/* Change placeholder color */
+.dateInput::placeholder {
+    color: white !important; /* White placeholder */
+    opacity: 0.7; /* Make it slightly transparent */
+}
+
+/* On focus */
+.dateInput:focus {
+    background-color: #1E253B !important; /* Darker background on focus */
+    color: white !important;
+    border-color: #007bff !important; /* Highlight border */
+    outline: none; /* Remove default focus outline */
+}
+.bg-modal{
+    background: #1C2235;
+    color: white;
+}
+.image-preview {
+    min-height: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.image-preview img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.updForm{
+    color: white;
+    background: #323849;
+    padding: 3px 10px;
+    border-radius: 8px;
+}
+.image-upload-box {
+    min-height:200px;
+    cursor: pointer;
+     background: #242C45;
+}
+.formDropdown{
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+}
+.inspectionLocationWrapper {
+    overflow-x: auto;
+    padding-bottom: 10px; 
+}
+iframe {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* subtle shadow */
+    border-radius: 8px; /* optional rounded corners */
+}
+
+
+
+    .modal-body{
+        /* height: 100vh; */
+    }
+
+    .report-modal-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .report-table-container {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .video-section {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .video-section iframe {
+        flex: 3;
+        min-height: 200px;
+    }
+
+    .video-section textarea {
+        flex: 1;
+        resize: none;
+    }
+    .image-scroll-wrapper {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-height: 100px;
+        padding: 5px;
+        gap: 8px;
+        min-width: 100%;
+        max-width: 165px;
+        }
+
+        .image-scroll-wrapper img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        flex-shrink: 0;
+        }
+        .image-scroll-wrapper:hover{
+            cursor: pointer;
+        }
+        .image-scroll-wrapper::-webkit-scrollbar {
+            height: 4px; /* Scrollbar height for horizontal */
+        }
+
+        .image-scroll-wrapper::-webkit-scrollbar-thumb {
+            background-color: #242C45; /* Color of the scrollbar thumb */
+            border-radius: 4px;
+        }
+
+        .image-scroll-wrapper::-webkit-scrollbar-track {
+            background-color: #1e253b; /* Background of scrollbar track */
+        }

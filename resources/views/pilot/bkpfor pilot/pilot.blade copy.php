@@ -91,7 +91,7 @@
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="missionTableBody">
+                                        <tbody id="pilotTableBody">
                                             <tr>
                                                 <td colspan="6" class="text-center text-muted">Loading missions...</td>
                                             </tr>

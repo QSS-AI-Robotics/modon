@@ -54,7 +54,7 @@ $(document).ready(function () {
         e.preventDefault();
     
         const formData = {
-            id: $('#locationId').val(),
+            id: $('#userId').val(),
             name: $('#fullname').val(),
             email: $('#email').val(),
             password: $('#password').val(),
@@ -95,7 +95,7 @@ $(document).ready(function () {
         const region = row.find('td:eq(3)').text().trim();
     
         // Fill form fields
-        $('#locationId').val(userId);
+        $('#userId').val(userId);
         $('#fullname').val(name);
         $('#email').val(email);
         $('#password').val(''); // Clear password field for security
@@ -122,7 +122,7 @@ $(document).ready(function () {
     function resetForm() {
 
         $('#signupForm')[0].reset();
-        $('#locationId').val('');
+        $('#userId').val('');
         $('#signupForm button[type="submit"]').text('Create User');
     }
     $(document).on("click", ".cancel-btn", function () {

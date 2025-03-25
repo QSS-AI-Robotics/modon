@@ -268,6 +268,8 @@ class RegionManagerController extends Controller
     /**
      * Delete a mission.
      */
+
+  
     public function destroyMission($id)
     {
         if (!Auth::check()) {

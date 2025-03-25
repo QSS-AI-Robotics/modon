@@ -4,38 +4,19 @@ $(document).ready(function () {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-
-        // Image preview logic
-        $(document).on('change', '.images', function () {
-            const previewContainer = $(this).closest('.image-upload-box').find('.image-preview');
-            previewContainer.empty();
-    
-            const files = this.files;
-            if (files.length > 0) {
-                Array.from(files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const img = $('<img>').attr('src', e.target.result).css({ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' });
-                        previewContainer.append(img);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-        });
-
-        
     fetchMissions();
-
+    // fetchReports();
+    // fetch mission
     function fetchMissions() {
         $.ajax({
             url: "/pilot/missions",
             type: "GET",
             success: function (response) {
-                $('#pilotTableBody').empty();
+                $('#missionTableBody').empty();
                 $('#inspection_id').empty().append('<option value="">Select an Inspection</option>');
     
                 if (response.missions.length === 0) {
-                    $('#pilotTableBody').append(`
+                    $('#missionTableBody').append(`
                         <tr>
                             <td colspan="6" class="text-center text-muted">
                                 No new missions available.
@@ -49,34 +30,8 @@ $(document).ready(function () {
                 // console.log(response.missions);
     
                 $.each(response.missions, function (index, mission) {
-                    // let inspectionTypes = mission.inspection_types.map(type => type.name).join("<br>");
-                    // let locations = mission.locations.map(loc => loc.name).join("<br>");
-                    let inspectionTypesData = mission.inspection_types.map(type => type.name);
-                    let locationsData = mission.locations.map(loc => loc.name);
-                    let inspectionTypesHTMLData = `
-                    <div class="dropdown d-flex align-items-center justify-content-center">
-                        <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-                            ${inspectionTypesData[0] || 'N/A'}...
-                        </span>
-                        <ul class="dropdown-menu text-center">
-                            ${inspectionTypesData.map(type => `<li class="dropdown-item">${type}</li>`).join("")}
-                        </ul>
-                    </div>
-
-                    `;
-
-                    let locationsHTMLData = `
-                    <div class="dropdown d-flex align-items-center justify-content-center">
-                        <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-                            ${locationsData[0] || 'N/A'}...
-                        </span>
-                        <ul class="dropdown-menu text-center">
-                            ${locationsData.map(loc => `<li class="dropdown-item">${loc}</li>`).join("")}
-                        </ul>
-                    </div>
-                `;
-
-
+                    let inspectionTypes = mission.inspection_types.map(type => type.name).join("<br>");
+                    let locations = mission.locations.map(loc => loc.name).join("<br>");
                 
                     // Determine button text and image source based on mission status
                     let buttonText = "";
@@ -105,15 +60,13 @@ $(document).ready(function () {
                         ImgClass= "bg-success";
                         imageSrc = "/images/view.png";
                     }
-                 // <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypes}</td>
-                    // <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locations}</td>
-                   
+                
                     let row = `
                         <tr>
-                            <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypesHTMLData}</td>
+                            <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypes}</td>
                             <td>${mission.start_datetime}</td>
                             <td>${mission.end_datetime}</td>
-                            <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locationsHTMLData}</td>
+                            <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locations}</td>
                             <td>${mission.status}</td>
                             <td>
                           
@@ -122,7 +75,7 @@ $(document).ready(function () {
                         </tr>
                     `;
                 
-                    $('#pilotTableBody').append(row);
+                    $('#missionTableBody').append(row);
                 });
                 
             }

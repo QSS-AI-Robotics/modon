@@ -116,6 +116,16 @@ $(document).ready(function () {
                     let editButton = mission.status === "Pending"
                     ? `<img src="./images/edit.png" alt="" class="edit-mission img-fluid actions" data-id="${mission.id}">`
                     : "";
+                    let deleteButton = "";
+
+                    if (mission.status === "Pending") {
+                        deleteButton = `<img src="./images/delete.png" alt="" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
+                    } else if (mission.status === "Completed") {
+                        deleteButton = `<img src="./images/view.png" alt="" class="view-mission-report img-fluid actions" data-id="${mission.id}">`;
+                    } else {
+                        // Show disabled delete icon (grayed out or with tooltip)
+                        deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
+                    }
                     let row = `
                         <tr id="missionRow-${mission.id}">
                             <td>${inspectionTypesHTML}</td>
@@ -127,7 +137,7 @@ $(document).ready(function () {
                             
                             <td>                                          
                                 ${editButton}
-                                <img src="./images/delete.png" alt="" class="delete-mission img-fluid actions" data-id="${mission.id}">
+                                ${deleteButton}
                             </td>
                         </tr>
                     `;
@@ -204,9 +214,115 @@ $(document).ready(function () {
         });
     });
 
-   
+       // view Mission report
+       $(document).on('click', '.view-mission-report', function () {
+            let missionId = $(this).data('id');
+            fetchReports(missionId)
+        
+        });
+        function extractYouTubeID(url) {
+            const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/);
+            return match ? match[1] : null;
+        }
+        function fetchReports(missionId = null) {
+            $('#missionReportTableBody').html(`
+                <tr><td colspan="8" class="text-center text-muted">Loading reports...</td></tr>
+            `);
+        
+            $.ajax({
+                url: "/pilot/reports",
+                type: "GET",
+                data: missionId ? { mission_id: missionId } : {},
+                success: function (response) {
+                    console.log("🚀mission Reports Fetched:", response);
+                    $('#missionReportModal').modal('show');
+                    $('#missionReportTableBody').empty();
+        
+                    if (response.reports.length === 0) {
+                        $('#missionReportTableBody').append(`
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No reports submitted yet.</td>
+                            </tr>
+                        `);
+                        return;
+                    }
+                    // console.log(response.reports[0].video_url); 
+                    const videoId = extractYouTubeID(response.reports[0].video_url);
+                    if (videoId) {
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+                        $('#pilotVideo').attr('src', embedUrl);
+                    }
+                    
+                    $(".pilot_note").text(response.reports[0].description);                
+    
+                    $.each(response.reports, function (index, report) {
+                        // Top row: Summary info
+                        let videoLink = report.video_url ? `<a href="${report.video_url}" target="_blank">Watch</a>` : "N/A";
+                       
+                        let summaryRow = `
+                            <tr class=" text-white">
+                                <td colspan="2"><strong>Report Ref:</strong> ${report.report_reference}</td>
+                                <td colspan="2"><strong>Start:</strong> ${report.start_datetime}</td>
+                                <td colspan="2"><strong>End:</strong> ${report.end_datetime}</td>
+                                <td colspan="2" class="text-end">
+
+                                </td>
+                            </tr>
+                        `;
+                        $('#missionReportTableBody').append(summaryRow);
+        
+                        // Group images by inspection_type_id
+                        const grouped = {};
+                        report.images.forEach(img => {
+                            const key = `${img.inspection_type_id}-${img.description}`;
+                            if (!grouped[key]) grouped[key] = [];
+                            grouped[key].push(img);
+                        });
+        
+                        // Add rows for each group
+                        $.each(grouped, function (key, imagesGroup) {
+                            const firstImg = imagesGroup[0];
+                            const description = firstImg.description || "No Description";
+        
+                            // let imagesHtml = imagesGroup.map(img => `
+                            //     <img   src="/${img.image_path}" class="" style="width: 80px; height: 80px;">
+                            // `).join("");
+                            let imagesHtml = `
+                            <div style="width: 100%; overflow-x: auto;">
+                              <div class="image-scroll-wrapper">
+                                ${imagesGroup.map(img => `
+                                  <img src="/${img.image_path}" class="" />
+                                `).join("")}
+                              </div>
+                            </div>
+                          `;
+    
+    
+                        
+                            let groupRow = `
+                                <tr>
+                                    <td colspan="2">${firstImg.inspection_type.name}</td>
+                                    <td colspan="2">${firstImg.location.name}</td>
+                                    <td colspan="3">${description}</td>
+                                    <td colspan="3">${imagesHtml}</td>
+                                </tr>
+                            `;
+                            $('#missionReportTableBody').append(groupRow);
+                        });
+                    });
+                },
+                error: function () {
+                    $('#missionReportTableBody').html(`
+                        <tr><td colspan="8" class="text-center text-danger">Error loading reports</td></tr>
+                    `);
+                }
+            });
+        }
+
 
     // Delete Mission
+
+    
     $(document).on('click', '.delete-mission', function () {
         let missionId = $(this).data('id');
 

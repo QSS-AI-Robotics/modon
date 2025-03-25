@@ -45,7 +45,6 @@
                                         <th>Location</th>
                                         <th>Note</th>
                                         <th>Status</th>
-                                       
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -186,4 +185,46 @@
             
         </div> 
         <!-- End Main Panel -->
+
+        <div class="modal fade" id="missionReportModal" tabindex="-1" aria-labelledby="missionReportModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content bg-modal">
+                    <div class="modal-header border-0">
+                        <h6 class="modal-title" id="missionReportModalLabel">Detailed Report</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row h-100">
+                            <!-- LEFT COLUMN -->
+                            <div class="col-lg-7 h-100 report-modal-content">
+                                <div class="table-responsive report-table-container">
+                                    <table class="table table-text mb-0">
+                                        <tbody id="missionReportTableBody">
+                                            <tr>
+                                                <td colspan="8" class="text-center text-muted">Loading reports...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+        
+                            <!-- RIGHT COLUMN -->
+                            <div class="col-lg-5 h-100 video-section">
+                                <h6 class="pb-2">Video Feed</h6>
+                                <iframe id="pilotVideo" width="100%" frameborder="0"></iframe>
+        
+                                <h6 class="my-2">Mission Notes</h6>
+                                <textarea class="pilot_note notes-textarea w-100" disabled></textarea>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         @endsection

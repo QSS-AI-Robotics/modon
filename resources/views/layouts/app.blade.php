@@ -34,6 +34,20 @@
                 display: flex;
                 flex-direction: column;
             }
+        
+            .image-preview {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .image-preview img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 5px;
+            }
+
+ 
         </style>
 </head>
 <body>

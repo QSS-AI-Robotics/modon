@@ -25,7 +25,7 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Reports List</h5>
+                                    <h5>Users</h5>
                                 </div>
                                 <div class="col-lg-4 text-end search-container">
                                     <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
@@ -83,25 +83,25 @@
 
 
                             <div class="col-md-6">
-                                <input type="hidden" name="locationId" id="locationId">
+                                <input type="hidden" name="userId" id="userId">
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text">Full Name</label>
+                                <label class="form-label label-text pt-2">Full Name</label>
                                 <input type="text" class="form-control dateInput" id="fullname" name="fullname" value="z" required>
                             </div>
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Email</label>
+                                <label class="form-label label-text pt-2">Email</label>
                                 <input type="email" class="form-control dateInput"  id="email" name="email" value="z@gmail.com" required>
                             </div>
 
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Password</label>
+                                <label class="form-label label-text pt-2">Password</label>
                                 <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" required>
                             </div>
                             <div class="col-md-12 col-sm-12">
                                
-                                <label for="region" class="form-label">Region</label>
+                                <label for="region" class="form-label pt-2">Region</label>
                                 <select class="form-select  dateInput" id="region" name="region" required>
                                     <option value="">Select Region</option>
                                     @foreach($regions as $region)
@@ -115,7 +115,7 @@
 
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
-                                <label for="user_type" class="form-label">User Type</label>
+                                <label for="user_type" class="form-label pt-2">Type</label>
                                 <select class="form-select dateInput" id="user_type" name="user_type" required>
                                     <option value="">Select User Type</option>
                                     @foreach($userTypes as $userType)

@@ -31,9 +31,9 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form >
                                 @csrf
-                                <button type="submit" class="dropdown-item text-danger">Logout</button>
+                                <button type="submit" class="dropdown-item text-danger"  id="logoutButton">Logout</button>
                             </form>
                         </li>
                     </ul>

@@ -75,7 +75,7 @@ class AuthController extends Controller
         }
     
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return response()->json(['message' => 'Login successful', 'redirect' => route('dashboard')], 200);
+            return response()->json(['message' => 'Login successful', 'redirect' => route('admin.index')], 200);
         } else {
             return response()->json(['error' => 'Invalid email or password'], 401);
         }

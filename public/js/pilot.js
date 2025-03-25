@@ -53,28 +53,43 @@ $(document).ready(function () {
                     // let locations = mission.locations.map(loc => loc.name).join("<br>");
                     let inspectionTypesData = mission.inspection_types.map(type => type.name);
                     let locationsData = mission.locations.map(loc => loc.name);
-                    let inspectionTypesHTMLData = `
-                    <div class="dropdown d-flex align-items-center justify-content-center">
-                        <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-                            ${inspectionTypesData[0] || 'N/A'}...
-                        </span>
-                        <ul class="dropdown-menu text-center">
-                            ${inspectionTypesData.map(type => `<li class="dropdown-item">${type}</li>`).join("")}
-                        </ul>
-                    </div>
+                    // INSPECTION TYPES
+                    let inspectionTypesHTMLData = '';
+                    if (inspectionTypesData.length > 1) {
+                        inspectionTypesHTMLData = `
+                            <div class="dropdown d-flex align-items-center justify-content-center">
+                                <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ${inspectionTypesData[0]}...
+                                </span>
+                                <ul class="dropdown-menu text-center">
+                                    ${inspectionTypesData.map(type => `<li class="dropdown-item">${type}</li>`).join("")}
+                                </ul>
+                            </div>
+                        `;
+                    } else {
+                        inspectionTypesHTMLData = `
+                            <span class="text-white">${inspectionTypesData[0] || 'N/A'}</span>
+                        `;
+                    }
 
-                    `;
-
-                    let locationsHTMLData = `
-                    <div class="dropdown d-flex align-items-center justify-content-center">
-                        <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-                            ${locationsData[0] || 'N/A'}...
-                        </span>
-                        <ul class="dropdown-menu text-center">
-                            ${locationsData.map(loc => `<li class="dropdown-item">${loc}</li>`).join("")}
-                        </ul>
-                    </div>
-                `;
+                    // LOCATIONS
+                    let locationsHTMLData = '';
+                    if (locationsData.length > 1) {
+                        locationsHTMLData = `
+                            <div class="dropdown d-flex align-items-center justify-content-center">
+                                <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ${locationsData[0]}...
+                                </span>
+                                <ul class="dropdown-menu text-center">
+                                    ${locationsData.map(loc => `<li class="dropdown-item">${loc}</li>`).join("")}
+                                </ul>
+                            </div>
+                        `;
+                    } else {
+                        locationsHTMLData = `
+                            <span class="text-white">${locationsData[0] || 'N/A'}</span>
+                        `;
+                    }
 
 
                 

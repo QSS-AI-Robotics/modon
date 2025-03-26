@@ -53,17 +53,32 @@ $(document).ready(function () {
     $(document).on('submit', '#signupForm', function (e) {
         e.preventDefault();
     
+        const $errorDiv = $('#users-validation-errors');
+        $errorDiv.addClass('d-none');
+    
         const formData = {
             id: $('#userId').val(),
-            name: $('#fullname').val(),
-            email: $('#email').val(),
+            name: $('#fullname').val().trim(),
+            email: $('#email').val().trim(),
             password: $('#password').val(),
             region_id: $('#region').val(),
             user_type_id: $('#user_type').val()
         };
     
+        const hasError =
+            !formData.name ||
+            !formData.email || !/^\S+@\S+\.\S+$/.test(formData.email) ||
+            !formData.password || formData.password.length < 6 ||
+            !formData.region_id ||
+            !formData.user_type_id;
+    
+        if (hasError) {
+            $errorDiv.removeClass('d-none').text("All fields are required.");
+            return;
+        }
+    
         const $submitBtn = $(this).find('button[type="submit"]');
-        const isUpdate = $submitBtn.text().trim().toLowerCase() === 'update user';
+        const isUpdate = $submitBtn.text().trim().toLowerCase().includes('update');
         const url = isUpdate ? `/dashboard/users/${formData.id}` : '/dashboard/users/storeuser';
         const method = isUpdate ? 'PUT' : 'POST';
     
@@ -72,17 +87,46 @@ $(document).ready(function () {
             type: method,
             data: formData,
             success: function (response) {
-                alert(response.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: response.message || 'User saved successfully.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+    
                 $(".cancel-btn").addClass("d-none");
                 resetForm();
                 getAllusers();
+                $errorDiv.addClass('d-none');
             },
             error: function (xhr) {
-                const error = xhr.responseJSON?.message || 'An error occurred.';
-                alert("❌ " + error);
+                const response = xhr.responseJSON;
+    
+                if (response?.errors) {
+                    // Laravel-style validation errors
+                    const messages = Object.values(response.errors).flat();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error!',
+                        html: `<ul style="text-align:left;">${messages.map(msg => `<li>${msg}</li>`).join('')}</ul>`
+                    });
+                } else {
+                    // General server error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: response?.message || 'Something went wrong.',
+                    });
+                }
             }
         });
     });
+    
+    
+
+    
+ 
     
     $(document).on('click', '.edit-user', function () 
     {
@@ -123,6 +167,7 @@ $(document).ready(function () {
 
         $('#signupForm')[0].reset();
         $('#userId').val('');
+        $('#users-validation-errors').addClass('d-none').text('');;
         $('#signupForm button[type="submit"]').text('Create User');
     }
     $(document).on("click", ".cancel-btn", function () {
@@ -135,22 +180,43 @@ $(document).ready(function () {
 
     // Delete user
     $(document).on('click', '.delete-user', function () {
-        let userId = $(this).data('id');
-
-        if (!confirm("Are you sure you want to delete this User?")) {
-            return;
-        }
-
-        $.ajax({
-            url: `/dashboard/user/${userId}`,
-            type: "POST",
-            success: function (response) {
-                alert(response.message);
-                getAllusers();
-            },
-            error: function (xhr) {
-                alert("Error: " + xhr.responseText);
+        const userId = $(this).data('id');
+    
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This user will be permanently deleted.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/dashboard/user/${userId}`,
+                    type: "POST",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message || 'User has been deleted.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+    
+                        getAllusers();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: xhr.responseJSON?.message || 'Something went wrong.',
+                        });
+                    }
+                });
             }
         });
     });
+    
 });

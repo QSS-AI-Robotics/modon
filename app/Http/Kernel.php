@@ -2,7 +2,11 @@
 
 namespace App\Http;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Log;
+
 
 class Kernel extends HttpKernel
 {
@@ -50,6 +54,14 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'checkUserType' => \App\Http\Middleware\CheckUserType::class,
+      
+
+
     ];
+    public function __construct(Application $app, Router $router)
+{
+    Log::info("Custom Kernel is loading!");
+    parent::__construct($app, $router);
+}
+
 }

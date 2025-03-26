@@ -344,4 +344,29 @@ iframe {
 
         .disabled-delete {
             pointer-events: none;
-        }
+        }/* Set global SweetAlert2 styles */
+.swal2-popup {
+    background: #323849 !important;
+    color: #ffffff !important;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 0 15px rgba(67, 80, 95, 0.3); 
+}
+
+.swal2-title {
+    color: #ffffff !important;
+}
+
+.swal2-content {
+    color: #ffffff !important;
+}
+
+.swal2-confirm {
+    background-color: #2ecc71 !important;
+    color: #fff !important;
+}
+
+.swal2-cancel {
+    background-color: #e74c3c !important;
+    color: #fff !important;
+}

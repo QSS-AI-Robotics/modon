@@ -72,7 +72,7 @@
                             <h6 class="form-title">Create New User</h6>
                         </div>
                         <div class="col-lg-4  text-end">
-                            <button type="button" class="btn btn-danger cancel-btn btn-sm d-none p-1">
+                            <button type="button" class="btn btn-danger cancel-btn btn-sm d-none px-2">
                                 ✖
                             </button>
                         </div>
@@ -88,21 +88,21 @@
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text pt-2">Full Name</label>
-                                <input type="text" class="form-control dateInput" id="fullname" name="fullname" value="z" required>
+                                <input type="text" class="form-control dateInput" id="fullname" name="fullname" value="z" >
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text pt-2">Email</label>
-                                <input type="email" class="form-control dateInput"  id="email" name="email" value="z@gmail.com" required>
+                                <input type="email" class="form-control dateInput"  id="email" name="email" value="z@gmail.com" >
                             </div>
 
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text pt-2">Password</label>
-                                <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" required>
+                                <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" >
                             </div>
                             <div class="col-md-12 col-sm-12">
                                
                                 <label for="region" class="form-label pt-2">Region</label>
-                                <select class="form-select  dateInput" id="region" name="region" required>
+                                <select class="form-select  dateInput" id="region" name="region" >
                                     <option value="">Select Region</option>
                                     @foreach($regions as $region)
                                         <option value="{{ $region->id }}">{{ $region->name }}</option>
@@ -116,7 +116,7 @@
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
                                 <label for="user_type" class="form-label pt-2">Type</label>
-                                <select class="form-select dateInput" id="user_type" name="user_type" required>
+                                <select class="form-select dateInput" id="user_type" name="user_type" >
                                     <option value="">Select User Type</option>
                                     @foreach($userTypes as $userType)
                                         <option value="{{ $userType->id }}">{{ $userType->name }}</option>
@@ -125,7 +125,9 @@
                                 <span class="text-danger" id="user_type_error"></span>
 
                             </div>
-                           
+                            <div class="col-12 my-1  text-danger  d-none" id="users-validation-errors" >
+                                All fields are required.
+                            </div>
                                <!-- Button (Update or Create) -->
                                 <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
                                     <button class="btn mission-btn btn-sm d-flex align-items-center " type="submit">
@@ -142,4 +144,8 @@
             
         </div> 
         <!-- End Main Panel -->
+
 @endsection
+@push('scripts')
+<script src="{{ asset('js/script.js') }}"></script>
+@endpush

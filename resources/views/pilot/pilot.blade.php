@@ -288,7 +288,9 @@
     </div>
 </div>
 
-<script>
+  <!-- End Main Panel -->
 
-</script>
 @endsection
+@push('scripts')
+<script src="{{ asset('js/pilot.js') }}"></script>
+@endpush

@@ -3,18 +3,18 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
 class CheckUserType
 {
-    public function handle($request, Closure $next, $type)
+    public function handle(Request $request, Closure $next, string $userType): Response
     {
-        $user = Auth::user();
-
-        if (!$user || $user->userType?->name !== $type) {
-            abort(403, 'Unauthorized access.');
+        if (Auth::check() && Auth::user()->userType->name === $userType) {
+            return $next($request);
         }
 
-        return $next($request);
+        abort(403, 'Unauthorized.');
     }
 }

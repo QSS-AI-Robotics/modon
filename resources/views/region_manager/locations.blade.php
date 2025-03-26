@@ -88,20 +88,20 @@
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text">Location Name</label>
-                                <input type="text" class="form-control dateInput" id="name" name="start_datetime" required>
+                                <input type="text" class="form-control dateInput" id="name" name="start_datetime" >
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text">Latitude</label>
-                                <input type="Number" class="form-control dateInput" id="latitude" name="latitude" required>
+                                <input type="Number" class="form-control dateInput" id="latitude" name="latitude" >
                             </div>
 
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text">Longitude</label>
-                                <input type="Number" class="form-control dateInput" id="longitude" name="longitude" required>
+                                <input type="Number" class="form-control dateInput" id="longitude" name="longitude" >
                             </div>
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text">Map</label>
-                                <input type="text" class="form-control dateInput" id="map_url" name="map_url" placeholder="google map url" required>
+                                <input type="text" class="form-control dateInput" id="map_url" name="map_url" placeholder="google map url" >
                             </div>
 
 
@@ -112,7 +112,9 @@
                                 <textarea id="description" name="description" class="form-control notes-textarea flex-grow-1" rows="5"></textarea>
 
                             </div>
-                           
+                            <div class="col-12 my-1  text-danger  d-none" id="location-validation-errors" >
+                                    All fields are required.
+                            </div>
                                <!-- Button (Update or Create) -->
                                 <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
                                     <button class="btn mission-btn btn-sm d-flex align-items-center gap-1 w-100 " type="submit">
@@ -136,3 +138,7 @@
         </div> <!-- End Main Panel -->
 
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/locations.js') }}"></script>
+@endpush

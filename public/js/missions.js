@@ -154,31 +154,31 @@ $(document).ready(function () {
     
     
     // Submit Add Mission Form via AJAX
-
     $('#addMissionForm').on('submit', function (e) {
         e.preventDefault();
     
-        let missionId = $(this).attr("data-mission-id"); // Get Mission ID (if editing)
-        let url = missionId ? "/missions/update" : "/missions/store"; // Update or Create URL
-        let buttonText = missionId ? "Updating..." : "Creating...";
-        
-        $(".mission-btn span").text(buttonText); // Change button text
-        $(".mission-btn svg").attr({ "width": "20", "height": "20" }); // Increase SVG size
+        const $form = $(this);
+        const $errorDiv = $('#mission-validation-errors');
+        $errorDiv.addClass('d-none');
     
-        // ✅ Collect Selected Checkboxes
-        let selectedInspectionTypes = [];
-        $('.inspection-type-checkbox:checked').each(function () {
-            selectedInspectionTypes.push($(this).val());
-        });
+        const missionId = $form.attr("data-mission-id");
+        const url = missionId ? "/missions/update" : "/missions/store";
+        const buttonText = missionId ? "Updating..." : "Creating...";
     
-        let selectedLocations = [];
-        $('.location-checkbox:checked').each(function () {
-            selectedLocations.push($(this).val());
-        });
+        $(".mission-btn span").text(buttonText);
+        $(".mission-btn svg").attr({ "width": "20", "height": "20" });
     
-        // ✅ Prepare Form Data
-        let formData = {
-            mission_id: missionId, // Send mission ID if updating
+        // ✅ Get selected checkboxes
+        const selectedInspectionTypes = $('.inspection-type-checkbox:checked').map(function () {
+            return $(this).val();
+        }).get();
+    
+        const selectedLocations = $('.location-checkbox:checked').map(function () {
+            return $(this).val();
+        }).get();
+    
+        const formData = {
+            mission_id: missionId,
             inspection_types: selectedInspectionTypes,
             start_datetime: $('#start_datetime').val(),
             end_datetime: $('#end_datetime').val(),
@@ -186,33 +186,114 @@ $(document).ready(function () {
             locations: selectedLocations
         };
     
-        // ✅ Send AJAX Request
+        // ✅ Frontend validation
+        if (
+            !formData.start_datetime ||
+            !formData.end_datetime ||
+            selectedInspectionTypes.length === 0 ||
+            selectedLocations.length === 0
+        ) {
+            $errorDiv.removeClass('d-none').text("All fields are required.");
+            return;
+        }
+    
+        // ✅ Send AJAX
         $.ajax({
             url: url,
             type: "POST",
             data: formData,
             success: function (response) {
-                alert(response.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Mission Saved!',
+                    text: response.message || 'Mission has been successfully created or updated.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#101625',
+                    color: '#ffffff'
+                });
     
-                // ✅ Reset form after adding/updating
-                $('#addMissionForm')[0].reset();
+                // ✅ Reset form
+                $form[0].reset();
                 $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
-                $("#addMissionForm").removeAttr("data-mission-id"); // Remove edit mode
+                $form.removeAttr("data-mission-id");
     
-                // ✅ Restore Title & Button Text
                 $("h6").text("Create New Mission");
                 $(".mission-btn span").text("New Mission");
     
-                // ✅ Refresh Mission List
-                getRegionManagerMissions(); 
-                getMissionStats()
+                getRegionManagerMissions();
+                getMissionStats();
             },
             error: function (xhr) {
-                alert("❌ Error processing mission. Please try again.");
-                console.log(xhr.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: xhr.responseJSON?.message || 'Something went wrong while saving the mission.',
+                    background: '#101625',
+                    color: '#ffffff'
+                });
             }
         });
     });
+    
+    // $('#addMissionForm').on('submit', function (e) {
+    //     e.preventDefault();
+    
+    //     let missionId = $(this).attr("data-mission-id"); // Get Mission ID (if editing)
+    //     let url = missionId ? "/missions/update" : "/missions/store"; // Update or Create URL
+    //     let buttonText = missionId ? "Updating..." : "Creating...";
+        
+    //     $(".mission-btn span").text(buttonText); // Change button text
+    //     $(".mission-btn svg").attr({ "width": "20", "height": "20" }); // Increase SVG size
+    
+    //     // ✅ Collect Selected Checkboxes
+    //     let selectedInspectionTypes = [];
+    //     $('.inspection-type-checkbox:checked').each(function () {
+    //         selectedInspectionTypes.push($(this).val());
+    //     });
+    
+    //     let selectedLocations = [];
+    //     $('.location-checkbox:checked').each(function () {
+    //         selectedLocations.push($(this).val());
+    //     });
+    
+    //     // ✅ Prepare Form Data
+    //     let formData = {
+    //         mission_id: missionId, // Send mission ID if updating
+    //         inspection_types: selectedInspectionTypes,
+    //         start_datetime: $('#start_datetime').val(),
+    //         end_datetime: $('#end_datetime').val(),
+    //         note: $('#note').val(),
+    //         locations: selectedLocations
+    //     };
+    
+    //     // ✅ Send AJAX Request
+    //     $.ajax({
+    //         url: url,
+    //         type: "POST",
+    //         data: formData,
+    //         success: function (response) {
+    //             alert(response.message);
+    
+    //             // ✅ Reset form after adding/updating
+    //             $('#addMissionForm')[0].reset();
+    //             $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
+    //             $("#addMissionForm").removeAttr("data-mission-id"); // Remove edit mode
+    
+    //             // ✅ Restore Title & Button Text
+    //             $("h6").text("Create New Mission");
+    //             $(".mission-btn span").text("New Mission");
+    
+    //             // ✅ Refresh Mission List
+    //             getRegionManagerMissions(); 
+    //             getMissionStats()
+    //         },
+    //         error: function (xhr) {
+    //             alert("❌ Error processing mission. Please try again.");
+    //             console.log(xhr.responseText);
+    //         }
+    //     });
+    // });
 
        // view Mission report
        $(document).on('click', '.view-mission-report', function () {
@@ -322,25 +403,69 @@ $(document).ready(function () {
 
     // Delete Mission
 
-    
     $(document).on('click', '.delete-mission', function () {
-        let missionId = $(this).data('id');
-
-        if (!confirm("Are you sure you want to delete this mission?")) return;
-
-        $.ajax({
-            url: `/missions/${missionId}`,
-            type: "DELETE",
-            success: function (response) {
-                alert(response.message);
-                $('#missionRow-' + missionId).remove(); // Remove row from table
-                getMissionStats();
-            },
-            error: function (xhr) {
-                alert("Error: " + xhr.responseText);
+        const missionId = $(this).data('id');
+    
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This mission will be permanently deleted.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/missions/${missionId}`,
+                    type: "DELETE",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message || 'Mission has been deleted.',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            background: '#101625',
+                            color: '#ffffff'
+                        });
+    
+                        $('#missionRow-' + missionId).remove(); // Remove mission row
+                        getMissionStats();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: xhr.responseJSON?.message || 'Something went wrong.',
+                            background: '#101625',
+                            color: '#ffffff'
+                        });
+                    }
+                });
             }
         });
     });
+    
+    // $(document).on('click', '.delete-mission', function () {
+    //     let missionId = $(this).data('id');
+
+    //     if (!confirm("Are you sure you want to delete this mission?")) return;
+
+    //     $.ajax({
+    //         url: `/missions/${missionId}`,
+    //         type: "DELETE",
+    //         success: function (response) {
+    //             alert(response.message);
+    //             $('#missionRow-' + missionId).remove(); // Remove row from table
+    //             getMissionStats();
+    //         },
+    //         error: function (xhr) {
+    //             alert("Error: " + xhr.responseText);
+    //         }
+    //     });
+    // });
 
         // Handle Edit Mission Button Click
         $(document).on("click", ".edit-mission", function () {

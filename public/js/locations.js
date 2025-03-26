@@ -93,6 +93,7 @@ $(document).ready(function () {
     });
 
     function resetForm(){
+        $('#location-validation-errors').addClass('d-none').text('');
         $("#locationForm")[0].reset(); // Reset Form Fields
         $("#locationForm").removeAttr("data-location-id"); // Remove Edit Mode
         $(".form-title").text("Create New Location");
@@ -105,52 +106,101 @@ $(document).ready(function () {
 
 
     // Submit Form (Create)
+
     $('#locationForm').on('submit', function (e) {
         e.preventDefault();
-
-        let locationId = $('#locationId').val();
-        let formData = {
-            name: $('#name').val(),
-            latitude: $('#latitude').val(),
-            longitude: $('#longitude').val(),
-            map_url: $('#map_url').val(),
-            description: $('#description').val(),
+    
+        const $errorDiv = $('#location-validation-errors');
+        $errorDiv.addClass('d-none').text(''); // Clear previous
+    
+        const formData = {
+            name: $('#name').val().trim(),
+            latitude: $('#latitude').val().trim(),
+            longitude: $('#longitude').val().trim(),
+            map_url: $('#map_url').val().trim(),
+            description: $('#description').val().trim()
         };
-
-        let url = locationId ? `/locations/${locationId}/update` : `/locations/store`;
-
+    
+        const hasEmpty = Object.values(formData).some(value => !value);
+    
+        if (hasEmpty) {
+            $errorDiv.removeClass('d-none').text('All fields are required.');
+            return;
+        }
+    
+        const locationId = $('#locationId').val();
+        const url = locationId ? `/locations/${locationId}/update` : `/locations/store`;
+    
         $.ajax({
             url: url,
             type: "POST",
             data: formData,
             success: function (response) {
-                alert(response.message);
-                getLocations()
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: response.message || 'Location saved.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                getLocations();
+                
+                $errorDiv.addClass('d-none').text('');
             },
             error: function (xhr) {
-                alert("Error: " + xhr.responseText);
+               
+                // $errorDiv.removeClass('d-none').text(errorMsg);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: xhr.responseJSON?.message || 'Something went wrong.',
+                });
             }
         });
     });
+    
+    
+
 
     // Delete Location
     $(document).on('click', '.delete-location', function () {
         let locationId = $(this).data('id');
-
-        if (!confirm("Are you sure you want to delete this location?")) {
-            return;
-        }
-
-        $.ajax({
-            url: `/locations/${locationId}`,
-            type: "DELETE",
-            success: function (response) {
-                alert(response.message);
-                getLocations()
-            },
-            error: function (xhr) {
-                alert("Error: " + xhr.responseText);
+    
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This location will be permanently deleted.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/locations/${locationId}`,
+                    type: "DELETE",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message || 'Location has been deleted.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+    
+                        getLocations();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: xhr.responseJSON?.message || 'Something went wrong.',
+                        });
+                    }
+                });
             }
         });
     });
+    
 });

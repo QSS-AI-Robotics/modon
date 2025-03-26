@@ -163,10 +163,7 @@ $(document).ready(function () {
     
         const missionId = $form.attr("data-mission-id");
         const url = missionId ? "/missions/update" : "/missions/store";
-        const buttonText = missionId ? "Updating..." : "Creating...";
-    
-        $(".mission-btn span").text(buttonText);
-        $(".mission-btn svg").attr({ "width": "20", "height": "20" });
+
     
         // ✅ Get selected checkboxes
         const selectedInspectionTypes = $('.inspection-type-checkbox:checked').map(function () {
@@ -194,9 +191,13 @@ $(document).ready(function () {
             selectedLocations.length === 0
         ) {
             $errorDiv.removeClass('d-none').text("All fields are required.");
+
             return;
         }
+        const buttonText = missionId ? "Updating..." : "Creating...";
     
+        $(".mission-btn span").text(buttonText);
+        $(".mission-btn svg").attr({ "width": "20", "height": "20" });
         // ✅ Send AJAX
         $.ajax({
             url: url,

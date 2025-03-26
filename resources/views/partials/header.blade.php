@@ -23,7 +23,7 @@
                 <div class="dropdown">
                     <button class="btn dropdown-toggle d-flex align-items-center" type="button" >
                         
-                        <div class="text-start text-white">
+                        <div class="text-start text-white pe-4">
                             <div class="fw-bold small">{{ Auth::user()->name ?? 'Admin' }}</div>
                             <div class="text-gray small">{{ Auth::user()->email ?? 'email@example.com' }}</div>
                         </div>

@@ -132,13 +132,13 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="start_datetime" class="form-label ">Start Date & Time</label>
-                                        <input type="datetime-local" class="form-control dateInput form-control-lg" id="start_datetime" name="start_datetime" required>
+                                        <input type="datetime-local" class="form-control dateInput form-control-lg" id="start_datetime" name="start_datetime" >
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="end_datetime" class="form-label">End Date & Time</label>
-                                        <input type="datetime-local" class="form-control dateInput form-control-lg"  id="end_datetime" name="end_datetime" required>
+                                        <input type="datetime-local" class="form-control dateInput form-control-lg"  id="end_datetime" name="end_datetime" >
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -176,10 +176,10 @@
                                         <div class="col-lg-3 col-md-3 col-sm-6 mb-3 inspection-location-item">
                                             <div class="row">
                                                 <div class="col-12 mb-2">
-                                                    <select class="form-select inspection_id dateInput  dateInput form-control-lg" name="inspection_id[]" id="inspection_id" required></select> 
+                                                    <select class="form-select inspection_id dateInput  dateInput form-control-lg" name="inspection_id[]" id="inspection_id" ></select> 
                                                 </div>
                                                 <div class="col-12 mb-2">
-                                                    <select class="form-select location_id dateInput  dateInput form-control-lg" name="location_id[]" id="location_id" required></select> 
+                                                    <select class="form-select location_id dateInput  dateInput form-control-lg" name="location_id[]" id="location_id" ></select> 
                                                 </div>
                                                 <div class="col-12 mb-2 ">
                                                     <div class="image-upload-box  border-secondary rounded p-3 text-center text-white" style="" onclick="this.querySelector('input[type=file]').click()">
@@ -197,11 +197,24 @@
                                 </div>
                             </div>
                             
+                            
                   
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <button type="submit" class="btn btn-primary w-25 mt-2">Submit Report</button>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class=" my-1 d-none text-danger" id="report-validation-errors" >
+                                        All fields are required.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                    
-                        <button type="submit" class="btn btn-primary w-25 mt-2">Submit Report</button>
+                        
                    
                     
                 </form>
@@ -279,9 +292,21 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <button type="submit" class="btn btn-success w-25 mt-2">Update Report</button>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class=" my-1 d-none text-danger" id="updatereport-validation-errors" >
+                                        All fields are required.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-25 mt-2">Update Report</button>
+                   
                 </form>
             </div>
         </div>

@@ -1,22 +1,19 @@
+        
+        @php
+            $navLinks = Auth::user()?->userType?->navigationLinks()->orderBy('sort_order')->get();
+        @endphp
         <!-- Header -->
         <div class="row header shadows bg-section p-1 mb-2 align-items-center">
             <div class="col-2 d-flex align-items-center">
                 <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50">
             </div>
             <div class="col-7 d-flex">
-                <a href="/dashboard" class="btn cont-btn mx-1 {{ request()->is('dashboard') ? 'selected' : '' }}">
-                    Overview
-                </a>
-                <a href="/missions" class="btn cont-btn mx-1 {{ request()->is('missions*') ? 'selected' : '' }}">
-                    Missions
-                </a>
-                <a href="/locations" class="btn cont-btn mx-1 {{ request()->is('locations*') ? 'selected' : '' }}">
-                    Locations
-                </a>
-                <a href="/pilot" class="btn cont-btn mx-1 {{ request()->is('pilot*') ? 'selected' : '' }}">
-                    Pilot
-                </a>
-                
+
+                @foreach($navLinks as $link)
+                    <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ request()->is(ltrim($link->url, '/') . '*') ? 'selected' : '' }}">
+                        {{ $link->name }}
+                    </a>
+                 @endforeach
             </div>
             
             <div class="col-3 d-flex justify-content-end">

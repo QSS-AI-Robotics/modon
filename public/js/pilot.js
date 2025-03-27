@@ -501,76 +501,6 @@ $(document).ready(function () {
     
 // Submit Update Report Form
 
-// Submit Update Report Form
-// $(document).on("submit", "#updateReportForm", function (e) {
-//     e.preventDefault();
-
-//     const reportId = $('#edit_report_id').val();
-
-//     const structuredData = {
-//         start_datetime: $('#edit_start_datetime').val(),
-//         end_datetime: $('#edit_end_datetime').val(),
-//         video_url: $('#edit_video_url').val(),
-//         description: $('#edit_description').val(),
-//         pilot_report_images: []
-//     };
-
-//     const formData = new FormData();
-
-//     $('#updateInspectionLocationGroup .updateinspection-location-item').each(function (index) {
-//         const $item = $(this);
-
-//         const inspectionId = $item.find('.inspection_id').val();
-//         const locationId = $item.find('.location_id').val();
-//         const description = $item.find('.inspectiondescrption').val();
-//         const fileInput = $item.find('input[type="file"]')[0];
-//         const hasNewImages = fileInput && fileInput.files.length > 0;
-
-//         // Collect existing image previews
-//         const existingImages = $item.find('.image-preview img').map(function () {
-//             return $(this).attr('src');
-//         }).get();
-
-//         // Append new images to FormData
-//         if (hasNewImages) {
-//             for (let i = 0; i < fileInput.files.length; i++) {
-//                 formData.append(`images_${index}[]`, fileInput.files[i]);
-//             }
-//         }
-
-//         structuredData.pilot_report_images.push({
-//             index: index,
-//             inspection_id: inspectionId,
-//             location_id: locationId,
-//             description: description,
-//             new_images: hasNewImages ? fileInput.files.length : 0,
-//             existing_images: existingImages
-//         });
-//     });
-
-//     // Log final JSON structure
-//     console.log("📝 Final JSON to Submit:", JSON.stringify(structuredData, null, 2));
-
-//     formData.append("data", JSON.stringify(structuredData));
-
-//     // $.ajax({
-//     //     url: `/pilot/reports/${reportId}/update`,
-//     //     method: "POST",
-//     //     data: formData,
-//     //     processData: false,
-//     //     contentType: false,
-//     //     success: function (response) {
-//     //         alert(response.message);
-//     //         $('#updateReportModal').modal('hide');
-//     //         fetchReports();
-//     //     },
-//     //     error: function (xhr) {
-//     //         console.error("❌ Update Error:", xhr.responseText);
-//     //         alert("Failed to update the report.");
-//     //     }
-//     // });
-// });
-
 
 
     
@@ -663,93 +593,91 @@ $(document).ready(function () {
         $('#imagePreview').empty(); 
     });
     // ✅ Add Report
+// ✅ Enhanced JavaScript: Submit Report with Full Validation
+$('#addReportForm').on('submit', function (e) {
+    e.preventDefault();
 
-    $('#addReportForm').on('submit', function (e) {
-        e.preventDefault();
-        let formData = new FormData(); // ✅ Don't use `this` to avoid auto-appending
-    
-        let isValid = true; // Flag to check if form is valid
-    
-        console.log("🚀 Starting form submission...");
-    
-        // ✅ Manually append non-file fields (preventing duplicates)
-        formData.append("_token", $('input[name="_token"]').val());
-        formData.append("mission_id", $('#mission_id').val());
-        formData.append("start_datetime", $('#start_datetime').val());
-        formData.append("end_datetime", $('#end_datetime').val());
-        formData.append("video_url", $('#video_url').val());
-        formData.append("description", $('#description').val());
-    
-        $(".inspection-location-item").each(function (index) {
-            let inspectionId = $(this).find(".inspection_id").val();
-            let locationId = $(this).find(".location_id").val();
-            let inspectionDescription = $(this).find(".inspectiondescrption").val();
-            let fileInput = $(this).find("input[type='file']")[0];
-            let images = fileInput.files;
-    
-            console.log(`📌 Processing Incident #${index}`);
-            console.log(`Inspection ID: ${inspectionId}, Location ID: ${locationId}, Description: ${inspectionDescription}`);
-    
-            if (!inspectionId || !locationId) {
-                alert(`❌ Please select an Inspection and Location for incident #${index + 1}`);
-                isValid = false;
-                return false;
-            }
-    
-            formData.append(`inspection_id[${index}]`, inspectionId);
-            formData.append(`location_id[${index}]`, locationId);
-            formData.append(`inspectiondescrption[${index}]`, inspectionDescription || "");
-    
-            // ✅ Prevent Duplicate File Entries
-            if (images.length > 0) {
-                let addedFiles = new Set();
-                for (let i = 0; i < images.length; i++) {
-                    let image = images[i];
-    
-                    if (!addedFiles.has(image.name)) {
-                        formData.append(`images_${index}[]`, image);
-                        addedFiles.add(image.name);
-                        console.log(`📸 Added Image: ${image.name}`);
-                    } else {
-                        console.warn(`⚠ Skipping duplicate image: ${image.name}`);
-                    }
-                }
-            } else {
-                console.warn(`⚠ No images selected for Incident #${index + 1}`);
-            }
-        });
-    
-        if (!isValid) {
-            console.error("❌ Form submission blocked due to missing values.");
-            return;
+    const $errorDiv = $('#report-validation-errors');
+    $errorDiv.addClass('d-none').text('');
+
+    let formData = new FormData();
+    let isValid = true;
+
+    // ✅ Required fields
+    const missionId = $('#mission_id').val();
+    const start = $('#start_datetime').val();
+    const end = $('#end_datetime').val();
+    const videoUrl = $('#video_url').val();
+    const description = $('#description').val();
+
+    if (!start || !end || !videoUrl || !description) {
+        isValid = false;
+        $errorDiv.removeClass('d-none').text('Start/End time, Video link, and Notes are required.');
+        return;
+    }
+
+    formData.append('_token', $('input[name="_token"]').val());
+    formData.append('mission_id', missionId);
+    formData.append('start_datetime', start);
+    formData.append('end_datetime', end);
+    formData.append('video_url', videoUrl);
+    formData.append('description', description);
+
+    // ✅ Dynamic incident validation
+    $('.inspection-location-item').each(function (index) {
+        const inspectionId = $(this).find(".inspection_id").val();
+        const locationId = $(this).find(".location_id").val();
+        const incidentDesc = $(this).find(".inspectiondescrption").val();
+        const fileInput = $(this).find("input[type='file']")[0];
+        const images = fileInput?.files;
+
+        if (!inspectionId || !locationId || !incidentDesc || !images || images.length === 0) {
+            isValid = false;
+            $errorDiv.removeClass('d-none').text(`Incident #${index + 1} is missing required fields.`);
+            return false;
         }
-    
-        // 🚀 Log FormData Before Sending
-        console.log("🚀 Final FormData before submission:");
-        for (let pair of formData.entries()) {
-            console.log(`${pair[0]}:`, pair[1]);
+
+        formData.append(`inspection_id[${index}]`, inspectionId);
+        formData.append(`location_id[${index}]`, locationId);
+        formData.append(`inspectiondescrption[${index}]`, incidentDesc);
+
+        for (let i = 0; i < images.length; i++) {
+            formData.append(`images_${index}[]`, images[i]);
         }
-    
-        $.ajax({
-            url: "/pilot/reports/store",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                console.log('✅ Report submitted successfully!', response);
-    
-                $('#addReportModal').modal('hide');
-                fetchMissions();
-            },
-            error: function (xhr) {
-                console.error("❌ Error Response:", xhr.responseText);
-                alert("Error submitting report. Please check your inputs.");
-            }
-        });
     });
-    
-    
+
+    if (!isValid) return;
+
+    // ✅ Submit via AJAX
+    $.ajax({
+        url: '/pilot/reports/store',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Report Submitted!',
+                text: response.message || 'The report has been successfully submitted.',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#101625',
+                color: '#ffffff'
+            });
+
+            $('#addReportModal').modal('hide');
+            $('#addReportForm')[0].reset();
+            fetchMissions();
+        },
+        error: function (xhr) {
+            const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
+            $errorDiv.removeClass('d-none').text(errorMessage);
+        }
+    });
+});
+
+
     
     
 

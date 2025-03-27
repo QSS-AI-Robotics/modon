@@ -18,4 +18,9 @@ class UserType extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function navigationLinks()
+    {
+        return $this->belongsToMany(NavigationLink::class);
+    }
 }

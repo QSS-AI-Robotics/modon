@@ -261,14 +261,14 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="edit_video_url" class="form-label">Video URL</label>
-                                        <input type="url" class="form-control dateInput form-control-lg" id="edit_video_url" name="video_url" placeholder="Enter video link">
+                                        <input type="url" class="form-control dateInput form-control-lg" id="edit_video_url" name="video_url" placeholder="Enter video link" required>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="edit_description" class="form-label">Notes</label>
-                                    <textarea class="form-control notes-textarea" id="edit_description" name="description" rows="11"></textarea>
+                                    <textarea class="form-control notes-textarea" id="edit_description" name="description" rows="11" required></textarea>
                                 </div>
                             </div>
                         </div>

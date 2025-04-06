@@ -10,10 +10,21 @@
             <div class="col-7 d-flex">
 
                 @foreach($navLinks as $link)
+                    @php
+                        $isActive = $link->url === '/'
+                            ? request()->is('/')
+                            : request()->is(ltrim($link->url, '/') . '*');
+                    @endphp
+                    <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ $isActive ? 'selected' : '' }}">
+                        {{ $link->name }}
+                    </a>
+                @endforeach
+
+                {{-- @foreach($navLinks as $link)
                     <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ request()->is(ltrim($link->url, '/') . '*') ? 'selected' : '' }}">
                         {{ $link->name }}
                     </a>
-                 @endforeach
+                 @endforeach --}}
             </div>
             
             <div class="col-3 d-flex justify-content-end">

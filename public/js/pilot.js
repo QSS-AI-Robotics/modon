@@ -757,7 +757,7 @@ $('#addReportForm').on('submit', function (e) {
                                 </div>
                             </div>
                             <div class="col-12 mb-2">
-                                <input type="text" class="form-control inspectiondescrption dateInput text-white form-control-lg" name="inspectiondescrption[]" placeholder="Inspection Description">
+                                <input type="text" class="form-control inspectiondescrption dateInput text-white form-control-lg" name="inspectiondescrption[]" placeholder="Inspection Description" required>
                             </div>
                         </div>
                 </div>

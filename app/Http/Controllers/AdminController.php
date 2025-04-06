@@ -22,6 +22,12 @@ class AdminController extends Controller
             'regions' => $regions
         ]);
     }
+
+    public function adminusers()
+    {
+        // $users = User::all(); 
+        return view('admin.adminusers');
+    }
     public function getAllUsers()
     {
         $user = Auth::user();

@@ -46,13 +46,14 @@ body{
     color: #FFFFFF33;
 }
 .cont-btn{
-    color: #FFFFFF33;
+    color:rgba(255, 255, 255, 0.2) !important;
     font-size: 14px;
 
 }
 .cont-btn:hover{
     background: #101625;
-    color:white;
+    color: white !important;
+
 }
 .search-container {
     display: flex;
@@ -92,7 +93,7 @@ body{
 
 .selected{
     background: #101625;
-    color:white;
+    color:white !important;
 }
 .dropdown:hover .dropdown-menu {
     display: block; /* Show dropdown on hover */
@@ -369,4 +370,16 @@ iframe {
 .swal2-cancel {
     background-color: #e74c3c !important;
     color: #fff !important;
+}
+.notselected{
+    background: #323849;
+
+}
+.righttransparentBorder{
+
+    border-right:5px solid transparent;
+}
+.lefttransparentBorder{
+
+    border-left:5px solid transparent;
 }

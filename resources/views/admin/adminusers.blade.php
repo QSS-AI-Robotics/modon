@@ -114,102 +114,25 @@
                     <!-- Header: stays fixed -->
                     <div class="col-lg-12 py-3 d-flex justify-content-between">
                         <p class="mb-0">Latest Incidents</p>
-                        <small class="mb-0">last 7 days</small>
+               
+         
                     </div>
 
                     <!-- This will grow to fill remaining space -->
-                    <div class="col-lg-12 flex-grow-1 d-flex flex-column IncidentPanel " style="min-height: 0;">
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/danger.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
+                    <div class="col-lg-12 flex-grow-1 d-flex flex-column overflow-auto IncidentPanel" style="height: 40vh; min-height: 0;">
+                        @for ($i = 0; $i <8; $i++)
+                            <div class="incidentDiv p-2 my-2">
+                                <div class="row align-items-center">
+                                    <div class="col-2 d-flex justify-content-center align-items-center">
+                                        <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
+                                    </div>
+                                    <div class="col-10 d-flex flex-column justify-content-center">
+                                        <h6 class="mb-0">No2 Emission Detected</h6>
+                                        <p class="mb-0">Region A - Drone A12</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="incidentDiv p-2 my-2">
-                            <div class="row align-items-center">
-                                <div class="col-lg-2 d-flex justify-content-center align-items-center">
-                                    <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                </div>
-                                <div class="col-lg-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">No2 Emission Detected</h6>
-                                    <p class="mb-0">Region A - Drone A12</p>
-                                </div>
-                            </div>
-                        </div>
-
+                        @endfor
                     </div>
                 </div>
             </div>
@@ -218,12 +141,39 @@
 
              
             <!-- third Column (Mission Control & Reports) -->
-            <div class="col-lg-6 d-flex p-0 flex-column">
-                <!-- Create New Mission -->
-                <div class="d-flex flex-column bg-section p-3 flex-grow-1 mx-2 my-1">                    
+            <div class="col-lg-6 d-flex p-0 flex-column h-100">
+                <div class="row flex-grow-1 mx-2 my-1 bg-section d-flex flex-column h-100">
+                    
+                    <!-- First half -->
+                    <div class="col-lg-12 flex-grow-1">
+                            <div class="row">
+                                <div class="col-lg-12 py-3 d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="mb-0">Pilot Tracking</p>
+                                    </div>
+                                    <div class="d-flex  align-items-center">
+                                        <img src="{{ asset('images/calendar.png') }}" 
+                                        class="img-fluid me-1 p-1 imghover" 
+                                        style="height: 28px; background: #101625; border-radius: 6px;">
+                                   
+                                        <button class="btn btn-sm modonbtn mx-1">Today</button>
+                                        <button class="btn btn-sm modonbtn mx-1">Region:All</button>
+                                    </div>
+                                   
+                      
+                                </div>
+                            </div>
+                    </div>
+            
+                    <!-- Second half -->
+                    <div class="col-lg-12  flex-grow-1">
+                        <!-- Content here -->
+                        <p class="text-center py-3 text-primary">Bottom Half</p>
+                    </div>
+            
                 </div>
-
             </div>
+            
             <!-- End  third Column -->            
         </div> 
         <!-- End Main Panel -->

@@ -408,3 +408,20 @@ iframe {
     background-color: #666;
     border-radius: 4px;
 }
+.modonbtn{
+    background: #101625;
+    color:white;
+    font-size: 12px;
+}
+.modonbtn:hover{
+    border:1px solid white;
+    border-radius: 6px;
+}
+.imghover {
+    transition: transform 0.3s ease;
+    cursor: pointer; /* optional, but helpful */
+}
+
+.imghover:hover {
+    transform: scale(1.5); /* increase or decrease as needed */
+}

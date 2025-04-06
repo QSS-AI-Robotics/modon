@@ -139,76 +139,93 @@
 
              <!-- End second Column -->
 
-             
-            <!-- third Column (Mission Control & Reports) -->
-            <div class="col-lg-6 d-flex p-0 flex-column h-100">
-                <div class="row flex-grow-1 mx-2 my-1 bg-section d-flex flex-column h-100">
-                    
-                    <!-- First half -->
-                    <div class="col-lg-12 flex-grow-1">
-                            <div class="row">
-                                <div class="col-lg-12 py-3 d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <p class="mb-0">Pilot Tracking</p>
-                                    </div>
-                                    <div class="d-flex  align-items-center">
-                                        <img src="{{ asset('images/calendar.png') }}" 
-                                        class="img-fluid me-1 p-1 imghover" 
-                                        style="height: 28px; background: #101625; border-radius: 6px;">
-                                   
-                                        <button class="btn btn-sm modonbtn mx-1">Today</button>
-                                        <button class="btn btn-sm modonbtn mx-1">Region:All</button>
-                                    </div>
-                                </div>
-                                <div class="col-lg-12 ">
-                                    <div class="row">
-                                        <div class="col-lg-4 ">
-                                                <div class="row g-0 bg-modon  p-2">
-                                                    <div class="col-lg-12">
-                                                       <p class="pt-2 px-2">Pilot Name</p>
-                                                    </div>
-                                                    <div class="col-lg-12 p-2">
-                                                        <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                            <label class="form-check-label label-text mb-0">Pending Missions</label>
-                                                            <p class="mb-0 fw-bold" id="pendingMissions">2</p>
-                                                        </div>
-                                                        <div class="progress">
-                                                            <div class="progress-bar text-bg-danger" id="pendingMissionsBar" style="width: 10%"></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 p-2">
-                                                        <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                            <label class="form-check-label label-text mb-0">Finished Missions</label>
-                                                            <p class="mb-0 fw-bold" id="completedMissions">3</p>
-                                                        </div>
-                                                        <div class="progress">
-                                                            <div class="progress-bar text-bg-success" id="completedMissionsBar" style="width: 50%"></div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12 p-2 mb-2">
-                                                        <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                            <label class="form-check-label label-text mb-0">Total Missions</label>
-                                                            <p class="mb-0 fw-bold" id="totalMissions">5</p>
-                                                        </div>
-                                                        <div class="progress">
-                                                            <div class="progress-bar text-bg-warning text-white" style="width: 100%"></div>
-                                                        </div>
-                                                    </div>
-                                            
-                                        </div>
-                                    </div>
+             <div class="col-lg-6 d-flex p-0 flex-column h-100">
+                <div class="d-flex flex-column flex-grow-1 mx-2 my-1">
+            
+                    <!-- === First Half: Pilot Tracking === -->
+                    <div class="flex-grow-1 mb-1">
+                        <div class="bg-section d-flex flex-column h-100">
+                            <!-- Header -->
+                            <div class="py-3 px-3 d-flex align-items-center justify-content-between">
+                                <p class="mb-0">Pilot Tracking</p>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ asset('images/calendar.png') }}" 
+                                         class="img-fluid me-1 p-1 imghover" 
+                                         style="height: 28px; background: #101625; border-radius: 6px;">
+                                    <button class="btn btn-sm modonbtn mx-1">Today</button>
+                                    <button class="btn btn-sm modonbtn mx-1">Region: All</button>
                                 </div>
                             </div>
+            
+                            <!-- Pilot Grid -->
+                            <div class="px-3 pb-3 flex-grow-1 overflow-auto">
+                                <div class="row h-100">
+                                    @for ($i = 1; $i <= 3; $i++)
+                                        <div class="col-lg-4 h-100">
+                                            <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
+                                                <p class="pt-2 px-2">Pilot {{ $i }}</p>
+                                                
+                                                <div class="p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0">Pending Missions</label>
+                                                        <p class="mb-0 fw-bold">2</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-danger" style="width: 20%"></div>
+                                                    </div>
+                                                </div>
+            
+                                                <div class="p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0">Finished Missions</label>
+                                                        <p class="mb-0 fw-bold">3</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-success" style="width: 60%"></div>
+                                                    </div>
+                                                </div>
+            
+                                                <div class="p-2 mb-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0">Total Missions</label>
+                                                        <p class="mb-0 fw-bold">5</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
                     </div>
             
-                    <!-- Second half -->
-                    <div class="col-lg-12  flex-grow-1">
-                        <!-- Content here -->
-                        <p class="text-center py-3 text-primary">Bottom Half</p>
+                    <!-- === Second Half: Incident Chart === -->
+                    <div class="flex-grow-1 mt-2">
+                        <div class="bg-section d-flex flex-column h-100">
+                            <!-- Header -->
+                            <div class="py-3 px-3 d-flex justify-content-between">
+                                <p class="mb-0">Incident Chart</p>
+                                <div>
+                                    <button class="btn btn-sm modonbtn mx-1">Last 7 Days</button>
+                                </div>
+                            </div>
+            
+                            <!-- Chart -->
+                            <div class="flex-grow-1 px-3 pb-3">
+                                <canvas id="regionBarChart" class="w-100" style="height: 30vh"></canvas>
+                            </div>
+                        </div>
                     </div>
             
                 </div>
             </div>
+               
+        
+
+        </div>
             
             <!-- End  third Column -->            
         </div> 

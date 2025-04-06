@@ -62,3 +62,76 @@ const regionChart = new Chart(ctx, {
         }
     }
 });
+
+
+// Get the canvas context
+const ctx2 = document.getElementById('regionBarChart').getContext('2d');
+
+// Data setup
+const labels = ['Region A', 'Region B', 'Region C', 'Region D', 'Region E'];
+const values = [12, 19, 7, 14, 10];
+
+// Determine the max value and index
+const maxValue = Math.max(...values);
+const maxIndex = values.indexOf(maxValue);
+
+// Color each bar: red for max, black for the rest
+const barColors = values.map((value, index) =>
+    index === maxIndex ? 'red' : 'black'
+);
+
+// Create the Chart
+const regionBarChart = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Missions',
+            data: values,
+            backgroundColor: barColors,
+            borderRadius: 5,
+            barThickness: 30,
+            maxBarThickness: 40
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                display: false, // Hide Y axis ticks and grid
+                grid: {
+                    display: false
+                }
+            },
+            x: {
+                ticks: {
+                    color: 'white' // X-axis labels color
+                },
+                grid: {
+                    color: 'rgba(255,255,255,0.05)'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false // Hide legend
+            },
+            datalabels: {
+                color: 'white',          // Label color
+                anchor: 'end',           // Position at end of bar
+                align: 'start',          // Align above the bar
+                offset: -10,             // Space above the bar
+                font: {
+                    weight: 'bold',
+                    size: 12
+                },
+                formatter: function(value) {
+                    return value;       // Show raw value
+                }
+            }
+        }
+    },
+    plugins: [ChartDataLabels] // Register the DataLabels plugin
+});
+

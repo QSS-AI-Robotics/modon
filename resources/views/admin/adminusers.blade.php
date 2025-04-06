@@ -159,8 +159,44 @@
                                         <button class="btn btn-sm modonbtn mx-1">Today</button>
                                         <button class="btn btn-sm modonbtn mx-1">Region:All</button>
                                     </div>
-                                   
-                      
+                                </div>
+                                <div class="col-lg-12 ">
+                                    <div class="row">
+                                        <div class="col-lg-4 ">
+                                                <div class="row g-0 bg-modon  p-2">
+                                                    <div class="col-lg-12">
+                                                       <p class="pt-2 px-2">Pilot Name</p>
+                                                    </div>
+                                                    <div class="col-lg-12 p-2">
+                                                        <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                            <label class="form-check-label label-text mb-0">Pending Missions</label>
+                                                            <p class="mb-0 fw-bold" id="pendingMissions">2</p>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <div class="progress-bar text-bg-danger" id="pendingMissionsBar" style="width: 10%"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 p-2">
+                                                        <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                            <label class="form-check-label label-text mb-0">Finished Missions</label>
+                                                            <p class="mb-0 fw-bold" id="completedMissions">3</p>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <div class="progress-bar text-bg-success" id="completedMissionsBar" style="width: 50%"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 p-2 mb-2">
+                                                        <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                            <label class="form-check-label label-text mb-0">Total Missions</label>
+                                                            <p class="mb-0 fw-bold" id="totalMissions">5</p>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <div class="progress-bar text-bg-warning text-white" style="width: 100%"></div>
+                                                        </div>
+                                                    </div>
+                                            
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                     </div>

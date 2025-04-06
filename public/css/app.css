@@ -425,3 +425,7 @@ iframe {
 .imghover:hover {
     transform: scale(1.5); /* increase or decrease as needed */
 }
+.bg-modon{
+    background: #101625;
+    border-radius: 6px;
+}

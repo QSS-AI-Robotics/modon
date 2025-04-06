@@ -383,3 +383,28 @@ iframe {
 
     border-left:5px solid transparent;
 }
+.incidentDiv {
+    background: #101625;
+    color: #fff; /* if you want white text */
+    padding: 1rem;
+    border-radius: 6px; /* optional: rounded edges */
+}
+.incidentDiv h6{
+    font-size: 14px;
+}
+.incidentDiv p{
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+
+}
+.IncidentPanel {
+    scrollbar-width: thin;
+    scrollbar-color: #666 transparent;
+}
+.IncidentPanel::-webkit-scrollbar {
+    width: 6px;
+}
+.IncidentPanel::-webkit-scrollbar-thumb {
+    background-color: #666;
+    border-radius: 4px;
+}

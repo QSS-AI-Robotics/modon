@@ -159,7 +159,7 @@ $(document).ready(function () {
             },
             dataType: 'json',
             success: function (data) {
-                // console.log('✅ Missions by Region:', data);
+                console.log('✅ Missions by Region:', data);
                 updateChart(chartInstance, data);
             },
             error: function (xhr, status, error) {
@@ -177,6 +177,10 @@ $(document).ready(function () {
         const labels = chartData.map(item => item.region);
         const values = chartData.map(item => item.missions);
     
+        const totalMissions = values.reduce((sum, val) => sum + val, 0);
+        $("#totalMissions").text(totalMissions)
+        console.log(`📊 Total Missions: ${totalMissions}`);
+        
         const hasData = values.some(value => value > 0);
     
         // Update chart data
@@ -196,12 +200,7 @@ $(document).ready(function () {
             $('#noDataMessage').removeClass('d-none');
         }
     
-        // Optional: log filter info
-        if (response.filtered) {
-            console.log(`📅 Filtered by: ${response.from} to ${response.to}`);
-        } else {
-            console.log('📊 Showing all missions (no filter)');
-        }
+ 
     }
     
     
@@ -218,15 +217,15 @@ $(document).ready(function () {
             alert("Start date cannot be after end date.");
             return;
         }
-        if (startDate && endDate) {
-            console.log(`📅 Fetching missions from ${startDate} to ${endDate}`);
-        } else if (startDate) {
-            console.log(`📅 Fetching missions from ${startDate} onwards`);
-        } else if (endDate) {
-            console.log(`📅 Fetching missions until ${endDate}`);
-        } else {
-            console.log("📊 Fetching missions without date filter");
-        }
+        // if (startDate && endDate) {
+        //     console.log(`📅 Fetching missions from ${startDate} to ${endDate}`);
+        // } else if (startDate) {
+        //     console.log(`📅 Fetching missions from ${startDate} onwards`);
+        // } else if (endDate) {
+        //     console.log(`📅 Fetching missions until ${endDate}`);
+        // } else {
+        //     console.log("📊 Fetching missions without date filter");
+        // }
         $.ajax({
             url: '/inspections-by-region',
             type: 'GET',
@@ -236,7 +235,7 @@ $(document).ready(function () {
             },
             dataType: 'json',
             success: function (data) {
-                console.log("✅ Inspections by Region:", data);
+                // console.log("✅ Inspections by Region:", data);
                 updateInspectionChart(chartInstance, data);
             },
             error: function (xhr, status, error) {
@@ -295,54 +294,7 @@ function updateInspectionChart(chart, response) {
     }
 }
 
-    // function fetchInspectionsByRegion(chartInstance) {
-    //     $.ajax({
-    //         url: '/inspections-by-region',
-    //         type: 'GET',
-    //         dataType: 'json',
-    //         success: function (data) {
-
-    
-    //             updateInspectionChart(chartInstance, data);
-    //         },
-    //         error: function (xhr, status, error) {
-    //             console.error('Error fetching inspections:', error);
-    //         }
-    //     });
-    // }
-    // function updateInspectionChart(chart, response) {
-    //     const chartData = response.data || [];
-    //     const labels = chartData.map(item => item.region);
-    //     const rawValues = chartData.map(item => item.inspections);
-    
-    //     // Replace zeros with a tiny number so bars are still visible
-    //     const values = rawValues.map(value => value === 0 ? 0.2 : value);
-    
-    //     const maxValue = Math.max(...rawValues);
-    //     const barColors = rawValues.map(value => value === maxValue ? 'red' : 'black');
-    
-    //     const hasData = labels.length > 0;
-    
-    //     if (hasData) {
-    //         $('#noregionDataMessage').addClass('d-none');
-    
-    //         chart.data.labels = labels;
-    //         chart.data.datasets[0].data = values;
-    //         chart.data.datasets[0].backgroundColor = barColors;
-    
-    //         // 👇 Ensure we display 0 label even if value is visually small (0.2)
-    //         chart.options.plugins.datalabels.formatter = function (value, context) {
-    //             return rawValues[context.dataIndex]; // show original 0, 10, etc.
-    //         };
-    
-    //         chart.update();
-    //     } else {
-    //         chart.data.labels = [];
-    //         chart.data.datasets[0].data = [];
-    //         chart.update();
-    //         $('#noregionDataMessage').removeClass('d-none');
-    //     }
-    // }
+  
     fetchPilotMissionSummary();
     function fetchPilotMissionSummary() {
         $.ajax({

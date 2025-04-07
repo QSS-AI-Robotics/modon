@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserType;
 use App\Models\Region;
+use App\Models\Drone;
+use App\Models\Mission;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -25,9 +28,23 @@ class AdminController extends Controller
 
     public function adminusers()
     {
-        // $users = User::all(); 
-        return view('admin.adminusers');
+        $pilot = User::whereHas('userType', function ($query) {
+            $query->where('name', 'Pilot');
+        })->count();
+        $drones = Drone::count();
+        $missions = Mission::count();
+        $locations = Location::count();
+        $regions = Region::count();
+    
+        return view('admin.adminusers', [
+            'pilot' => $pilot,
+            'regions' => $regions,
+            'locations' => $locations,
+            'missions' => $missions,
+            'drones' => $drones
+        ]);
     }
+    
     public function getAllUsers()
     {
         $user = Auth::user();
@@ -141,5 +158,43 @@ class AdminController extends Controller
             'message' => '✅ User updated successfully.',
         ]);
     }
+
+
+    public function missionsByRegion()
+    {
+        $data = Region::withCount('missions')
+            ->get()
+            ->map(function ($region) {
+                return [
+                    'region' => $region->name,
+                    'missions' => $region->missions_count,
+                ];
+            });
+    
+        return response()->json($data);
+    }
+    
+
+    //drones functions
+    public function adddrone(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+
+        // Ensure user is a pilot
+        if ($user->userType->name !== 'Pilot') {
+            return back()->with('error', 'Only pilot users can be assigned a drone.');
+        }
+
+        // Save drone
+        Drone::create([
+            'model' => $request->model,
+            'sr_no' => $request->sr_no,
+            'user_id' => $user->id,
+        ]);
+
+        return back()->with('success', 'Drone added successfully.');
+    }
+
+
 
 }

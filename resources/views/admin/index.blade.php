@@ -28,7 +28,7 @@
                                     <h5>Users</h5>
                                 </div>
                                 <div class="col-lg-4 text-end search-container">
-                                    <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
+                                    <img src="../images/search.png" alt="Search" class="img-fluid search-icon">
                                     <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
                                 </div>
                             </div>

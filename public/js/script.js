@@ -37,8 +37,8 @@ $(document).ready(function () {
                             <td>${user.region?.name || "N/A"}</td>
                         
                             <td>
-                                <img src="./images/edit.png" alt="Edit" class="edit-user img-fluid actions" data-id="${user.id}">
-                                <img src="./images/delete.png" alt="Delete" class="delete-user img-fluid actions" data-id="${user.id}">
+                                <img src="../images/edit.png" alt="Edit" class="edit-user img-fluid actions" data-id="${user.id}">
+                                <img src="../images/delete.png" alt="Delete" class="delete-user img-fluid actions" data-id="${user.id}">
                             </td>
                         </tr>
                     `;

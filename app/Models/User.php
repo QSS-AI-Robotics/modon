@@ -46,4 +46,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Region::class);
     }
+
+    /**
+     * A user (pilot) can have many drones
+     */
+    public function drones()
+    {
+        return $this->hasMany(Drone::class);
+    }
 }

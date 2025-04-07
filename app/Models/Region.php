@@ -18,4 +18,9 @@ class Region extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function missions()
+    {
+        return $this->hasMany(\App\Models\Mission::class);
+    }
 }

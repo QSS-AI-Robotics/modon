@@ -25,18 +25,18 @@
                                             <p class="ps-2 mb-0">Pilots</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
-                                            <h1 id="totalPilots">5</h1>
+                                            <h1 id="totalPilots">{{ $pilot }}</h1>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 lefttransparentBorder h-100">
                                     <div class="row bg-section h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
-                                            <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 24px;">
+                                            <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 20px;">
                                             <p class="ps-2 mb-0">Drones</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
-                                            <h1 id="totaldrones">5</h1>
+                                            <h1 id="totaldrones">{{ $drones }}</h1>
                                         </div>
                                     </div>
                                 </div>
@@ -52,7 +52,7 @@
                                             <p class="ps-2 mb-0">Missions</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
-                                            <h1 id="totalMissions">12</h1>
+                                            <h1 id="totalMissions">{{ $missions }}</h1>
                                         </div>
                                     </div>
                                 </div>
@@ -63,22 +63,22 @@
                                 <div class="col-lg-6 righttransparentBorder">
                                     <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
-                                            <img src="{{ asset('images/regions.png') }}" class="img-fluid" style="height: 24px;">
+                                            <img src="{{ asset('images/regions.png') }}" class="img-fluid" style="height: 20px;">
                                             <p class="ps-2 mb-0">Regions</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
-                                            <h1 id="totalRegions">5</h1>
+                                            <h1 id="totalRegions">{{ $regions }}</h1>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 lefttransparentBorder">
                                     <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
-                                            <img src="{{ asset('images/locations.png') }}" class="img-fluid" style="height: 24px;">
+                                            <img src="{{ asset('images/locations.png') }}" class="img-fluid" style="height: 20px;">
                                             <p class="ps-2 mb-0">Locations</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
-                                            <h1 id="totalLocations">5</h1>
+                                            <h1 id="totalLocations">{{ $locations }}</h1>
                                         </div>
                                     </div>
                                 </div>
@@ -92,8 +92,14 @@
                                             <p class="mb-0">Missions Vs Regions</p>
                                             <small class="mb-0">last 7 days</small>
                                         </div>
-                                        <div class="col-lg-12 flex-grow-1">
+                                        {{-- <div class="col-lg-12 flex-grow-1">
                                             <canvas id="regionLineChart" class="w-100 h-100"></canvas>
+                                        </div> --}}
+                                        <div class="col-lg-12 flex-grow-1 position-relative">
+                                            <canvas id="regionLineChart" class="w-100 h-100"></canvas>
+                                            <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
+                                                No data found
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -78,12 +78,13 @@ Route::middleware(['auth', 'checkUserType:pilot'])->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
 
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');
-    Route::get('/admin/users', [AdminController::class, 'adminusers'])->name('admin.adminusers');
+    Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/dashboard', [AdminController::class, 'adminusers'])->name('admin.adminusers');
     Route::get('/dashboard/users', [AdminController::class, 'getAllUsers'])->name('admin.getUsers');
     Route::post('/dashboard/user/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
     Route::post('/dashboard/users/storeuser', [AdminController::class, 'storeUser'])->name('admin.users.store');
     Route::put('/dashboard/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
-    
+    Route::get('/missions-by-region', [AdminController::class, 'missionsByRegion'])->name('missions.by.region');
+
 
 });

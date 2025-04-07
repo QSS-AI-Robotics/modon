@@ -90,13 +90,11 @@
                                     <div class="row bg-section flex-grow-1">
                                         <div class="col-lg-12 py-3 d-flex align-items-center justify-content-between">
                                             <p class="mb-0">Missions Vs Regions</p>
-                                            <small class="mb-0">last 7 days</small>
+                                            {{-- <small class="mb-0">last 7 days</small> --}}
                                         </div>
-                                        {{-- <div class="col-lg-12 flex-grow-1">
-                                            <canvas id="regionLineChart" class="w-100 h-100"></canvas>
-                                        </div> --}}
+                                        
                                         <div class="col-lg-12 flex-grow-1 position-relative">
-                                            <canvas id="regionLineChart" class="w-100 h-100"></canvas>
+                                            <canvas id="regionLineChart" class="w-100 h-100 "></canvas>
                                             <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
                                                 No data found
                                             </div>
@@ -142,20 +140,39 @@
                             <!-- Header -->
                             <div class="py-3 px-3 d-flex align-items-center justify-content-between">
                                 <p class="mb-0">Pilot Tracking</p>
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ asset('images/calendar.png') }}" 
-                                         class="img-fluid me-1 p-1 imghover" 
-                                         style="height: 28px; background: #101625; border-radius: 6px;">
-                                    <button class="btn btn-sm modonbtn mx-1">Today</button>
-                                    <button class="btn btn-sm modonbtn mx-1">Region: All</button>
+                                <div class="col-lg-4 text-end datePanel-container">
+                                    <div class="date-fields-wrapper">
+                                        <div class="date-wrapper">
+                                            <label for="start-date" class="date-label">Start Date</label>
+                                            <input type="date" id="start-date" class="datePanel-input date start-date">
+                                        </div>
+                                        <div class="date-wrapper">
+                                            <label for="end-date" class="date-label">End Date</label>
+                                            <input type="date" id="end-date" class="datePanel-input end-date">
+                                        </div>
+                                    </div>
+                                
+                                    <img src="./images/calendar.png" alt="Search" class="img-fluid datePanel-icon pt-2 imghover">
+                                    <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 mt-2 imghover custImg refreshIcon" >
                                 </div>
+                                
+                                
+                                
+                                
+                                
+                                {{-- <div class="d-flex align-items-center">
+                                    
+                                    <img src="{{ asset('images/calendar.png') }}" class="img-fluid mx-1 p-1 imghover custImg"  >
+                                         <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 imghover custImg" >
+                         
+                                </div> --}}
                             </div>
             
                             <!-- Pilot Grid -->
                             <div class="px-3 pb-3 flex-grow-1 overflow-auto">
                                 <div class="row h-100" id="missionsPanel">
                                   
-                                        <div class="col-lg-4 h-100 shadow-sm rounded">
+                                        <div class="col-lg-4 h-100  rounded">
                                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
                                                 <p class="pt-2 px-2" id="pilotname">Loading...</p>
                                                 
@@ -202,9 +219,7 @@
                             <!-- Header -->
                             <div class="py-3 px-3 d-flex justify-content-between">
                                 <p class="mb-0">Incident Chart</p>
-                                <div>
-                                    <button class="btn btn-sm modonbtn mx-1">Last 7 Days</button>
-                                </div>
+                                
                             </div>
             
                             <!-- Chart -->

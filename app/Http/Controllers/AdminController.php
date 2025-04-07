@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 class AdminController extends Controller
 {
     // Show the main admin dashboard/index page
@@ -162,35 +163,91 @@ class AdminController extends Controller
     }
 
 
-    public function missionsByRegion()
+ 
+    public function missionsByRegion(Request $request)
     {
-        $data = Region::withCount('missions')
-            ->get()
-            ->map(function ($region) {
-                return [
-                    'region' => $region->name,
-                    'missions' => $region->missions_count,
-                ];
-            });
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
     
-        return response()->json($data);
+        $regions = Region::with(['missions' => function ($query) use ($start, $end) {
+            if ($start) {
+                $query->whereDate('start_datetime', '>=', Carbon::parse($start));
+            }
+            if ($end) {
+                $query->whereDate('start_datetime', '<=', Carbon::parse($end));
+            }
+        }])->get();
+    
+        $data = $regions->map(function ($region) {
+            return [
+                'region'   => $region->name,
+                'missions' => $region->missions->count(),
+            ];
+        });
+    
+        return response()->json([
+            'from' => $start ?? null,
+            'to' => $end ?? null,
+            'filtered' => (bool)($start || $end),
+            'data' => $data
+        ]);
     }
     
-    public function inspectionsByRegion()
+
+    
+    // public function inspectionsByRegion()
+    // {
+    //     $data = DB::table('regions')
+    //         ->leftJoin('missions', function($join) {
+    //             $join->on('regions.id', '=', 'missions.region_id')
+    //                  ->where('missions.status', 'Completed'); // ✅ only completed missions
+    //         })
+    //         ->leftJoin('pilot_reports', 'missions.id', '=', 'pilot_reports.mission_id')
+    //         ->leftJoin('pilot_report_images', 'pilot_reports.id', '=', 'pilot_report_images.pilot_report_id')
+    //         ->select('regions.name as region', DB::raw('COUNT(pilot_report_images.id) as inspections'))
+    //         ->groupBy('regions.id', 'regions.name')
+    //         ->get();
+    
+    //     return response()->json($data);
+    // }
+
+
+    public function inspectionsByRegion(Request $request)
     {
-        $data = DB::table('regions')
-            ->leftJoin('missions', function($join) {
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+    
+        $query = DB::table('regions')
+            ->leftJoin('missions', function ($join) use ($start, $end) {
                 $join->on('regions.id', '=', 'missions.region_id')
-                     ->where('missions.status', 'Completed'); // ✅ only completed missions
+                     ->where('missions.status', 'Completed');
+    
+                if ($start) {
+                    $join->whereDate('missions.start_datetime', '>=', Carbon::parse($start));
+                }
+    
+                if ($end) {
+                    $join->whereDate('missions.end_datetime', '<=', Carbon::parse($end));
+                }
             })
             ->leftJoin('pilot_reports', 'missions.id', '=', 'pilot_reports.mission_id')
             ->leftJoin('pilot_report_images', 'pilot_reports.id', '=', 'pilot_report_images.pilot_report_id')
-            ->select('regions.name as region', DB::raw('COUNT(pilot_report_images.id) as inspections'))
+            ->select(
+                'regions.name as region',
+                DB::raw('COUNT(pilot_report_images.id) as inspections')
+            )
             ->groupBy('regions.id', 'regions.name')
             ->get();
     
-        return response()->json($data);
+        return response()->json([
+            'from' => $start ?? null,
+            'to' => $end ?? null,
+            'filtered' => (bool)($start || $end),
+            'data' => $query
+        ]);
     }
+
+
     public function pilotMissionSummary()
     {
         $pilots = User::whereHas('userType', function ($query) {

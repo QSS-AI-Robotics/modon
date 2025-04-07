@@ -7,6 +7,7 @@ use App\Models\Region;
 use App\Models\Drone;
 use App\Models\Mission;
 use App\Models\Location;
+use App\Models\PilotReport;
 use App\Models\PilotReportImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -222,31 +223,54 @@ class AdminController extends Controller
 
         return response()->json($pilots);
     }
+
+    
+    
+    // public function latestInspections()
+    // {
+    //     $images = PilotReportImage::with([
+    //         'report.mission.region'
+    //     ])->get();
+    
+    //     $result = $images->map(function ($image) {
+    //         $report  = $image->report;
+    //         $mission = $report?->mission;
+    //         $region  = $mission?->region;
+    
+    //         return [
+    //             'pilot_report_image_id' => $image->id,
+    //             'pilot_report_id'       => $report?->id,
+    //             'mission_id'            => $mission?->id,
+    //             'region_id'             => $region?->id,
+    //             'region_name'           => $region?->name ?? 'N/A',
+    //         ];
+    //     });
+    
+    //     return response()->json($result);
+    // }
+
     public function latestInspections()
     {
         $images = PilotReportImage::with([
-            'inspectionType:id,name',
             'location:id,name',
-            'report.mission.region:id,name' // 👈 deep relationship
-        ])
-        ->latest()
-        ->take(10)
-        ->get()
-        ->map(function ($image) {
+            'report.mission.region:id,name'
+        ])->get();
+    
+        $result = $images->map(function ($image) {
+            $report  = $image->report;
+            $mission = $report?->mission;
+            $region  = $mission?->region;
+    
             return [
-                'inspection_type' => $image->inspectionType->name ?? 'N/A',
-                'location'        => $image->location->name ?? 'N/A',
-                'region'          => $image->report?->mission?->region?->name ?? 'N/A',
-                'description'     => $image->description ?? '',
-                'image_path'      => asset('storage/' . $image->image_path),
-                'created_at'      => $image->created_at?->format('Y-m-d H:i') ?? '',
+                'region_name'  => $region?->name ?? 'N/A',
+                'location'     => $image->location?->name ?? 'N/A',
+                'description'  => $image->description ?? '',
+                'image_path'   => asset($image->image_path),
             ];
         });
     
-        return response()->json($images);
+        return response()->json($result);
     }
-
-
     //drones functions
     public function adddrone(Request $request)
     {

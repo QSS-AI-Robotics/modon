@@ -126,19 +126,7 @@
 
                     <!-- This will grow to fill remaining space -->
                     <div class="col-lg-12 flex-grow-1 d-flex flex-column overflow-auto IncidentPanel" style="height: 40vh; min-height: 0;">
-                        @for ($i = 0; $i <8; $i++)
-                            <div class="incidentDiv p-2 my-2">
-                                <div class="row align-items-center">
-                                    <div class="col-2 d-flex justify-content-center align-items-center">
-                                        <img src="{{ asset('images/warning.png') }}" class="img-fluid" style="height: 20px;">
-                                    </div>
-                                    <div class="col-10 d-flex flex-column justify-content-center">
-                                        <h6 class="mb-0">No2 Emission Detected</h6>
-                                        <p class="mb-0">Region A - Drone A12</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endfor
+                       
                     </div>
                 </div>
             </div>

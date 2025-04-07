@@ -23,7 +23,8 @@ class PilotReport extends Model
      */
     public function mission()
     {
-        return $this->belongsTo(Mission::class);
+        // return $this->belongsTo(Mission::class);
+        return $this->belongsTo(Mission::class, 'mission_id');
     }
 
     /**

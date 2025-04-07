@@ -22,7 +22,8 @@ class PilotReportImage extends Model
      */
     public function report()
     {
-        return $this->belongsTo(PilotReport::class);
+        // return $this->belongsTo(PilotReport::class);
+        return $this->belongsTo(PilotReport::class, 'pilot_report_id');
     }
 
     /**

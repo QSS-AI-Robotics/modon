@@ -267,9 +267,32 @@ $(document).ready(function () {
             type: 'GET',
             dataType: 'json',
             success: function(data) {
-                console.log("Latest Inspections:");
+                console.log("Latest Inspections:", data);
+    
+                const container = $('.IncidentPanel');
+                container.empty(); // clear previous data
+    
+                if (data.length === 0) {
+                    container.append('<p class="text-center text-muted">No inspections found.</p>');
+                    return;
+                }
+    
                 data.forEach(item => {
-                    console.log(`${item.inspection_type} - ${item.location} - ${item.region}`);
+                    const html = `
+                        <div class="incidentDiv p-2 my-2">
+                            <div class="row align-items-center">
+                                <div class="col-2 d-flex justify-content-center align-items-center">
+                                    <img src="../images/warning.png" class="img-fluid" style="height: 20px;">
+                                </div>
+                                <div class="col-10 d-flex flex-column justify-content-center">
+                                    <h6 class="mb-0">${item.description}</h6>
+                                    <p class="mb-0">Region: <span class="text-capitalize">${item.region_name}</span > - <span class="text-capitalize">${item.location}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+    
+                    container.append(html);
                 });
             },
             error: function(err) {
@@ -277,6 +300,6 @@ $(document).ready(function () {
             }
         });
     }
-
+    
     
 });

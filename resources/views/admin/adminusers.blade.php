@@ -165,36 +165,36 @@
             
                             <!-- Pilot Grid -->
                             <div class="px-3 pb-3 flex-grow-1 overflow-auto">
-                                <div class="row h-100">
-                                    @for ($i = 1; $i <= 3; $i++)
-                                        <div class="col-lg-4 h-100">
+                                <div class="row h-100" id="missionsPanel">
+                                  
+                                        <div class="col-lg-4 h-100 shadow-sm rounded">
                                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
-                                                <p class="pt-2 px-2">Pilot {{ $i }}</p>
+                                                <p class="pt-2 px-2" id="pilotname">Loading...</p>
                                                 
                                                 <div class="p-2">
                                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                        <label class="form-check-label mb-0">Pending Missions</label>
-                                                        <p class="mb-0 fw-bold">2</p>
+                                                        <label class="form-check-label mb-0">Pending</label>
+                                                        <p class="mb-0 fw-bold">0</p>
                                                     </div>
                                                     <div class="progress">
-                                                        <div class="progress-bar bg-danger" style="width: 20%"></div>
+                                                        <div class="progress-bar bg-danger" style="width: 0%"></div>
                                                     </div>
                                                 </div>
             
                                                 <div class="p-2">
                                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                        <label class="form-check-label mb-0">Finished Missions</label>
-                                                        <p class="mb-0 fw-bold">3</p>
+                                                        <label class="form-check-label mb-0">Finished</label>
+                                                        <p class="mb-0 fw-bold">0</p>
                                                     </div>
                                                     <div class="progress">
-                                                        <div class="progress-bar bg-success" style="width: 60%"></div>
+                                                        <div class="progress-bar bg-success" style="width: 0%"></div>
                                                     </div>
                                                 </div>
             
                                                 <div class="p-2 mb-2">
                                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
                                                         <label class="form-check-label mb-0">Total Missions</label>
-                                                        <p class="mb-0 fw-bold">5</p>
+                                                        <p class="mb-0 fw-bold">0</p>
                                                     </div>
                                                     <div class="progress">
                                                         <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
@@ -202,7 +202,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    @endfor
+                                    
                                 </div>
                             </div>
                         </div>
@@ -222,6 +222,9 @@
                             <!-- Chart -->
                             <div class="flex-grow-1 px-3 pb-3">
                                 <canvas id="regionBarChart" class="w-100" style="height: 30vh"></canvas>
+                                <div id="noregionDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
+                                    No data found
+                                </div>
                             </div>
                         </div>
                     </div>

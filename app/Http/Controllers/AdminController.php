@@ -7,11 +7,12 @@ use App\Models\Region;
 use App\Models\Drone;
 use App\Models\Mission;
 use App\Models\Location;
+use App\Models\PilotReportImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
     // Show the main admin dashboard/index page
@@ -174,6 +175,77 @@ class AdminController extends Controller
         return response()->json($data);
     }
     
+    public function inspectionsByRegion()
+    {
+        $data = DB::table('regions')
+            ->leftJoin('missions', function($join) {
+                $join->on('regions.id', '=', 'missions.region_id')
+                     ->where('missions.status', 'Completed'); // ✅ only completed missions
+            })
+            ->leftJoin('pilot_reports', 'missions.id', '=', 'pilot_reports.mission_id')
+            ->leftJoin('pilot_report_images', 'pilot_reports.id', '=', 'pilot_report_images.pilot_report_id')
+            ->select('regions.name as region', DB::raw('COUNT(pilot_report_images.id) as inspections'))
+            ->groupBy('regions.id', 'regions.name')
+            ->get();
+    
+        return response()->json($data);
+    }
+    public function pilotMissionSummary()
+    {
+        $pilots = User::whereHas('userType', function ($query) {
+            $query->where('name', 'Pilot');
+        })
+        ->select('id', 'name', 'region_id')
+        ->get()
+        ->map(function ($pilot) {
+            $total = DB::table('missions')
+                ->where('region_id', $pilot->region_id)
+                ->count();
+
+            $completed = DB::table('missions')
+                ->where('region_id', $pilot->region_id)
+                ->where('status', 'Completed')
+                ->count();
+
+            $pending = DB::table('missions')
+                ->where('region_id', $pilot->region_id)
+                ->where('status', 'Pending')
+                ->count();
+
+            return [
+                'name' => $pilot->name,
+                'total_missions' => $total,
+                'completed_missions' => $completed,
+                'pending_missions' => $pending,
+            ];
+        });
+
+        return response()->json($pilots);
+    }
+    public function latestInspections()
+    {
+        $images = PilotReportImage::with([
+            'inspectionType:id,name',
+            'location:id,name',
+            'report.mission.region:id,name' // 👈 deep relationship
+        ])
+        ->latest()
+        ->take(10)
+        ->get()
+        ->map(function ($image) {
+            return [
+                'inspection_type' => $image->inspectionType->name ?? 'N/A',
+                'location'        => $image->location->name ?? 'N/A',
+                'region'          => $image->report?->mission?->region?->name ?? 'N/A',
+                'description'     => $image->description ?? '',
+                'image_path'      => asset('storage/' . $image->image_path),
+                'created_at'      => $image->created_at?->format('Y-m-d H:i') ?? '',
+            ];
+        });
+    
+        return response()->json($images);
+    }
+
 
     //drones functions
     public function adddrone(Request $request)

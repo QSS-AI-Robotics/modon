@@ -85,6 +85,9 @@ Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
     Route::post('/dashboard/users/storeuser', [AdminController::class, 'storeUser'])->name('admin.users.store');
     Route::put('/dashboard/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
     Route::get('/missions-by-region', [AdminController::class, 'missionsByRegion'])->name('missions.by.region');
+    Route::get('/inspections-by-region', [AdminController::class, 'inspectionsByRegion'])->name('inspections.by.region');
+    Route::get('/pilot-mission-summary', [AdminController::class, 'pilotMissionSummary']);
+    Route::get('/latest-inspections', [AdminController::class, 'latestInspections']);
 
 
 });

@@ -508,3 +508,50 @@ iframe {
     background: #101625;
     border-radius: 6px;
 }
+
+.profile-wrapper {
+    position: relative;
+    z-index: 999;
+}
+
+.profile-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: white;
+}
+
+.profile-img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background: #101625;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 0.75rem;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.profile-dropdown.active {
+    opacity: 1;
+    max-height: 300px;
+    pointer-events: auto;
+}

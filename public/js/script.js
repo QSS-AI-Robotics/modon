@@ -31,7 +31,17 @@ $(document).ready(function () {
                 $.each(response.users, function (index, user) {
                     let row = `
                         <tr data-id="${user.id}">
+                            <td>
+
+                              <img src="/storage/users/${user.image}" 
+                                onerror="this.onerror=null;this.src='/images/default-user.png';" 
+                                alt="User" 
+                                class="rounded" 
+                                style="width:24px; height:24px;">
+
+                            </td>
                             <td>${user.name}</td>
+                            
                             <td>${user.email}</td>
                             <td>${user.user_type?.name || "N/A"}</td>
                             <td>${user.region?.name || "N/A"}</td>
@@ -50,42 +60,51 @@ $(document).ready(function () {
             }
         });
     }
-    $(document).on('submit', '#signupForm', function (e) {
+ 
+    $('#user_image').on('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview').attr('src', e.target.result).removeClass('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    $(document).on('submit', '#userStoreForm', function (e) {
         e.preventDefault();
     
-        const $errorDiv = $('#users-validation-errors');
-        $errorDiv.addClass('d-none');
+        const $errorDiv = $('#users-validation-errors').addClass('d-none');
     
-        const formData = {
-            id: $('#userId').val(),
-            name: $('#fullname').val().trim(),
-            email: $('#email').val().trim(),
-            password: $('#password').val(),
-            region_id: $('#region').val(),
-            user_type_id: $('#user_type').val()
-        };
+        const formData = new FormData(this); // 👉 for file upload support
     
-        const hasError =
-            !formData.name ||
-            !formData.email || !/^\S+@\S+\.\S+$/.test(formData.email) ||
-            !formData.password || formData.password.length < 6 ||
-            !formData.region_id ||
-            !formData.user_type_id;
+        const name = $('#name').val().trim();
+        const email = $('#email').val().trim();
+        const password = $('#password').val();
+        const region = $('#region_id').val();
+        const user_type_id = $('#user_type_id').val();
     
-        if (hasError) {
+        if (!name || !email || !/^\S+@\S+\.\S+$/.test(email) || !password || password.length < 6 || !region || !user_type_id) {
             $errorDiv.removeClass('d-none').text("All fields are required.");
             return;
         }
     
         const $submitBtn = $(this).find('button[type="submit"]');
         const isUpdate = $submitBtn.text().trim().toLowerCase().includes('update');
-        const url = isUpdate ? `/dashboard/users/${formData.id}` : '/dashboard/users/storeuser';
-        const method = isUpdate ? 'PUT' : 'POST';
+        const url = isUpdate ? `/dashboard/users/${$('#userId').val()}` : '/dashboard/users/storeuser';
+        const method = isUpdate ? 'POST' : 'POST'; // Laravel PUT via POST with _method
     
+        if (isUpdate) {
+            formData.append('_method', 'PUT');
+        }
+     
         $.ajax({
-            url,
+            url: url,
             type: method,
             data: formData,
+            processData: false,
+            contentType: false,
             success: function (response) {
                 Swal.fire({
                     icon: 'success',
@@ -102,9 +121,7 @@ $(document).ready(function () {
             },
             error: function (xhr) {
                 const response = xhr.responseJSON;
-    
                 if (response?.errors) {
-                    // Laravel-style validation errors
                     const messages = Object.values(response.errors).flat();
                     Swal.fire({
                         icon: 'error',
@@ -112,7 +129,6 @@ $(document).ready(function () {
                         html: `<ul style="text-align:left;">${messages.map(msg => `<li>${msg}</li>`).join('')}</ul>`
                     });
                 } else {
-                    // General server error
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
@@ -122,53 +138,59 @@ $(document).ready(function () {
             }
         });
     });
-    
-    
 
-    
- 
-    
-    $(document).on('click', '.edit-user', function () 
-    {
+    // add user form updated 
+    $(document).on('click', '.edit-user', function () {
         $(".cancel-btn").removeClass("d-none");
+    
         const row = $(this).closest('tr');
         const userId = $(this).data('id');
-        const name = row.find('td:eq(0)').text().trim();
-        const email = row.find('td:eq(1)').text().trim();
-        const userType = row.find('td:eq(2)').text().trim();
-        const region = row.find('td:eq(3)').text().trim();
+    
+        const name = row.find('td:eq(1)').text().trim();
+        const email = row.find('td:eq(2)').text().trim();
+        const userType = row.find('td:eq(3)').text().trim();
+        const region = row.find('td:eq(4)').text().trim();
+    
+        const imageSrc = row.find('td:eq(0)').find('img').attr('src');
     
         // Fill form fields
         $('#userId').val(userId);
-        $('#fullname').val(name);
+        $('#name').val(name);
         $('#email').val(email);
-        $('#password').val(''); // Clear password field for security
+        $('#password').val(''); // Clear password field
     
-        // Set region select
-        $('#region option').each(function () {
+        // Set dropdown values
+        $('#region_id option').each(function () {
             if ($(this).text().trim() === region) {
                 $(this).prop('selected', true);
             }
         });
     
-        // Set user type select
-        $('#user_type option').each(function () {
+        $('#user_type_id option').each(function () {
             if ($(this).text().trim() === userType) {
                 $(this).prop('selected', true);
             }
         });
     
-        // Change button text to "Update User"
-        $('#signupForm button[type="submit"]').text('Update User');
+        // Set image preview
+        $('#imagePreview')
+            .attr('src', imageSrc)
+            .removeClass('d-none');
+    
+        // Set button text
+        $('#userStoreForm button[type="submit"]').text('Update User');
     });
+    
+
  
 
     function resetForm() {
 
-        $('#signupForm')[0].reset();
+        $('#userStoreForm')[0].reset();
         $('#userId').val('');
         $('#users-validation-errors').addClass('d-none').text('');;
-        $('#signupForm button[type="submit"]').text('Create User');
+        $('#userStoreForm button[type="submit"]').text('Create User');
+        $('#imagePreview').attr('src', '').addClass('d-none'); 
     }
     $(document).on("click", ".cancel-btn", function () {
         $(".cancel-btn").addClass("d-none");

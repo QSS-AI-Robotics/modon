@@ -20,32 +20,30 @@
                     </a>
                 @endforeach
 
-                {{-- @foreach($navLinks as $link)
-                    <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ request()->is(ltrim($link->url, '/') . '*') ? 'selected' : '' }}">
-                        {{ $link->name }}
-                    </a>
-                 @endforeach --}}
+
             </div>
             
             <div class="col-3 d-flex justify-content-end">
-                <div class="dropdown">
-                    <button class="btn dropdown-toggle d-flex align-items-center" type="button" >
+
+                <div class="profile-wrapper">
+                    <div class="profile-toggle" id="profileToggle">
                         
-                        <div class="text-start text-white pe-4">
-                            <div class="fw-bold small">{{ Auth::user()->name ?? 'Admin' }}</div>
-                            <div class="text-gray small">{{ Auth::user()->email ?? 'email@example.com' }}</div>
+                        <div class="profile-info">
+                            <div class="fw-bold">{{ Auth::user()->name ?? 'Admin' }}</div>
+                            <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div>
                         </div>
-                        <img src="{{ asset('images/user.png') }}" alt="Profile" class="img-fluid rounded-circle me-2" style="max-height: 40px;" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li>
-                            <form >
-                                @csrf
-                                <button type="submit" class="dropdown-item text-danger"  id="logoutButton">Logout</button>
-                            </form>
-                        </li>
-                    </ul>
+                        <img src="{{ asset('images/user.png') }}" alt="Profile" class="profile-img">
+                    </div>
+                
+                    <div class="profile-dropdown" id="profileDropdown">
+                       
+                           
+                            <button type="submit" class="btn btn-sm btn-danger w-100" id="logoutButton">Logout</button>
+                    
+                    </div>
                 </div>
+                
+                
             </div>
             
         </div>

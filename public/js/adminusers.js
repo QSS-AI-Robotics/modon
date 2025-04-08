@@ -2,8 +2,8 @@
 $(document).ready(function () {
 
 
-    const regionChartInstance = document.getElementById('regionLineChart').getContext('2d');
-    const regionChart = new Chart(regionChartInstance, {
+    const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
+    const regionChart = new Chart(regionChartMissions, {
         type: 'line',
         data: {
             labels: [],
@@ -41,7 +41,9 @@ $(document).ready(function () {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        color: '#FFFFFF'
+                        color: '#FFFFFF',
+                        stepSize: 1, // 👈 This forces step increments
+                        precision: 0  // 👈 Removes decimal values
                     }
                 },
                 x: {
@@ -127,7 +129,8 @@ $(document).ready(function () {
     
         // Fetch chart data regardless of date presence
         fetchMissionsByRegion(regionChart);
-        fetchInspectionsByRegion(regionBarChart)
+        fetchInspectionsByRegion(regionBarChart);
+        fetchPilotMissionSummary();
     });
     
     
@@ -295,35 +298,49 @@ function updateInspectionChart(chart, response) {
 }
 
   
-    fetchPilotMissionSummary();
+    // fetchPilotMissionSummary();
+
     function fetchPilotMissionSummary() {
+        const startDate = $('#start-date').val();
+        const endDate = $('#end-date').val();
+    
+        // Validate dates
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            alert("Start date cannot be after end date.");
+            return;
+        }
+    
         $.ajax({
             url: '/pilot-mission-summary',
             method: 'GET',
             dataType: 'json',
-            success: function (data) {
-                // console.log("Pilot Mission Summary:");
-                $('#missionsPanel').empty(); // Clear any existing cards
+            data: {
+                start_date: startDate || null,
+                end_date: endDate || null
+            },
+            success: function (response) {
+                const data = response.data || [];
+    
+                console.log("✅ Pilot Mission Summary:", data);
+    
+                $('#missionsPanel').empty(); // Clear existing cards
     
                 data.forEach(pilot => {
-                    // console.log(`${pilot.name} → Total: ${pilot.total_missions}, Completed: ${pilot.completed_missions}, Pending: ${pilot.pending_missions}`);
-    
                     const total = pilot.total_missions || 0;
                     const completed = pilot.completed_missions || 0;
                     const pending = pilot.pending_missions || 0;
     
-                    // % calculations
                     const pendingPercent = total ? Math.round((pending / total) * 100) : 0;
                     const completedPercent = total ? Math.round((completed / total) * 100) : 0;
     
                     const card = `
-                        <div class="col-lg-4 h-100  rounded">
+                        <div class="col-lg-4  pb-1  h-100 rounded">
                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
-                                <p class="pt-2  text-capitalize px-2 fw-bold">${pilot.name}</p>
+                                <p class="pt-2 text-capitalize px-2 fw-bold">${pilot.name}</p>
     
                                 <div class="p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                        <label class="form-check-label mb-0">Pending </label>
+                                        <label class="form-check-label mb-0">Pending</label>
                                         <p class="mb-0 fw-bold">${pending}</p>
                                     </div>
                                     <div class="progress">
@@ -333,7 +350,7 @@ function updateInspectionChart(chart, response) {
     
                                 <div class="p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                        <label class="form-check-label mb-0">Finished </label>
+                                        <label class="form-check-label mb-0">Finished</label>
                                         <p class="mb-0 fw-bold">${completed}</p>
                                     </div>
                                     <div class="progress">
@@ -347,7 +364,7 @@ function updateInspectionChart(chart, response) {
                                         <p class="mb-0 fw-bold">${total}</p>
                                     </div>
                                     <div class="progress">
-                                        <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
+                                        <div class="progress-bar bg-warning text-white" style="width: ${total ? '100%' : '0%'}"></div>
                                     </div>
                                 </div>
                             </div>
@@ -362,6 +379,72 @@ function updateInspectionChart(chart, response) {
             }
         });
     }
+    // function fetchPilotMissionSummary() {
+    //     $.ajax({
+    //         url: '/pilot-mission-summary',
+    //         method: 'GET',
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             // console.log("Pilot Mission Summary:");
+    //             $('#missionsPanel').empty(); // Clear any existing cards
+    
+    //             data.forEach(pilot => {
+    //                 // console.log(`${pilot.name} → Total: ${pilot.total_missions}, Completed: ${pilot.completed_missions}, Pending: ${pilot.pending_missions}`);
+    
+    //                 const total = pilot.total_missions || 0;
+    //                 const completed = pilot.completed_missions || 0;
+    //                 const pending = pilot.pending_missions || 0;
+    
+    //                 // % calculations
+    //                 const pendingPercent = total ? Math.round((pending / total) * 100) : 0;
+    //                 const completedPercent = total ? Math.round((completed / total) * 100) : 0;
+    
+    //                 const card = `
+    //                     <div class="col-lg-4 h-100  rounded">
+    //                         <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
+    //                             <p class="pt-2  text-capitalize px-2 fw-bold">${pilot.name}</p>
+    
+    //                             <div class="p-2">
+    //                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
+    //                                     <label class="form-check-label mb-0">Pending </label>
+    //                                     <p class="mb-0 fw-bold">${pending}</p>
+    //                                 </div>
+    //                                 <div class="progress">
+    //                                     <div class="progress-bar bg-danger" style="width: ${pendingPercent}%"></div>
+    //                                 </div>
+    //                             </div>
+    
+    //                             <div class="p-2">
+    //                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
+    //                                     <label class="form-check-label mb-0">Finished </label>
+    //                                     <p class="mb-0 fw-bold">${completed}</p>
+    //                                 </div>
+    //                                 <div class="progress">
+    //                                     <div class="progress-bar bg-success" style="width: ${completedPercent}%"></div>
+    //                                 </div>
+    //                             </div>
+    
+    //                             <div class="p-2 mb-2">
+    //                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
+    //                                     <label class="form-check-label mb-0">Total Missions</label>
+    //                                     <p class="mb-0 fw-bold">${total}</p>
+    //                                 </div>
+    //                                 <div class="progress">
+    //                                     <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
+    //                                 </div>
+    //                             </div>
+    //                         </div>
+    //                     </div>
+    //                 `;
+    
+    //                 $('#missionsPanel').append(card);
+    //             });
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error('Failed to load pilot mission summary:', error);
+    //         }
+    //     });
+    // }
     fetchLatestInspections();
     function fetchLatestInspections() {
         $.ajax({

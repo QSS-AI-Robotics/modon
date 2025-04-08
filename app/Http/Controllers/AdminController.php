@@ -9,28 +9,21 @@ use App\Models\Mission;
 use App\Models\Location;
 use App\Models\PilotReport;
 use App\Models\PilotReportImage;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
 use Carbon\Carbon;
 class AdminController extends Controller
 {
-    // Show the main admin dashboard/index page
+
     public function index()
     {
-        $userTypes = UserType::all();
-        $regions = Region::all();
-    
-        return view('admin.index', [
-            'userTypes' => $userTypes,
-            'regions' => $regions
-        ]);
-    }
 
-    public function adminusers()
-    {
         $pilot = User::whereHas('userType', function ($query) {
             $query->where('name', 'Pilot');
         })->count();
@@ -39,7 +32,7 @@ class AdminController extends Controller
         $locations = Location::count();
         $regions = Region::count();
     
-        return view('admin.adminusers', [
+        return view('admin.index', [
             'pilot' => $pilot,
             'regions' => $regions,
             'locations' => $locations,
@@ -47,7 +40,17 @@ class AdminController extends Controller
             'drones' => $drones
         ]);
     }
+
+    public function adminusers()
+    {
+        $userTypes = UserType::all();
+        $regions = Region::all();
     
+        return view('admin.adminusers', [
+            'userTypes' => $userTypes,
+            'regions' => $regions
+        ]);
+    }
     public function getAllUsers()
     {
         $user = Auth::user();
@@ -98,69 +101,121 @@ class AdminController extends Controller
 
 
 
-    public function storeUser(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'region_id' => 'required|exists:regions,id',
-            'user_type_id' => 'required|exists:user_types,id',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first(),
-            ], 422);
-        }
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'region_id' => $request->region_id,
-            'user_type_id' => $request->user_type_id,
-        ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => '✅ User created successfully.',
-        ]);
+
+public function storeUser(Request $request)
+{
+    $user = new User();
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->password = Hash::make($request->password);
+    $user->region_id = $request->region_id;
+    $user->user_type_id = $request->user_type_id;
+
+    // ✅ Handle image upload
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imageName = time() . '_' . $image->getClientOriginalName();
+        $image->storeAs('users', $imageName, 'public'); // stored in storage/app/public/users
+        $user->image = $imageName;
     }
 
-    public function updateUser(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
+    $user->save();
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6',
-            'region_id' => 'required|exists:regions,id',
-            'user_type_id' => 'required|exists:user_types,id',
-        ]);
+    return response()->json([
+        'status' => 'success',
+        'message' => '✅ User created successfully.',
+    ]);
+}
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()->first(),
-            ], 422);
-        }
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
-            'region_id' => $request->region_id,
-            'user_type_id' => $request->user_type_id,
-        ]);
+public function updateUser(Request $request, $id)
+{
+    $user = User::findOrFail($id);
 
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $id,
+        'password' => 'nullable|string|min:6',
+        'region_id' => 'required|exists:regions,id',
+        'user_type_id' => 'required|exists:user_types,id',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    ]);
+
+    if ($validator->fails()) {
         return response()->json([
-            'status' => 'success',
-            'message' => '✅ User updated successfully.',
-        ]);
+            'status' => 'error',
+            'message' => $validator->errors()->first(),
+        ], 422);
     }
+
+    // Update basic fields
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->region_id = $request->region_id;
+    $user->user_type_id = $request->user_type_id;
+
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
+    }
+
+    // ✅ If a new image is uploaded
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imageName = time() . '_' . $image->getClientOriginalName();
+        $image->storeAs('users', $imageName, 'public');
+
+        // Delete old image (optional)
+        if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
+            Storage::disk('public')->delete('users/' . $user->image);
+        }
+        
+        $user->image = $imageName;
+    }
+
+    $user->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => '✅ User updated successfully.',
+    ]);
+}
+
+
+    // public function updateUser(Request $request, $id)
+    // {
+    //     $user = User::findOrFail($id);
+
+    //     $validator = Validator::make($request->all(), [
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|email|unique:users,email,' . $id,
+    //         'password' => 'nullable|string|min:6',
+    //         'region_id' => 'required|exists:regions,id',
+    //         'user_type_id' => 'required|exists:user_types,id',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $validator->errors()->first(),
+    //         ], 422);
+    //     }
+
+    //     $user->update([
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
+    //         'region_id' => $request->region_id,
+    //         'user_type_id' => $request->user_type_id,
+    //     ]);
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => '✅ User updated successfully.',
+    //     ]);
+    // }
 
 
  
@@ -248,63 +303,53 @@ class AdminController extends Controller
     }
 
 
-    public function pilotMissionSummary()
+
+
+    
+    public function pilotMissionSummary(Request $request)
     {
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+    
         $pilots = User::whereHas('userType', function ($query) {
-            $query->where('name', 'Pilot');
-        })
-        ->select('id', 'name', 'region_id')
-        ->get()
-        ->map(function ($pilot) {
-            $total = DB::table('missions')
-                ->where('region_id', $pilot->region_id)
-                ->count();
-
-            $completed = DB::table('missions')
-                ->where('region_id', $pilot->region_id)
-                ->where('status', 'Completed')
-                ->count();
-
-            $pending = DB::table('missions')
-                ->where('region_id', $pilot->region_id)
-                ->where('status', 'Pending')
-                ->count();
-
-            return [
-                'name' => $pilot->name,
-                'total_missions' => $total,
-                'completed_missions' => $completed,
-                'pending_missions' => $pending,
-            ];
-        });
-
-        return response()->json($pilots);
+                $query->where('name', 'Pilot');
+            })
+            ->select('id', 'name', 'region_id')
+            ->get()
+            ->map(function ($pilot) use ($start, $end) {
+                $missionsQuery = DB::table('missions')
+                    ->where('region_id', $pilot->region_id);
+    
+                if ($start) {
+                    $missionsQuery->whereDate('start_datetime', '>=', Carbon::parse($start));
+                }
+    
+                if ($end) {
+                    $missionsQuery->whereDate('start_datetime', '<=', Carbon::parse($end));
+                }
+    
+                $total = (clone $missionsQuery)->count();
+                $completed = (clone $missionsQuery)->where('status', 'Completed')->count();
+                $pending = (clone $missionsQuery)->where('status', 'Pending')->count();
+    
+                return [
+                    'name' => $pilot->name,
+                    'total_missions' => $total,
+                    'completed_missions' => $completed,
+                    'pending_missions' => $pending,
+                ];
+            });
+    
+        return response()->json([
+            'from' => $start,
+            'to' => $end,
+            'filtered' => (bool)($start || $end),
+            'data' => $pilots
+        ]);
     }
+    
+    
 
-    
-    
-    // public function latestInspections()
-    // {
-    //     $images = PilotReportImage::with([
-    //         'report.mission.region'
-    //     ])->get();
-    
-    //     $result = $images->map(function ($image) {
-    //         $report  = $image->report;
-    //         $mission = $report?->mission;
-    //         $region  = $mission?->region;
-    
-    //         return [
-    //             'pilot_report_image_id' => $image->id,
-    //             'pilot_report_id'       => $report?->id,
-    //             'mission_id'            => $mission?->id,
-    //             'region_id'             => $region?->id,
-    //             'region_name'           => $region?->name ?? 'N/A',
-    //         ];
-    //     });
-    
-    //     return response()->json($result);
-    // }
 
     public function latestInspections()
     {
@@ -348,6 +393,25 @@ class AdminController extends Controller
         return back()->with('success', 'Drone added successfully.');
     }
 
+    public function drones()
+    {
+        $user = Auth::user();
+
+        // Check if user is admin (either QSS or Modon)
+        $isAdmin = in_array(strtolower($user->userType->name), ['qss_admin', 'modon_admin']);
+
+        if ($isAdmin) {
+            // Show all drones
+            $drones = Drone::with('user:id,name')->get();
+        } else {
+            // Show only drones assigned to this user
+            $drones = Drone::with('user:id,name')
+                ->where('user_id', $user->id)
+                ->get();
+        }
+
+        return response()->json($drones);
+    }
 
 
 }

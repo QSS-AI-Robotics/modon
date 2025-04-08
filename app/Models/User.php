@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -14,8 +15,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'user_type_id', // ✅ Foreign key
-        'region_id',    // ✅ Foreign key
+        'image',          // ✅ added here
+        'user_type_id',
+        'region_id',
     ];
 
     protected $hidden = [
@@ -31,28 +33,29 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Relationship: A user belongs to a user type.
-     */
     public function userType()
     {
         return $this->belongsTo(UserType::class);
     }
 
-    /**
-     * Relationship: A user belongs to a region.
-     */
     public function region()
     {
         return $this->belongsTo(Region::class);
     }
 
-    /**
-     * A user (pilot) can have many drones
-     */
     public function drones()
     {
         return $this->hasMany(Drone::class);
+    }
+
+    /**
+     * Get full image URL or default
+     */
+    public function getImageUrlAttribute()
+    {
+        return $this->image 
+            ? asset('storage/users/' . $this->image) 
+            : asset('images/default-user.png'); // Make sure this path exists
     }
     
 }

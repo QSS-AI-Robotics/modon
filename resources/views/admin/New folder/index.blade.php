@@ -40,7 +40,6 @@
                                 <thead>
                                     <tr>
                                         
-                                        <th>Avatar</th>
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Type</th> 
@@ -48,7 +47,7 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="userTableBody" class="text-left">
+                                <tbody id="userTableBody" class="">
 
                                 </tbody>
                             </table>
@@ -78,7 +77,7 @@
                             </button>
                         </div>
                     </div>
-                    <form id="userStoreForm">
+                    <form id="signupForm">
                         @csrf
                         <div class="row">
 
@@ -89,9 +88,7 @@
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text pt-2">Full Name</label>
-                                <input type="text" class="form-control dateInput" id="name" name="name" value="z" >
-
-
+                                <input type="text" class="form-control dateInput" id="fullname" name="fullname" value="z" >
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text pt-2">Email</label>
@@ -103,8 +100,9 @@
                                 <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" >
                             </div>
                             <div class="col-md-12 col-sm-12">
-                                <label for="region_id" class="form-label pt-2">Region</label>
-                                <select class="form-select dateInput" id="region_id" name="region_id">
+                               
+                                <label for="region" class="form-label pt-2">Region</label>
+                                <select class="form-select  dateInput" id="region" name="region" >
                                     <option value="">Select Region</option>
                                     @foreach($regions as $region)
                                         <option value="{{ $region->id }}">{{ $region->name }}</option>
@@ -112,18 +110,13 @@
                                 </select>
                                 <span class="text-danger" id="region_error"></span>
                             </div>
-                            
 
-                            <div class="col-md-12 col-sm-12">
-                                <label for="image" class="form-label pt-2">Profile Image</label>
-                                <input type="file" class="form-control dateInput" id="user_image" name="image" accept="image/*">
-                                <img id="imagePreview" src="#" alt="Preview" class="img-fluid mt-2 d-none" style="max-height: 100px;">
-                            </div>
+
 
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
-                                <label for="user_type_id" class="form-label pt-2">Type</label>
-                                <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
+                                <label for="user_type" class="form-label pt-2">Type</label>
+                                <select class="form-select dateInput" id="user_type" name="user_type" >
                                     <option value="">Select User Type</option>
                                     @foreach($userTypes as $userType)
                                         <option value="{{ $userType->id }}">{{ $userType->name }}</option>
@@ -132,7 +125,6 @@
                                 <span class="text-danger" id="user_type_error"></span>
 
                             </div>
-
                             <div class="col-12 my-1  text-danger  d-none" id="users-validation-errors" >
                                 All fields are required.
                             </div>

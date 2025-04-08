@@ -94,7 +94,7 @@
                                         </div>
                                         
                                         <div class="col-lg-12 flex-grow-1 position-relative">
-                                            <canvas id="regionMissionChart" class="w-100 h-100 "></canvas>
+                                            <canvas id="regionLineChart" class="w-100 h-100 "></canvas>
                                             <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
                                                 No data found
                                             </div>
@@ -155,16 +155,24 @@
                                     <img src="./images/calendar.png" alt="Search" class="img-fluid datePanel-icon pt-2 imghover">
                                     <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 mt-2 imghover custImg refreshIcon" >
                                 </div>
-
+                                
+                                
+                                
+                                
+                                
+                                {{-- <div class="d-flex align-items-center">
+                                    
+                                    <img src="{{ asset('images/calendar.png') }}" class="img-fluid mx-1 p-1 imghover custImg"  >
+                                         <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 imghover custImg" >
+                         
+                                </div> --}}
                             </div>
             
                             <!-- Pilot Grid -->
                             <div class="px-3 pb-3 flex-grow-1 overflow-auto">
-                                {{-- <div class="row h-100" id="missionsPanel"> --}}
-                                    <div class="row flex-nowrap overflow-auto h-100" id="missionsPanel" style="white-space: nowrap;">
-
+                                <div class="row h-100" id="missionsPanel">
                                   
-                                        <div class="col-lg-4 h-100 pb-1 rounded">
+                                        <div class="col-lg-4 h-100  rounded">
                                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
                                                 <p class="pt-2 px-2" id="pilotname">Loading...</p>
                                                 
@@ -199,7 +207,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                       
                                     
                                 </div>
                             </div>

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegionManagerController;
 use App\Http\Controllers\PilotController;
 use App\Http\Controllers\AdminController;
-
+use App\Http\Controllers\DroneController;
 // ✅ Public Routes (Accessible Without Authentication)
 Route::get('/', [AuthController::class, 'showSigninForm'])->name('signin.form'); // Sign-in Page
 Route::post('/signin', [AuthController::class, 'loginUser'])->name('signin.store'); // Login
@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('dashboard'); // Dashboard
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
     // User Management (Only for authenticated users)
     Route::get('/users/{id}/edit', [UserController::class, 'edit']);
     Route::post('/users/{id}/update', [UserController::class, 'update']);
@@ -78,8 +79,8 @@ Route::middleware(['auth', 'checkUserType:pilot'])->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
 
-    Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.index');
-    Route::get('/dashboard', [AdminController::class, 'adminusers'])->name('admin.adminusers');
+    Route::get('/admin/users', [AdminController::class, 'adminusers'])->name('admin.adminusers');
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/dashboard/users', [AdminController::class, 'getAllUsers'])->name('admin.getUsers');
     Route::post('/dashboard/user/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
     Route::post('/dashboard/users/storeuser', [AdminController::class, 'storeUser'])->name('admin.users.store');
@@ -88,6 +89,13 @@ Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
     Route::get('/inspections-by-region', [AdminController::class, 'inspectionsByRegion'])->name('inspections.by.region');
     Route::get('/pilot-mission-summary', [AdminController::class, 'pilotMissionSummary']);
     Route::get('/latest-inspections', [AdminController::class, 'latestInspections']);
+   
 
 
 });
+Route::middleware(['auth'])->group(function () {
+    Route::get('/drones', [DroneController::class, 'index'])->name('drones.index');
+    Route::post('/drones', [DroneController::class, 'store'])->name('drones.store');
+    Route::post('/delete-drone/{id}', [DroneController::class, 'destroy'])->name('drone.delete');
+
+});  

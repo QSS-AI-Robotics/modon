@@ -70,13 +70,48 @@
   
 
     @stack('scripts')
-    {{-- <script src="{{ asset('js/script.js') }}"></script>
-    <script src="{{ asset('js/locations.js') }}"></script>
-    <script src="{{ asset('js/pilot.js') }}"></script>
-    <script src="{{ asset('js/missions.js') }}"></script> --}}
 
-   <!-- SweetAlert2 -->
 
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("profileToggle");
+        const dropdown = document.getElementById("profileDropdown");
+
+        if (toggle && dropdown) {
+            toggle.addEventListener("click", function (e) {
+                e.stopPropagation();
+                dropdown.classList.toggle("active");
+            });
+
+            document.addEventListener("click", function (e) {
+                if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
+                    dropdown.classList.remove("active");
+                }
+            });
+        }
+    });
+    $(document).on('click', '#logoutButton', function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: '{{ route("logout") }}',
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (response) {
+            if (response.redirect) {
+                window.location.href = response.redirect;
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Logout failed!', error);
+            console.log(xhr.responseText); // Helpful debug info
+        }
+    });
+});
+
+</script>
 
 </body>
 </html>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Dashboard')
+@section('title', 'Drones')
 
 @section('content')
         <!-- Main Panel -->
@@ -13,7 +13,7 @@
                 <div class="row">
                     <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
                         <p class="gray-text">Control Panel</p>
-                        <h3 class="fw-bold">Admin Control</h3>
+                        <h3 class="fw-bold">Drone Control</h3>
                     </div>
                 </div>
 
@@ -25,7 +25,7 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Users</h5>
+                                    <h5>Drones</h5>
                                 </div>
                                 <div class="col-lg-4 text-end search-container">
                                     <img src="../images/search.png" alt="Search" class="img-fluid search-icon">
@@ -39,20 +39,33 @@
                             <table class="table table-text">
                                 <thead>
                                     <tr>
-                                        
-                                        <th>Avatar</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Type</th> 
-                                        <th>Region</th>
-                                        <th>Actions</th>
+                                        <th>Model</th>
+                                        <th>Serial No</th>
+                                        <th>Assigned To</th> 
+                                        <th>Actions</th> 
                                     </tr>
                                 </thead>
-                                <tbody id="userTableBody" class="text-left">
-
+                                <tbody id="DroneTableBody">
+                                    @forelse($drones as $drone)
+                                    <tr>
+                                        <td>{{ $drone->model }}</td>
+                                        <td>{{ $drone->sr_no }}</td>
+                                        <td>{{ $drone->user->name ?? 'N/A' }}</td>
+                                        <td>
+                                            <img src="{{ asset('images/edit.png') }}" alt="Edit" class="edit-drone img-fluid actions" data-id="{{ $drone->id }}">
+                                            <img src="{{ asset('images/delete.png') }}" alt="Delete" class="delete-drone img-fluid actions" data-id="{{ $drone->id }}">
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No drones found.</td>
+                                    </tr>
+                                @endforelse
+                                
                                 </tbody>
                             </table>
                         </div>
+                        
                     </div>
                 </div>
 
@@ -70,7 +83,7 @@
                     
                     <div class="row">
                         <div class="col-lg-8">
-                            <h6 class="form-title">Create New User</h6>
+                            <h6 class="form-title">Add New Drone</h6>
                         </div>
                         <div class="col-lg-4  text-end">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none px-2">
@@ -78,7 +91,7 @@
                             </button>
                         </div>
                     </div>
-                    <form id="userStoreForm">
+                    <form id="addDroneForm">
                         @csrf
                         <div class="row">
 
@@ -88,58 +101,33 @@
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text pt-2">Full Name</label>
-                                <input type="text" class="form-control dateInput" id="name" name="name" value="z" >
-
-
+                                <label class="form-label label-text pt-2">Modal</label>
+                                <input type="text" class="form-control dateInput" id="modal" name="modal" value="" >
                             </div>
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text pt-2">Email</label>
-                                <input type="email" class="form-control dateInput"  id="email" name="email" value="z@gmail.com" >
+                                <label class="form-label label-text pt-2">Serial No</label>
+                                <input type="text" class="form-control dateInput"  id="srno" name="srno"  >
                             </div>
 
-                            <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text pt-2">Password</label>
-                                <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" >
-                            </div>
-                            <div class="col-md-12 col-sm-12">
-                                <label for="region_id" class="form-label pt-2">Region</label>
-                                <select class="form-select dateInput" id="region_id" name="region_id">
-                                    <option value="">Select Region</option>
-                                    @foreach($regions as $region)
-                                        <option value="{{ $region->id }}">{{ $region->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="text-danger" id="region_error"></span>
-                            </div>
-                            
-
-                            <div class="col-md-12 col-sm-12">
-                                <label for="image" class="form-label pt-2">Profile Image</label>
-                                <input type="file" class="form-control dateInput" id="user_image" name="image" accept="image/*">
-                                <img id="imagePreview" src="#" alt="Preview" class="img-fluid mt-2 d-none" style="max-height: 100px;">
-                            </div>
-
+                           
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
-                                <label for="user_type_id" class="form-label pt-2">Type</label>
-                                <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
-                                    <option value="">Select User Type</option>
-                                    @foreach($userTypes as $userType)
-                                        <option value="{{ $userType->id }}">{{ $userType->name }}</option>
+                                <label for="user_type" class="form-label pt-2">Select Pilot</label>
+                                <select class="form-select dateInput" id="user_type" name="user_type">
+                                    <option value="">Select Pilot</option>
+                                    @foreach($pilots as $pilot)
+                                        <option value="{{ $pilot->id }}">{{ $pilot->name }}</option>
                                     @endforeach
                                 </select>
                                 <span class="text-danger" id="user_type_error"></span>
-
                             </div>
-
                             <div class="col-12 my-1  text-danger  d-none" id="users-validation-errors" >
                                 All fields are required.
                             </div>
                                <!-- Button (Update or Create) -->
                                 <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
                                     <button class="btn mission-btn btn-sm d-flex align-items-center " type="submit">
-                                        Create User
+                                        Add Pilot
                                     </button>
                                 </div>
 
@@ -155,5 +143,5 @@
 
 @endsection
 @push('scripts')
-<script src="{{ asset('js/script.js') }}"></script>
+<script src="{{ asset('js/drones.js') }}"></script>
 @endpush

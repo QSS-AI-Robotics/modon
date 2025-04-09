@@ -46,12 +46,17 @@
                 object-fit: cover;
                 border-radius: 5px;
             }
-
- 
+            body, html {
+                overflow-x: hidden;
+            }
+            .tooltip .tooltip-inner {
+            background-color: #47D16C !important;
+            color: rgb(250, 250, 246) !important; /* Optional: Change text color */
+        }
         </style>
 </head>
 <body>
-    <div class="container-fluid vh-100 d-flex flex-column padded-container">
+    <div class="container-fluid vh-100 d-flex flex-column padded-container ">
         @include('partials.header')
 
         <main>
@@ -61,11 +66,14 @@
 
 
     <!-- Scripts -->
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    
     <script src="{{ asset('js/app.js') }}"></script>
   
 
@@ -73,6 +81,7 @@
 
 
    <script>
+
     document.addEventListener("DOMContentLoaded", function () {
         const toggle = document.getElementById("profileToggle");
         const dropdown = document.getElementById("profileDropdown");
@@ -109,6 +118,7 @@
             console.log(xhr.responseText); // Helpful debug info
         }
     });
+    
 });
 
 </script>

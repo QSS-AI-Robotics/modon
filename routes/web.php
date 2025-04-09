@@ -89,7 +89,8 @@ Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
     Route::get('/inspections-by-region', [AdminController::class, 'inspectionsByRegion'])->name('inspections.by.region');
     Route::get('/pilot-mission-summary', [AdminController::class, 'pilotMissionSummary']);
     Route::get('/latest-inspections', [AdminController::class, 'latestInspections']);
-   
+    Route::get('/latest-missions', [AdminController::class, 'latestMissions'])->name('missions.latest');
+
 
 
 });

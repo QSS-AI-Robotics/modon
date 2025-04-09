@@ -1,64 +1,113 @@
 
 $(document).ready(function () {
 
-
     const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
+
     const regionChart = new Chart(regionChartMissions, {
-        type: 'line',
+        type: 'doughnut',
         data: {
             labels: [],
             datasets: [{
-                // label: 'Missions Completed',
                 data: [],
-                fill: false,
-                tension: 0.4,
-                pointBorderColor: '#FFFFFF',
-                pointBackgroundColor: '#fff',
-                pointHoverBackgroundColor: '#FFFFFF',
-                pointHoverBorderColor: '#FFFFFF'
+                backgroundColor: ['#C6B40D', '#E9393B', '#78EC70'],
+                borderColor: '#121212',
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
+            cutout: '50%',
             plugins: {
-                title: {
-                    display: true,
-                    color: '#FFFFFF',
-                    font: {
-                        size: 18,
-                        weight: 'bold'
-                    }
-                },
+                // title: {
+                //     display: true,
+                //     text: 'Missions by Region',
+                //     color: '#FFFFFF',
+                //     font: {
+                //         size: 18,
+                //         weight: 'bold'
+                //     }
+                // },
                 legend: {
                     display: false,
                     position: 'bottom',
                     labels: {
                         color: '#FFFFFF'
                     }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: '#FFFFFF',
-                        stepSize: 1, // 👈 This forces step increments
-                        precision: 0  // 👈 Removes decimal values
-                    }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: '',
-                        color: '#FFFFFF'
+                datalabels: {
+                    color: '#FFFFFF',
+                    font: {
+                        weight: 'bold',
+                        size: 12
                     },
-                    ticks: {
-                        color: '#FFFFFF'
+                    formatter: (value, context) => {
+                        const label = context.chart.data.labels[context.dataIndex];
+                        return `${label}: ${value}`;
                     }
                 }
             }
-        }
+        },
+        plugins: [ChartDataLabels] // 👈 Register the plugin
     });
+    
+    
+    // const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
+    // const regionChart = new Chart(regionChartMissions, {
+    //     type: 'line',
+    //     data: {
+    //         labels: [],
+    //         datasets: [{
+    //             // label: 'Missions Completed',
+    //             data: [],
+    //             fill: false,
+    //             tension: 0.4,
+    //             pointBorderColor: '#FFFFFF',
+    //             pointBackgroundColor: '#fff',
+    //             pointHoverBackgroundColor: '#FFFFFF',
+    //             pointHoverBorderColor: '#FFFFFF'
+    //         }]
+    //     },
+    //     options: {
+    //         responsive: true,
+    //         plugins: {
+    //             title: {
+    //                 display: true,
+    //                 color: '#FFFFFF',
+    //                 font: {
+    //                     size: 18,
+    //                     weight: 'bold'
+    //                 }
+    //             },
+    //             legend: {
+    //                 display: false,
+    //                 position: 'bottom',
+    //                 labels: {
+    //                     color: '#FFFFFF'
+    //                 }
+    //             }
+    //         },
+    //         scales: {
+    //             y: {
+    //                 beginAtZero: true,
+    //                 ticks: {
+    //                     color: '#FFFFFF',
+    //                     stepSize: 1, // 👈 This forces step increments
+    //                     precision: 0  // 👈 Removes decimal values
+    //                 }
+    //             },
+    //             x: {
+    //                 title: {
+    //                     display: true,
+    //                     text: '',
+    //                     color: '#FFFFFF'
+    //                 },
+    //                 ticks: {
+    //                     color: '#FFFFFF'
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
     const regionBarChartInstance = document.getElementById('regionBarChart').getContext('2d');
 
     const regionBarChart = new Chart(regionBarChartInstance, {
@@ -70,7 +119,7 @@ $(document).ready(function () {
                 backgroundColor: [],
                 borderRadius: 5,
                 barThickness: 30,
-                maxBarThickness: 40
+                maxBarThickness: 50
             }]
         },
         options: {
@@ -94,7 +143,7 @@ $(document).ready(function () {
                     color: 'white',
                     anchor: 'end',
                     align: 'start',
-                    offset: -0,
+                    offset: -3,
                     font: {
                         weight: 'bold',
                         size: 12
@@ -172,39 +221,78 @@ $(document).ready(function () {
     }
     
     
-
-
     function updateChart(chart, response) {
-        const chartData = response.data || [];
+        const chartData = (response.data || []).filter(item => item.region !== 'all');
     
-        const labels = chartData.map(item => item.region);
+        const labels = chartData.map(item =>
+            item.region.charAt(0).toUpperCase() + item.region.slice(1).toLowerCase()
+        );
+        
         const values = chartData.map(item => item.missions);
     
         const totalMissions = values.reduce((sum, val) => sum + val, 0);
-        $("#totalMissions").text(totalMissions)
+        $("#totalMissions").text(totalMissions);
         console.log(`📊 Total Missions: ${totalMissions}`);
-        
+    
         const hasData = values.some(value => value > 0);
     
-        // Update chart data
+        // Assign colors based on region names
+        const colorMap = {
+            'eastern': '#78EC70',
+            'western': '#E9393B',
+            'central': '#C6B40D'
+        };
+    
+        const backgroundColors = labels.map(region => colorMap[region.toLowerCase()] || '#ccc');
+    
+        // Update chart
         chart.data.labels = labels;
         chart.data.datasets[0].data = values;
-    
-        // Hide Y-axis labels/grid if no data
-        chart.options.scales.y.ticks.display = hasData;
-        chart.options.scales.y.grid.display = hasData;
+        chart.data.datasets[0].backgroundColor = backgroundColors;
     
         chart.update();
     
-        // Show or hide "No data found" message
+        // Show/hide no data message
         if (hasData) {
             $('#noDataMessage').addClass('d-none');
         } else {
             $('#noDataMessage').removeClass('d-none');
         }
+    }
+    
+    
+
+    // function updateChart(chart, response) {
+    //     const chartData = response.data || [];
+    
+    //     const labels = chartData.map(item => item.region);
+    //     const values = chartData.map(item => item.missions);
+    
+    //     const totalMissions = values.reduce((sum, val) => sum + val, 0);
+    //     $("#totalMissions").text(totalMissions)
+    //     console.log(`📊 Total Missions: ${totalMissions}`);
+        
+    //     const hasData = values.some(value => value > 0);
+    
+    //     // Update chart data
+    //     chart.data.labels = labels;
+    //     chart.data.datasets[0].data = values;
+    
+    //     // Hide Y-axis labels/grid if no data
+    //     chart.options.scales.y.ticks.display = hasData;
+    //     chart.options.scales.y.grid.display = hasData;
+    
+    //     chart.update();
+    
+    //     // Show or hide "No data found" message
+    //     if (hasData) {
+    //         $('#noDataMessage').addClass('d-none');
+    //     } else {
+    //         $('#noDataMessage').removeClass('d-none');
+    //     }
     
  
-    }
+    // }
     
     
 
@@ -298,7 +386,7 @@ function updateInspectionChart(chart, response) {
 }
 
   
-    // fetchPilotMissionSummary();
+    fetchPilotMissionSummary();
 
     function fetchPilotMissionSummary() {
         const startDate = $('#start-date').val();
@@ -334,10 +422,16 @@ function updateInspectionChart(chart, response) {
                     const completedPercent = total ? Math.round((completed / total) * 100) : 0;
     
                     const card = `
-                        <div class="col-lg-4  pb-1  h-100 rounded">
+                        <div class="col-lg-4  h-100 rounded">
                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
-                                <p class="pt-2 text-capitalize px-2 fw-bold">${pilot.name}</p>
-    
+                               
+                                <div class="d-flex align-items-end mb-2">
+                                    <img src="${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
+                                    <div>
+                                        <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
+                                        <small class="cont-btn px-2 mb-0 lh-1  text-capitalize">${pilot.region}</small>
+                                    </div>
+                                </div>    
                                 <div class="p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
                                         <label class="form-check-label mb-0">Pending</label>
@@ -489,7 +583,58 @@ function updateInspectionChart(chart, response) {
     $(".refreshIcon").on('click', function() {
         window.location.reload();
     });
+    fetchLatestMissions()
+    function fetchLatestMissions() {
+        $.ajax({
+            url: '/latest-missions',
+            method: 'GET',
+            dataType: 'json',
+            success: function (missions) {
+                console.log("🚀 Latest Missions:", missions);
     
+                let html = '';
+                missions.forEach(mission => {
+                    html += `
+
+                        <div class="incidentDiv p-2 my-2"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-custom-class="custom-tooltip"
+                           data-title="${mission.note}" 
+                            
+                            <div class="row align-items-center">
+                                <div class="col-10 d-flex flex-column justify-content-center">
+                                    <h6 class="mb-0 text-truncate heartbeat text-capitalize">
+                                        ${mission.note.split(' ')[0] || 'No title'}
+                                    </h6>
+                                    <p class="mb-0 text-capitalize">Region: ${mission.region} | Status: ${mission.status}</p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    `;
+                });
     
+                $('.latestMissionPanel').html(html);
+                // const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                // const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+                const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+
+                tooltipTriggerList.forEach(el => {
+                    const content = el.getAttribute('data-title'); // Get content from custom attr
+                    new bootstrap.Tooltip(el, {
+                        html: true,
+                        title: `<strong class="text-dark">Mission Description:</strong><br>${content}`,
+                        customClass: 'custom-tooltip'
+                    });
+                });
+                
+            },
+            error: function (err) {
+                console.error("❌ Failed to fetch missions:", err);
+            }
+        });
+    }
     
 });

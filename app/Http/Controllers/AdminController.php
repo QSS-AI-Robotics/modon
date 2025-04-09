@@ -304,8 +304,6 @@ public function updateUser(Request $request, $id)
 
 
 
-
-    
     public function pilotMissionSummary(Request $request)
     {
         $start = $request->input('start_date');
@@ -314,7 +312,8 @@ public function updateUser(Request $request, $id)
         $pilots = User::whereHas('userType', function ($query) {
                 $query->where('name', 'Pilot');
             })
-            ->select('id', 'name', 'region_id')
+            ->with('region') // Eager load region relation
+            ->select('id', 'name', 'region_id', 'image')
             ->get()
             ->map(function ($pilot) use ($start, $end) {
                 $missionsQuery = DB::table('missions')
@@ -334,6 +333,8 @@ public function updateUser(Request $request, $id)
     
                 return [
                     'name' => $pilot->name,
+                    'region' => optional($pilot->region)->name ?? 'N/A',
+                    'image' => $pilot->image_url ?? asset('images/default-user.png'),
                     'total_missions' => $total,
                     'completed_missions' => $completed,
                     'pending_missions' => $pending,
@@ -346,6 +347,28 @@ public function updateUser(Request $request, $id)
             'filtered' => (bool)($start || $end),
             'data' => $pilots
         ]);
+    }
+    
+    
+    public function latestMissions()
+    {
+        $missions = Mission::with('region:id,name')
+            ->orderBy('created_at', 'desc') // ✅ Sort by created_at
+            ->take(2)
+            ->get()
+            ->map(function ($mission) {
+                return [
+                    'id'             => $mission->id,
+                    'note'           => $mission->note,
+                    'start_datetime' => $mission->start_datetime,
+                    'end_datetime'   => $mission->end_datetime,
+                    'region'         => $mission->region->name ?? 'N/A',
+                    'status'         => $mission->status,
+                    'created_at'     => $mission->created_at->format('Y-m-d H:i')
+                ];
+            });
+
+        return response()->json($missions);
     }
     
     

@@ -111,31 +111,27 @@
 
 
             <!-- second Column (Mission Analytics & Create New Mission) -->
-            <div class="col-lg-3 d-flex p-0 flex-column h-100 ">
-                <div class="row flex-grow-1 mx-2 my-1 d-flex flex-column  h-100">
-            
+            <div class="col-lg-3 d-flex p-0 flex-column h-100">
+   
+                <div class="row flex-grow-1 mx-2 my-1 bg-section d-flex flex-column h-100">
+           
+                    <!-- Header: stays fixed -->
+                    <div class="col-lg-12 py-3 d-flex justify-content-between">
+                        <p class="mb-0">Latest Incidents</p>
+               
+         
+                    </div>
 
-                    <div class="col-12 bg-section " style="height:35%;">
-                        <p class="mb-4 pt-2" style="height:10%">Latest Missions</p>
-                        <div class="latestMissionPanel" style="overflow-y:auto;height:80%;overflow-x:hidden">
-                            
-                            
-                        </div>
+                    <!-- This will grow to fill remaining space -->
+                    <div class="col-lg-12 flex-grow-1 d-flex flex-column overflow-auto IncidentPanel" style="height: 40vh; min-height: 0;">
+                       
                     </div>
-                    <div class="col-12 bg-section mt-3 " style="height:62%;">
-                        <p class="mb-0 pt-3"  style="height:10%">Latest Incidents</p>
-                        <div class="IncidentPanel" style="overflow-y:auto;height:85%;overflow-x:hidden">
-                        </div>
-                    </div>
-                    
-                    
                 </div>
             </div>
-            
 
              <!-- End second Column -->
-            {{-- third column start --}}
-            <div class="col-lg-6 d-flex p-0 flex-column h-100">
+
+             <div class="col-lg-6 d-flex p-0 flex-column h-100">
                 <div class="d-flex flex-column flex-grow-1 mx-2 my-1">
             
                     <!-- === First Half: Pilot Tracking === -->
@@ -168,21 +164,13 @@
                                     <div class="row flex-nowrap overflow-auto h-100" id="missionsPanel" style="white-space: nowrap;">
 
                                   
-                                        
                                         <div class="col-lg-4 h-100 pb-1 rounded">
                                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
-                                                <div class="d-flex align-items-end mb-2">
-                                                    <img src="./images/default-user.png" alt="Search" class="imghover rounded" style="width:50px; height:50px">
-                                                    <div>
-                                                        <p class="px-2 mb-0 lh-1" id="pilotname">Loading...</p>
-                                                        <small class="cont-btn px-2 mb-0 lh-1">Loading</small>
-                                                    </div>
-                                                </div>
+                                                <p class="pt-2 px-2" id="pilotname">Loading...</p>
                                                 
                                                 <div class="p-2">
                                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
                                                         <label class="form-check-label mb-0">Pending</label>
-                                                        
                                                         <p class="mb-0 fw-bold">0</p>
                                                     </div>
                                                     <div class="progress">
@@ -211,7 +199,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                  
+                                       
                                     
                                 </div>
                             </div>
@@ -239,6 +227,10 @@
             
                 </div>
             </div>
+               
+        
+
+        </div>
             
             <!-- End  third Column -->            
         </div> 

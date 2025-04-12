@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 10, 2025 at 03:10 PM
+-- Generation Time: Apr 12, 2025 at 05:07 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -59,15 +59,6 @@ CREATE TABLE `drones` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `drones`
---
-
-INSERT INTO `drones` (`id`, `model`, `sr_no`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, 'DJI Phantom 4 Pro', 'SN-UE13PG6U', 4, '2025-04-07 04:14:59', '2025-04-07 04:14:59'),
-(2, 'DJI Mavic 3', 'SN-KHJWJL9D', 4, '2025-04-07 04:14:59', '2025-04-07 04:14:59'),
-(3, 'DJI Mavic 3', 'SN-3ZKAPTBS', 4, '2025-04-07 04:14:59', '2025-04-07 04:14:59');
 
 -- --------------------------------------------------------
 
@@ -220,7 +211,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (22, '2025_03_27_073352_create_navigation_link_user_type_table', 11),
 (23, '2025_04_07_070604_create_drones_table', 12),
 (24, '2025_04_08_091503_add_image_to_users_table', 13),
-(25, '2025_04_10_082319_create_pilots_table', 14);
+(25, '2025_04_10_082319_create_pilots_table', 14),
+(29, '2025_04_12_133640_create_user_region_table', 15),
+(30, '2025_04_12_134155_remove_region_id_from_users_table', 16);
 
 -- --------------------------------------------------------
 
@@ -401,8 +394,7 @@ CREATE TABLE `pilots` (
 --
 
 INSERT INTO `pilots` (`id`, `user_id`, `license_no`, `license_expiry`, `created_at`, `updated_at`) VALUES
-(2, 4, 'KJSHD7868', '2025-04-24', '2025-04-10 05:35:49', '2025-04-10 05:35:49'),
-(3, 18, 'AEW3423', '2025-04-28', '2025-04-10 08:46:20', '2025-04-10 08:46:20');
+(13, 48, 'AEW3423', '2025-05-09', '2025-04-12 12:04:21', '2025-04-12 12:04:21');
 
 -- --------------------------------------------------------
 
@@ -455,8 +447,8 @@ CREATE TABLE `pilot_report_images` (
 CREATE TABLE `regions` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -489,7 +481,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('CsF0b1h40qaMMhw7iK9f12OVVOo3IRL9tU5oxvUV', 3, '192.168.100.134', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiekc4VlB0NVk2amp5U3NTVHh3SkRCNXV0SEQ5dFB3T2RicjdwajQ4TSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xMzQ6ODAwMC9sb2NhdGlvbnMiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozO30=', 1744290611);
+('FDhyxtT0GuS0Aw8brfoQI6pmShC9tDJwh8aWxtAr', 15, '192.168.100.44', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTDRjdWV0Q0NVSXBZb3YxbjVQSVdwTENGUmlZWk5CQUtKQzU3TW04eCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzg6Imh0dHA6Ly8xOTIuMTY4LjEwMC40NDo4MDAwL2FkbWluL3VzZXJzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTU7fQ==', 1744470395);
 
 -- --------------------------------------------------------
 
@@ -507,19 +499,47 @@ CREATE TABLE `users` (
   `remember_token` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `user_type_id` bigint(20) UNSIGNED NOT NULL,
-  `region_id` bigint(20) UNSIGNED NOT NULL
+  `user_type_id` bigint(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `image`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `user_type_id`, `region_id`) VALUES
-(3, 'Mohammad Adil', 'adil@qltyss.com', '1744111387_gigantic-9479507_1920.png', NULL, '$2y$12$lf3g5MuXRv3SmqIC8am23.ImYTQ/WMfGh/59a.n7g4EnNe8A/.Ciq', NULL, '2025-03-10 07:24:25', '2025-04-08 08:53:57', 3, 2),
-(4, 'momin', 'momin@qltyss.com', '1744277771_ai-generated-8416791_1920.png', NULL, '$2y$12$4owpa8emyffvnWfZoFpqq.3KXcKyopg4j3bD940hCtKI49VPTYvKa', NULL, '2025-03-10 10:01:34', '2025-04-10 06:36:11', 4, 4),
-(15, 'bilal', 'bilal@qltyss.com', '1744111605_1680002120213.jpeg', NULL, '$2y$12$1hQ41L6hYCcbHHjX69UfaOMCSFUzHoYefTkDrbKT9OwHoOG3JSNju', NULL, '2025-04-07 05:46:08', '2025-04-08 08:26:45', 1, 1),
-(18, 'nabeel Abbasui', 'nabeel@gmail.com', '1744111643_mongolian-7965551_1920.jpg', NULL, '$2y$12$pEoZhd6lFz7Iuv9Zy4mnrOJm0FBmoyW7kN//ZNvcQc7.MTm1PglS2', NULL, '2025-04-08 07:55:18', '2025-04-10 06:35:29', 4, 4);
+INSERT INTO `users` (`id`, `name`, `email`, `image`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `user_type_id`) VALUES
+(15, 'Mohammad bilal', 'bilal@qltyss.com', '1744111605_1680002120213.jpeg', NULL, '$2y$12$1hQ41L6hYCcbHHjX69UfaOMCSFUzHoYefTkDrbKT9OwHoOG3JSNju', NULL, '2025-04-07 05:46:08', '2025-04-12 08:04:52', 1),
+(33, 'Mohammad Adil', 'adil@gmail.com', '1744455631_ai-generated-8416791_1920.png', NULL, '$2y$12$yEn6JkqBscBKtqNZLm2P2ePeJ59gfZX4.su/fQrrSMHCWI1YkmoZ2', NULL, '2025-04-12 08:00:31', '2025-04-12 08:00:31', 2),
+(44, 'uzair', 'uzair@gmail.com', '1744467212_blueberries-9450130_1920.jpg', NULL, '$2y$12$HCZ3uJoxiH27vzTNH35FOutZ0re6qx7skBNjVxf.BAxcX9WMzKdde', NULL, '2025-04-12 11:13:32', '2025-04-12 11:13:32', 3),
+(45, 'momin', 'momin@gmail.com', '1744467240_ai-generated-9382803_1920.jpg', NULL, '$2y$12$k/Dp87Mj5faJUMMWcoU8xORlxgJRgZwBCk1MgI9/xyOQTTaeEMm6m', NULL, '2025-04-12 11:14:00', '2025-04-12 11:14:00', 6),
+(46, 'nabeel', 'nabeel@gmail.com', '1744467264_ai-generated-9453465_1920.png', NULL, '$2y$12$XlHKTA8/3QffgU5gRHgIHea6zYdoA1lf.GISqZeDsLVHWMvCU3oP6', NULL, '2025-04-12 11:14:24', '2025-04-12 11:14:24', 7),
+(48, 'Ibrahim', 'ibrahim@gmail.com', '1744470261_ai-generated-8665850_1920.jpg', NULL, '$2y$12$e2VpDlDUL1cjGfNjdRt8KOjdjEErK3bl7154LJ.5Jnm0qw4BT3BkK', NULL, '2025-04-12 12:04:21', '2025-04-12 12:04:21', 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_region`
+--
+
+CREATE TABLE `user_region` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `region_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `user_region`
+--
+
+INSERT INTO `user_region` (`id`, `user_id`, `region_id`, `created_at`, `updated_at`) VALUES
+(1, 15, 1, '2025-04-12 13:47:56', '2025-04-12 13:47:56'),
+(3, 44, 2, NULL, NULL),
+(4, 45, 2, NULL, NULL),
+(14, 46, 2, '2025-04-12 14:59:45', '2025-04-12 14:59:45'),
+(16, 33, 1, '2025-04-12 14:59:54', '2025-04-12 14:59:54'),
+(18, 48, 3, '2025-04-12 15:04:21', '2025-04-12 15:04:21'),
+(19, 48, 4, '2025-04-12 15:04:21', '2025-04-12 15:04:21');
 
 -- --------------------------------------------------------
 
@@ -530,8 +550,8 @@ INSERT INTO `users` (`id`, `name`, `email`, `image`, `email_verified_at`, `passw
 CREATE TABLE `user_types` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -542,7 +562,9 @@ INSERT INTO `user_types` (`id`, `name`, `created_at`, `updated_at`) VALUES
 (1, 'qss_admin', '2025-03-10 00:00:00', '2025-03-10 00:00:00'),
 (2, 'modon_admin', '2025-03-10 00:00:00', '2025-03-10 00:00:00'),
 (3, 'region_manager', '2025-03-10 00:00:00', '2025-03-10 00:00:00'),
-(4, 'pilot', '2025-03-10 00:00:00', '2025-03-10 00:00:00');
+(4, 'pilot', '2025-03-10 00:00:00', '2025-03-10 00:00:00'),
+(6, 'city_manager', '2025-04-12 12:54:54', '2025-04-12 12:54:54'),
+(7, 'city_supervisor', '2025-04-12 12:54:54', '2025-04-12 12:54:54');
 
 --
 -- Indexes for dumped tables
@@ -696,8 +718,15 @@ ALTER TABLE `sessions`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `users_email_unique` (`email`),
-  ADD KEY `users_user_type_id_foreign` (`user_type_id`),
-  ADD KEY `users_region_id_foreign` (`region_id`);
+  ADD KEY `users_user_type_id_foreign` (`user_type_id`);
+
+--
+-- Indexes for table `user_region`
+--
+ALTER TABLE `user_region`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_region_user_id_foreign` (`user_id`),
+  ADD KEY `user_region_region_id_foreign` (`region_id`);
 
 --
 -- Indexes for table `user_types`
@@ -744,7 +773,7 @@ ALTER TABLE `locations`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `missions`
@@ -780,7 +809,7 @@ ALTER TABLE `navigation_link_user_type`
 -- AUTO_INCREMENT for table `pilots`
 --
 ALTER TABLE `pilots`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `pilot_reports`
@@ -798,19 +827,25 @@ ALTER TABLE `pilot_report_images`
 -- AUTO_INCREMENT for table `regions`
 --
 ALTER TABLE `regions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+
+--
+-- AUTO_INCREMENT for table `user_region`
+--
+ALTER TABLE `user_region`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `user_types`
 --
 ALTER TABLE `user_types`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -879,8 +914,14 @@ ALTER TABLE `pilot_report_images`
 -- Constraints for table `users`
 --
 ALTER TABLE `users`
-  ADD CONSTRAINT `users_region_id_foreign` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `users_user_type_id_foreign` FOREIGN KEY (`user_type_id`) REFERENCES `user_types` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_region`
+--
+ALTER TABLE `user_region`
+  ADD CONSTRAINT `user_region_region_id_foreign` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_region_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

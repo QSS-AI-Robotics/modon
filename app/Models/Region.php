@@ -23,4 +23,9 @@ class Region extends Model
     {
         return $this->hasMany(\App\Models\Mission::class);
     }
+    public function pilots()
+    {
+        return $this->belongsToMany(User::class, 'pilot_region');
+    }
+
 }

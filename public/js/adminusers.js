@@ -1,6 +1,8 @@
 
 $(document).ready(function () {
 
+
+
     const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
 
     const regionChart = new Chart(regionChartMissions, {
@@ -552,7 +554,7 @@ function updateInspectionChart(chart, response) {
                 container.empty(); // clear previous data
     
                 if (data.length === 0) {
-                    container.append('<p class="text-center text-muted">No inspections found.</p>');
+                    container.append('<p class="text-center ">No inspections found.</p>');
                     return;
                 }
     
@@ -617,8 +619,7 @@ function updateInspectionChart(chart, response) {
                 });
     
                 $('.latestMissionPanel').html(html);
-                // const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-                // const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
                 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 
                 tooltipTriggerList.forEach(el => {

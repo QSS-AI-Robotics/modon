@@ -12,7 +12,7 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                        <p class="gray-text">Control Panel</p>
+                        <p class="gray-text">Qss Panel</p>
                         <h3 class="fw-bold">Admin Control</h3>
                     </div>
                 </div>
@@ -103,17 +103,74 @@
                                 <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" >
                             </div>
                             <div class="col-md-12 col-sm-12">
-                                <label for="region_id" class="form-label pt-2">Region</label>
-                                <select class="form-select dateInput" id="region_id" name="region_id">
-                                    <option value="">Select Region</option>
-                                    @foreach($regions as $region)
-                                        <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                <label for="user_type_id" class="form-label pt-2">Type</label>
+                                <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
+                                    <option value="">Select User Type</option>
+                                    @foreach($userTypes as $userType)
+                                        <option value="{{ $userType->id }}" class="text-capitalize">{{ ucwords(str_replace('_', ' ', $userType->name)) }}</option>
                                     @endforeach
                                 </select>
+                                <span class="text-danger" id="user_type_error"></span>
+
+                            </div>
+
+                            {{-- select regions start--}}
+                            {{-- Single Region Selector (for non-pilots) --}}
+                            <div class="col-lg-12" id="regionCheckboxWrapper">
+                                <label class="form-label pt-2 label-text" >Select Region(s)</label>
+                                <div class="row" id="regionCheckboxes">
+                                    @foreach($regions as $region)
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input region-checkbox"
+                                                       name="assigned_regions[]" value="{{ $region->id }}"
+                                                       id="region_{{ $region->id }}">
+                                                <label for="region_{{ $region->id }}" class="form-label label-text text-capitalize">
+                                                    {{ $region->name === 'all' ? 'Headquarter' : ucwords(str_replace('_', ' ', $region->name)) }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                                 <span class="text-danger" id="region_error"></span>
                             </div>
                             
 
+                            {{-- select regions end --}}
+                            {{-- <div class="col-md-6 col-sm-6">
+                                <label for="region_id" class="form-label pt-2">Region</label>
+                                <select class="form-select dateInput" id="region_id" name="region_id">
+                                    <option value="">Select Region</option>
+                                    @foreach($regions as $region)
+                                    <option value="{{ $region->id }}" 
+                                        class="text-capitalize"
+                                        data-original-name="{{ $region->name }}">
+                                        
+                                        @if ($region->name === 'all')
+                                         Headquarter
+                                        @else
+                                            {{ ucwords(str_replace('_', ' ', $region->name)) }}
+                                        @endif
+                                    </option>
+                                    
+                                @endforeach
+                                </select>
+                                <span class="text-danger" id="region_error"></span>
+                            </div> --}}
+                            
+                            <div  class="col-md-12 d-none" id="pilotFields">
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12">
+                                        <label class="form-label label-text pt-2">License No</label>
+                                        <input type="text" class="form-control dateInput"  id="license_no" name="license_no" value="JHS456734" >
+                                    </div>
+        
+                                    <div class="col-md-6 col-sm-12">
+                                        <label class="form-label label-text pt-2">Expiray Date</label>
+                                        <input type="date" class="form-control dateInput" id="license_expiry" name="license_expiry" >
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-12 col-sm-12">
                                 <label for="image" class="form-label pt-2">Profile Image</label>
                                 <input type="file" class="form-control dateInput" id="user_image" name="image" accept="image/*">
@@ -121,17 +178,8 @@
                             </div>
 
                             {{-- notes textarea --}}
-                            <div class="col-md-12 col-sm-12">
-                                <label for="user_type_id" class="form-label pt-2">Type</label>
-                                <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
-                                    <option value="">Select User Type</option>
-                                    @foreach($userTypes as $userType)
-                                        <option value="{{ $userType->id }}">{{ $userType->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="text-danger" id="user_type_error"></span>
 
-                            </div>
+
 
                             <div class="col-12 my-1  text-danger  d-none" id="users-validation-errors" >
                                 All fields are required.

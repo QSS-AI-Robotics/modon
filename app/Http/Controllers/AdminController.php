@@ -9,7 +9,7 @@ use App\Models\Mission;
 use App\Models\Location;
 use App\Models\PilotReport;
 use App\Models\PilotReportImage;
-
+use App\Models\Pilot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -51,23 +51,53 @@ class AdminController extends Controller
             'regions' => $regions
         ]);
     }
+    // public function getAllUsers()
+    // {
+    //     $user = Auth::user();
+
+    //     // Check if the userType exists and equals 'qss_admin'
+    //     if ($user && $user->userType && $user->userType->name === 'qss_admin') {
+    //         $users = User::with(['userType', 'region'])->get();
+    //     } else {
+    //         $users = collect(); // Return empty collection for non-admins
+    //     }
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'users' => $users
+    //     ]);
+    // }
+
     public function getAllUsers()
     {
         $user = Auth::user();
-
-        // Check if the userType exists and equals 'qss_admin'
+    
         if ($user && $user->userType && $user->userType->name === 'qss_admin') {
-            $users = User::with(['userType', 'region'])->get();
+            $users = User::with(['userType', 'regions', 'pilot'])->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'region' => $user->userType?->name === 'pilot'
+                        ? $user->regions->pluck('name')->toArray()
+                        : optional($user->regions->first())->name,
+                    'user_type' => $user->userType?->name,
+                    'image' => $user->image,
+                    'license_no' => $user->userType?->name === 'pilot' ? $user->pilot?->license_no : null,
+                    'license_expiry' => $user->userType?->name === 'pilot' ? $user->pilot?->license_expiry : null,
+                ];
+            });
         } else {
-            $users = collect(); // Return empty collection for non-admins
+            $users = collect(); // Empty collection for non-admins
         }
-
+    
         return response()->json([
             'status' => 'success',
             'users' => $users
         ]);
     }
-
+    
+    
     public function deleteUser($id)
     {
         $authUser = Auth::user();
@@ -100,123 +130,216 @@ class AdminController extends Controller
 
 
 
-
-
-
-
-
-public function storeUser(Request $request)
-{
-    $user = new User();
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->password = Hash::make($request->password);
-    $user->region_id = $request->region_id;
-    $user->user_type_id = $request->user_type_id;
-
-    // ✅ Handle image upload
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imageName = time() . '_' . $image->getClientOriginalName();
-        $image->storeAs('users', $imageName, 'public'); // stored in storage/app/public/users
-        $user->image = $imageName;
-    }
-
-    $user->save();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => '✅ User created successfully.',
-    ]);
-}
-
-
-public function updateUser(Request $request, $id)
-{
-    $user = User::findOrFail($id);
-
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $id,
-        'password' => 'nullable|string|min:6',
-        'region_id' => 'required|exists:regions,id',
-        'user_type_id' => 'required|exists:user_types,id',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $validator->errors()->first(),
-        ], 422);
-    }
-
-    // Update basic fields
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->region_id = $request->region_id;
-    $user->user_type_id = $request->user_type_id;
-
-    if ($request->filled('password')) {
-        $user->password = Hash::make($request->password);
-    }
-
-    // ✅ If a new image is uploaded
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $imageName = time() . '_' . $image->getClientOriginalName();
-        $image->storeAs('users', $imageName, 'public');
-
-        // Delete old image (optional)
-        if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
-            Storage::disk('public')->delete('users/' . $user->image);
+    public function storeUser(Request $request)
+    {
+        $userTypeName = strtolower(UserType::find($request->user_type_id)?->name);
+        $isPilot = $userTypeName === 'pilot';
+    
+        // ✅ Validation rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'user_type_id' => 'required|exists:user_types,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'assigned_regions' => $isPilot ? 'required|array|min:1' : 'required|array|size:1',
+        ];
+    
+        if ($isPilot) {
+            $rules['license_no'] = 'required|string';
+            $rules['license_expiry'] = 'required|date';
         }
-        
-        $user->image = $imageName;
+    
+        $validated = $request->validate($rules);
+    
+        // ✅ Create user
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->user_type_id = $request->user_type_id;
+    
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('users', $imageName, 'public');
+            $user->image = $imageName;
+        }
+    
+        $user->save();
+    
+        // ✅ If pilot, save license info
+        if ($isPilot) {
+            Pilot::create([
+                'user_id' => $user->id,
+                'license_no' => $request->license_no,
+                'license_expiry' => $request->license_expiry,
+            ]);
+        }
+    
+        // ✅ Attach regions (single or multiple)
+        $user->regions()->attach($request->assigned_regions);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => '✅ User created successfully.',
+        ]);
     }
+    
 
-    $user->save();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => '✅ User updated successfully.',
-    ]);
-}
-
-
-    // public function updateUser(Request $request, $id)
+    // public function storeUser(Request $request)
     // {
-    //     $user = User::findOrFail($id);
-
-    //     $validator = Validator::make($request->all(), [
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:users,email,' . $id,
-    //         'password' => 'nullable|string|min:6',
-    //         'region_id' => 'required|exists:regions,id',
-    //         'user_type_id' => 'required|exists:user_types,id',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $validator->errors()->first(),
-    //         ], 422);
+    //     $user = new User();
+    //     $user->name = $request->name;
+    //     $user->email = $request->email;
+    //     $user->password = Hash::make($request->password);
+    //     $user->region_id = $request->region_id;
+    //     $user->user_type_id = $request->user_type_id;
+    
+    //     if ($request->hasFile('image')) {
+    //         $image = $request->file('image');
+    //         $imageName = time() . '_' . $image->getClientOriginalName();
+    //         $image->storeAs('users', $imageName, 'public');
+    //         $user->image = $imageName;
     //     }
-
-    //     $user->update([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
-    //         'region_id' => $request->region_id,
-    //         'user_type_id' => $request->user_type_id,
-    //     ]);
-
+    
+    //     $user->save();
+    
+    //     // ✅ Check if this user is a pilot
+    //     if (strtolower($user->userType->name) === 'pilot') {
+    //         Pilot::create([
+    //             'user_id' => $user->id,
+    //             'license_no' => $request->license_no,
+    //             'license_expiry' => $request->license_expiry,
+    //         ]);
+    //     }
+    
     //     return response()->json([
     //         'status' => 'success',
-    //         'message' => '✅ User updated successfully.',
+    //         'message' => '✅ User created successfully.',
     //     ]);
     // }
 
+    
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+    
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
+            'region_id' => 'required|exists:regions,id',
+            'user_type_id' => 'required|exists:user_types,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+    
+        // Update basic fields
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->region_id = $request->region_id;
+        $user->user_type_id = $request->user_type_id;
+    
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+    
+        // ✅ Handle image update
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('users', $imageName, 'public');
+    
+            // Delete old image (optional)
+            if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
+                Storage::disk('public')->delete('users/' . $user->image);
+            }
+    
+            $user->image = $imageName;
+        }
+    
+        $user->save();
+    
+        // ✅ If the user is a pilot, update or create license info
+        $userType = $user->userType->name ?? null;
+        if (strtolower($userType) === 'pilot') {
+            Pilot::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'license_no' => $request->license_no,
+                    'license_expiry' => $request->license_expiry,
+                ]
+            );
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => '✅ User updated successfully.',
+        ]);
+    }
+    
+
+// public function updateUser(Request $request, $id)
+// {
+//     $user = User::findOrFail($id);
+
+//     $validator = Validator::make($request->all(), [
+//         'name' => 'required|string|max:255',
+//         'email' => 'required|email|unique:users,email,' . $id,
+//         'password' => 'nullable|string|min:6',
+//         'region_id' => 'required|exists:regions,id',
+//         'user_type_id' => 'required|exists:user_types,id',
+//         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+//     ]);
+
+//     if ($validator->fails()) {
+//         return response()->json([
+//             'status' => 'error',
+//             'message' => $validator->errors()->first(),
+//         ], 422);
+//     }
+
+//     // Update basic fields
+//     $user->name = $request->name;
+//     $user->email = $request->email;
+//     $user->region_id = $request->region_id;
+//     $user->user_type_id = $request->user_type_id;
+
+//     if ($request->filled('password')) {
+//         $user->password = Hash::make($request->password);
+//     }
+
+//     // ✅ If a new image is uploaded
+//     if ($request->hasFile('image')) {
+//         $image = $request->file('image');
+//         $imageName = time() . '_' . $image->getClientOriginalName();
+//         $image->storeAs('users', $imageName, 'public');
+
+//         // Delete old image (optional)
+//         if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
+//             Storage::disk('public')->delete('users/' . $user->image);
+//         }
+        
+//         $user->image = $imageName;
+//     }
+
+//     $user->save();
+
+//     return response()->json([
+//         'status' => 'success',
+//         'message' => '✅ User updated successfully.',
+//     ]);
+// }
+
+
+    
 
  
     public function missionsByRegion(Request $request)

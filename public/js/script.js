@@ -8,6 +8,42 @@ $(document).ready(function () {
 
 
 
+    
+
+    function handleUserTypeChange() {
+        const selectedText = $('#user_type_id option:selected').text().trim().toLowerCase();
+        const isPilot = selectedText === 'pilot';
+    
+        // Show/hide pilot fields
+        $('#pilotFields').toggleClass('d-none', !isPilot);
+        if (!isPilot) {
+            $('#license_no, #license_expiry').val('');
+        }
+    
+        // Control region selection
+        $('.region-checkbox').off('change').on('change', function () {
+            if (!isPilot) {
+                $('.region-checkbox').not(this).prop('checked', false);
+            }
+        });
+    
+        // 👉 If user was pilot and now switched type, uncheck all selected regions
+        if (!isPilot) {
+            const checkedCount = $('.region-checkbox:checked').length;
+            if (checkedCount > 1) {
+                $('.region-checkbox').prop('checked', false);
+            }
+        }
+    }
+    
+    // Bind to type change
+    $('#user_type_id').on('change', handleUserTypeChange);
+    
+    // Also run on page load
+    $(document).ready(handleUserTypeChange);
+    
+    
+    
 
     getAllusers();
     function getAllusers() {
@@ -29,30 +65,54 @@ $(document).ready(function () {
                 }
     
                 $.each(response.users, function (index, user) {
-                    let row = `
+                    
+                    let licenseTooltip = '';
+                    if (user.user_type?.toLowerCase() === 'pilot' && user.license_no && user.license_expiry) {
+                        licenseTooltip = `
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-html="true"
+                            data-license-no="${user.license_no}"
+                            data-license-expiry="${user.license_expiry}"
+                            title="<strong class='text-dark'>License No:</strong> ${user.license_no}<br><strong class='text-dark'>Expiry:</strong> ${user.license_expiry}"
+                        `;
+                    }
+                                    
+                    const row = `
                         <tr data-id="${user.id}">
                             <td>
-
-                              <img src="/storage/users/${user.image}" 
-                                onerror="this.onerror=null;this.src='/images/default-user.png';" 
-                                alt="User" 
-                                class="rounded" 
-                                style="width:24px; height:24px;">
-
+                                <img src="/storage/users/${user.image}" 
+                                     onerror="this.onerror=null;this.src='/images/default-user.png';" 
+                                     alt="User" 
+                                     class="rounded" 
+                                     style="width:24px; height:24px;">
                             </td>
-                            <td>${user.name}</td>
-                            
+                            <td class="text-capitalize">${user.name}</td>
                             <td>${user.email}</td>
-                            <td>${user.user_type?.name || "N/A"}</td>
-                            <td>${user.region?.name || "N/A"}</td>
-                        
+                          
+                            <td class="text-capitalize mover pilot-td" ${licenseTooltip}>
+                                ${user.user_type ? user.user_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : "N/A"}
+                            </td>
+
+                           <td class="text-capitalize">
+                                ${
+                                    user.region
+                                        ? user.region.toLowerCase() === 'all'
+                                            ? 'Headquarter'
+                                            : user.region.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                                        : "N/A"
+                                }
+                            </td>
                             <td>
                                 <img src="../images/edit.png" alt="Edit" class="edit-user img-fluid actions" data-id="${user.id}">
                                 <img src="../images/delete.png" alt="Delete" class="delete-user img-fluid actions" data-id="${user.id}">
                             </td>
                         </tr>
                     `;
+                
                     $('#userTableBody').append(row);
+                    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
                 });
             },
             error: function (xhr) {
@@ -71,36 +131,76 @@ $(document).ready(function () {
             reader.readAsDataURL(file);
         }
     });
-    
     $(document).on('submit', '#userStoreForm', function (e) {
         e.preventDefault();
     
         const $errorDiv = $('#users-validation-errors').addClass('d-none');
-    
-        const formData = new FormData(this); // 👉 for file upload support
+        const formData = new FormData(this);
     
         const name = $('#name').val().trim();
         const email = $('#email').val().trim();
         const password = $('#password').val();
-        const region = $('#region_id').val();
         const user_type_id = $('#user_type_id').val();
+        const user_type_text = $('#user_type_id option:selected').text().trim().toLowerCase();
     
-        if (!name || !email || !/^\S+@\S+\.\S+$/.test(email) || !password || password.length < 6 || !region || !user_type_id) {
-            $errorDiv.removeClass('d-none').text("All fields are required.");
-            return;
-        }
+        const licenseNo = $('#license_no').val().trim();
+        const licenseExpiry = $('#license_expiry').val().trim();
+    
+        const selectedRegions = $('.region-checkbox:checked').map(function () {
+            return this.value;
+        }).get();
     
         const $submitBtn = $(this).find('button[type="submit"]');
         const isUpdate = $submitBtn.text().trim().toLowerCase().includes('update');
+    
+        // 👇 Base validation
+        if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) {
+            $errorDiv.removeClass('d-none').text("Please enter a valid name and email.");
+            return;
+        }
+    
+        if (!isUpdate && (!password || password.length < 6)) {
+            $errorDiv.removeClass('d-none').text("Password is required (min 6 characters) when creating a user.");
+            return;
+        }
+    
+        if (!user_type_id) {
+            $errorDiv.removeClass('d-none').text("Please select a user type.");
+            return;
+        }
+    
+        if (selectedRegions.length === 0) {
+            $errorDiv.removeClass('d-none').text("Please select at least one region.");
+            return;
+        }
+    
+        // 👇 Additional validation for pilots
+        if (user_type_text === 'pilot') {
+            if (!licenseNo || !licenseExpiry) {
+                $errorDiv.removeClass('d-none').text("License number and expiry date are required for pilots.");
+                return;
+            }
+    
+            formData.append('license_no', licenseNo);
+            formData.append('license_expiry', licenseExpiry);
+        }
+    
+        // Append selected region checkboxes
+        selectedRegions.forEach(regionId => {
+            formData.append('assigned_regions[]', regionId);
+        });
+    
+        // Set URL and method
         const url = isUpdate ? `/dashboard/users/${$('#userId').val()}` : '/dashboard/users/storeuser';
-        const method = isUpdate ? 'POST' : 'POST'; // Laravel PUT via POST with _method
+        const method = isUpdate ? 'POST' : 'POST';
     
         if (isUpdate) {
             formData.append('_method', 'PUT');
         }
-     
+    
+        // Ajax request
         $.ajax({
-            url: url,
+            url,
             type: method,
             data: formData,
             processData: false,
@@ -121,6 +221,17 @@ $(document).ready(function () {
             },
             error: function (xhr) {
                 const response = xhr.responseJSON;
+                const errorMessage = response?.message || '';
+    
+                if (errorMessage.includes('Duplicate entry') && errorMessage.includes('users_email_unique')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Email Already Exists!',
+                        text: 'A user with this email already exists. Please use a different email.',
+                    });
+                    return;
+                }
+    
                 if (response?.errors) {
                     const messages = Object.values(response.errors).flat();
                     Swal.fire({
@@ -132,14 +243,123 @@ $(document).ready(function () {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: response?.message || 'Something went wrong.',
+                        text: errorMessage || 'Something went wrong.',
                     });
                 }
             }
         });
     });
+    
+    // $(document).on('submit', '#userStoreForm', function (e) {
+    //     e.preventDefault();
+    
+    //     const $errorDiv = $('#users-validation-errors').addClass('d-none');
+    //     const formData = new FormData(this);
 
-    // add user form updated 
+    //     const name = $('#name').val().trim();
+    //     const email = $('#email').val().trim();
+    //     const password = $('#password').val();
+    //     const region = $('#region_id').val();
+    //     const user_type_id = $('#user_type_id').val();
+    //     const user_type_text = $('#user_type_id option:selected').text().trim().toLowerCase();
+
+    //     const licenseNo = $('#license_no').val();
+    //     const licenseExpiry = $('#license_expiry').val();
+
+    //     const $submitBtn = $(this).find('button[type="submit"]');
+    //     const isUpdate = $submitBtn.text().trim().toLowerCase().includes('update');
+
+    //     // 👇 Base validations
+    //     let hasError =
+    //         !name ||
+    //         !email || !/^\S+@\S+\.\S+$/.test(email) ||
+    //         (!isUpdate && (!password || password.length < 6)) ||
+    //         !region ||
+    //         !user_type_id;
+
+    //     // 👇 Additional validation for pilots
+    //     if (user_type_text === 'pilot') {
+    //         if (!licenseNo || !licenseExpiry) {
+    //             hasError = true;
+    //             $errorDiv.removeClass('d-none').text("License number and expiry date are required for pilots.");
+    //             return;
+    //         }
+
+    //         // Append pilot fields if valid
+    //         formData.append('license_no', licenseNo);
+    //         formData.append('license_expiry', licenseExpiry);
+    //     }
+
+    //     if (hasError) {
+    //         $errorDiv.removeClass('d-none').text("All fields are required...");
+    //         return;
+    //     }
+
+    //     const url = isUpdate ? `/dashboard/users/${$('#userId').val()}` : '/dashboard/users/storeuser';
+    //     const method = isUpdate ? 'POST' : 'POST';
+
+    //     if (isUpdate) {
+    //         formData.append('_method', 'PUT');
+    //     }
+           
+    //     $.ajax({
+    //         url,
+    //         type: method,
+    //         data: formData,
+    //         processData: false,
+    //         contentType: false,
+    //         success: function (response) {
+    //             Swal.fire({
+    //                 icon: 'success',
+    //                 title: 'Success!',
+    //                 text: response.message || 'User saved successfully.',
+    //                 timer: 2000,
+    //                 showConfirmButton: false
+    //             });
+    
+    //             $(".cancel-btn").addClass("d-none");
+    //             resetForm();
+    //             getAllusers();
+    //             $errorDiv.addClass('d-none');
+    //         },
+    //         error: function (xhr) {
+    //             const response = xhr.responseJSON;
+    //             const errorMessage = response?.message || '';
+            
+    //             // Detect Duplicate Email error (SQLSTATE 23000)
+    //             if (errorMessage.includes('Duplicate entry') && errorMessage.includes('users_email_unique')) {
+    //                 Swal.fire({
+    //                     icon: 'error',
+    //                     title: 'Email Already Exists!',
+    //                     text: 'A user with this email already exists. Please use a different email.',
+    //                 });
+    //                 return;
+    //             }
+            
+    //             // Laravel-style validation errors
+    //             if (response?.errors) {
+    //                 const messages = Object.values(response.errors).flat();
+    //                 Swal.fire({
+    //                     icon: 'error',
+    //                     title: 'Validation Error!',
+    //                     html: `<ul style="text-align:left;">${messages.map(msg => `<li>${msg}</li>`).join('')}</ul>`
+    //                 });
+    //             } else {
+    //                 // General fallback
+    //                 Swal.fire({
+    //                     icon: 'error',
+    //                     title: 'Error!',
+    //                     text: errorMessage || 'Something went wrong.',
+    //                 });
+    //             }
+    //         }
+            
+    //     });
+    // });
+    
+    
+    
+
     $(document).on('click', '.edit-user', function () {
         $(".cancel-btn").removeClass("d-none");
     
@@ -150,21 +370,26 @@ $(document).ready(function () {
         const email = row.find('td:eq(2)').text().trim();
         const userType = row.find('td:eq(3)').text().trim();
         const region = row.find('td:eq(4)').text().trim();
-    
         const imageSrc = row.find('td:eq(0)').find('img').attr('src');
     
         // Fill form fields
         $('#userId').val(userId);
         $('#name').val(name);
         $('#email').val(email);
-        $('#password').val(''); // Clear password field
+        $('#password').val('');
     
-        // Set dropdown values
+        // Set dropdowns
         $('#region_id option').each(function () {
-            if ($(this).text().trim() === region) {
+            const optionText = $(this).data('original-name') 
+                ? $(this).data('original-name').toLowerCase() 
+                : $(this).text().trim().replace(/\s*\(.*?\)\s*/g, '').toLowerCase(); // remove "(For Pilot only)" and lowercase
+        
+            if (optionText === region.toLowerCase()) {
                 $(this).prop('selected', true);
             }
         });
+        
+
     
         $('#user_type_id option').each(function () {
             if ($(this).text().trim() === userType) {
@@ -177,12 +402,27 @@ $(document).ready(function () {
             .attr('src', imageSrc)
             .removeClass('d-none');
     
-        // Set button text
+        // Handle license details if user is a pilot
+        if (userType.toLowerCase() === 'pilot') {
+            const pilotTd = row.find('.pilot-td');
+            const licenseNo = pilotTd.attr('data-license-no') || '';
+            const expiry = pilotTd.attr('data-license-expiry') || '';
+        
+            $('#license_no').val(licenseNo);
+            $('#license_expiry').val(expiry);
+            $('#pilotFields').removeClass('d-none');
+        } else {
+            $('#license_no').val('');
+            $('#license_expiry').val('');
+            $('#pilotFields').addClass('d-none');
+        }
+        
+        
+    
+        // Set button label
         $('#userStoreForm button[type="submit"]').text('Update User');
     });
     
-
- 
 
     function resetForm() {
 
@@ -191,6 +431,9 @@ $(document).ready(function () {
         $('#users-validation-errors').addClass('d-none').text('');;
         $('#userStoreForm button[type="submit"]').text('Create User');
         $('#imagePreview').attr('src', '').addClass('d-none'); 
+        $('#license_no').val('');
+        $('#license_expiry').val('');
+        $('#pilotFields').addClass('d-none');
     }
     $(document).on("click", ".cancel-btn", function () {
         $(".cancel-btn").addClass("d-none");

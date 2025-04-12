@@ -17,7 +17,7 @@ class User extends Authenticatable
         'password',
         'image',          // ✅ added here
         'user_type_id',
-        'region_id',
+     
     ];
 
     protected $hidden = [
@@ -38,10 +38,8 @@ class User extends Authenticatable
         return $this->belongsTo(UserType::class);
     }
 
-    public function region()
-    {
-        return $this->belongsTo(Region::class);
-    }
+
+    
 
     public function drones()
     {
@@ -57,5 +55,18 @@ class User extends Authenticatable
             ? asset('storage/users/' . $this->image) 
             : asset('images/default-user.png'); // Make sure this path exists
     }
-    
+    public function pilot()
+    {
+        return $this->hasOne(Pilot::class);
+    }
+    public function assignedRegions()
+    {
+        return $this->belongsToMany(Region::class, 'pilot_region');
+    }
+    public function regions()
+    {
+        return $this->belongsToMany(Region::class, 'user_region');
+    }
+
+
 }

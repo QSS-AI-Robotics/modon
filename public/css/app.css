@@ -601,3 +601,6 @@ iframe {
 
     cursor: pointer;
 }
+.mover:hover{
+    cursor: pointer;
+}

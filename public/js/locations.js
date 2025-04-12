@@ -8,14 +8,15 @@ $(document).ready(function () {
 
     getLocations()
     function getLocations() {
-        resetForm()
+        resetForm();
         $.ajax({
             url: "/get-locations", // Route to fetch locations
             type: "GET",
             success: function (response) {
+                console.log(response);
                 $('#locationTableBody').empty(); // Clear previous data
-                
-                if (response.locations.length === 0) {
+    
+                if (!response.locations || response.locations.length === 0) {
                     $('#locationTableBody').append(`
                         <tr>
                             <td colspan="7" class="text-center text-muted">No locations available.</td>
@@ -26,14 +27,18 @@ $(document).ready(function () {
     
                 // ✅ Loop through locations and append to table
                 $.each(response.locations, function (index, location) {
+                    let regionDisplay = location.region 
+                        ? location.region.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) 
+                        : "N/A";
+    
                     let row = `
                         <tr data-id="${location.id}">
                             <td>${location.name}</td>
                             <td>${location.latitude}</td>
                             <td>${location.longitude}</td>
-                            <td>${location.region ? location.region.name : "N/A"}</td>
-                            <td><a href="${location.map_url}" target="_blank">View</a></td>
-                            <td>${location.description}</td>
+                            <td class="text-capitalize">${regionDisplay}</td>
+                            <td>${location.map_url ? `<a href="${location.map_url}" target="_blank">View</a>` : 'N/A'}</td>
+                            <td>${location.description || 'N/A'}</td>
                             <td>
                                 <img src="./images/edit.png" alt="Edit" class="edit-location img-fluid actions" data-id="${location.id}">
                                 <img src="./images/delete.png" alt="Delete" class="delete-location img-fluid actions" data-id="${location.id}">
@@ -48,6 +53,7 @@ $(document).ready(function () {
             }
         });
     }
+    
 
 
     // Open Edit Modal

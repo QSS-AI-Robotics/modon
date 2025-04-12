@@ -18,4 +18,8 @@ class Location extends Model
     {
         return $this->belongsTo(Region::class);
     }
+    public function locationAssignments()
+    {
+        return $this->hasMany(LocationAssignment::class);
+    }
 }

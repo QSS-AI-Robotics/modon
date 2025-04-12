@@ -16,8 +16,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\LocationAssignment;
 use Carbon\Carbon;
+
+
 class AdminController extends Controller
 {
 
@@ -590,5 +592,182 @@ class AdminController extends Controller
         return response()->json($drones);
     }
 
+
+    // locations functions
+    public function locations()
+    {
+        // ✅ Ensure user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('signin.form')->with('error', 'Please log in first.');
+        }
+    
+        // ✅ Simply return the view (data is fetched via AJAX)
+        return view('region_manager.locations');
+    }
+    // get all locations
+    public function fetchLocations()
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+    
+        $user = Auth::user();
+        $userType = strtolower($user->userType->name ?? '');
+    
+        if ($userType === 'qss_admin') {
+            // ✅ Load each location along with its assignment's region
+            $locations = Location::with(['locationAssignments.region'])->get();
+    
+            // Format data
+            $formatted = $locations->map(function ($location) {
+                $assignment = $location->locationAssignments->first(); // assuming one assignment per location
+                return [
+                    'id' => $location->id,
+                    'name' => $location->name,
+                    'latitude' => $location->latitude,
+                    'longitude' => $location->longitude,
+                    'map_url' => $location->map_url,
+                    'description' => $location->description,
+                    'region' => $assignment?->region?->name ?? 'N/A',
+                ];
+            });
+    
+            return response()->json([
+                'locations' => $formatted
+            ]);
+        }
+    
+        return response()->json([
+            'locations' => []
+        ]);
+    }
+    
+    
+
+        /**
+     * Store a new location, assigning it to the authenticated user's region.
+     */
+
+
+    public function store(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+    
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'map_url' => 'nullable|url',
+            'description' => 'nullable|string',
+            'region_id' => 'required|exists:regions,id' // ✅ Now passed from frontend
+        ]);
+    
+        // ✅ Create the location (no region_id here anymore)
+        $location = Location::create([
+            'name' => $request->name,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'map_url' => $request->map_url,
+            'description' => $request->description,
+        ]);
+    
+        // ✅ Assign location to user & region
+        LocationAssignment::create([
+            'user_id' => Auth::id(),
+            'location_id' => $location->id,
+            'region_id' => $request->region_id
+        ]);
+    
+        return response()->json([
+            'message' => '✅ Location added successfully!',
+            'location' => $location
+        ]);
+    }
+    
+
+    /**
+     * Fetch a location for editing.
+     */
+    public function edit($id)
+    {
+        // ✅ Ensure the user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+
+        $location = Location::find($id);
+
+        // ✅ Check if the location exists
+        if (!$location) {
+            return response()->json(['error' => 'Location not found'], 404);
+        }
+
+        // ✅ Ensure the user can only edit locations from their region
+        if ($location->region_id !== Auth::user()->region_id) {
+            return response()->json(['error' => 'You are not authorized to edit this location.'], 403);
+        }
+
+        return response()->json($location);
+    }
+
+    /**
+     * Update an existing location.
+     */
+    public function update(Request $request, $id)
+    {
+        // ✅ Ensure the user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+
+        $location = Location::findOrFail($id);
+
+        // ✅ Ensure the user can only update locations from their region
+        if ($location->region_id !== Auth::user()->region_id) {
+            return response()->json(['error' => 'You are not authorized to update this location.'], 403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'map_url' => 'nullable|url',
+            'description' => 'nullable|string',
+        ]);
+
+        $location->update([
+            'name' => $request->name,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'map_url' => $request->map_url,
+            'description' => $request->description,
+        ]);
+
+        return response()->json(['message' => 'Location updated successfully!']);
+    }
+
+    /**
+     * Delete a location.
+     */
+    public function destroy($id)
+    {
+        // ✅ Ensure the user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+
+        $location = Location::findOrFail($id);
+
+        // ✅ Ensure the user can only delete locations from their region
+        if ($location->region_id !== Auth::user()->region_id) {
+            return response()->json(['error' => 'You are not authorized to delete this location.'], 403);
+        }
+
+        $location->delete();
+
+        return response()->json(['message' => 'Location deleted successfully!']);
+    }
 
 }

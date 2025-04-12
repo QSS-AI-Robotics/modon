@@ -40,12 +40,7 @@ Route::middleware('auth')->group(function () {
 
 
 Route::middleware(['auth', 'checkUserType:region_manager'])->group(function () {
-    Route::get('/locations', [RegionManagerController::class, 'locations'])->name('locations.locations');
-    Route::get('/get-locations', [RegionManagerController::class, 'fetchLocations'])->name('locations.get');
-    Route::post('/locations/store', [RegionManagerController::class, 'store'])->name('locations.store');
-    Route::get('/locations/{id}/edit', [RegionManagerController::class, 'edit'])->name('locations.edit');
-    Route::post('/locations/{id}/update', [RegionManagerController::class, 'update'])->name('locations.update');
-    Route::delete('/locations/{id}', [RegionManagerController::class, 'destroy'])->name('locations.destroy');
+
     
     Route::get('/missions', [RegionManagerController::class, 'index'])->name('missions.index');
     Route::get('/getmanagermissions', [RegionManagerController::class, 'getmanagermissions'])->name('missions.getmanagermissions');
@@ -91,6 +86,12 @@ Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
     Route::get('/latest-inspections', [AdminController::class, 'latestInspections']);
     Route::get('/latest-missions', [AdminController::class, 'latestMissions'])->name('missions.latest');
 
+    Route::get('/locations', [AdminController::class, 'locations'])->name('locations.locations');
+    Route::get('/get-locations', [AdminController::class, 'fetchLocations'])->name('locations.get');
+    Route::post('/locations/store', [AdminController::class, 'store'])->name('locations.store');
+    Route::get('/locations/{id}/edit', [AdminController::class, 'edit'])->name('locations.edit');
+    Route::post('/locations/{id}/update', [AdminController::class, 'update'])->name('locations.update');
+    Route::delete('/locations/{id}', [AdminController::class, 'destroy'])->name('locations.destroy');
 
 
 });

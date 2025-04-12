@@ -116,7 +116,7 @@
 
                             {{-- select regions start--}}
                             {{-- Single Region Selector (for non-pilots) --}}
-                            <div class="col-lg-12" id="regionCheckboxWrapper">
+                            {{-- <div class="col-lg-12" id="regionCheckboxWrapper">
                                 <label class="form-label pt-2 label-text" >Select Region(s)</label>
                                 <div class="row" id="regionCheckboxes">
                                     @foreach($regions as $region)
@@ -133,9 +133,23 @@
                                     @endforeach
                                 </div>
                                 <span class="text-danger" id="region_error"></span>
+                            </div> --}}
+                            
+                            <div class="col-md-12 col-sm-12">
+                                <label class="form-label pt-2">Assigned Region(s)</label>
+                                <div id="regionCheckboxes" class="d-flex flex-wrap gap-2">
+                                    @foreach($regions as $region)
+                                        <div class="form-check">
+                                            <input class="form-check-input region-checkbox" type="checkbox" 
+                                                   value="{{ $region->id }}" id="region_{{ $region->id }}">
+                                            <label class="form-check-label text-capitalize" for="region_{{ $region->id }}">
+                                                {{ $region->name === 'all' ? 'Headquarter' : ucwords(str_replace('_', ' ', $region->name)) }}
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                             
-
                             {{-- select regions end --}}
                             {{-- <div class="col-md-6 col-sm-6">
                                 <label for="region_id" class="form-label pt-2">Region</label>

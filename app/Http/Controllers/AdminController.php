@@ -596,14 +596,26 @@ class AdminController extends Controller
     // locations functions
     public function locations()
     {
-        // ✅ Ensure user is authenticated
         if (!Auth::check()) {
             return redirect()->route('signin.form')->with('error', 'Please log in first.');
         }
-    
-        // ✅ Simply return the view (data is fetched via AJAX)
-        return view('region_manager.locations');
+
+        // ✅ Get all regions to pass to view (for filters, selects, etc.)
+        $regions = \App\Models\Region::select('id', 'name')->get();
+
+        return view('region_manager.locations', compact('regions'));
     }
+
+    // public function locations()
+    // {
+    //     // ✅ Ensure user is authenticated
+    //     if (!Auth::check()) {
+    //         return redirect()->route('signin.form')->with('error', 'Please log in first.');
+    //     }
+    
+    //     // ✅ Simply return the view (data is fetched via AJAX)
+    //     return view('region_manager.locations');
+    // }
     // get all locations
     public function fetchLocations()
     {
@@ -717,17 +729,12 @@ class AdminController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // ✅ Ensure the user is authenticated
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
 
+        $user = Auth::user();
         $location = Location::findOrFail($id);
-
-        // ✅ Ensure the user can only update locations from their region
-        if ($location->region_id !== Auth::user()->region_id) {
-            return response()->json(['error' => 'You are not authorized to update this location.'], 403);
-        }
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -735,8 +742,19 @@ class AdminController extends Controller
             'longitude' => 'required|numeric',
             'map_url' => 'nullable|url',
             'description' => 'nullable|string',
+            'region_id' => 'required|exists:regions,id',
         ]);
 
+        // ✅ Get existing assignment record (user + location combo)
+        $assignment = LocationAssignment::where('location_id', $location->id)->first();
+
+        // ✅ Optional: check if user is allowed to edit based on assignment (unless admin)
+        $isAdmin = strtolower($user->userType->name ?? '') === 'qss_admin';
+        if (!$isAdmin && (!$assignment || $assignment->user_id !== $user->id)) {
+            return response()->json(['error' => 'You are not authorized to update this location.'], 403);
+        }
+
+        // ✅ Update the location basic fields
         $location->update([
             'name' => $request->name,
             'latitude' => $request->latitude,
@@ -745,29 +763,47 @@ class AdminController extends Controller
             'description' => $request->description,
         ]);
 
-        return response()->json(['message' => 'Location updated successfully!']);
+        // ✅ Update region assignment if changed
+        if ($assignment && $assignment->region_id !== (int) $request->region_id) {
+            $assignment->update(['region_id' => $request->region_id]);
+        }
+
+        return response()->json(['message' => '✅ Location updated successfully!']);
     }
+
+
 
     /**
      * Delete a location.
      */
     public function destroy($id)
     {
-        // ✅ Ensure the user is authenticated
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
-
+    
+        $user = Auth::user();
+        $isAdmin = strtolower($user->userType->name ?? '') === 'qss_admin';
+    
         $location = Location::findOrFail($id);
-
-        // ✅ Ensure the user can only delete locations from their region
-        if ($location->region_id !== Auth::user()->region_id) {
+    
+        // ✅ Get the location assignment (region + creator info)
+        $assignment = \App\Models\LocationAssignment::where('location_id', $location->id)->first();
+    
+        // ✅ Ensure the user can delete (admins OR the user who created it)
+        if (!$isAdmin && (!$assignment || $assignment->user_id !== $user->id)) {
             return response()->json(['error' => 'You are not authorized to delete this location.'], 403);
         }
-
+    
+        // ✅ Delete assignment first (foreign key constraints)
+        if ($assignment) {
+            $assignment->delete();
+        }
+    
         $location->delete();
-
-        return response()->json(['message' => 'Location deleted successfully!']);
+    
+        return response()->json(['message' => '✅ Location deleted successfully!']);
     }
+    
 
 }

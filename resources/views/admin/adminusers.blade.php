@@ -104,7 +104,7 @@
                             </div>
                             <div class="col-md-12 col-sm-12">
                                 <label for="user_type_id" class="form-label pt-2">Type</label>
-                                <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
+                                <select class="form-select dateInput" id="region_id" name="region_id" >
                                     <option value="">Select User Type</option>
                                     @foreach($userTypes as $userType)
                                         <option value="{{ $userType->id }}" class="text-capitalize">{{ ucwords(str_replace('_', ' ', $userType->name)) }}</option>

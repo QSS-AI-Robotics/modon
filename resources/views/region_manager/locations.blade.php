@@ -87,6 +87,21 @@
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
+                                <label class="form-label label-text">Region</label>
+                                <select class="form-select dateInput" id="region_id">
+                                    <option value="">Select Regions</option>
+                                    @foreach($regions as $region)
+                                    @if($region->name !== 'all' && $region->id !== 1)
+                                        <option value="{{ $region->id }}">
+                                            {{ ucwords(str_replace('_', ' ', $region->name)) }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                                
+                                </select>
+                                
+                            </div>
+                            <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text">Location Name</label>
                                 <input type="text" class="form-control dateInput" id="name" name="start_datetime" >
                             </div>
@@ -124,7 +139,7 @@
                                             <path d="M19 16L19 22" stroke="#101625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M14 2.5V6C14 7.10457 14.8954 8 16 8H18.5" stroke="#101625" stroke-width="1.5" stroke-linecap="round"/>
                                         </svg>
-                                        <span>New Location</span>
+                                        <span>Create Location</span>
                                     </button>
                                 </div>
 

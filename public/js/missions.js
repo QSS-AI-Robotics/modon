@@ -123,6 +123,7 @@ $(document).ready(function () {
             url: "/getmanagermissions", // Matches Laravel route for fetching missions
             type: "GET",
             success: function (response) {
+                console.log(response)
                 $('#missionTableBody').empty(); // Clear previous data
                 
                 if (response.missions.length === 0) {
@@ -140,9 +141,9 @@ $(document).ready(function () {
     
                     // ✅ Bootstrap Dropdown for Inspection Types
                     let inspectionTypesHTML = `
-                        <div class="dropdown d-flex align-items-center justify-content-center">
+                        <div class="dropdown d-flex align-items-center ">
                             <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-                                ${inspectionTypesArray[0] || 'N/A'}...
+                                ${inspectionTypesArray[0] || 'N/A'}
                             </span>
                             <ul class="dropdown-menu text-center">
                                 ${inspectionTypesArray.map(type => `<li class="dropdown-item">${type}</li>`).join("")}
@@ -152,7 +153,7 @@ $(document).ready(function () {
                         `;
     
                         let locationsHTML = `
-                        <div class="dropdown d-flex align-items-center justify-content-center">
+                        <div class="dropdown d-flex align-items-center ">
                             <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
                                 ${locationsArray[0] || 'N/A'}...
                             </span>
@@ -168,7 +169,7 @@ $(document).ready(function () {
                     let fullNote = noteArray.join(" ") || "No Notes Available";
 
                     let noteHTML = `
-                    <div class="dropdown d-flex align-items-center justify-content-center w-100">
+                    <div class="dropdown d-flex align-items-center  w-100">
                         <button class="btn dropdown-toggle note-preview w-100 text-truncate" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             ${shortNote}...
                         </button>
@@ -208,8 +209,8 @@ $(document).ready(function () {
                     let row = `
                         <tr id="missionRow-${mission.id}">
                             <td>${inspectionTypesHTML}</td>
-                            <td>${mission.start_datetime}</td>
-                            <td>${mission.end_datetime}</td>
+                            <td>${mission.mission_date}</td>
+                            
                             <td>${locationsHTML}</td>
                             <td class="align-middle">${noteHTML}</td>
                             <td>${statusBadge}</td>
@@ -232,89 +233,164 @@ $(document).ready(function () {
     }
     
     
+    // // Submit Add Mission Form via AJAX
     // Submit Add Mission Form via AJAX
-    $('#addMissionForm').on('submit', function (e) {
-        e.preventDefault();
-    
-        const $form = $(this);
-        const $errorDiv = $('#mission-validation-errors');
-        $errorDiv.addClass('d-none');
-    
-        const missionId = $form.attr("data-mission-id");
-        const url = missionId ? "/missions/update" : "/missions/store";
+$('#addMissionForm').on('submit', function (e) {
+    e.preventDefault();
 
+    const $form = $(this);
+    const $errorDiv = $('#mission-validation-errors').addClass('d-none');
     
-        // ✅ Get selected checkboxes
-        const selectedInspectionTypes = $('.inspection-type-checkbox:checked').map(function () {
-            return $(this).val();
-        }).get();
-    
-        const selectedLocations = $('.location-checkbox:checked').map(function () {
-            return $(this).val();
-        }).get();
-    
-        const formData = {
-            mission_id: missionId,
-            inspection_types: selectedInspectionTypes,
-            start_datetime: $('#start_datetime').val(),
-            end_datetime: $('#end_datetime').val(),
-            note: $('#note').val(),
-            locations: selectedLocations
-        };
-    
-        // ✅ Frontend validation
-        if (
-            !formData.start_datetime ||
-            !formData.end_datetime ||
-            selectedInspectionTypes.length === 0 ||
-            selectedLocations.length === 0
-        ) {
-            $errorDiv.removeClass('d-none').text("All fields are required.");
+    const missionId = $form.attr("data-mission-id");
+    const url = missionId ? "/missions/update" : "/missions/store";
 
-            return;
+    // ✅ Single inspection_type (radio)
+    const inspectionType = $('input[name="inspection_type"]:checked').val();
+
+    // ✅ Multiple locations
+    const selectedLocations = $('.location-checkbox:checked').map(function () {
+        return $(this).val();
+    }).get();
+
+    const formData = {
+        mission_id: missionId,
+        inspection_type: inspectionType,
+        mission_date: $('#mission_date').val(),
+        note: $('#note').val(),
+        locations: selectedLocations
+    };
+
+    // ✅ Validation
+    if (!formData.mission_date || !inspectionType || selectedLocations.length === 0) {
+        $errorDiv.removeClass('d-none').text("All fields are required.");
+        return;
+    }
+
+    // UI feedback
+    const buttonText = missionId ? "Updating..." : "Creating...";
+    $(".mission-btn span").text(buttonText);
+    $(".mission-btn svg").attr({ "width": "20", "height": "20" });
+
+    // ✅ Send AJAX
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: formData,
+        success: function (response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Mission Saved!',
+                text: response.message || 'Mission has been successfully created or updated.',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#101625',
+                color: '#ffffff'
+            });
+
+            // ✅ Reset form
+            $form[0].reset();
+            $('.location-checkbox').prop('checked', false);
+            $('input[name="inspection_type"]').prop('checked', false);
+
+            $form.removeAttr("data-mission-id");
+            $("h6").text("Create New Mission");
+            $(".mission-btn span").text("New Mission");
+
+            getRegionManagerMissions();
+            getMissionStats();
+        },
+        error: function (xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: xhr.responseJSON?.message || 'Something went wrong while saving the mission.',
+                background: '#101625',
+                color: '#ffffff'
+            });
         }
-        const buttonText = missionId ? "Updating..." : "Creating...";
-    
-        $(".mission-btn span").text(buttonText);
-        $(".mission-btn svg").attr({ "width": "20", "height": "20" });
-        // ✅ Send AJAX
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            success: function (response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Mission Saved!',
-                    text: response.message || 'Mission has been successfully created or updated.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    background: '#101625',
-                    color: '#ffffff'
-                });
-    
-                // ✅ Reset form
-                $form[0].reset();
-                $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
-                $form.removeAttr("data-mission-id");
-    
-                $("h6").text("Create New Mission");
-                $(".mission-btn span").text("New Mission");
-    
-                getRegionManagerMissions();
-                getMissionStats();
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.message || 'Something went wrong while saving the mission.',
-                    background: '#101625',
-                    color: '#ffffff'
-                });
-            }
-        });
     });
+});
+
+    // $('#addMissionForm').on('submit', function (e) {
+    //     e.preventDefault();
+    
+    //     const $form = $(this);
+    //     const $errorDiv = $('#mission-validation-errors');
+    //     $errorDiv.addClass('d-none');
+    
+    //     const missionId = $form.attr("data-mission-id");
+    //     const url = missionId ? "/missions/update" : "/missions/store";
+
+    
+    //     // ✅ Get selected checkboxes
+    //     const selectedInspectionTypes = $('.inspection-type-checkbox:checked').map(function () {
+    //         return $(this).val();
+    //     }).get();
+    
+    //     const selectedLocations = $('.location-checkbox:checked').map(function () {
+    //         return $(this).val();
+    //     }).get();
+    
+    //     const formData = {
+    //         mission_id: missionId,
+    //         inspection_types: selectedInspectionTypes,
+    //         mission_date: $('#mission_date').val(),
+    //         note: $('#note').val(),
+    //         locations: selectedLocations
+    //     };
+    
+    //     // ✅ Frontend validation
+    //     if (
+    //         !formData.mission_date ||
+    //         selectedInspectionTypes.length === 0 ||
+    //         selectedLocations.length === 0
+    //     ) {
+    //         $errorDiv.removeClass('d-none').text("All fields are required.");
+
+    //         return;
+    //     }
+    //     const buttonText = missionId ? "Updating..." : "Creating...";
+    
+    //     $(".mission-btn span").text(buttonText);
+    //     $(".mission-btn svg").attr({ "width": "20", "height": "20" });
+    //     // ✅ Send AJAX
+    //     $.ajax({
+    //         url: url,
+    //         type: "POST",
+    //         data: formData,
+    //         success: function (response) {
+    //             Swal.fire({
+    //                 icon: 'success',
+    //                 title: 'Mission Saved!',
+    //                 text: response.message || 'Mission has been successfully created or updated.',
+    //                 timer: 2000,
+    //                 showConfirmButton: false,
+    //                 background: '#101625',
+    //                 color: '#ffffff'
+    //             });
+    
+    //             // ✅ Reset form
+    //             $form[0].reset();
+    //             $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
+    //             $form.removeAttr("data-mission-id");
+    
+    //             $("h6").text("Create New Mission");
+    //             $(".mission-btn span").text("New Mission");
+    
+    //             getRegionManagerMissions();
+    //             getMissionStats();
+    //         },
+    //         error: function (xhr) {
+    //             Swal.fire({
+    //                 icon: 'error',
+    //                 title: 'Error!',
+    //                 text: xhr.responseJSON?.message || 'Something went wrong while saving the mission.',
+    //                 background: '#101625',
+    //                 color: '#ffffff'
+    //             });
+    //         }
+    //     });
+    // });
    
 
        // view Mission report

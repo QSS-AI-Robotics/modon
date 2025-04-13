@@ -9,6 +9,7 @@ use App\Models\InspectionType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // ✅ Import Auth facade
 use Illuminate\Support\Facades\Log;
+use App\Models\MissionApproval; 
 class RegionManagerController extends Controller
 {
     /**
@@ -72,18 +73,23 @@ class RegionManagerController extends Controller
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
     
-        $regionId = Auth::user()->region_id;
+        $user = Auth::user();
+        
+        // ✅ Get all assigned region IDs (support multiple regions)
+        $regionIds = $user instanceof User
+            ? $user->regions()->pluck('regions.id')
+            : collect();
     
-        // ✅ Fetch all missions for the logged-in region manager
-        $missions = Mission::where('region_id', $regionId)
-            ->with(['inspectionTypes:id,name', 'locations:id,name']) // Load relationships efficiently
+        // ✅ Fetch all missions for the user's regions
+        $missions = Mission::whereIn('region_id', $regionIds)
+            ->with(['inspectionTypes:id,name', 'locations:id,name']) // Eager load related data
             ->get();
     
-        // ✅ Ensure a proper JSON response
         return response()->json([
             'missions' => $missions
         ]);
     }
+    
     
     
 
@@ -97,42 +103,55 @@ class RegionManagerController extends Controller
         }
     
         $request->validate([
-            'inspection_types' => 'required|array',
-            'inspection_types.*' => 'exists:inspection_types,id',
-            'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after:start_datetime',
+            'inspection_type' => 'required|exists:inspection_types,id',
+            'mission_date' => ['required', 'date', 'after_or_equal:today'],
             'note' => 'nullable|string',
             'locations' => 'required|array',
             'locations.*' => 'exists:locations,id',
+        ], [
+            'mission_date.after_or_equal' => 'The mission date cannot be in the past.',
         ]);
     
         try {
-            $regionId = Auth::user()->region_id;
+            $user = Auth::user();
+            $regionIds = $user instanceof User ? $user->regions()->pluck('regions.id') : collect();
+            $regionId = $regionIds->first(); // Adjust if needed
+            $userId = Auth::id();
     
-            // Create Mission (without inspection_type_id)
+            // ✅ Create mission
             $mission = Mission::create([
-                'start_datetime' => $request->start_datetime,
-                'end_datetime' => $request->end_datetime,
+                'mission_date' => $request->mission_date,
                 'note' => $request->note,
                 'region_id' => $regionId,
+                'user_id' => $userId,
             ]);
     
-            // Attach multiple inspection types
-            $mission->inspectionTypes()->sync($request->inspection_types); // ✅ Uses pivot table
-    
-            // Attach multiple locations
+            // ✅ Sync relationships
+            $mission->inspectionTypes()->sync([$request->inspection_type]);
             $mission->locations()->sync($request->locations);
+    
+            // ✅ Create related approval record
+            MissionApproval::create([
+                'mission_id' => $mission->id,
+                'city_manager_approved' => false,
+                'region_manager_approved' => false,
+                'modon_admin_approved' => false,
+                'is_fully_approved' => false,
+            ]);
     
             return response()->json([
                 'message' => 'Mission created successfully!',
                 'mission' => [
                     'id' => $mission->id,
-                    'inspection_types' => $mission->inspectionTypes->map(fn($type) => ['id' => $type->id, 'name' => $type->name]),
-                    'start_datetime' => $mission->start_datetime,
-                    'end_datetime' => $mission->end_datetime,
+                    'inspection_type' => [
+                        'id' => $request->inspection_type,
+                        'name' => InspectionType::find($request->inspection_type)?->name
+                    ],
+                    'mission_date' => $mission->mission_date,
                     'locations' => $mission->locations->map(fn($loc) => ['id' => $loc->id, 'name' => $loc->name]),
                 ]
             ], 201);
+    
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Failed to create mission.',
@@ -140,6 +159,60 @@ class RegionManagerController extends Controller
             ], 500);
         }
     }
+
+    // public function storeMission(Request $request)
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
+    
+    //     $request->validate([
+    //         'inspection_type' => 'required|exists:inspection_types,id',
+    //         'mission_date' => 'required|date',
+    //         'note' => 'nullable|string',
+    //         'locations' => 'required|array',
+    //         'locations.*' => 'exists:locations,id',
+    //     ]);
+    
+    //     try {
+    //         $user = Auth::user();
+    //         $regionIds = $user instanceof User ? $user->regions()->pluck('regions.id') : collect();
+    //         $regionId = $regionIds->first(); // Pick one or handle differently
+    //         $userId = Auth::id(); // 👈 Get the current user's ID
+    
+    //         $mission = Mission::create([
+    //             'mission_date' => $request->mission_date,
+    //             'note' => $request->note,
+    //             'region_id' => $regionId,
+    //             'user_id' => $userId, // ✅ Add this!
+    //         ]);
+    
+    //         $mission->inspectionTypes()->sync([$request->inspection_type]);
+    //         $mission->locations()->sync($request->locations);
+    
+    //         return response()->json([
+    //             'message' => 'Mission created successfully!',
+    //             'mission' => [
+    //                 'id' => $mission->id,
+    //                 'inspection_type' => [
+    //                     'id' => $request->inspection_type,
+    //                     'name' => InspectionType::find($request->inspection_type)?->name
+    //                 ],
+    //                 'mission_date' => $mission->mission_date,
+    //                 'locations' => $mission->locations->map(fn($loc) => ['id' => $loc->id, 'name' => $loc->name]),
+    //             ]
+    //         ], 201);
+    
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'error' => 'Failed to create mission.',
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+    
+    
+
     
     
 

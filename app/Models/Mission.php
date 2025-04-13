@@ -9,7 +9,7 @@ class Mission extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['start_datetime', 'end_datetime', 'note', 'region_id'];
+    protected $fillable = ['user_id','mission_date', 'note', 'region_id'];
 
     /**
      * A mission belongs to multiple inspection types.
@@ -28,7 +28,11 @@ class Mission extends Model
         // return $this->belongsTo(Region::class);
         return $this->belongsTo(Region::class, 'region_id');
     }
-
+    public function approvals()
+    {
+        return $this->hasOne(MissionApproval::class);
+    }
+    
     /**
      * A mission has many locations.
      */

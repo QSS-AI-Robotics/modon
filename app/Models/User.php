@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
-
+/**
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Region[] $regions
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -38,7 +40,10 @@ class User extends Authenticatable
         return $this->belongsTo(UserType::class);
     }
 
-
+    public function regions()
+    {
+        return $this->belongsToMany(Region::class, 'user_region');
+    }
     
 
     public function drones()
@@ -63,10 +68,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Region::class, 'pilot_region');
     }
-    public function regions()
-    {
-        return $this->belongsToMany(Region::class, 'user_region');
-    }
+
 
 
 }

@@ -40,8 +40,8 @@
                                 <thead>
                                     <tr>
                                         <th>Inspection Type</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
+                                        <th>Mission Date</th>
+                                        
                                         <th>Location</th>
                                         <th>Note</th>
                                         <th>Status</th>
@@ -120,26 +120,18 @@
                         @csrf
                         <div class="row">
 
-                            <!-- Inspection Type Selection -->
-                            {{-- @foreach($inspectionTypes as $type)
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input inspection-type-checkbox" name="inspection_types[]" value="{{ $type->id }}" id="inspection_{{ $type->id }}">
-                                        <label class="form-check-label checkbox-text" for="inspection_{{ $type->id }}"  >{{ $type->name }}</label>
-                                    </div>
-                                </div>
-                            @endforeach --}}
+   
                             <div class="col-md-12">
                                 <label class="form-label label-text">Select Programs</label>
                                 <div class="row"   id="inspectionTypesContainer">
 
                                 </div>
                             </div>
-                            {{-- <div class="col-md-6"></div> --}}
+                     
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12 py-1 pt-3">
                                 <label class="form-label label-text">Mission Date</label>
-                                <input type="date" class="form-control dateInput" id="start_datetime" name="start_datetime" required>
+                                <input type="date" class="form-control dateInput" id="mission_date" name="mission_date" required>
                             </div>
                       
 

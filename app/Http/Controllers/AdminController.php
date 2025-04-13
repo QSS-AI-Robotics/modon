@@ -53,22 +53,7 @@ class AdminController extends Controller
             'regions' => $regions
         ]);
     }
-    // public function getAllUsers()
-    // {
-    //     $user = Auth::user();
 
-    //     // Check if the userType exists and equals 'qss_admin'
-    //     if ($user && $user->userType && $user->userType->name === 'qss_admin') {
-    //         $users = User::with(['userType', 'region'])->get();
-    //     } else {
-    //         $users = collect(); // Return empty collection for non-admins
-    //     }
-
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'users' => $users
-    //     ]);
-    // }
 
     public function getAllUsers()
     {
@@ -99,35 +84,7 @@ class AdminController extends Controller
         ]);
     }
     
-    
-    // public function deleteUser($id)
-    // {
-    //     $authUser = Auth::user();
 
-    //     // Optional: Allow only qss_admins to delete
-    //     if ($authUser->userType->name !== 'qss_admin') {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Unauthorized action.'
-    //         ], 403);
-    //     }
-
-    //     $user = User::find($id);
-
-    //     if (!$user) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'User not found.'
-    //         ], 404);
-    //     }
-
-    //     $user->delete();
-
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'message' => '✅ User deleted successfully.'
-    //     ]);
-    // }
     public function deleteUser($id)
     {
         $authUser = Auth::user();
@@ -307,70 +264,7 @@ class AdminController extends Controller
     
     
    
-    
-    // public function updateUser(Request $request, $id)
-    // {
-    //     $user = User::findOrFail($id);
-    
-    //     $validator = Validator::make($request->all(), [
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:users,email,' . $id,
-    //         'password' => 'nullable|string|min:6',
-    //         'region_id' => 'required|exists:regions,id',
-    //         'user_type_id' => 'required|exists:user_types,id',
-    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    //     ]);
-    
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $validator->errors()->first(),
-    //         ], 422);
-    //     }
-    
-    //     // Update basic fields
-    //     $user->name = $request->name;
-    //     $user->email = $request->email;
-    //     $user->region_id = $request->region_id;
-    //     $user->user_type_id = $request->user_type_id;
-    
-    //     if ($request->filled('password')) {
-    //         $user->password = Hash::make($request->password);
-    //     }
-    
-    //     // ✅ Handle image update
-    //     if ($request->hasFile('image')) {
-    //         $image = $request->file('image');
-    //         $imageName = time() . '_' . $image->getClientOriginalName();
-    //         $image->storeAs('users', $imageName, 'public');
-    
-    //         // Delete old image (optional)
-    //         if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
-    //             Storage::disk('public')->delete('users/' . $user->image);
-    //         }
-    
-    //         $user->image = $imageName;
-    //     }
-    
-    //     $user->save();
-    
-    //     // ✅ If the user is a pilot, update or create license info
-    //     $userType = $user->userType->name ?? null;
-    //     if (strtolower($userType) === 'pilot') {
-    //         Pilot::updateOrCreate(
-    //             ['user_id' => $user->id],
-    //             [
-    //                 'license_no' => $request->license_no,
-    //                 'license_expiry' => $request->license_expiry,
-    //             ]
-    //         );
-    //     }
-    
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'message' => '✅ User updated successfully.',
-    //     ]);
-    // }
+   
 
     
 
@@ -406,21 +300,6 @@ class AdminController extends Controller
     
 
     
-    // public function inspectionsByRegion()
-    // {
-    //     $data = DB::table('regions')
-    //         ->leftJoin('missions', function($join) {
-    //             $join->on('regions.id', '=', 'missions.region_id')
-    //                  ->where('missions.status', 'Completed'); // ✅ only completed missions
-    //         })
-    //         ->leftJoin('pilot_reports', 'missions.id', '=', 'pilot_reports.mission_id')
-    //         ->leftJoin('pilot_report_images', 'pilot_reports.id', '=', 'pilot_report_images.pilot_report_id')
-    //         ->select('regions.name as region', DB::raw('COUNT(pilot_report_images.id) as inspections'))
-    //         ->groupBy('regions.id', 'regions.name')
-    //         ->get();
-    
-    //     return response()->json($data);
-    // }
 
 
     public function inspectionsByRegion(Request $request)
@@ -606,16 +485,7 @@ class AdminController extends Controller
         return view('region_manager.locations', compact('regions'));
     }
 
-    // public function locations()
-    // {
-    //     // ✅ Ensure user is authenticated
-    //     if (!Auth::check()) {
-    //         return redirect()->route('signin.form')->with('error', 'Please log in first.');
-    //     }
-    
-    //     // ✅ Simply return the view (data is fetched via AJAX)
-    //     return view('region_manager.locations');
-    // }
+
     // get all locations
     public function fetchLocations()
     {
@@ -804,6 +674,7 @@ class AdminController extends Controller
     
         return response()->json(['message' => '✅ Location deleted successfully!']);
     }
+    
     
 
 }

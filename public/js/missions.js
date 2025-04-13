@@ -6,6 +6,85 @@ $(document).ready(function () {
         }
     });
 
+    loadInspectionTypes();
+    loadLocations();
+    function loadInspectionTypes() {
+        $.get('/missions/inspection-data', function (res) {
+            const container = $('#inspectionTypesContainer');
+            container.empty();
+            res.inspectionTypes.forEach(type => {
+                container.append(`
+                    <div class="col-md-12 col-sm-12">
+                        <div class="form-check"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-custom-class="custom-tooltip"
+                            data-title="${type.description || ''}">
+                            <input type="radio" class="form-check-input" name="inspection_type" value="${type.id}" id="inspection_${type.id}">
+                            <label class="form-check-label checkbox-text" for="inspection_${type.id}">${type.name}</label>
+                        </div>
+                    </div>
+                `);
+            });
+    
+            // Enable tooltips
+            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltips.forEach(el => {
+                const content = el.getAttribute('data-title');
+                new bootstrap.Tooltip(el, {
+                    html: true,
+                    title: `<strong class="text-dark">Mission Description:</strong><br>${content}`,
+                    customClass: 'custom-tooltip',
+                    trigger: 'hover focus' 
+                });
+            });
+        });
+    }
+    
+  
+    function loadLocations() {
+        $.get('/missions/location-data', function (res) {
+            const container = $('#locationsContainer');
+            container.empty();
+    
+            res.locations.forEach(location => {
+                container.append(`
+                    <div class="form-check col-md-6 col-sm-12">
+                        <input class="form-check-input location-checkbox" 
+                               type="checkbox" 
+                               name="locations[]" 
+                               value="${location.id}" 
+                               id="location_${location.id}">
+                        <label class="form-check-label checkbox-text pe-2" 
+                               for="location_${location.id}">
+                            ${location.name}
+                        </label>
+                    </div>
+                `);
+            });
+        });
+    }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     getRegionManagerMissions();
     getMissionStats();
     function getMissionStats() {
@@ -236,65 +315,7 @@ $(document).ready(function () {
             }
         });
     });
-    
-    // $('#addMissionForm').on('submit', function (e) {
-    //     e.preventDefault();
-    
-    //     let missionId = $(this).attr("data-mission-id"); // Get Mission ID (if editing)
-    //     let url = missionId ? "/missions/update" : "/missions/store"; // Update or Create URL
-    //     let buttonText = missionId ? "Updating..." : "Creating...";
-        
-    //     $(".mission-btn span").text(buttonText); // Change button text
-    //     $(".mission-btn svg").attr({ "width": "20", "height": "20" }); // Increase SVG size
-    
-    //     // ✅ Collect Selected Checkboxes
-    //     let selectedInspectionTypes = [];
-    //     $('.inspection-type-checkbox:checked').each(function () {
-    //         selectedInspectionTypes.push($(this).val());
-    //     });
-    
-    //     let selectedLocations = [];
-    //     $('.location-checkbox:checked').each(function () {
-    //         selectedLocations.push($(this).val());
-    //     });
-    
-    //     // ✅ Prepare Form Data
-    //     let formData = {
-    //         mission_id: missionId, // Send mission ID if updating
-    //         inspection_types: selectedInspectionTypes,
-    //         start_datetime: $('#start_datetime').val(),
-    //         end_datetime: $('#end_datetime').val(),
-    //         note: $('#note').val(),
-    //         locations: selectedLocations
-    //     };
-    
-    //     // ✅ Send AJAX Request
-    //     $.ajax({
-    //         url: url,
-    //         type: "POST",
-    //         data: formData,
-    //         success: function (response) {
-    //             alert(response.message);
-    
-    //             // ✅ Reset form after adding/updating
-    //             $('#addMissionForm')[0].reset();
-    //             $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
-    //             $("#addMissionForm").removeAttr("data-mission-id"); // Remove edit mode
-    
-    //             // ✅ Restore Title & Button Text
-    //             $("h6").text("Create New Mission");
-    //             $(".mission-btn span").text("New Mission");
-    
-    //             // ✅ Refresh Mission List
-    //             getRegionManagerMissions(); 
-    //             getMissionStats()
-    //         },
-    //         error: function (xhr) {
-    //             alert("❌ Error processing mission. Please try again.");
-    //             console.log(xhr.responseText);
-    //         }
-    //     });
-    // });
+   
 
        // view Mission report
        $(document).on('click', '.view-mission-report', function () {

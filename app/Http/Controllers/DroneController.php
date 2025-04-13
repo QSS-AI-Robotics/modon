@@ -45,19 +45,52 @@ class DroneController extends Controller
             'user_id' => $request->user_id,
         ]);
 
-        return response()->json(['message' => 'Drone created successfully']);
+        return response()->json([
+            'message' => '✅ Drone added successfully!'
+        ]);
     }
+
+    public function updatedrone(Request $request, $id)
+    {
+        $drone = Drone::findOrFail($id);
+
+        $validated = $request->validate([
+            'model' => 'required|string|max:255',
+            'sr_no' => 'required|string|unique:drones,sr_no,' . $drone->id,
+            'user_id' => 'required|exists:users,id'
+        ]);
+
+        $drone->update($validated);
+
+        return response()->json([
+            'message' => '✅ Drone updated successfully!'
+        ]);
+    }
+
+
     public function destroy($id)
     {
+        // ✅ Optional: Only allow authenticated users
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthorized.'], 401);
+        }
+    
         $drone = Drone::find($id);
     
         if (!$drone) {
             return response()->json(['message' => 'Drone not found.'], 404);
         }
     
+        // ✅ Optional: Add user permission check (e.g., only admin or drone creator can delete)
+        $user = Auth::user();
+        if ($user->userType->name !== 'qss_admin') {
+            return response()->json(['message' => 'You are not authorized to delete this drone.'], 403);
+        }
+    
         $drone->delete();
     
-        return response()->json(['message' => 'Drone deleted successfully.']);
+        return response()->json(['message' => '✅ Drone deleted successfully.']);
     }
+    
     
 }

@@ -54,6 +54,7 @@
             color: rgb(250, 250, 246) !important; /* Optional: Change text color */
         }
         </style>
+        
 </head>
 <body>
     <div class="container-fluid vh-100 d-flex flex-column padded-container ">

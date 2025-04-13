@@ -5,42 +5,40 @@ $(document).ready(function () {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-
-
-
-    
-
-    function handleUserTypeChange() {
+    function handleUserTypeChange(skipUncheck = false) {
         const selectedText = $('#user_type_id option:selected').text().trim().toLowerCase();
         const isPilot = selectedText === 'pilot';
     
-        // Show/hide pilot fields
+        // Toggle pilot license fields
         $('#pilotFields').toggleClass('d-none', !isPilot);
         if (!isPilot) {
             $('#license_no, #license_expiry').val('');
         }
     
-        // Bind change event with dynamic check
+        // Bind checkbox logic
         $('.region-checkbox').off('change').on('change', function () {
             const currentType = $('#user_type_id option:selected').text().trim().toLowerCase();
+    
             if (currentType !== 'pilot') {
                 $('.region-checkbox').not(this).prop('checked', false);
             }
         });
     
-        // Uncheck all if not pilot and multiple selected
-        if (!isPilot && $('.region-checkbox:checked').length > 1) {
-            $('.region-checkbox').prop('checked', false);
+        // Uncheck multiple selections ONLY if not pilot
+        if (!isPilot && !skipUncheck) {
+            if ($('.region-checkbox:checked').length > 1) {
+                $('.region-checkbox').prop('checked', false);
+            }
         }
     }
     
     
-    // Bind to type change
-    $('#user_type_id').on('change', handleUserTypeChange);
     
-    // Also run on page load
-    $(document).ready(handleUserTypeChange);
+    $('#user_type_id').on('change', function () {
+        handleUserTypeChange(false); // allow behavior update
+    });
     
+    handleUserTypeChange(true);
     
     
 

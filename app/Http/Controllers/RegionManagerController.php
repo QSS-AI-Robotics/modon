@@ -16,29 +16,47 @@ class RegionManagerController extends Controller
      */
     public function index()
     {
-        // ✅ Ensure the user is authenticated
         if (!Auth::check()) {
             return redirect()->route('signin.form')->with('error', 'Please log in first.');
         }
     
-        $regionId = Auth::user()->region_id;
+        $userType = optional(Auth::user()->userType)->name ?? 'Control';
     
-        // ✅ Fetch missions related to the user's region
-        $missions = Mission::where('region_id', $regionId)
-            ->with(['inspectionTypes:id,name', 'locations:id,name'])
-            ->get();
-    
-        // ✅ Fetch inspection types (Global)
-        $inspectionTypes = InspectionType::all();
-    
-        // ✅ Fetch locations **only for this region**
-        $locations = Location::where('region_id', $regionId)->get();
-    
-        return view('region_manager.missions', compact('missions', 'inspectionTypes', 'locations'));
+        return view('missions.index', compact('userType')); // Only pass userType
     }
+    public function getInspectionTypes()
+    {
+        $types = InspectionType::select('id', 'name', 'description')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'inspectionTypes' => $types
+        ]);
+    }
+
+    // Get Locations Based on User's Region(s)
+    public function getLocations()
+    {
+        $user = Auth::user();
+        $regionIds = optional(Auth::user())->regions()->pluck('regions.id');
     
 
+        $locations = Location::whereHas('locationAssignments', function ($query) use ($regionIds) {
+            $query->whereIn('region_id', $regionIds);
+        })
+        ->with('locationAssignments.region:id,name')
+        ->get();
 
+        return response()->json([
+            'status' => 'success',
+            'locations' => $locations
+        ]);
+    }    
+    
+
+    
+    
+    
 
 
 

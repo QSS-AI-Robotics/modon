@@ -264,37 +264,7 @@ $(document).ready(function () {
     
     
 
-    // function updateChart(chart, response) {
-    //     const chartData = response.data || [];
-    
-    //     const labels = chartData.map(item => item.region);
-    //     const values = chartData.map(item => item.missions);
-    
-    //     const totalMissions = values.reduce((sum, val) => sum + val, 0);
-    //     $("#totalMissions").text(totalMissions)
-    //     console.log(`📊 Total Missions: ${totalMissions}`);
-        
-    //     const hasData = values.some(value => value > 0);
-    
-    //     // Update chart data
-    //     chart.data.labels = labels;
-    //     chart.data.datasets[0].data = values;
-    
-    //     // Hide Y-axis labels/grid if no data
-    //     chart.options.scales.y.ticks.display = hasData;
-    //     chart.options.scales.y.grid.display = hasData;
-    
-    //     chart.update();
-    
-    //     // Show or hide "No data found" message
-    //     if (hasData) {
-    //         $('#noDataMessage').addClass('d-none');
-    //     } else {
-    //         $('#noDataMessage').removeClass('d-none');
-    //     }
-    
- 
-    // }
+
     
     
 

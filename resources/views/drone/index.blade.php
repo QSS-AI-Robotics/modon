@@ -39,6 +39,7 @@
                             <table class="table table-text">
                                 <thead>
                                     <tr>
+                                        <th>#</th> <!-- Serial number column -->
                                         <th>Model</th>
                                         <th>Serial No</th>
                                         <th>Assigned To</th> 
@@ -47,22 +48,23 @@
                                 </thead>
                                 <tbody id="DroneTableBody">
                                     @forelse($drones as $drone)
-                                    <tr>
-                                        <td>{{ $drone->model }}</td>
-                                        <td>{{ $drone->sr_no }}</td>
-                                        <td>{{ $drone->user->name ?? 'N/A' }}</td>
+                                    <tr id="drone-row-{{ $drone->id }}">
+                                        <td>{{ $loop->iteration }}</td> <!-- Serial number -->
+                                        <td class="drone-model">{{ $drone->model }}</td>
+                                        <td class="drone-serial">{{ $drone->sr_no }}</td>
+                                        <td class="drone-user" data-user-id="{{ $drone->user_id }}">{{ $drone->user->name ?? 'N/A' }}</td>
                                         <td>
                                             <img src="{{ asset('images/edit.png') }}" alt="Edit" class="edit-drone img-fluid actions" data-id="{{ $drone->id }}">
                                             <img src="{{ asset('images/delete.png') }}" alt="Delete" class="delete-drone img-fluid actions" data-id="{{ $drone->id }}">
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">No drones found.</td>
+                                    @empty
+                                    <tr id="no-drones-row">
+                                        <td colspan="5" class="text-center text-light">No drones found.</td>
                                     </tr>
-                                @endforelse
-                                
+                                    @endforelse
                                 </tbody>
+                                
                             </table>
                         </div>
                         
@@ -97,12 +99,12 @@
 
 
                             <div class="col-md-6">
-                                <input type="hidden" name="userId" id="userId">
+                                <input type="hidden" name="droneId" id="droneId">
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text pt-2">Modal</label>
-                                <input type="text" class="form-control dateInput" id="modal" name="modal" value="" >
+                                <input type="text" class="form-control dateInput" id="modal" name="modal" value="Dji Mavic 4" disabled>
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text pt-2">Serial No</label>
@@ -126,8 +128,8 @@
                             </div>
                                <!-- Button (Update or Create) -->
                                 <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
-                                    <button class="btn mission-btn btn-sm d-flex align-items-center " type="submit">
-                                        Add Pilot
+                                    <button class="btn mission-btn btn-sm d-flex align-items-center" id="submitDroneBtn" type="submit">
+                                        Add Drone
                                     </button>
                                 </div>
 

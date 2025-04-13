@@ -104,7 +104,7 @@
                             </div>
                             <div class="col-md-12 col-sm-12">
                                 <label for="user_type_id" class="form-label pt-2">Type</label>
-                                <select class="form-select dateInput" id="region_id" name="region_id" >
+                                <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
                                     <option value="">Select User Type</option>
                                     @foreach($userTypes as $userType)
                                         <option value="{{ $userType->id }}" class="text-capitalize">{{ ucwords(str_replace('_', ' ', $userType->name)) }}</option>
@@ -115,25 +115,7 @@
                             </div>
 
                             {{-- select regions start--}}
-                            {{-- Single Region Selector (for non-pilots) --}}
-                            {{-- <div class="col-lg-12" id="regionCheckboxWrapper">
-                                <label class="form-label pt-2 label-text" >Select Region(s)</label>
-                                <div class="row" id="regionCheckboxes">
-                                    @foreach($regions as $region)
-                                        <div class="col-md-6">
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input region-checkbox"
-                                                       name="assigned_regions[]" value="{{ $region->id }}"
-                                                       id="region_{{ $region->id }}">
-                                                <label for="region_{{ $region->id }}" class="form-label label-text text-capitalize">
-                                                    {{ $region->name === 'all' ? 'Headquarter' : ucwords(str_replace('_', ' ', $region->name)) }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <span class="text-danger" id="region_error"></span>
-                            </div> --}}
+ 
                             
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label pt-2">Assigned Region(s)</label>
@@ -150,27 +132,7 @@
                                 </div>
                             </div>
                             
-                            {{-- select regions end --}}
-                            {{-- <div class="col-md-6 col-sm-6">
-                                <label for="region_id" class="form-label pt-2">Region</label>
-                                <select class="form-select dateInput" id="region_id" name="region_id">
-                                    <option value="">Select Region</option>
-                                    @foreach($regions as $region)
-                                    <option value="{{ $region->id }}" 
-                                        class="text-capitalize"
-                                        data-original-name="{{ $region->name }}">
-                                        
-                                        @if ($region->name === 'all')
-                                         Headquarter
-                                        @else
-                                            {{ ucwords(str_replace('_', ' ', $region->name)) }}
-                                        @endif
-                                    </option>
-                                    
-                                @endforeach
-                                </select>
-                                <span class="text-danger" id="region_error"></span>
-                            </div> --}}
+
                             
                             <div  class="col-md-12 d-none" id="pilotFields">
                                 <div class="row">

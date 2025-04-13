@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function () {
 // ✅ Protected Routes for Region Manager
 
 
-Route::middleware(['auth', 'checkUserType:region_manager'])->group(function () {
+Route::middleware(['auth', 'checkUserType:city_supervisor,qss_admin'])->group(function () {
 
     
     Route::get('/missions', [RegionManagerController::class, 'index'])->name('missions.index');
@@ -49,7 +49,10 @@ Route::middleware(['auth', 'checkUserType:region_manager'])->group(function () {
     Route::get('/missions/{id}/edit', [RegionManagerController::class, 'editMission'])->name('missions.edit');
     Route::post('/missions/update', [RegionManagerController::class, 'updateMission'])->name('missions.update');
     Route::get('/missions/stats', [RegionManagerController::class, 'getMissionStats'])->name('missions.stats');
-   
+   // web.php or a controller group
+    Route::get('/missions/inspection-data', [RegionManagerController::class, 'getInspectionTypes'])->name('missions.inspectionTypes');
+    Route::get('/missions/location-data', [RegionManagerController::class, 'getLocations'])->name('missions.locations');
+
 });
 
 // Pilot Routes
@@ -92,12 +95,15 @@ Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
     Route::get('/locations/{id}/edit', [AdminController::class, 'edit'])->name('locations.edit');
     Route::post('/locations/{id}/update', [AdminController::class, 'update'])->name('locations.update');
     Route::delete('/locations/{id}', [AdminController::class, 'destroy'])->name('locations.destroy');
-
+    
+    
+    Route::get('/drones', [DroneController::class, 'index'])->name('drones.index');
+    Route::post('/drones', [DroneController::class, 'store'])->name('drones.store');
+    Route::put('/update-drone/{id}/update', [DroneController::class, 'updatedrone'])->name('drone.updatedrone');
+    Route::post('/delete-drone/{id}', [DroneController::class, 'destroy'])->name('drone.delete');
 
 });
 Route::middleware(['auth'])->group(function () {
-    Route::get('/drones', [DroneController::class, 'index'])->name('drones.index');
-    Route::post('/drones', [DroneController::class, 'store'])->name('drones.store');
-    Route::post('/delete-drone/{id}', [DroneController::class, 'destroy'])->name('drone.delete');
+
 
 });  

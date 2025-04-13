@@ -9,12 +9,18 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckUserType
 {
-    public function handle(Request $request, Closure $next, string $userType): Response
+    public function handle(Request $request, Closure $next, ...$types): Response
     {
-        if (Auth::check() && Auth::user()->userType->name === $userType) {
-            return $next($request);
+        if (Auth::check()) {
+            $userType = strtolower(Auth::user()->userType->name ?? '');
+            $allowedTypes = array_map('strtolower', $types);
+
+            if (in_array($userType, $allowedTypes)) {
+                return $next($request);
+            }
         }
 
         abort(403, 'Unauthorized.');
     }
 }
+

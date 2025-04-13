@@ -20,7 +20,7 @@
                     @csrf
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
                         <label for="exampleFormControlInput1" class="form-label">Email address</label>
-                        <input type="email"  class="fldsty form-control InputField" id="email" name="email" value="bilal@qltyss.com" placeholder="Email Here...." required/>
+                        <input type="email"  class="fldsty form-control InputField" id="email" name="email" value="nabeel@qltyss.com" placeholder="Email Here...." required/>
                     </div>
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 py-4">
                         <label for="exampleFormControlInput1" class="form-label">Password</label>
@@ -60,12 +60,13 @@
             type: "POST",
             data: formData,
             success: function (response) {
+       
                 window.location.href = response.redirect; // Redirect on success
             },
             error: function (xhr) {
                 let errors = xhr.responseJSON.errors;
                 console.log(errors);
-
+               
                 // Clear previous messages
                 $('#email_error').text('');
                 $('#password_error').text('');

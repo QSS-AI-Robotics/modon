@@ -141,11 +141,11 @@ $(document).ready(function () {
     
                     // ✅ Bootstrap Dropdown for Inspection Types
                     let inspectionTypesHTML = `
-                        <div class="dropdown d-flex align-items-center ">
-                            <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class=" d-flex align-items-center ">
+                            <span class=" text-white" data-bs-toggle="dropdown" aria-expanded="false">
                                 ${inspectionTypesArray[0] || 'N/A'}
                             </span>
-                            <ul class="dropdown-menu text-center">
+                            <ul class="dropdown-menu ">
                                 ${inspectionTypesArray.map(type => `<li class="dropdown-item">${type}</li>`).join("")}
                             </ul>
                         </div>
@@ -157,7 +157,7 @@ $(document).ready(function () {
                             <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
                                 ${locationsArray[0] || 'N/A'}...
                             </span>
-                            <ul class="dropdown-menu text-center">
+                            <ul class="dropdown-menu ">
                                 ${locationsArray.map(loc => `<li class="dropdown-item">${loc}</li>`).join("")}
                             </ul>
                         </div>
@@ -207,7 +207,7 @@ $(document).ready(function () {
                         deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
                     }
                     let row = `
-                        <tr id="missionRow-${mission.id}">
+                        <tr id="missionRow-${mission.id}" class="text-left text-start">
                             <td>${inspectionTypesHTML}</td>
                             <td>${mission.mission_date}</td>
                             
@@ -625,7 +625,7 @@ $('#addMissionForm').on('submit', function (e) {
         
             // ✅ Restore Title & Button Text
             $(".form-title").text("Create New Mission");
-            $(".mission-btn span").text("New Mission");
+            $(".mission-btn span").text("Create Mission");
         
             // ✅ Remove Cancel Button
           

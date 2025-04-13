@@ -139,7 +139,7 @@
 .dropdown-toggle {
     display: inline-flex; /* Keeps inline but centers */
     align-items: center;
-    justify-content: center;
+    /* justify-content: center; */
 
     cursor: pointer;
     font-size: 14px;
@@ -147,7 +147,7 @@
 
 /* Center dropdown items */
 .dropdown-menu {
-    text-align: center;
+    /* text-align: center; */
     background-color: #171f33 !important;
    
 }
@@ -185,7 +185,7 @@ table tr {
     width: auto !important; /* Adjust width dynamically */
     max-width: 300px !important; /* Prevents dropdown from becoming too wide */
     min-width: 150px;
-    text-align: left;
+    /* text-align: left; */
     border: none !important;
     white-space: normal;
     word-wrap: break-word;
@@ -201,7 +201,7 @@ table tr {
     display: block; /* Ensures text is in a block element */
     white-space: normal; /* Allows wrapping */
     overflow-wrap: break-word; /* Ensures words do not stretch outside */
-    text-align: left;
+    /* text-align: left; */
     line-height: 1.4; /* Ensures better spacing */
 }
 

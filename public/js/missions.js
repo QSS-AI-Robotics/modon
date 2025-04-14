@@ -40,31 +40,26 @@ $(document).ready(function () {
             });
         });
     }
+    $(document).on('click', '.toggle-details', function () {
+        const missionId = $(this).data('id');
+        const row = $(`.detail-row[data-id="${missionId}"]`);
+        const container = row.find('.detail-container');
     
-    // loadLocations();
-  
-    // function loadLocations() {
-    //     $.get('/missions/location-data', function (res) {
-    //         const container = $('#locationsContainer');
-    //         container.empty();
+        const isAlreadyOpen = container.hasClass('open');
     
-    //         res.locations.forEach(location => {
-    //             container.append(`
-    //                 <div class="form-check col-md-6 col-sm-12">
-    //                     <input class="form-check-input location-checkbox" 
-    //                            type="checkbox" 
-    //                            name="locations[]" 
-    //                            value="${location.id}" 
-    //                            id="location_${location.id}">
-    //                     <label class="form-check-label checkbox-text pe-2" 
-    //                            for="location_${location.id}">
-    //                         ${location.name}
-    //                     </label>
-    //                 </div>
-    //             `);
-    //         });
-    //     });
-    // }
+        // Close all others
+        $('.detail-container').removeClass('open');
+        $('.detail-row').hide();
+    
+        // If this one wasn't already open, open it now
+        if (!isAlreadyOpen) {
+            row.show(); // show the outer row wrapper
+            setTimeout(() => {
+                container.addClass('open');
+            }, 10); // slight delay to allow transition
+        }
+    });
+    
     
 
 
@@ -87,35 +82,34 @@ $(document).ready(function () {
 
 
     getRegionManagerMissions();
-    getMissionStats();
-    function getMissionStats() {
-        $.ajax({
-            url: "/missions/stats",
-            type: "GET",
-            success: function (response) {
-                let totalMissions = response.total_missions || 0;
-                let completedMissions = response.completed_missions || 0;
-                let pendingMissions = totalMissions - completedMissions;
+    // getMissionStats();
+    // function getMissionStats() {
+    //     $.ajax({
+    //         url: "/missions/stats",
+    //         type: "GET",
+    //         success: function (response) {
+    //             let totalMissions = response.total_missions || 0;
+    //             let completedMissions = response.completed_missions || 0;
+    //             let pendingMissions = totalMissions - completedMissions;
     
-                // ✅ Avoid division by zero errors
-                let completedPercentage = totalMissions > 0 ? (completedMissions / totalMissions) * 100 : 0;
-                let pendingPercentage = totalMissions > 0 ? (pendingMissions / totalMissions) * 100 : 0;
+    //             // ✅ Avoid division by zero errors
+    //             let completedPercentage = totalMissions > 0 ? (completedMissions / totalMissions) * 100 : 0;
+    //             let pendingPercentage = totalMissions > 0 ? (pendingMissions / totalMissions) * 100 : 0;
     
-                // ✅ Update Text
-                $("#totalMissions").text(totalMissions);
-                $("#completedMissions").text(completedMissions);
-                $("#pendingMissions").text(pendingMissions);
+    //             // ✅ Update Text
+    //             $("#totalMissions").text(totalMissions);
+    //             $("#completedMissions").text(completedMissions);
+    //             $("#pendingMissions").text(pendingMissions);
     
-                // ✅ Update Progress Bars
-                $("#pendingMissionsBar").css("width", pendingPercentage + "%");
-                $("#completedMissionsBar").css("width", completedPercentage + "%");
-            },
-            error: function (xhr) {
-                console.error("❌ Error fetching mission stats:", xhr.responseText);
-            }
-        });
-    }
-
+    //             // ✅ Update Progress Bars
+    //             $("#pendingMissionsBar").css("width", pendingPercentage + "%");
+    //             $("#completedMissionsBar").css("width", completedPercentage + "%");
+    //         },
+    //         error: function (xhr) {
+    //             console.error("❌ Error fetching mission stats:", xhr.responseText);
+    //         }
+    //     });
+    // }
     function getRegionManagerMissions() {
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
@@ -126,6 +120,7 @@ $(document).ready(function () {
             type: "GET",
             success: function (response) {
                 $('#missionTableBody').empty();
+                $(".mission-details-wrapper").remove(); // remove any existing detail divs
     
                 if (!response.missions.length) {
                     $('#missionTableBody').append(`
@@ -148,7 +143,7 @@ $(document).ready(function () {
                     const fullNote = mission.note || "No Notes";
     
                     const noteHTML = `
-                        <span class="text-truncate" data-bs-toggle="tooltip" title="${fullNote}">
+                        <span class="text-truncate d-inline-block">
                             ${shortNote}...
                         </span>
                     `;
@@ -185,25 +180,24 @@ $(document).ready(function () {
                             <td>
                                 ${editButton}
                                 ${deleteButton}
+                                <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}">
+                            </td>
+                        </tr>
+                        <tr class="detail-row" data-id="${mission.id}" style="display: none;">
+                            <td colspan="6">
+                                <div class="detail-container open p-3">
+                                    <div class="detail-content">
+                                        <strong>Program:</strong> ${inspectionName}<br>
+                                        <strong>Mission Date:</strong> ${mission.mission_date}<br>
+                                        <strong>Locations:</strong> ${locations}<br>
+                                        <strong>Note:</strong> ${fullNote}
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     `;
     
                     $('#missionTableBody').append(row);
-                });
-    
-                // ✅ Initialize all Bootstrap tooltips
-                const allTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-                allTooltips.forEach(el => {
-                    const title = el.getAttribute('title') || el.getAttribute('data-title');
-                    if (title) {
-                        new bootstrap.Tooltip(el, {
-                            html: true,
-                            title: title,
-                            customClass: 'custom-tooltip',
-                            trigger: 'hover focus'
-                        });
-                    }
                 });
             },
             error: function (xhr) {
@@ -213,111 +207,116 @@ $(document).ready(function () {
         });
     }
     
+    // function getRegionManagerMissions() {
+    //     $(".mission-btn svg").attr({ "width": "16", "height": "16" });
+    //     $("#addMissionForm").removeAttr("data-mission-id");
+    //     $(".cancel-btn").addClass("d-none");
+    
+    //     $.ajax({
+    //         url: "/getmanagermissions",
+    //         type: "GET",
+    //         success: function (response) {
+    //             $('#missionTableBody').empty();
+    
+    //             if (!response.missions.length) {
+    //                 $('#missionTableBody').append(`
+    //                     <tr>
+    //                         <td colspan="8" class="text-center text-muted">No missions available.</td>
+    //                     </tr>
+    //                 `);
+    //                 return;
+    //             }
+    
+    //             $.each(response.missions, function (index, mission) {
+    //                 const inspection = mission.inspection_types[0] || {};
+    //                 const inspectionName = inspection.name || 'N/A';
+    //                 const inspectionId = inspection.id || '';
+    
+    //                 const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
+    
+    //                 const noteWords = mission.note ? mission.note.split(" ") : [];
+    //                 const shortNote = noteWords.slice(0, 2).join(" ");
+    //                 const fullNote = mission.note || "No Notes";
+    
+    //                 const noteHTML = `
+    //                     <span class="text-truncate" data-bs-toggle="tooltip" title="${fullNote}">
+    //                         ${shortNote}...
+    //                     </span>
+    //                 `;
+    
+    //                 let statusBadge = "";
+    //                 switch (mission.status) {
+    //                     case "Pending":
+    //                         statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
+    //                     case "In Progress":
+    //                         statusBadge = `<span class="badge p-2 bg-warning text-dark">In Progress</span>`; break;
+    //                     case "Awaiting Report":
+    //                         statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
+    //                     case "Completed":
+    //                         statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
+    //                 }
+    
+    //                 const editButton = mission.status === "Pending"
+    //                     ? `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`
+    //                     : "";
+    
+    //                 const deleteButton = mission.status === "Pending"
+    //                     ? `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`
+    //                     : mission.status === "Completed"
+    //                         ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
+    //                         : `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
+    
 
-//     function getRegionManagerMissions() {
-//     $(".mission-btn svg").attr({ "width": "16", "height": "16" });
-//     $("#addMissionForm").removeAttr("data-mission-id");
-//     $(".cancel-btn").addClass("d-none");
-
-//     $.ajax({
-//         url: "/getmanagermissions",
-//         type: "GET",
-//         success: function (response) {
-//             console.log(response);
-//             $('#missionTableBody').empty();
-
-//             if (response.missions.length === 0) {
-//                 $('#missionTableBody').append(`
-//                     <tr>
-//                         <td colspan="8" class="text-center text-muted">No missions available.</td>
-//                     </tr>
-//                 `);
-//                 return;
-//             }
-
-//             $.each(response.missions, function (index, mission) {
-//                 const inspectionTypes = mission.inspection_types.map(type => type.name).join(', ') || 'N/A';
-//                 const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
-
-//                 // Tooltip for note (first 2 words shown)
-//                 const noteWords = mission.note ? mission.note.split(" ") : [];
-//                 const shortNote = noteWords.slice(0, 2).join(" ");
-//                 const fullNote = mission.note || "No Notes";
-
-//                 const noteHTML = `
-//                     <span class="text-truncate" data-bs-toggle="tooltip" title="${fullNote}">
-//                         ${shortNote}...
-//                     </span>
-//                 `;
-
-//                 let statusBadge = "";
-//                 switch (mission.status) {
-//                     case "Pending":
-//                         statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`;
-//                         break;
-//                     case "In Progress":
-//                         statusBadge = `<span class="badge p-2 bg-warning text-dark">In Progress</span>`;
-//                         break;
-//                     case "Awaiting Report":
-//                         statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`;
-//                         break;
-//                     case "Completed":
-//                         statusBadge = `<span class="badge p-2 bg-success">Completed</span>`;
-//                         break;
-//                 }
-
-//                 const editButton = mission.status === "Pending"
-//                     ? `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`
-//                     : "";
-
-//                 let deleteButton = "";
-//                 if (mission.status === "Pending") {
-//                     deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
-//                 } else if (mission.status === "Completed") {
-//                     deleteButton = `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`;
-//                 } else {
-//                     deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
-//                 }
-
-//                 const row = `
-//                     <tr id="missionRow-${mission.id}" class="text-start">
-//                         <td data-name="" data-inspectiontype-id="">${inspectionTypes}</td>
-//                         <td>${mission.mission_date}</td>
-//                         <td>${locations}</td>
-//                         <td class="cursor-pointer text-capitalize">${noteHTML}</td>
-//                         <td>${statusBadge}</td>
-//                         <td>
-//                             ${editButton}
-//                             ${deleteButton}
-//                         </td>
-//                     </tr>
-//                 `;
-
-//                 $('#missionTableBody').append(row);
-//             });
-
- 
-//             // ✅ Reinitialize all Bootstrap tooltips (including those from inspection types)
-//             const allTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-//             allTooltips.forEach(el => {
-//                 const title = el.getAttribute('title') || el.getAttribute('data-title');
-//                 if (title) {
-//                     new bootstrap.Tooltip(el, {
-//                         html: true,
-//                         title: title,
-//                         customClass: 'custom-tooltip',
-//                         trigger: 'hover focus'
-//                     });
-//                 }
-//             });
-
-//         },
-//         error: function (xhr) {
-//             console.error("❌ Error fetching missions:", xhr.responseText);
-//             alert("Error fetching missions. Please try again.");
-//         }
-//     });
-// }
+    //                 const row = `
+    //                 <tr id="missionRow-${mission.id}" class="text-start">
+    //                     <td data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</td>
+    //                     <td>${mission.mission_date}</td>
+    //                     <td>${locations}</td>
+    //                     <td class="cursor-pointer text-capitalize">${noteHTML}</td>
+    //                     <td>${statusBadge}</td>
+    //                     <td>
+    //                         ${editButton}
+    //                         ${deleteButton}
+    //                         <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}" data-target="#detail-${mission.id}">
+    //                     </td>
+    //                 </tr>
+    //                 <tr>
+    //                     <td colspan="6" style="padding: 0; border-top: none;">
+    //                         <div id="detail-${mission.id}" class="detail-container">
+    //                             <div class="detail-content p-4">
+    //                                 <strong>Program:</strong> ${inspectionName}<br>
+    //                                 <strong>Mission Date:</strong> ${mission.mission_date}<br>
+    //                                 <strong>Description:</strong> ${mission.note}
+    //                             </div>
+    //                         </div>
+    //                     </td>
+    //                 </tr>
+    //                 `;
+                    
+    //                 $('#missionTableBody').append(row);
+    //             });
+    
+    //             // ✅ Initialize all Bootstrap tooltips
+    //             const allTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    //             allTooltips.forEach(el => {
+    //                 const title = el.getAttribute('title') || el.getAttribute('data-title');
+    //                 if (title) {
+    //                     new bootstrap.Tooltip(el, {
+    //                         html: true,
+    //                         title: title,
+    //                         customClass: 'custom-tooltip',
+    //                         trigger: 'hover focus'
+    //                     });
+    //                 }
+    //             });
+    //         },
+    //         error: function (xhr) {
+    //             console.error("❌ Error fetching missions:", xhr.responseText);
+    //             alert("Error fetching missions. Please try again.");
+    //         }
+    //     });
+    // }
+    
 
       
     
@@ -336,10 +335,7 @@ $('#addMissionForm').on('submit', function (e) {
     // ✅ Single inspection_type (radio)
     const inspectionType = $('input[name="inspection_type"]:checked').val();
 
-    // ✅ Multiple locations
-    // const selectedLocations = $('.location-checkbox:checked').map(function () {
-    //     return $(this).val();
-    // }).get();
+
     const locationId = $('#location_id').data('location-id');
     const selectedLocations = locationId ? [locationId] : [];
     const formData = {
@@ -388,7 +384,7 @@ $('#addMissionForm').on('submit', function (e) {
             $(".mission-btn span").text("New Mission");
 
             getRegionManagerMissions();
-            getMissionStats();
+            // getMissionStats();
         },
         error: function (xhr) {
             Swal.fire({
@@ -541,7 +537,7 @@ $('#addMissionForm').on('submit', function (e) {
                         });
     
                         $('#missionRow-' + missionId).remove(); // Remove mission row
-                        getMissionStats();
+                        // getMissionStats();
                     },
                     error: function (xhr) {
                         Swal.fire({
@@ -557,24 +553,7 @@ $('#addMissionForm').on('submit', function (e) {
         });
     });
     
-    // $(document).on('click', '.delete-mission', function () {
-    //     let missionId = $(this).data('id');
 
-    //     if (!confirm("Are you sure you want to delete this mission?")) return;
-
-    //     $.ajax({
-    //         url: `/missions/${missionId}`,
-    //         type: "DELETE",
-    //         success: function (response) {
-    //             alert(response.message);
-    //             $('#missionRow-' + missionId).remove(); // Remove row from table
-    //             getMissionStats();
-    //         },
-    //         error: function (xhr) {
-    //             alert("Error: " + xhr.responseText);
-    //         }
-    //     });
-    // });
 
         // Handle Edit Mission Button Click44
         $(document).on("click", ".edit-mission", function () {
@@ -616,56 +595,7 @@ $('#addMissionForm').on('submit', function (e) {
             $(".mission-btn svg").attr({ "width": "30", "height": "30" });
         });
         
-        
-        // $(document).on("click", ".edit-mission", function () {
-        //     $(".cancel-btn").removeClass("d-none");
-        //     let missionId = $(this).data("id"); // Get mission ID
-        //     let row = $(`#missionRow-${missionId}`); // Get the row
-        
-        //     // Extract Data from Row
-        //     let inspectionTypes = row.find("td:nth-child(1) .dropdown-menu li").map(function () {
-        //         return $(this).text().trim();
-        //     }).get();
-        
-        //     let startDatetime = row.find("td:nth-child(2)").text().trim();
-        //     let endDatetime = row.find("td:nth-child(3)").text().trim();
-        //     let locations = row.find("td:nth-child(4) .dropdown-menu li").map(function () {
-        //         return $(this).text().trim();
-        //     }).get();
-        //     let note = row.find("td:nth-child(5) .dropdown-menu li").text().trim();
-        
-        //     // ✅ Update Form Fields
-        //     $("#start_datetime").val(startDatetime);
-        //     $("#end_datetime").val(endDatetime);
-        //     $("#note").val(note);
-        
-        //     // ✅ Check Inspection Type Checkboxes
-        //     $(".inspection-type-checkbox").each(function () {
-        //         let typeValue = $(this).siblings("label").text().trim();
-        //         $(this).prop("checked", inspectionTypes.includes(typeValue));
-        //     });
-        
-        //     // ✅ Check Location Checkboxes
-        //     $(".location-checkbox").each(function () {
-        //         let locationValue = $(this).siblings("label").text().trim();
-        //         $(this).prop("checked", locations.includes(locationValue));
-        //     });
-         
-        //     // ✅ Update Title and Button Text
-        //     $(".form-title").text("Edit Mission");
-        //    // Show Cancel Button
-        //     // Change Button Text
-        //     $(".mission-btn svg").attr({ "width": "30", "height": "30" });
-        //     $(".mission-btn span").text("Update Mission"); // Change Button Text
-        
-
-        
-
-        
-        //     // ✅ Store Mission ID for Updating
-        //     $("#addMissionForm").attr("data-mission-id", missionId);
-        // });
-        
+   
         
         $(document).on("click", ".cancel-btn", function () {
             // ✅ Reset Form Fields
@@ -709,7 +639,7 @@ $('#addMissionForm').on('submit', function (e) {
                 alert(response.message);
                 $("#editMissionModal").modal("hide");
                 getRegionManagerMissions();
-                getMissionStats();
+                // getMissionStats();
             },
             error: function (xhr) {
                 alert("❌ Error updating mission: " + xhr.responseText);

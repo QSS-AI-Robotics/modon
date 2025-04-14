@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 12, 2025 at 05:07 PM
+-- Generation Time: Apr 14, 2025 at 03:59 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,9 +56,17 @@ CREATE TABLE `drones` (
   `model` varchar(255) NOT NULL,
   `sr_no` varchar(255) NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `drones`
+--
+
+INSERT INTO `drones` (`id`, `model`, `sr_no`, `user_id`, `created_at`, `updated_at`) VALUES
+(10, 'Dji Mavic 4', 'SDF23423', 48, '2025-04-13 03:33:21', '2025-04-13 03:33:21'),
+(11, 'Dji Mavic 4', 's', 48, '2025-04-13 03:33:27', '2025-04-13 03:33:47');
 
 -- --------------------------------------------------------
 
@@ -85,22 +93,23 @@ CREATE TABLE `failed_jobs` (
 CREATE TABLE `inspection_types` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `inspection_types`
 --
 
-INSERT INTO `inspection_types` (`id`, `name`, `created_at`, `updated_at`) VALUES
-(1, 'Gas Leaks', NULL, NULL),
-(2, 'Storage Area', NULL, NULL),
-(3, 'Road Safety', NULL, NULL),
-(4, 'Road Cracks', NULL, NULL),
-(5, 'Traffic Analysis', NULL, NULL),
-(6, 'Outdoor Violation', NULL, NULL),
-(7, 'Thermal Anomalies', NULL, NULL);
+INSERT INTO `inspection_types` (`id`, `name`, `description`, `created_at`, `updated_at`) VALUES
+(1, '3D Mappings', 'Detecting violations in the external yards of factories', NULL, NULL),
+(2, 'Gas Emission Analysis', 'Security inspection of hard-to-reach areas.', NULL, NULL),
+(3, 'Yard Violations Detections', 'Update photos of the industrial city and cover events and activities.\n', NULL, NULL),
+(4, 'Road Damage Monitoring', 'Monitoring road safety and detecting damages in industrial cities.', NULL, NULL),
+(5, 'Remote Security Inspections', 'Imaging and analyzing harmful gases and emissions and their levels in industrial cities.\n', NULL, NULL),
+(6, 'Emergency Response Support', 'Preparing a 3D map of the industrial city.\n', NULL, NULL),
+(7, 'City Updates & Event Coverages', 'Responding to emergency cases reported to the specialized emergency call center.\n', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -151,29 +160,63 @@ CREATE TABLE `locations` (
   `map_url` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp(),
-  `region_id` bigint(20) UNSIGNED NOT NULL
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `locations`
 --
 
-INSERT INTO `locations` (`id`, `name`, `latitude`, `longitude`, `map_url`, `description`, `created_at`, `updated_at`, `region_id`) VALUES
-(2, 'Jeddah First Industrial City', '765', '566', 'https://iplocation.io/my-location', 'this is industry area.....', '2025-03-10 08:59:25', '2025-03-20 09:22:12', 3),
-(3, ' Jeddah Second Industrial City', '5678', '6456', 'https://www.figma.com/design/SxNkfZdUofSsXzyaPckK6Z/Mudon---Aerial-Imaging-Services?node-id=0-1&p=f&t=YXQjxqN2LhFYVenu-0', 'WareHouse to Store', '2025-03-10 09:17:58', '2025-03-20 09:13:16', 3),
-(4, 'Waha Jeddah', '9123', '8124123', 'https://www.figma.com/design/SxNkfZdUofSsXzyaPckK6Z/Mudon---Aerial-Imaging-Services?node-id=0-1&p=f&t=YXQjxqN2LhFYVenu-0', 'dasdas', '2025-03-10 10:02:15', '2025-03-13 08:59:45', 3),
-(8, 'Makkah', '23', '78', 'https://iplocation.io/my-location', 'dasdas', '2025-03-13 09:02:55', '2025-03-13 09:02:55', 3),
-(17, 'Jeddah Third Industrial City', '123', '2312', 'http://192.168.100.120:8000/locations', 'dasdasdasd', '2025-03-26 08:37:48', '2025-03-26 08:37:48', 3),
-(20, 'Riyadh First Industrial City', '34', '54', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'dasd', '2025-03-26 08:37:48', '2025-03-26 08:37:48', 2),
-(21, 'Riyadh Second Industrial City', '324', '45', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'dasdasd', '2025-03-26 08:37:48', '2025-03-26 08:37:48', 2),
-(22, 'Al-Kharj', '34', '345', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'ada', '2025-04-10 13:05:05', '2025-04-17 13:05:05', 2),
-(23, 'Sudair', '34', '54', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'asd', '2025-04-17 13:05:48', '2025-04-23 13:05:48', 2),
-(24, 'Dammam First Industrial City', '34', '53', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'weqw', '2025-04-17 13:07:04', '2025-04-17 13:07:04', 4),
-(25, 'Dammam Second Industrial City', '34', '423', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'qweqw', '2025-04-17 13:07:04', '2025-04-17 13:07:04', 4),
-(26, 'Dammam Third Industrial City', '43', '42', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'dfsf', '2025-04-17 13:07:04', '2025-04-17 13:07:04', 4),
-(27, 'Al-Ahsa First', '423', '34', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'wqe', '2025-04-17 13:07:04', '2025-04-17 13:07:04', 4),
-(28, 'Al-Ahsa Second', '34', '423', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'eda', '2025-04-17 13:07:04', '2025-04-17 13:07:04', 4);
+INSERT INTO `locations` (`id`, `name`, `latitude`, `longitude`, `map_url`, `description`, `created_at`, `updated_at`) VALUES
+(2, 'Jeddah First Industrial City', '765', '566', 'https://iplocation.io/my-location', 'this is industry area.....', '2025-03-10 08:59:25', '2025-03-20 09:22:12'),
+(3, ' Jeddah Second Industrial City', '5678', '6456', 'https://www.figma.com/design/SxNkfZdUofSsXzyaPckK6Z/Mudon---Aerial-Imaging-Services?node-id=0-1&p=f&t=YXQjxqN2LhFYVenu-0', 'WareHouse to Store', '2025-03-10 09:17:58', '2025-03-20 09:13:16'),
+(4, 'Waha Jeddah', '9123', '8124123', 'https://www.figma.com/design/SxNkfZdUofSsXzyaPckK6Z/Mudon---Aerial-Imaging-Services?node-id=0-1&p=f&t=YXQjxqN2LhFYVenu-0', 'dasdas', '2025-03-10 10:02:15', '2025-03-13 08:59:45'),
+(8, 'Makkah', '23', '78', 'https://iplocation.io/my-location', 'dasdas', '2025-03-13 09:02:55', '2025-03-13 09:02:55'),
+(17, 'Jeddah Third Industrial City', '123', '2312', 'http://192.168.100.120:8000/locations', 'dasdasdasd', '2025-03-26 08:37:48', '2025-03-26 08:37:48'),
+(20, 'Riyadh First Industrial City', '34', '54', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'dasd', '2025-03-26 08:37:48', '2025-03-26 08:37:48'),
+(21, 'Riyadh Second Industrial City', '324', '45', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'dasdasd', '2025-03-26 08:37:48', '2025-03-26 08:37:48'),
+(22, 'Al-Kharj', '34', '345', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'ada', '2025-04-10 13:05:05', '2025-04-17 13:05:05'),
+(23, 'Sudair', '34', '54', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'asd', '2025-04-17 13:05:48', '2025-04-23 13:05:48'),
+(24, 'Dammam First Industrial City', '34', '53', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'weqw', '2025-04-17 13:07:04', '2025-04-17 13:07:04'),
+(25, 'Dammam Second Industrial City', '34', '423', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'qweqw', '2025-04-17 13:07:04', '2025-04-17 13:07:04'),
+(26, 'Dammam Third Industrial City', '43', '42', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'dfsf', '2025-04-17 13:07:04', '2025-04-17 13:07:04'),
+(27, 'Al-Ahsa First', '423', '34', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'wqe', '2025-04-17 13:07:04', '2025-04-17 13:07:04'),
+(28, 'Al-Ahsa Second', '34', '423', 'http://localhost:8080/phpmyadmin/index.php?route=/table/change&db=modon&table=locations', 'eda', '2025-04-17 13:07:04', '2025-04-17 13:07:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `location_assignments`
+--
+
+CREATE TABLE `location_assignments` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `location_id` bigint(20) UNSIGNED NOT NULL,
+  `region_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `location_assignments`
+--
+
+INSERT INTO `location_assignments` (`id`, `user_id`, `location_id`, `region_id`, `created_at`, `updated_at`) VALUES
+(1, 15, 24, 4, '2025-04-12 15:33:48', '2025-04-12 15:33:48'),
+(2, 15, 25, 4, '2025-04-12 15:33:48', '2025-04-12 15:33:48'),
+(5, 15, 26, 4, '2025-04-12 15:33:48', '2025-04-12 15:33:48'),
+(6, 15, 27, 4, '2025-04-12 15:33:48', '2025-04-12 15:33:48'),
+(7, 15, 28, 4, '2025-04-12 15:34:15', '2025-04-12 15:34:15'),
+(9, 15, 2, 3, '2025-04-12 15:36:04', '2025-04-12 15:36:04'),
+(10, 15, 3, 3, '2025-04-12 15:36:04', '2025-04-12 15:36:04'),
+(11, 15, 17, 3, '2025-04-12 15:36:55', '2025-04-12 15:36:55'),
+(12, 15, 4, 3, '2025-04-12 15:36:55', '2025-04-12 15:36:55'),
+(13, 15, 8, 3, '2025-04-12 15:37:13', '2025-04-12 15:37:13'),
+(14, 15, 20, 2, '2025-04-12 15:37:35', '2025-04-12 15:37:35'),
+(15, 15, 21, 2, '2025-04-12 15:37:35', '2025-04-12 15:37:35'),
+(16, 15, 22, 2, '2025-04-12 15:38:03', '2025-04-12 15:38:03'),
+(17, 15, 23, 2, '2025-04-12 15:38:03', '2025-04-12 15:38:03');
 
 -- --------------------------------------------------------
 
@@ -213,7 +256,16 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (24, '2025_04_08_091503_add_image_to_users_table', 13),
 (25, '2025_04_10_082319_create_pilots_table', 14),
 (29, '2025_04_12_133640_create_user_region_table', 15),
-(30, '2025_04_12_134155_remove_region_id_from_users_table', 16);
+(30, '2025_04_12_134155_remove_region_id_from_users_table', 16),
+(31, '2025_04_12_152733_create_location_assignments_table', 17),
+(32, '2025_04_12_152756_remove_region_id_from_locations_table', 17),
+(33, '2025_04_13_073949_add_description_to_inspection_types_table', 18),
+(35, '2025_04_13_093632_update_missions_table_for_mission_date', 19),
+(36, '2025_04_13_103950_create_mission_approvals_table', 20),
+(37, '2025_04_13_105024_add_approval_columns_to_mission_approvals_table', 21),
+(38, '2025_04_13_105427_rollback_extra_fields_from_mission_approvals', 22),
+(39, '2025_04_13_105546_create_mission_approvals_table', 23),
+(40, '2025_04_14_070225_create_user_location_table', 24);
 
 -- --------------------------------------------------------
 
@@ -223,12 +275,12 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 
 CREATE TABLE `missions` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `start_datetime` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `end_datetime` timestamp NOT NULL DEFAULT current_timestamp(),
+  `user_id` bigint(20) UNSIGNED NOT NULL,
   `note` text DEFAULT NULL,
+  `mission_date` date DEFAULT current_timestamp(),
   `region_id` bigint(20) UNSIGNED NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
   `status` varchar(255) NOT NULL DEFAULT 'Pending',
   `report_submitted` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -237,14 +289,34 @@ CREATE TABLE `missions` (
 -- Dumping data for table `missions`
 --
 
-INSERT INTO `missions` (`id`, `start_datetime`, `end_datetime`, `note`, `region_id`, `created_at`, `updated_at`, `status`, `report_submitted`) VALUES
-(10, '2025-04-09 12:44:13', '2025-03-13 18:42:00', 'new comments', 4, '2025-03-13 08:42:34', '2025-04-09 09:44:13', 'Awaiting Report', 0),
-(11, '2025-03-23 08:48:00', '2025-03-13 15:03:00', 'dasdasd', 2, '2025-03-13 09:03:12', '2025-03-13 09:14:43', 'Pending', 0),
-(12, '2025-03-13 13:08:00', '2025-03-13 14:08:00', 'new adasd', 2, '2025-03-13 09:08:26', '2025-03-13 09:18:20', 'Pending', 0),
-(13, '2025-04-08 08:47:22', '2025-03-20 13:11:00', 'dfs sfsfsd', 3, '2025-03-20 07:12:06', '2025-04-08 05:47:22', 'Awaiting Report', 0),
-(20, '2025-04-07 11:59:34', '2025-04-07 16:21:00', 'ASDA', 3, '2025-03-25 09:21:42', '2025-03-25 09:53:45', 'Completed', 1),
-(23, '2025-04-08 08:30:00', '2025-04-08 10:30:00', 'eerwe', 2, '2025-04-08 05:31:05', '2025-04-08 05:31:05', 'Pending', 0),
-(24, '2025-04-09 10:28:36', '2025-04-08 11:34:00', 'a book or other written or printed work, regarded in terms of its content rather than its physical form.', 2, '2025-04-08 05:38:30', '2025-04-08 05:38:30', 'Pending', 0);
+INSERT INTO `missions` (`id`, `user_id`, `note`, `mission_date`, `region_id`, `created_at`, `updated_at`, `status`, `report_submitted`) VALUES
+(1, 46, 'Ali', '2025-05-28', 2, '2025-04-13 07:58:50', '2025-04-14 08:47:39', 'Pending', 0),
+(5, 46, 'A character can be any letter, number, punctuation, special character, or space. Each of these characters takes up one byte of space in a computer\'s memory. Some Unicode characters, like emojis and some letters in non-Latin alphabets, take up two bytes of space and therefore count as two characters. Use our character counter tool below for an accurate count of your characters.', '2025-04-30', 2, '2025-04-14 10:48:55', '2025-04-14 10:48:55', 'Pending', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mission_approvals`
+--
+
+CREATE TABLE `mission_approvals` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `mission_id` bigint(20) UNSIGNED NOT NULL,
+  `city_manager_approved` tinyint(1) NOT NULL DEFAULT 0,
+  `region_manager_approved` tinyint(1) NOT NULL DEFAULT 0,
+  `modon_admin_approved` tinyint(1) NOT NULL DEFAULT 0,
+  `is_fully_approved` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `mission_approvals`
+--
+
+INSERT INTO `mission_approvals` (`id`, `mission_id`, `city_manager_approved`, `region_manager_approved`, `modon_admin_approved`, `is_fully_approved`, `created_at`, `updated_at`) VALUES
+(1, 1, 0, 0, 0, 0, '2025-04-13 07:58:50', '2025-04-13 07:58:50'),
+(5, 5, 0, 0, 0, 0, '2025-04-14 10:48:55', '2025-04-14 10:48:55');
 
 -- --------------------------------------------------------
 
@@ -263,27 +335,8 @@ CREATE TABLE `mission_inspection_type` (
 --
 
 INSERT INTO `mission_inspection_type` (`id`, `mission_id`, `inspection_type_id`) VALUES
-(20, 10, 1),
-(21, 10, 2),
-(23, 11, 1),
-(24, 11, 3),
-(25, 11, 4),
-(28, 12, 7),
-(29, 12, 2),
-(30, 12, 3),
-(32, 13, 3),
-(52, 20, 1),
-(53, 20, 2),
-(54, 20, 3),
-(55, 20, 4),
-(56, 20, 5),
-(60, 23, 1),
-(61, 23, 2),
-(62, 23, 3),
-(63, 23, 4),
-(64, 23, 5),
-(65, 24, 1),
-(66, 24, 5);
+(5, 1, 2),
+(8, 5, 4);
 
 -- --------------------------------------------------------
 
@@ -302,13 +355,8 @@ CREATE TABLE `mission_location` (
 --
 
 INSERT INTO `mission_location` (`id`, `mission_id`, `location_id`) VALUES
-(13, 10, 4),
-(15, 11, 8),
-(16, 12, 8),
-(27, 13, 2),
-(28, 13, 3),
-(33, 23, 8),
-(34, 24, 8);
+(1, 1, 23),
+(6, 5, 23);
 
 -- --------------------------------------------------------
 
@@ -356,11 +404,13 @@ CREATE TABLE `navigation_link_user_type` (
 INSERT INTO `navigation_link_user_type` (`id`, `navigation_link_id`, `user_type_id`) VALUES
 (1, 1, 1),
 (2, 2, 3),
-(3, 3, 3),
+(3, 3, 1),
 (4, 4, 4),
 (5, 5, 1),
 (6, 6, 1),
-(7, 6, 2);
+(7, 6, 2),
+(8, 2, 7),
+(9, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -481,7 +531,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('FDhyxtT0GuS0Aw8brfoQI6pmShC9tDJwh8aWxtAr', 15, '192.168.100.44', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTDRjdWV0Q0NVSXBZb3YxbjVQSVdwTENGUmlZWk5CQUtKQzU3TW04eCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzg6Imh0dHA6Ly8xOTIuMTY4LjEwMC40NDo4MDAwL2FkbWluL3VzZXJzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTU7fQ==', 1744470395);
+('5NPNEiHr7rMctRL3pVp8lVCSdhln30EYWib2e2oL', 46, '192.168.100.134', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoic0FHZ1JwWWNyS29hQXcyU1UzajN2dkJTWG5xUGtBakVzZUlMVFE1ViI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xOTIuMTY4LjEwMC4xMzQ6ODAwMC9taXNzaW9ucyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjQ2O30=', 1744639010);
 
 -- --------------------------------------------------------
 
@@ -511,8 +561,30 @@ INSERT INTO `users` (`id`, `name`, `email`, `image`, `email_verified_at`, `passw
 (33, 'Mohammad Adil', 'adil@gmail.com', '1744455631_ai-generated-8416791_1920.png', NULL, '$2y$12$yEn6JkqBscBKtqNZLm2P2ePeJ59gfZX4.su/fQrrSMHCWI1YkmoZ2', NULL, '2025-04-12 08:00:31', '2025-04-12 08:00:31', 2),
 (44, 'uzair', 'uzair@gmail.com', '1744467212_blueberries-9450130_1920.jpg', NULL, '$2y$12$HCZ3uJoxiH27vzTNH35FOutZ0re6qx7skBNjVxf.BAxcX9WMzKdde', NULL, '2025-04-12 11:13:32', '2025-04-12 11:13:32', 3),
 (45, 'momin', 'momin@gmail.com', '1744467240_ai-generated-9382803_1920.jpg', NULL, '$2y$12$k/Dp87Mj5faJUMMWcoU8xORlxgJRgZwBCk1MgI9/xyOQTTaeEMm6m', NULL, '2025-04-12 11:14:00', '2025-04-12 11:14:00', 6),
-(46, 'nabeel', 'nabeel@gmail.com', '1744467264_ai-generated-9453465_1920.png', NULL, '$2y$12$XlHKTA8/3QffgU5gRHgIHea6zYdoA1lf.GISqZeDsLVHWMvCU3oP6', NULL, '2025-04-12 11:14:24', '2025-04-12 11:14:24', 7),
+(46, 'nabeel', 'nabeel@qltyss.com', '1744467264_ai-generated-9453465_1920.png', NULL, '$2y$12$XlHKTA8/3QffgU5gRHgIHea6zYdoA1lf.GISqZeDsLVHWMvCU3oP6', NULL, '2025-04-12 11:14:24', '2025-04-13 03:56:32', 7),
 (48, 'Ibrahim', 'ibrahim@gmail.com', '1744470261_ai-generated-8665850_1920.jpg', NULL, '$2y$12$e2VpDlDUL1cjGfNjdRt8KOjdjEErK3bl7154LJ.5Jnm0qw4BT3BkK', NULL, '2025-04-12 12:04:21', '2025-04-12 12:04:21', 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_location`
+--
+
+CREATE TABLE `user_location` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `location_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `user_location`
+--
+
+INSERT INTO `user_location` (`id`, `user_id`, `location_id`, `created_at`, `updated_at`) VALUES
+(9, 45, 22, NULL, NULL),
+(10, 46, 23, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -621,8 +693,16 @@ ALTER TABLE `job_batches`
 -- Indexes for table `locations`
 --
 ALTER TABLE `locations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `location_assignments`
+--
+ALTER TABLE `location_assignments`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `locations_region_id_foreign` (`region_id`);
+  ADD KEY `location_assignments_user_id_foreign` (`user_id`),
+  ADD KEY `location_assignments_location_id_foreign` (`location_id`),
+  ADD KEY `location_assignments_region_id_foreign` (`region_id`);
 
 --
 -- Indexes for table `migrations`
@@ -636,6 +716,13 @@ ALTER TABLE `migrations`
 ALTER TABLE `missions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `missions_region_id_foreign` (`region_id`);
+
+--
+-- Indexes for table `mission_approvals`
+--
+ALTER TABLE `mission_approvals`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `mission_approvals_mission_id_foreign` (`mission_id`);
 
 --
 -- Indexes for table `mission_inspection_type`
@@ -721,6 +808,14 @@ ALTER TABLE `users`
   ADD KEY `users_user_type_id_foreign` (`user_type_id`);
 
 --
+-- Indexes for table `user_location`
+--
+ALTER TABLE `user_location`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_location_user_id_foreign` (`user_id`),
+  ADD KEY `user_location_location_id_foreign` (`location_id`);
+
+--
 -- Indexes for table `user_region`
 --
 ALTER TABLE `user_region`
@@ -743,7 +838,7 @@ ALTER TABLE `user_types`
 -- AUTO_INCREMENT for table `drones`
 --
 ALTER TABLE `drones`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -767,31 +862,43 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `locations`
 --
 ALTER TABLE `locations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+
+--
+-- AUTO_INCREMENT for table `location_assignments`
+--
+ALTER TABLE `location_assignments`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `missions`
 --
 ALTER TABLE `missions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `mission_approvals`
+--
+ALTER TABLE `mission_approvals`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `mission_inspection_type`
 --
 ALTER TABLE `mission_inspection_type`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `mission_location`
 --
 ALTER TABLE `mission_location`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `navigation_links`
@@ -803,13 +910,13 @@ ALTER TABLE `navigation_links`
 -- AUTO_INCREMENT for table `navigation_link_user_type`
 --
 ALTER TABLE `navigation_link_user_type`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `pilots`
 --
 ALTER TABLE `pilots`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `pilot_reports`
@@ -833,13 +940,19 @@ ALTER TABLE `regions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+
+--
+-- AUTO_INCREMENT for table `user_location`
+--
+ALTER TABLE `user_location`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `user_region`
 --
 ALTER TABLE `user_region`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `user_types`
@@ -858,16 +971,24 @@ ALTER TABLE `drones`
   ADD CONSTRAINT `drones_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `locations`
+-- Constraints for table `location_assignments`
 --
-ALTER TABLE `locations`
-  ADD CONSTRAINT `locations_region_id_foreign` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`) ON DELETE CASCADE;
+ALTER TABLE `location_assignments`
+  ADD CONSTRAINT `location_assignments_location_id_foreign` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `location_assignments_region_id_foreign` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `location_assignments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `missions`
 --
 ALTER TABLE `missions`
   ADD CONSTRAINT `missions_region_id_foreign` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mission_approvals`
+--
+ALTER TABLE `mission_approvals`
+  ADD CONSTRAINT `mission_approvals_mission_id_foreign` FOREIGN KEY (`mission_id`) REFERENCES `missions` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `mission_inspection_type`
@@ -915,6 +1036,13 @@ ALTER TABLE `pilot_report_images`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `users_user_type_id_foreign` FOREIGN KEY (`user_type_id`) REFERENCES `user_types` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_location`
+--
+ALTER TABLE `user_location`
+  ADD CONSTRAINT `user_location_location_id_foreign` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_location_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_region`

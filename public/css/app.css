@@ -596,7 +596,7 @@ iframe {
     50% {
       transform: scale(1.1);
     }
-  }
+  } 
   .incidentDiv:hover {
 
     cursor: pointer;
@@ -607,3 +607,24 @@ iframe {
 .cursor-pointer:hover{
     cursor: pointer;
 }
+.detail-container {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.4s ease;
+  }
+  
+  .detail-container.open {
+    max-height: 500px; /* set enough to cover content height */
+    opacity: 1;
+  }
+  
+  .detail-content {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+  }
+  
+  .detail-container.open .detail-content {
+    transform: translateY(0);
+  }
+  

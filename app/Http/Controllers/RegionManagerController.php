@@ -246,22 +246,33 @@ class RegionManagerController extends Controller
      */
 
   
-    public function destroyMission($id)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
-
-        $mission = Mission::findOrFail($id);
-
-        if ($mission->region_id !== Auth::user()->region_id) {
-            return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
-        }
-
-        $mission->delete();
-
-        return response()->json(['message' => 'Mission deleted successfully!']);
-    }
+     public function destroyMission($id)
+     {
+         if (!Auth::check()) {
+             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+         }
+     
+         $user = Auth::user();
+     
+         // ✅ Get all region IDs this user is assigned to (via user_region pivot)
+         $regionIds = $user instanceof \App\Models\User
+             ? $user->regions()->pluck('regions.id')->toArray()
+             : [];
+     
+         // ✅ Find the mission
+         $mission = Mission::findOrFail($id);
+     
+         // ✅ Ensure the mission belongs to one of the user's regions
+         if (!in_array($mission->region_id, $regionIds)) {
+             return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
+         }
+     
+         // ✅ Delete the mission
+         $mission->delete();
+     
+         return response()->json(['message' => '✅ Mission deleted successfully!']);
+     }
+     
 
     // edit a mission
     public function editMission($id)
@@ -283,47 +294,78 @@ class RegionManagerController extends Controller
     }
     // update a mission
     public function updateMission(Request $request)
-    {
-        Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
+{
+    Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
 
-        // ✅ Find mission
-        $mission = Mission::findOrFail($request->mission_id);
+    // ✅ Validate input
+    $request->validate([
+        'mission_id' => 'required|exists:missions,id',
+        'inspection_type' => 'required|exists:inspection_types,id',
+        'mission_date' => 'required|date',
+        'note' => 'nullable|string',
+        'locations' => 'required|array',
+        'locations.*' => 'exists:locations,id',
+    ]);
 
-        // ✅ Update mission fields
-        $mission->start_datetime = $request->start_datetime;
-        $mission->end_datetime = $request->end_datetime;
-        $mission->note = $request->note ?? "";
-        $mission->save();
+    // ✅ Find mission
+    $mission = Mission::findOrFail($request->mission_id);
 
-        // ✅ Sync relationships
-        $mission->inspectionTypes()->sync($request->inspection_types);
-        $mission->locations()->sync($request->locations);
+    // ✅ Update mission fields
+    $mission->mission_date = $request->mission_date;
+    $mission->note = $request->note ?? "";
+    $mission->save();
 
-        return response()->json(['message' => '✅ Mission updated successfully!']);
-    }
+    // ✅ Sync inspection type (only one now)
+    $mission->inspectionTypes()->sync([$request->inspection_type]);
 
-    public function getMissionStats()
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
+    // ✅ Sync locations
+    $mission->locations()->sync($request->locations);
 
-        $regionId = Auth::user()->region_id;
+    return response()->json(['message' => '✅ Mission updated successfully!']);
+}
 
-        // ✅ Count Total Missions in the Region
-        $totalMissions = Mission::where('region_id', $regionId)->count();
+    // public function updateMission(Request $request)
+    // {
+    //     Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
 
-        // ✅ Count Completed Missions in the Region
-        $completedMissions = Mission::where('region_id', $regionId)
-            ->where('status', 'Completed')
-            ->count();
+    //     // ✅ Find mission
+    //     $mission = Mission::findOrFail($request->mission_id);
 
-        // ✅ Return JSON Response
-        return response()->json([
-            'total_missions' => $totalMissions,
-            'completed_missions' => $completedMissions
-        ]);
-    }
+    //     // ✅ Update mission fields
+    //     $mission->start_datetime = $request->start_datetime;
+    //     $mission->end_datetime = $request->end_datetime;
+    //     $mission->note = $request->note ?? "";
+    //     $mission->save();
+
+    //     // ✅ Sync relationships
+    //     $mission->inspectionTypes()->sync($request->inspection_types);
+    //     $mission->locations()->sync($request->locations);
+
+    //     return response()->json(['message' => '✅ Mission updated successfully!']);
+    // }
+
+    // public function getMissionStats()
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
+
+    //     $regionId = Auth::user()->region_id;
+
+    //     // ✅ Count Total Missions in the Region
+    //     $totalMissions = Mission::where('region_id', $regionId)->count();
+
+    //     // ✅ Count Completed Missions in the Region
+    //     $completedMissions = Mission::where('region_id', $regionId)
+    //         ->where('status', 'Completed')
+    //         ->count();
+
+    //     // ✅ Return JSON Response
+    //     return response()->json([
+    //         'total_missions' => $totalMissions,
+    //         'completed_missions' => $completedMissions
+    //     ]);
+    // }
 }
     
 

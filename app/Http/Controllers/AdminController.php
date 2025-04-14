@@ -7,6 +7,7 @@ use App\Models\Region;
 use App\Models\Drone;
 use App\Models\Mission;
 use App\Models\Location;
+use App\Models\UserLocation;
 use App\Models\PilotReport;
 use App\Models\PilotReportImage;
 use App\Models\Pilot;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\LocationAssignment;
+use Illuminate\Support\Facades\Log;
+
 use Carbon\Carbon;
 
 
@@ -47,10 +50,26 @@ class AdminController extends Controller
     {
         $userTypes = UserType::all();
         $regions = Region::all();
-    
+        
+            // ✅ Fetch locations with their region info via LocationAssignment
+        $locations = Location::with(['locationAssignments.region'])
+        ->get()
+        ->map(function ($location) {
+            $regionNames = $location->locationAssignments->map(function ($assignment) {
+                return $assignment->region->name ?? null;
+            })->filter()->unique()->values()->all();
+
+            return [
+                'id' => $location->id,
+                'name' => $location->name,
+                'regions' => $regionNames,
+            ];
+        });
+
         return view('admin.adminusers', [
             'userTypes' => $userTypes,
-            'regions' => $regions
+            'regions' => $regions,
+            'locations' => $locations,
         ]);
     }
 
@@ -130,11 +149,13 @@ class AdminController extends Controller
     
 
 
-
     public function storeUser(Request $request)
     {
-        $userTypeName = strtolower(UserType::find($request->user_type_id)?->name);
+        $userType = UserType::find($request->user_type_id);
+        $userTypeName = strtolower($userType?->name);
         $isPilot = $userTypeName === 'pilot';
+        $userType = UserType::find($request->user_type_id);
+        $isCityLevel = in_array(strtolower($userType?->name), ['city_supervisor', 'city_manager']);
     
         // ✅ Validation rules
         $rules = [
@@ -151,9 +172,13 @@ class AdminController extends Controller
             $rules['license_expiry'] = 'required|date';
         }
     
+        if ($isCityLevel) {
+            $rules['location_id'] = 'required|exists:locations,id';
+        }
+    
         $validated = $request->validate($rules);
     
-        // ✅ Create user
+        // ✅ Create the user
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
@@ -169,7 +194,7 @@ class AdminController extends Controller
     
         $user->save();
     
-        // ✅ If pilot, save license info
+        // ✅ Save pilot license info
         if ($isPilot) {
             Pilot::create([
                 'user_id' => $user->id,
@@ -178,14 +203,81 @@ class AdminController extends Controller
             ]);
         }
     
-        // ✅ Attach regions (single or multiple)
+        // ✅ Attach region(s)
         $user->regions()->attach($request->assigned_regions);
     
+        // ✅ If city-level role, save location mapping
+        if ($isCityLevel) {
+            
+            UserLocation::create([
+                'user_id' => $user->id,
+                'location_id' => $request->location_id,
+            ]);
+            Log::info("Saving user location for user_id: {$user->id}, location_id: {$request->location_id}");
+
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => '✅ User created successfully.',
         ]);
     }
+    
+    // public function storeUser(Request $request)
+    // {
+    //     $userTypeName = strtolower(UserType::find($request->user_type_id)?->name);
+    //     $isPilot = $userTypeName === 'pilot';
+    
+    //     // ✅ Validation rules
+    //     $rules = [
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|email|unique:users,email',
+    //         'password' => 'required|string|min:6',
+    //         'user_type_id' => 'required|exists:user_types,id',
+    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    //         'assigned_regions' => $isPilot ? 'required|array|min:1' : 'required|array|size:1',
+    //     ];
+    
+    //     if ($isPilot) {
+    //         $rules['license_no'] = 'required|string';
+    //         $rules['license_expiry'] = 'required|date';
+    //     }
+    
+    //     $validated = $request->validate($rules);
+    
+    //     // ✅ Create user
+    //     $user = new User();
+    //     $user->name = $request->name;
+    //     $user->email = $request->email;
+    //     $user->password = Hash::make($request->password);
+    //     $user->user_type_id = $request->user_type_id;
+    
+    //     if ($request->hasFile('image')) {
+    //         $image = $request->file('image');
+    //         $imageName = time() . '_' . $image->getClientOriginalName();
+    //         $image->storeAs('users', $imageName, 'public');
+    //         $user->image = $imageName;
+    //     }
+    
+    //     $user->save();
+    
+    //     // ✅ If pilot, save license info
+    //     if ($isPilot) {
+    //         Pilot::create([
+    //             'user_id' => $user->id,
+    //             'license_no' => $request->license_no,
+    //             'license_expiry' => $request->license_expiry,
+    //         ]);
+    //     }
+    
+    //     // ✅ Attach regions (single or multiple)
+    //     $user->regions()->attach($request->assigned_regions);
+    
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => '✅ User created successfully.',
+    //     ]);
+    // }
     
 
     public function updateUser(Request $request, $id)

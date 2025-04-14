@@ -40,7 +40,77 @@ $(document).ready(function () {
     
     handleUserTypeChange(true);
     
+    // on change region start
+
+    function filterLocationsByRegion() {
+        const selectedRegions = $('.region-checkbox:checked')
+            .map(function () {
+                return $(this).next('label').text().trim().toLowerCase();
+            })
+            .get(); // array of selected region names
     
+        $('#location_id option').each(function () {
+            const regionAttr = $(this).data('region');
+    
+            if (!regionAttr) {
+                $(this).hide(); // Hide default "Select Location"
+                return;
+            }
+    
+            const locationRegions = regionAttr.toLowerCase().split(',');
+    
+            // Show if there's any match between selected and location regions
+            const shouldShow = selectedRegions.some(region => locationRegions.includes(region));
+    
+            $(this).toggle(shouldShow);
+        });
+    
+        // Reset selection if the currently selected location is now hidden
+        const selectedOption = $('#location_id').find('option:selected');
+        if (!selectedOption.is(':visible')) {
+            $('#location_id').val('');
+        }
+    }
+
+    
+
+    function handleCityRolesCheck() {
+        const userType = $('#user_type_id option:selected').text().trim().toLowerCase();
+    
+        const selectedRegions = $('.region-checkbox:checked')
+            .map(function () {
+                return $(this).next('label').text().trim().toLowerCase();
+            }).get();
+    
+        console.log(`User type is: ${userType}`);
+        console.log(`Region(s) selected: ${selectedRegions.join(', ')}`);
+    
+        const isCityRole = userType === 'city supervisor' || userType === 'city manager';
+        const isValidRegion = selectedRegions.some(region =>
+            ['central', 'eastern', 'western'].includes(region)
+        );
+    
+        if (isCityRole && isValidRegion) {
+            filterLocationsByRegion();
+            $('#LocationsFields').removeClass('d-none');
+        } else {
+            $('#LocationsFields').addClass('d-none');
+        }
+    }
+    
+    
+    
+    // Bind it to the dropdown change
+    $('#user_type_id').on('change', handleCityRolesCheck);
+    $(document).on('change', '.region-checkbox', function () {
+      
+        handleCityRolesCheck();
+    });
+    
+    
+
+    
+    // on change region end
 
     getAllusers();
     function getAllusers() {
@@ -151,8 +221,6 @@ $(document).ready(function () {
         }
     });
 
-
-
     $(document).on('submit', '#userStoreForm', function (e) {
         e.preventDefault();
     
@@ -172,10 +240,12 @@ $(document).ready(function () {
             return this.value;
         }).get();
     
+        const selectedLocations = $('#location_id option:selected').val();
+    
         const $submitBtn = $(this).find('button[type="submit"]');
         const isUpdate = $submitBtn.text().trim().toLowerCase().includes('update');
     
-        // 👇 Base validation
+        // ✅ Base validation
         if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) {
             $errorDiv.removeClass('d-none').text("Please enter a valid name and email.");
             return;
@@ -196,31 +266,53 @@ $(document).ready(function () {
             return;
         }
     
-        // 👇 Additional validation for pilots
+        // ✅ City Manager / Supervisor must select location
+        if ((user_type_text === 'city manager' || user_type_text === 'city supervisor') && !selectedLocations) {
+            $errorDiv.removeClass('d-none').text("Please select a location for this role.");
+            return;
+        }
+    
+        // ✅ Pilot-specific validation
         if (user_type_text === 'pilot') {
             if (!licenseNo || !licenseExpiry) {
                 $errorDiv.removeClass('d-none').text("License number and expiry date are required for pilots.");
                 return;
             }
-    
             formData.append('license_no', licenseNo);
             formData.append('license_expiry', licenseExpiry);
         }
     
-        // Append selected region checkboxes
+        // ✅ Append assigned regions
         selectedRegions.forEach(regionId => {
             formData.append('assigned_regions[]', regionId);
         });
     
-        // Set URL and method
+        // ✅ Append assigned location (for city roles)
+
+        // ✅ First, ensure no stale location data is present
+        formData.delete('location_id');
+
+        // 👇 Only append location_id if user type requires it
+        if (user_type_text === 'city manager' || user_type_text === 'city supervisor') {
+            const selectedLocations = $('#location_id').val(); // or $('.location-checkbox:checked') if multi
+            if (!selectedLocations) {
+                $errorDiv.removeClass('d-none').text("Please select a location for this role.");
+                return;
+            }
+            formData.append('location_id', selectedLocations);
+        }
+    
+        // ✅ Submit AJAX
         const url = isUpdate ? `/dashboard/users/${$('#userId').val()}` : '/dashboard/users/storeuser';
         const method = isUpdate ? 'POST' : 'POST';
     
         if (isUpdate) {
             formData.append('_method', 'PUT');
         }
-    
-        // Ajax request
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+        
         $.ajax({
             url,
             type: method,
@@ -271,6 +363,126 @@ $(document).ready(function () {
             }
         });
     });
+    
+
+    // $(document).on('submit', '#userStoreForm', function (e) {
+    //     e.preventDefault();
+    
+    //     const $errorDiv = $('#users-validation-errors').addClass('d-none');
+    //     const formData = new FormData(this);
+    
+    //     const name = $('#name').val().trim();
+    //     const email = $('#email').val().trim();
+    //     const password = $('#password').val();
+    //     const user_type_id = $('#user_type_id').val();
+    //     const user_type_text = $('#user_type_id option:selected').text().trim().toLowerCase();
+    
+    //     const licenseNo = $('#license_no').val().trim();
+    //     const licenseExpiry = $('#license_expiry').val().trim();
+    
+    //     const selectedRegions = $('.region-checkbox:checked').map(function () {
+    //         return this.value;
+    //     }).get();
+    
+    //     const $submitBtn = $(this).find('button[type="submit"]');
+    //     const isUpdate = $submitBtn.text().trim().toLowerCase().includes('update');
+    
+    //     // 👇 Base validation
+    //     if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) {
+    //         $errorDiv.removeClass('d-none').text("Please enter a valid name and email.");
+    //         return;
+    //     }
+    
+    //     if (!isUpdate && (!password || password.length < 6)) {
+    //         $errorDiv.removeClass('d-none').text("Password is required (min 6 characters) when creating a user.");
+    //         return;
+    //     }
+    
+    //     if (!user_type_id) {
+    //         $errorDiv.removeClass('d-none').text("Please select a user type.");
+    //         return;
+    //     }
+    
+    //     if (selectedRegions.length === 0) {
+    //         $errorDiv.removeClass('d-none').text("Please select at least one region.");
+    //         return;
+    //     }
+    
+    //     // 👇 Additional validation for pilots
+    //     if (user_type_text === 'pilot') {
+    //         if (!licenseNo || !licenseExpiry) {
+    //             $errorDiv.removeClass('d-none').text("License number and expiry date are required for pilots.");
+    //             return;
+    //         }
+    
+    //         formData.append('license_no', licenseNo);
+    //         formData.append('license_expiry', licenseExpiry);
+    //     }
+    
+    //     // Append selected region checkboxes
+    //     selectedRegions.forEach(regionId => {
+    //         formData.append('assigned_regions[]', regionId);
+    //     });
+    
+    //     // Set URL and method
+    //     const url = isUpdate ? `/dashboard/users/${$('#userId').val()}` : '/dashboard/users/storeuser';
+    //     const method = isUpdate ? 'POST' : 'POST';
+    
+    //     if (isUpdate) {
+    //         formData.append('_method', 'PUT');
+    //     }
+    
+    //     // Ajax request
+    //     $.ajax({
+    //         url,
+    //         type: method,
+    //         data: formData,
+    //         processData: false,
+    //         contentType: false,
+    //         success: function (response) {
+    //             Swal.fire({
+    //                 icon: 'success',
+    //                 title: 'Success!',
+    //                 text: response.message || 'User saved successfully.',
+    //                 timer: 2000,
+    //                 showConfirmButton: false
+    //             });
+    
+    //             $(".cancel-btn").addClass("d-none");
+    //             resetForm();
+    //             getAllusers();
+    //             $errorDiv.addClass('d-none');
+    //         },
+    //         error: function (xhr) {
+    //             const response = xhr.responseJSON;
+    //             const errorMessage = response?.message || '';
+    
+    //             if (errorMessage.includes('Duplicate entry') && errorMessage.includes('users_email_unique')) {
+    //                 Swal.fire({
+    //                     icon: 'error',
+    //                     title: 'Email Already Exists!',
+    //                     text: 'A user with this email already exists. Please use a different email.',
+    //                 });
+    //                 return;
+    //             }
+    
+    //             if (response?.errors) {
+    //                 const messages = Object.values(response.errors).flat();
+    //                 Swal.fire({
+    //                     icon: 'error',
+    //                     title: 'Validation Error!',
+    //                     html: `<ul style="text-align:left;">${messages.map(msg => `<li>${msg}</li>`).join('')}</ul>`
+    //                 });
+    //             } else {
+    //                 Swal.fire({
+    //                     icon: 'error',
+    //                     title: 'Error!',
+    //                     text: errorMessage || 'Something went wrong.',
+    //                 });
+    //             }
+    //         }
+    //     });
+    // });
     
     
 $(document).on('click', '.edit-user', function () {

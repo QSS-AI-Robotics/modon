@@ -103,7 +103,7 @@
                                 <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" >
                             </div>
                             <div class="col-md-12 col-sm-12">
-                                <label for="user_type_id" class="form-label pt-2">Type</label>
+                                <label for="user_type_id" class="form-label label-text pt-2">Type</label>
                                 <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
                                     <option value="">Select User Type</option>
                                     @foreach($userTypes as $userType)
@@ -118,13 +118,13 @@
  
                             
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label pt-2">Assigned Region(s)</label>
+                                <label class="form-label pt-2 label-text">Assigned Region(s)</label>
                                 <div id="regionCheckboxes" class="d-flex flex-wrap gap-2">
                                     @foreach($regions as $region)
                                         <div class="form-check">
                                             <input class="form-check-input region-checkbox" type="checkbox" 
                                                    value="{{ $region->id }}" id="region_{{ $region->id }}">
-                                            <label class="form-check-label text-capitalize" for="region_{{ $region->id }}">
+                                            <label class="form-check-label text-capitalize label-text" for="region_{{ $region->id }}">
                                                 {{ $region->name === 'all' ? 'Headquarter' : ucwords(str_replace('_', ' ', $region->name)) }}
                                             </label>
                                         </div>
@@ -145,6 +145,34 @@
                                         <label class="form-label label-text pt-2">Expiray Date</label>
                                         <input type="date" class="form-control dateInput" id="license_expiry" name="license_expiry" >
                                     </div>
+                                </div>
+                            </div>
+                            <div  class="col-md-12 d-none" id="LocationsFields">
+                                <div class="col-md-12 col-sm-12">
+                                    <label for="location_id" class="form-label label-text pt-2">Type</label>
+                                    <select class="form-select dateInput" id="location_id" name="location_id">
+                                        <option value="">Select Location</option>
+                                        @foreach($locations as $location)
+                                            @php
+                                                $regionNames = $location['regions'] ?? [];
+                                                $regionLabel = implode(', ', array_map(function ($r) {
+                                                    return ucwords(str_replace('_', ' ', $r));
+                                                }, $regionNames));
+                                                $dataRegionAttr = implode(',', $regionNames);
+                                            @endphp
+                                    
+                                            <option value="{{ $location['id'] }}" data-region="{{ $dataRegionAttr }}">
+                                                {{ $location['name'] }} 
+                                                @if($regionLabel)
+                                                    ({{ $regionLabel }})
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    
+                                    
+                                    <span class="text-danger" id="user_type_error"></span>
+    
                                 </div>
                             </div>
                             <div class="col-md-12 col-sm-12">

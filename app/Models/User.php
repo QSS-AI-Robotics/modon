@@ -69,6 +69,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Region::class, 'pilot_region');
     }
 
-
+    public function assignedLocations()
+    {
+        return $this->belongsToMany(Location::class, 'user_location');
+    }
 
 }

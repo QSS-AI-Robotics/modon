@@ -149,7 +149,7 @@
                             </div>
                             <div  class="col-md-12 d-none" id="LocationsFields">
                                 <div class="col-md-12 col-sm-12">
-                                    <label for="location_id" class="form-label label-text pt-2">Type</label>
+                                    <label for="location_id" class="form-label label-text pt-2">Locations</label>
                                     <select class="form-select dateInput" id="location_id" name="location_id">
                                         <option value="">Select Location</option>
                                         @foreach($locations as $location)
@@ -163,9 +163,9 @@
                                     
                                             <option value="{{ $location['id'] }}" data-region="{{ $dataRegionAttr }}">
                                                 {{ $location['name'] }} 
-                                                @if($regionLabel)
+                                                {{-- @if($regionLabel)
                                                     ({{ $regionLabel }})
-                                                @endif
+                                                @endif --}}
                                             </option>
                                         @endforeach
                                     </select>

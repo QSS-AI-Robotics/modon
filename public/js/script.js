@@ -161,7 +161,7 @@ $(document).ready(function () {
                             data-bs-toggle="tooltip"
                             data-bs-placement="bottom"
                             data-bs-html="true"
-                            title="<strong class='text-dark'>Assigned Regions:</strong><br>${formattedList.join('<br>')}"`
+                            title="<strong class='text-dark'>Assigned Regions:</strong><br>${formattedList.join('<br>')}"`;
                     } else if (typeof user.region === 'string') {
                         formattedRegions =
                             user.region.toLowerCase() === 'all'
@@ -169,6 +169,34 @@ $(document).ready(function () {
                                 : user.region.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     
                         regionRaw = user.region;
+                    }
+    
+                    // 👉 Location tooltip for city roles
+                    let locationTooltip = '';
+                    let locationText = '';
+                    let locationIds = '';
+    
+                    if (user.locations && user.locations.length > 0) {
+                        const formattedLocations = user.locations.map(loc =>
+                            (typeof loc === 'object' && loc.name)
+                                ? loc.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                                : loc
+                        );
+    
+                        const idList = user.locations.map(loc =>
+                            typeof loc === 'object' ? loc.id : null
+                        ).filter(Boolean);
+    
+                        locationText = formattedLocations.join(', ');
+                        locationIds = idList.join(',');
+    
+                        locationTooltip = `
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-html="true"
+                            title="<strong class='text-dark'>Assigned Locations:</strong><br>${formattedLocations.join('<br>')}"
+                            data-location="${locationText}"
+                            data-location-id="${locationIds}"`;
                     }
     
                     const row = `
@@ -182,8 +210,10 @@ $(document).ready(function () {
                             </td>
                             <td class="text-capitalize">${user.name}</td>
                             <td>${user.email}</td>
-                            <td class="text-capitalize mover pilot-td" ${licenseTooltip}>
-                                ${user.user_type ? user.user_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : "N/A"}
+                            <td class="text-capitalize mover pilot-td" ${licenseTooltip} ${locationTooltip}>
+                                ${user.user_type
+                                    ? user.user_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                                    : "N/A"}
                             </td>
                             <td class="text-capitalize" data-regions-name="${regionRaw}" ${regionTooltip}>
                                 ${formattedRegions}
@@ -198,7 +228,7 @@ $(document).ready(function () {
                     $('#userTableBody').append(row);
                 });
     
-                // Initialize all tooltips
+                // ✅ Reinitialize all tooltips
                 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
                 tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
             },
@@ -207,6 +237,9 @@ $(document).ready(function () {
             }
         });
     }
+    
+    
+
     
  
  
@@ -364,203 +397,197 @@ $(document).ready(function () {
         });
     });
     
-
-    // $(document).on('submit', '#userStoreForm', function (e) {
-    //     e.preventDefault();
+    $(document).on('click', '.edit-user', function () {
+        $(".cancel-btn").removeClass("d-none");
     
-    //     const $errorDiv = $('#users-validation-errors').addClass('d-none');
-    //     const formData = new FormData(this);
+        const row = $(this).closest('tr');
+        const userId = $(this).data('id');
     
-    //     const name = $('#name').val().trim();
-    //     const email = $('#email').val().trim();
-    //     const password = $('#password').val();
-    //     const user_type_id = $('#user_type_id').val();
-    //     const user_type_text = $('#user_type_id option:selected').text().trim().toLowerCase();
+        const name = row.find('td:eq(1)').text().trim();
+        const email = row.find('td:eq(2)').text().trim();
+        const userType = row.find('td:eq(3)').text().trim().toLowerCase();
+        const imageSrc = row.find('td:eq(0)').find('img').attr('src');
     
-    //     const licenseNo = $('#license_no').val().trim();
-    //     const licenseExpiry = $('#license_expiry').val().trim();
+        $('#userId').val(userId);
+        $('#name').val(name);
+        $('#email').val(email);
+        $('#password').val('');
     
-    //     const selectedRegions = $('.region-checkbox:checked').map(function () {
-    //         return this.value;
-    //     }).get();
+        // ✅ Reset region checkboxes
+        $('.region-checkbox').prop('checked', false);
     
-    //     const $submitBtn = $(this).find('button[type="submit"]');
-    //     const isUpdate = $submitBtn.text().trim().toLowerCase().includes('update');
-    
-    //     // 👇 Base validation
-    //     if (!name || !email || !/^\S+@\S+\.\S+$/.test(email)) {
-    //         $errorDiv.removeClass('d-none').text("Please enter a valid name and email.");
-    //         return;
-    //     }
-    
-    //     if (!isUpdate && (!password || password.length < 6)) {
-    //         $errorDiv.removeClass('d-none').text("Password is required (min 6 characters) when creating a user.");
-    //         return;
-    //     }
-    
-    //     if (!user_type_id) {
-    //         $errorDiv.removeClass('d-none').text("Please select a user type.");
-    //         return;
-    //     }
-    
-    //     if (selectedRegions.length === 0) {
-    //         $errorDiv.removeClass('d-none').text("Please select at least one region.");
-    //         return;
-    //     }
-    
-    //     // 👇 Additional validation for pilots
-    //     if (user_type_text === 'pilot') {
-    //         if (!licenseNo || !licenseExpiry) {
-    //             $errorDiv.removeClass('d-none').text("License number and expiry date are required for pilots.");
-    //             return;
-    //         }
-    
-    //         formData.append('license_no', licenseNo);
-    //         formData.append('license_expiry', licenseExpiry);
-    //     }
-    
-    //     // Append selected region checkboxes
-    //     selectedRegions.forEach(regionId => {
-    //         formData.append('assigned_regions[]', regionId);
-    //     });
-    
-    //     // Set URL and method
-    //     const url = isUpdate ? `/dashboard/users/${$('#userId').val()}` : '/dashboard/users/storeuser';
-    //     const method = isUpdate ? 'POST' : 'POST';
-    
-    //     if (isUpdate) {
-    //         formData.append('_method', 'PUT');
-    //     }
-    
-    //     // Ajax request
-    //     $.ajax({
-    //         url,
-    //         type: method,
-    //         data: formData,
-    //         processData: false,
-    //         contentType: false,
-    //         success: function (response) {
-    //             Swal.fire({
-    //                 icon: 'success',
-    //                 title: 'Success!',
-    //                 text: response.message || 'User saved successfully.',
-    //                 timer: 2000,
-    //                 showConfirmButton: false
-    //             });
-    
-    //             $(".cancel-btn").addClass("d-none");
-    //             resetForm();
-    //             getAllusers();
-    //             $errorDiv.addClass('d-none');
-    //         },
-    //         error: function (xhr) {
-    //             const response = xhr.responseJSON;
-    //             const errorMessage = response?.message || '';
-    
-    //             if (errorMessage.includes('Duplicate entry') && errorMessage.includes('users_email_unique')) {
-    //                 Swal.fire({
-    //                     icon: 'error',
-    //                     title: 'Email Already Exists!',
-    //                     text: 'A user with this email already exists. Please use a different email.',
-    //                 });
-    //                 return;
-    //             }
-    
-    //             if (response?.errors) {
-    //                 const messages = Object.values(response.errors).flat();
-    //                 Swal.fire({
-    //                     icon: 'error',
-    //                     title: 'Validation Error!',
-    //                     html: `<ul style="text-align:left;">${messages.map(msg => `<li>${msg}</li>`).join('')}</ul>`
-    //                 });
-    //             } else {
-    //                 Swal.fire({
-    //                     icon: 'error',
-    //                     title: 'Error!',
-    //                     text: errorMessage || 'Something went wrong.',
-    //                 });
-    //             }
-    //         }
-    //     });
-    // });
-    
-    
-$(document).on('click', '.edit-user', function () {
-    $(".cancel-btn").removeClass("d-none");
-
-    const row = $(this).closest('tr');
-    const userId = $(this).data('id');
-
-    const name = row.find('td:eq(1)').text().trim();
-    const email = row.find('td:eq(2)').text().trim();
-    const userType = row.find('td:eq(3)').text().trim();
-    const imageSrc = row.find('td:eq(0)').find('img').attr('src');
-
-    $('#userId').val(userId);
-    $('#name').val(name);
-    $('#email').val(email);
-    $('#password').val('');
-
-    // Reset region checkboxes
-    $('.region-checkbox').prop('checked', false);
-
-    // ✅ Assigned regions from data attribute
-    const assignedRegionNames = row.find('td:eq(4)').data('regions-name');
-    if (assignedRegionNames) {
-        assignedRegionNames.toLowerCase().split(',').forEach(regionName => {
-            regionName = regionName.trim();
-    
-            // Special case for 'all' → Headquarter
-            if (regionName === 'all') {
+        // ✅ Set assigned regions
+        const assignedRegionNames = row.find('td:eq(4)').data('regions-name');
+        if (assignedRegionNames) {
+            assignedRegionNames.toLowerCase().split(',').forEach(regionName => {
+                regionName = regionName.trim();
                 $('.region-checkbox').each(function () {
                     const labelText = $(this).next('label').text().trim().toLowerCase();
-                    if (labelText === 'headquarter') {
+                    if (
+                        (regionName === 'all' && labelText === 'headquarter') ||
+                        labelText === regionName
+                    ) {
                         $(this).prop('checked', true);
                     }
                 });
-            } else {
-                // Match checkbox based on label text
-                $('.region-checkbox').each(function () {
-                    const labelText = $(this).next('label').text().trim().toLowerCase();
-                    if (labelText === regionName) {
-                        $(this).prop('checked', true);
-                    }
-                });
+            });
+        }
+    
+        // ✅ Set user type
+        $('#user_type_id option').each(function () {
+            if ($(this).text().trim().toLowerCase() === userType) {
+                $(this).prop('selected', true);
             }
         });
-    }
     
-
-
-    // Set user type
-    $('#user_type_id option').each(function () {
-        if ($(this).text().trim().toLowerCase() === userType.toLowerCase()) {
-            $(this).prop('selected', true);
+        // ✅ Image preview
+        $('#imagePreview').attr('src', imageSrc).removeClass('d-none');
+    
+        // ✅ Pilot-specific fields
+        if (userType === 'pilot') {
+            const pilotTd = row.find('.pilot-td');
+            const licenseNo = pilotTd.attr('data-license-no') || '';
+            const expiry = pilotTd.attr('data-license-expiry') || '';
+            $('#license_no').val(licenseNo);
+            $('#license_expiry').val(expiry);
+            $('#pilotFields').removeClass('d-none');
+        } else {
+            $('#license_no').val('');
+            $('#license_expiry').val('');
+            $('#pilotFields').addClass('d-none');
         }
-    });
-
-    // Set image preview
-    $('#imagePreview').attr('src', imageSrc).removeClass('d-none');
-
-    // Handle pilot-specific fields
-    if (userType.toLowerCase() === 'pilot') {
-        const pilotTd = row.find('.pilot-td');
-        const licenseNo = pilotTd.attr('data-license-no') || '';
-        const expiry = pilotTd.attr('data-license-expiry') || '';
-
-        $('#license_no').val(licenseNo);
-        $('#license_expiry').val(expiry);
-        $('#pilotFields').removeClass('d-none');
-    } else {
-        $('#license_no').val('');
-        $('#license_expiry').val('');
-        $('#pilotFields').addClass('d-none');
-    }
-
-    $('#userStoreForm button[type="submit"]').text('Update User');
-});
-
     
+        // ✅ City-level location selection
+        const locationName = row.find('.pilot-td').data('location');
+        const locationId = row.find('.pilot-td').data('location-id');
+    
+        if ((userType === 'city manager' || userType === 'city supervisor') && locationName && locationId) {
+            console.log("✅ City-level user detected.");
+            console.log("📍 Location Name:", locationName);
+            console.log("🆔 Location ID:", locationId);
+    
+            $('#LocationsFields').removeClass('d-none');
+            filterLocationsByRegion(); // 🔄 Filter before applying
+    
+            // ✅ Select by exact ID match
+            $('#location_id').val(locationId);
+    
+            // Just for debugging, confirm what was selected
+            const selectedText = $('#location_id option:selected').text().trim();
+            console.log("🎯 Selected Location:", selectedText);
+        } else {
+            $('#LocationsFields').addClass('d-none');
+            $('#location_id').val('');
+        }
+    
+        // ✅ Update submit button
+        $('#userStoreForm button[type="submit"]').text('Update User');
+    });
+    
+// $(document).on('click', '.edit-user', function () {
+//     $(".cancel-btn").removeClass("d-none");
+
+//     const row = $(this).closest('tr');
+//     const userId = $(this).data('id');
+
+//     const name = row.find('td:eq(1)').text().trim();
+//     const email = row.find('td:eq(2)').text().trim();
+//     const userType = row.find('td:eq(3)').text().trim().toLowerCase();
+//     const imageSrc = row.find('td:eq(0)').find('img').attr('src');
+
+//     $('#userId').val(userId);
+//     $('#name').val(name);
+//     $('#email').val(email);
+//     $('#password').val('');
+
+//     // Reset region checkboxes
+//     $('.region-checkbox').prop('checked', false);
+
+//     // ✅ Assigned regions from data attribute
+//     const assignedRegionNames = row.find('td:eq(4)').data('regions-name');
+//     if (assignedRegionNames) {
+//         assignedRegionNames.toLowerCase().split(',').forEach(regionName => {
+//             regionName = regionName.trim();
+//             $('.region-checkbox').each(function () {
+//                 const labelText = $(this).next('label').text().trim().toLowerCase();
+//                 if (
+//                     (regionName === 'all' && labelText === 'headquarter') ||
+//                     labelText === regionName
+//                 ) {
+//                     $(this).prop('checked', true);
+//                 }
+//             });
+//         });
+//     }
+
+//     // Set user type
+//     $('#user_type_id option').each(function () {
+//         if ($(this).text().trim().toLowerCase() === userType) {
+//             $(this).prop('selected', true);
+//         }
+//     });
+
+//     // Set image preview
+//     $('#imagePreview').attr('src', imageSrc).removeClass('d-none');
+
+//     // ✅ Handle pilot-specific fields
+//     if (userType === 'pilot') {
+//         const pilotTd = row.find('.pilot-td');
+//         const licenseNo = pilotTd.attr('data-license-no') || '';
+//         const expiry = pilotTd.attr('data-license-expiry') || '';
+//         $('#license_no').val(licenseNo);
+//         $('#license_expiry').val(expiry);
+//         $('#pilotFields').removeClass('d-none');
+//     } else {
+//         $('#license_no').val('');
+//         $('#license_expiry').val('');
+//         $('#pilotFields').addClass('d-none');
+//     }
+
+//     // ✅ Handle city-level user locations
+//     const locationName = row.find('.pilot-td').data('location'); // Gets "Dammam Third Industrial City"
+
+//     if ((userType === 'city manager' || userType === 'city supervisor') && locationName) {
+//         console.log("✅ City-level user detected.");
+//         console.log("🟨 Retrieved Location Name from row:", locationName);
+    
+//         $('#LocationsFields').removeClass('d-none');
+//         filterLocationsByRegion();
+    
+//         let found = false;
+    
+//         $('#location_id option').each(function () {
+//             const optionText = $(this).text().trim().toLowerCase();
+//             const optionVal = $(this).val();
+    
+//             if ($(this).is(':visible') && optionText === locationName.toLowerCase()) {
+//                 $(this).prop('selected', true);
+//                 found = true;
+//                 console.log("🎯 Matched and selected location ID:", optionVal);
+//                 return false; // break loop
+//             }
+//         });
+    
+//         if (!found) {
+//             console.warn("⚠️ Location not matched:", locationName);
+//         }
+    
+//     } else {
+//         console.log("❌ User is not City Manager/Supervisor or no location found.");
+//         $('#LocationsFields').addClass('d-none');
+//         $('#location_id').val('');
+//     }
+    
+    
+    
+    
+    
+
+//     // ✅ Update button text
+//     $('#userStoreForm button[type="submit"]').text('Update User');
+// });
+
+   
     
     
 
@@ -574,6 +601,8 @@ $(document).on('click', '.edit-user', function () {
         $('#license_no').val('');
         $('#license_expiry').val('');
         $('#pilotFields').addClass('d-none');
+        $('#LocationsFields').addClass('d-none');
+        $('#location_id').val('');
     }
     $(document).on("click", ".cancel-btn", function () {
         $(".cancel-btn").addClass("d-none");

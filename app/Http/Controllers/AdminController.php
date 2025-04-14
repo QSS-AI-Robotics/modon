@@ -73,37 +73,89 @@ class AdminController extends Controller
         ]);
     }
 
-
     public function getAllUsers()
-    {
-        $user = Auth::user();
-    
-        if ($user && $user->userType && $user->userType->name === 'qss_admin') {
-            $users = User::with(['userType', 'regions', 'pilot'])->get()->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'region' => $user->userType?->name === 'pilot'
-                        ? $user->regions->pluck('name')->toArray()
-                        : optional($user->regions->first())->name,
-                    'user_type' => $user->userType?->name,
-                    'image' => $user->image,
-                    'license_no' => $user->userType?->name === 'pilot' ? $user->pilot?->license_no : null,
-                    'license_expiry' => $user->userType?->name === 'pilot' ? $user->pilot?->license_expiry : null,
-                ];
-            });
-        } else {
-            $users = collect(); // Empty collection for non-admins
-        }
-    
-        return response()->json([
-            'status' => 'success',
-            'users' => $users
-        ]);
+{
+    $authUser = Auth::user();
+
+    if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
+        $users = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get()->map(function ($user) {
+            $userType = strtolower($user->userType?->name);
+
+            $region = $userType === 'pilot'
+                ? $user->regions->pluck('name')->toArray()
+                : optional($user->regions->first())->name;
+
+            $locations = in_array($userType, ['city_supervisor', 'city_manager'])
+                ? $user->assignedLocations->map(function ($loc) {
+                    return [
+                        'id' => $loc->id,
+                        'name' => $loc->name,
+                    ];
+                })->toArray()
+                : [];
+
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'region' => $region,
+                'locations' => $locations, // ✅ Includes id + name now
+                'user_type' => $user->userType?->name,
+                'image' => $user->image,
+                'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
+                'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
+            ];
+        });
+    } else {
+        $users = collect(); // Empty collection for non-admins
     }
+
+    return response()->json([
+        'status' => 'success',
+        'users' => $users
+    ]);
+}
+
+    // public function getAllUsers()
+    // {
+    //     $authUser = Auth::user();
+    
+    //     if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
+    //         $users = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get()->map(function ($user) {
+    //             $userType = strtolower($user->userType?->name);
+    
+    //             $region = $userType === 'pilot'
+    //                 ? $user->regions->pluck('name')->toArray()
+    //                 : optional($user->regions->first())->name;
+    
+    //             $locations = in_array($userType, ['city_supervisor', 'city_manager'])
+    //                 ? $user->assignedLocations->pluck('name')->toArray()
+    //                 : [];
+    
+    //             return [
+    //                 'id' => $user->id,
+    //                 'name' => $user->name,
+    //                 'email' => $user->email,
+    //                 'region' => $region,
+    //                 'locations' => $locations,
+    //                 'user_type' => $user->userType?->name,
+    //                 'image' => $user->image,
+    //                 'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
+    //                 'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
+    //             ];
+    //         });
+    //     } else {
+    //         $users = collect(); // Empty collection for non-admins
+    //     }
+    
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'users' => $users
+    //     ]);
+    // }
     
 
+    
     public function deleteUser($id)
     {
         $authUser = Auth::user();
@@ -128,12 +180,18 @@ class AdminController extends Controller
         // Detach regions from pivot table before deleting
         $user->regions()->detach();
     
-        // Optional: delete pilot license info if exists
-        if (strtolower($user->userType->name) === 'pilot') {
+        // ✅ Remove assigned locations if city roles
+        $userTypeName = strtolower(optional($user->userType)->name);
+        if (in_array($userTypeName, ['city_supervisor', 'city_manager'])) {
+            \App\Models\UserLocation::where('user_id', $user->id)->delete();
+        }
+    
+        // Delete pilot license info if exists
+        if ($userTypeName === 'pilot') {
             $user->pilot()?->delete();
         }
     
-        // Optional: delete image from storage
+        // Delete image from storage if exists
         if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
             Storage::disk('public')->delete('users/' . $user->image);
         }
@@ -146,6 +204,49 @@ class AdminController extends Controller
             'message' => '✅ User deleted successfully.'
         ]);
     }
+    
+    // public function deleteUser($id)
+    // {
+    //     $authUser = Auth::user();
+    
+    //     // Optional: Allow only qss_admins to delete
+    //     if ($authUser->userType->name !== 'qss_admin') {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Unauthorized action.'
+    //         ], 403);
+    //     }
+    
+    //     $user = User::find($id);
+    
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'User not found.'
+    //         ], 404);
+    //     }
+    
+    //     // Detach regions from pivot table before deleting
+    //     $user->regions()->detach();
+    
+    //     // Optional: delete pilot license info if exists
+    //     if (strtolower($user->userType->name) === 'pilot') {
+    //         $user->pilot()?->delete();
+    //     }
+    
+    //     // Optional: delete image from storage
+    //     if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
+    //         Storage::disk('public')->delete('users/' . $user->image);
+    //     }
+    
+    //     // Delete user
+    //     $user->delete();
+    
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => '✅ User deleted successfully.'
+    //     ]);
+    // }
     
 
 
@@ -223,19 +324,113 @@ class AdminController extends Controller
         ]);
     }
     
-    // public function storeUser(Request $request)
+
+
+
+public function updateUser(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+    $userTypeName = strtolower(UserType::find($request->user_type_id)?->name);
+    $isPilot = $userTypeName === 'pilot';
+    $isCityLevel = in_array($userTypeName, ['city_supervisor', 'city_manager']);
+
+    // ✅ Validation
+    $rules = [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $id,
+        'password' => 'nullable|string|min:6',
+        'user_type_id' => 'required|exists:user_types,id',
+        'assigned_regions' => 'required|array|min:1',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ];
+
+    if ($isPilot) {
+        $rules['license_no'] = 'required|string';
+        $rules['license_expiry'] = 'required|date';
+    }
+
+    if ($isCityLevel) {
+        $rules['location_id'] = 'required|exists:locations,id';
+    }
+
+    $validated = $request->validate($rules);
+
+    // ✅ Update base user info
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->user_type_id = $request->user_type_id;
+
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
+    }
+
+    // ✅ Update image
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $imageName = time() . '_' . $image->getClientOriginalName();
+        $image->storeAs('users', $imageName, 'public');
+
+        if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
+            Storage::disk('public')->delete('users/' . $user->image);
+        }
+
+        $user->image = $imageName;
+    }
+
+    $user->save();
+
+    // ✅ Handle pilot fields
+    if ($isPilot) {
+        Pilot::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'license_no' => $request->license_no,
+                'license_expiry' => $request->license_expiry,
+            ]
+        );
+    }
+
+    // ✅ Sync regions
+    $submittedRegionIds = $request->assigned_regions ?? [];
+    $existingRegionIds = $user->regions()->pluck('regions.id')->toArray();
+
+    if (array_diff($submittedRegionIds, $existingRegionIds) || array_diff($existingRegionIds, $submittedRegionIds)) {
+        $user->regions()->sync($submittedRegionIds);
+    }
+
+    // ✅ Handle city-level location
+    if ($isCityLevel) {
+        // If record exists, update; otherwise, create
+        UserLocation::updateOrCreate(
+            ['user_id' => $user->id],
+            ['location_id' => $request->location_id]
+        );
+    } else {
+        // ❌ Not city-level anymore, remove any assigned location
+        UserLocation::where('user_id', $user->id)->delete();
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => '✅ User updated successfully.',
+    ]);
+}
+
+
+    // public function updateUser(Request $request, $id)
     // {
+    //     $user = User::findOrFail($id);
+    
     //     $userTypeName = strtolower(UserType::find($request->user_type_id)?->name);
     //     $isPilot = $userTypeName === 'pilot';
     
-    //     // ✅ Validation rules
     //     $rules = [
     //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:users,email',
-    //         'password' => 'required|string|min:6',
+    //         'email' => 'required|email|unique:users,email,' . $id,
+    //         'password' => 'nullable|string|min:6',
     //         'user_type_id' => 'required|exists:user_types,id',
+    //         'assigned_regions' => 'required|array|min:1',
     //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    //         'assigned_regions' => $isPilot ? 'required|array|min:1' : 'required|array|size:1',
     //     ];
     
     //     if ($isPilot) {
@@ -245,112 +440,54 @@ class AdminController extends Controller
     
     //     $validated = $request->validate($rules);
     
-    //     // ✅ Create user
-    //     $user = new User();
+    //     // ✅ Update basic user info
     //     $user->name = $request->name;
     //     $user->email = $request->email;
-    //     $user->password = Hash::make($request->password);
     //     $user->user_type_id = $request->user_type_id;
     
+    //     if ($request->filled('password')) {
+    //         $user->password = Hash::make($request->password);
+    //     }
+    
+    //     // ✅ Handle image
     //     if ($request->hasFile('image')) {
     //         $image = $request->file('image');
     //         $imageName = time() . '_' . $image->getClientOriginalName();
     //         $image->storeAs('users', $imageName, 'public');
+    
+    //         if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
+    //             Storage::disk('public')->delete('users/' . $user->image);
+    //         }
+    
     //         $user->image = $imageName;
     //     }
     
     //     $user->save();
     
-    //     // ✅ If pilot, save license info
+    //     // ✅ Handle pilot-specific data
     //     if ($isPilot) {
-    //         Pilot::create([
-    //             'user_id' => $user->id,
-    //             'license_no' => $request->license_no,
-    //             'license_expiry' => $request->license_expiry,
-    //         ]);
+    //         Pilot::updateOrCreate(
+    //             ['user_id' => $user->id],
+    //             [
+    //                 'license_no' => $request->license_no,
+    //                 'license_expiry' => $request->license_expiry,
+    //             ]
+    //         );
     //     }
     
-    //     // ✅ Attach regions (single or multiple)
-    //     $user->regions()->attach($request->assigned_regions);
+    //     // ✅ Sync regions for all users
+    //     $submittedRegionIds = $request->assigned_regions ?? [];
+    //     $existingRegionIds = $user->regions()->pluck('regions.id')->toArray();
+    
+    //     if (array_diff($submittedRegionIds, $existingRegionIds) || array_diff($existingRegionIds, $submittedRegionIds)) {
+    //         $user->regions()->sync($submittedRegionIds);
+    //     }
     
     //     return response()->json([
     //         'status' => 'success',
-    //         'message' => '✅ User created successfully.',
+    //         'message' => '✅ User updated successfully.',
     //     ]);
     // }
-    
-
-    public function updateUser(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-    
-        $userTypeName = strtolower(UserType::find($request->user_type_id)?->name);
-        $isPilot = $userTypeName === 'pilot';
-    
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6',
-            'user_type_id' => 'required|exists:user_types,id',
-            'assigned_regions' => 'required|array|min:1',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ];
-    
-        if ($isPilot) {
-            $rules['license_no'] = 'required|string';
-            $rules['license_expiry'] = 'required|date';
-        }
-    
-        $validated = $request->validate($rules);
-    
-        // ✅ Update basic user info
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->user_type_id = $request->user_type_id;
-    
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
-    
-        // ✅ Handle image
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('users', $imageName, 'public');
-    
-            if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
-                Storage::disk('public')->delete('users/' . $user->image);
-            }
-    
-            $user->image = $imageName;
-        }
-    
-        $user->save();
-    
-        // ✅ Handle pilot-specific data
-        if ($isPilot) {
-            Pilot::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'license_no' => $request->license_no,
-                    'license_expiry' => $request->license_expiry,
-                ]
-            );
-        }
-    
-        // ✅ Sync regions for all users
-        $submittedRegionIds = $request->assigned_regions ?? [];
-        $existingRegionIds = $user->regions()->pluck('regions.id')->toArray();
-    
-        if (array_diff($submittedRegionIds, $existingRegionIds) || array_diff($existingRegionIds, $submittedRegionIds)) {
-            $user->regions()->sync($submittedRegionIds);
-        }
-    
-        return response()->json([
-            'status' => 'success',
-            'message' => '✅ User updated successfully.',
-        ]);
-    }
     
     
     

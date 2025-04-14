@@ -120,7 +120,6 @@
                         @csrf
                         <div class="row">
 
-   
                             <div class="col-md-12">
                                 <label class="form-label label-text">Select Programs</label>
                                 <div class="row"   id="inspectionTypesContainer">
@@ -136,12 +135,11 @@
                       
 
                             <div class="col-md-12 col-sm-12 p-2">
-                                <label class="form-check-label label-text py-1">Select Locations</label>
-                                <div class="row p-2"  id="locationsContainer">
-                                    
-                                    
-                              
-                                </div>
+                                <label class="form-check-label label-text py-1">Location</label>
+                             x
+                                @if($locationData)
+                                    <input type="text" class="form-control dateInput"  name="location_id" id="location_id" data-location-id="{{ $locationData['id'] }}"  value="{{ $locationData['name'] }}" disabled>
+                                 @endif
                             </div>
 
                             {{-- notes textarea --}}

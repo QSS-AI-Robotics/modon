@@ -12,19 +12,44 @@ use Illuminate\Support\Facades\Log;
 use App\Models\MissionApproval; 
 class RegionManagerController extends Controller
 {
-    /**
-     * Display the locations page with all locations for the authenticated user's region.
-     */
     public function index()
     {
         if (!Auth::check()) {
             return redirect()->route('signin.form')->with('error', 'Please log in first.');
         }
-    
-        $userType = optional(Auth::user()->userType)->name ?? 'Control';
-    
-        return view('missions.index', compact('userType')); // Only pass userType
+
+        $user = Auth::user();
+        $userType = optional($user->userType)->name ?? 'Control';
+
+        // 👇 Fetch assigned location (if applicable)
+        $location = in_array(strtolower($userType), ['city_manager', 'city_supervisor'])
+            ? $user->assignedLocations->first() // returns a Location model or null
+            : null;
+
+        // Pass both name and id if available
+        $locationData = $location ? [
+            'id' => $location->id,
+            'name' => $location->name
+        ] : null;
+
+        return view('missions.index', compact('userType', 'locationData'));
     }
+
+    /**
+     * Display the locations page with all locations for the authenticated user's region.
+     */
+    // public function index()
+    // {
+    //     if (!Auth::check()) {
+    //         return redirect()->route('signin.form')->with('error', 'Please log in first.');
+    //     }
+    
+    //     $userType = optional(Auth::user()->userType)->name ?? 'Control';
+    
+    //     return view('missions.index', compact('userType')); // Only pass userType
+    // }
+
+    
     public function getInspectionTypes()
     {
         $types = InspectionType::select('id', 'name', 'description')->get();

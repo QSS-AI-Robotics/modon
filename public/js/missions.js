@@ -40,25 +40,7 @@ $(document).ready(function () {
             });
         });
     }
-    $(document).on('click', '.toggle-details', function () {
-        const missionId = $(this).data('id');
-        const row = $(`.detail-row[data-id="${missionId}"]`);
-        const container = row.find('.detail-container');
-    
-        const isAlreadyOpen = container.hasClass('open');
-    
-        // Close all others
-        $('.detail-container').removeClass('open');
-        $('.detail-row').hide();
-    
-        // If this one wasn't already open, open it now
-        if (!isAlreadyOpen) {
-            row.show(); // show the outer row wrapper
-            setTimeout(() => {
-                container.addClass('open');
-            }, 10); // slight delay to allow transition
-        }
-    });
+
     
     
 
@@ -114,7 +96,7 @@ $(document).ready(function () {
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
         $(".cancel-btn").addClass("d-none");
-    
+        $('#missionsAccordion').empty();
         $.ajax({
             url: "/getmanagermissions",
             type: "GET",
@@ -170,34 +152,66 @@ $(document).ready(function () {
                             ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
                             : `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
     
-                    const row = `
-                        <tr id="missionRow-${mission.id}" class="text-start">
-                            <td data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</td>
-                            <td>${mission.mission_date}</td>
-                            <td>${locations}</td>
-                            <td class="cursor-pointer text-capitalize">${noteHTML}</td>
-                            <td>${statusBadge}</td>
-                            <td>
-                                ${editButton}
-                                ${deleteButton}
-                                <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}">
-                            </td>
-                        </tr>
-                        <tr class="detail-row" data-id="${mission.id}" style="display: none;">
-                            <td colspan="6">
-                                <div class="detail-container open p-3">
-                                    <div class="detail-content">
-                                        <strong>Program:</strong> ${inspectionName}<br>
-                                        <strong>Mission Date:</strong> ${mission.mission_date}<br>
-                                        <strong>Locations:</strong> ${locations}<br>
-                                        <strong>Note:</strong> ${fullNote}
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                    //         const row = `
+                    //         <tr id="missionRow-${mission.id}" class="text-start">
+                    //             <td data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</td>
+                    //             <td>${mission.mission_date}</td>
+                    //             <td>${locations}</td>
+                    //             <td class="cursor-pointer text-capitalize">${noteHTML}</td>
+                    //             <td>${statusBadge}</td>
+                    //             <td>
+                    //                 ${editButton}
+                    //                 ${deleteButton}
+                    //                 <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}">
+                    //             </td>
+                    //         </tr>
+                    //         <tr class="detail-row" data-id="${mission.id}">
+                    //             <td colspan="6" style="padding: 0; border: none;">
+                    //                 <div class="detail-container p-3" style="display: none;">
+                    //                     <div class="detail-content">
+                    //                         <strong>Program:</strong> ${inspectionName}<br>
+                    //                         <strong>Mission Date:</strong> ${mission.mission_date}<br>
+                    //                         <strong>Locations:</strong> ${locations}<br>
+                    //                         <strong>Note:</strong> ${fullNote}
+                    //                     </div>
+                    //                 </div>
+                    //             </td>
+                    //         </tr>
+                    //     `;             
     
-                    $('#missionTableBody').append(row);
+                    // $('#missionTableBody').append(row);
+                    const row = `
+    <div class="accordion-item " id="missionRow-${mission.id}">
+        <h2 class="accordion-header" id="heading-${mission.id}">
+            <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
+                <div class="row w-100 justify-content-between label-text">
+                    <div class="col-3 " data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                    <div class="col-2 text-center mission_date">${mission.mission_date}</div>
+                    <div class="col-3 text-center">${locations}</div>
+                    <div class="col-2 text-center">${statusBadge}</div>
+                 
+                    <div class="col-2 text-center">
+                     ${editButton}
+                    ${deleteButton}
+                         <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                    </div>
+                </div>
+            </button>
+        </h2>
+        <div id="collapse-${mission.id}" class="accordion-collapse collapse  " aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
+            <div class="accordion-body px-4 py-2 label-text">
+                <strong>Program:</strong> ${inspectionName}<br>
+                <strong>Mission Date:</strong> ${mission.mission_date}<br>
+                <strong>Locations:</strong> ${locations}<br>
+                <strong>Note:</strong class="mission_note"> ${fullNote}<br><br>
+                <div class="d-flex gap-2 justify-content-end">
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+$('#missionsAccordion').append(row);
                 });
             },
             error: function (xhr) {
@@ -207,115 +221,17 @@ $(document).ready(function () {
         });
     }
     
-    // function getRegionManagerMissions() {
-    //     $(".mission-btn svg").attr({ "width": "16", "height": "16" });
-    //     $("#addMissionForm").removeAttr("data-mission-id");
-    //     $(".cancel-btn").addClass("d-none");
+    $(document).on('click', '.toggle-details', function () {
+        const currentId = $(this).data('id');
+        const $current = $(`.detail-row[data-id="${currentId}"] .detail-container`);
     
-    //     $.ajax({
-    //         url: "/getmanagermissions",
-    //         type: "GET",
-    //         success: function (response) {
-    //             $('#missionTableBody').empty();
+        // Close others
+        $('.detail-container').not($current).slideUp();
     
-    //             if (!response.missions.length) {
-    //                 $('#missionTableBody').append(`
-    //                     <tr>
-    //                         <td colspan="8" class="text-center text-muted">No missions available.</td>
-    //                     </tr>
-    //                 `);
-    //                 return;
-    //             }
+        // Toggle current
+        $current.stop(true, true).slideToggle();
+    });
     
-    //             $.each(response.missions, function (index, mission) {
-    //                 const inspection = mission.inspection_types[0] || {};
-    //                 const inspectionName = inspection.name || 'N/A';
-    //                 const inspectionId = inspection.id || '';
-    
-    //                 const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
-    
-    //                 const noteWords = mission.note ? mission.note.split(" ") : [];
-    //                 const shortNote = noteWords.slice(0, 2).join(" ");
-    //                 const fullNote = mission.note || "No Notes";
-    
-    //                 const noteHTML = `
-    //                     <span class="text-truncate" data-bs-toggle="tooltip" title="${fullNote}">
-    //                         ${shortNote}...
-    //                     </span>
-    //                 `;
-    
-    //                 let statusBadge = "";
-    //                 switch (mission.status) {
-    //                     case "Pending":
-    //                         statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
-    //                     case "In Progress":
-    //                         statusBadge = `<span class="badge p-2 bg-warning text-dark">In Progress</span>`; break;
-    //                     case "Awaiting Report":
-    //                         statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
-    //                     case "Completed":
-    //                         statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
-    //                 }
-    
-    //                 const editButton = mission.status === "Pending"
-    //                     ? `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`
-    //                     : "";
-    
-    //                 const deleteButton = mission.status === "Pending"
-    //                     ? `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`
-    //                     : mission.status === "Completed"
-    //                         ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
-    //                         : `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
-    
-
-    //                 const row = `
-    //                 <tr id="missionRow-${mission.id}" class="text-start">
-    //                     <td data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</td>
-    //                     <td>${mission.mission_date}</td>
-    //                     <td>${locations}</td>
-    //                     <td class="cursor-pointer text-capitalize">${noteHTML}</td>
-    //                     <td>${statusBadge}</td>
-    //                     <td>
-    //                         ${editButton}
-    //                         ${deleteButton}
-    //                         <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}" data-target="#detail-${mission.id}">
-    //                     </td>
-    //                 </tr>
-    //                 <tr>
-    //                     <td colspan="6" style="padding: 0; border-top: none;">
-    //                         <div id="detail-${mission.id}" class="detail-container">
-    //                             <div class="detail-content p-4">
-    //                                 <strong>Program:</strong> ${inspectionName}<br>
-    //                                 <strong>Mission Date:</strong> ${mission.mission_date}<br>
-    //                                 <strong>Description:</strong> ${mission.note}
-    //                             </div>
-    //                         </div>
-    //                     </td>
-    //                 </tr>
-    //                 `;
-                    
-    //                 $('#missionTableBody').append(row);
-    //             });
-    
-    //             // ✅ Initialize all Bootstrap tooltips
-    //             const allTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    //             allTooltips.forEach(el => {
-    //                 const title = el.getAttribute('title') || el.getAttribute('data-title');
-    //                 if (title) {
-    //                     new bootstrap.Tooltip(el, {
-    //                         html: true,
-    //                         title: title,
-    //                         customClass: 'custom-tooltip',
-    //                         trigger: 'hover focus'
-    //                     });
-    //                 }
-    //             });
-    //         },
-    //         error: function (xhr) {
-    //             console.error("❌ Error fetching missions:", xhr.responseText);
-    //             alert("Error fetching missions. Please try again.");
-    //         }
-    //     });
-    // }
     
 
       
@@ -562,38 +478,80 @@ $('#addMissionForm').on('submit', function (e) {
             const missionId = $(this).data("id");
             const row = $(`#missionRow-${missionId}`);
         
-            // ✅ Get inspection type info from row <td>
-            const inspectionTypeId = row.find("td:nth-child(1)").data("inspectiontype-id");
-            const inspectionTypeName = row.find("td:nth-child(1)").data("name");
+            // ✅ Get inspection type info from the header div
+            const inspectionTypeEl = row.find("[data-name][data-inspectiontype-id]");
+            const inspectionTypeId = inspectionTypeEl.data("inspectiontype-id");
+            const inspectionTypeName = inspectionTypeEl.data("name");
         
-            // ✅ Get date and note
-            const missionDate = row.find("td:nth-child(2)").text().trim();
-            const noteText = row.find("td:nth-child(4)").text().trim().replace(/\.\.\.$/, ''); // remove trailing ...
+            // ✅ Get mission date, note, and locations
+            const missionDate = row.find(".mission_date").text().trim();
         
-            // ✅ Get location names (used to check checkboxes)
-            const locationNames = row.find("td:nth-child(3)").text().split(',').map(loc => loc.trim().toLowerCase());
+            // Find full note from accordion-body (not the short version shown in header)
+            const fullNote = row.find(".accordion-body").text().match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
         
-            // ✅ Fill form fields
+            const locationsText = row.find(".accordion-button .col-3").eq(1).text(); // second .col-3 (location)
+            const locationNames = locationsText.split(',').map(loc => loc.trim().toLowerCase());
+        
+            // ✅ Fill the form fields
             $('#mission_date').val(missionDate);
-            $('#note').val(noteText);
+            $('#note').val(fullNote);
         
-            // ✅ Select the correct inspection type radio button by ID
+            // ✅ Select the correct inspection type radio button
             $(`input[name="inspection_type"][value="${inspectionTypeId}"]`).prop("checked", true);
         
-            // ✅ Check location checkboxes based on location name
+            // ✅ Check checkboxes for locations
             $(".location-checkbox").each(function () {
                 const labelText = $(this).siblings("label").text().trim().toLowerCase();
                 $(this).prop("checked", locationNames.includes(labelText));
             });
         
-            // ✅ Set mission ID for update tracking
+            // ✅ Mark mission ID for update
             $("#addMissionForm").attr("data-mission-id", missionId);
         
-            // ✅ UI updates
+            // ✅ Update UI
             $(".form-title").text("Edit Mission");
             $(".mission-btn span").text("Update Mission");
             $(".mission-btn svg").attr({ "width": "30", "height": "30" });
         });
+        
+        // $(document).on("click", ".edit-mission", function () {
+        //     $(".cancel-btn").removeClass("d-none");
+        
+        //     const missionId = $(this).data("id");
+        //     const row = $(`#missionRow-${missionId}`);
+        
+        //     // ✅ Get inspection type info from row <td>
+        //     const inspectionTypeId = row.find("td:nth-child(1)").data("inspectiontype-id");
+        //     const inspectionTypeName = row.find("td:nth-child(1)").data("name");
+        
+        //     // ✅ Get date and note
+        //     const missionDate = row.find("td:nth-child(2)").text().trim();
+        //     const noteText = row.find("td:nth-child(4)").text().trim().replace(/\.\.\.$/, ''); // remove trailing ...
+        
+        //     // ✅ Get location names (used to check checkboxes)
+        //     const locationNames = row.find("td:nth-child(3)").text().split(',').map(loc => loc.trim().toLowerCase());
+        
+        //     // ✅ Fill form fields
+        //     $('#mission_date').val(missionDate);
+        //     $('#note').val(noteText);
+        
+        //     // ✅ Select the correct inspection type radio button by ID
+        //     $(`input[name="inspection_type"][value="${inspectionTypeId}"]`).prop("checked", true);
+        
+        //     // ✅ Check location checkboxes based on location name
+        //     $(".location-checkbox").each(function () {
+        //         const labelText = $(this).siblings("label").text().trim().toLowerCase();
+        //         $(this).prop("checked", locationNames.includes(labelText));
+        //     });
+        
+        //     // ✅ Set mission ID for update tracking
+        //     $("#addMissionForm").attr("data-mission-id", missionId);
+        
+        //     // ✅ UI updates
+        //     $(".form-title").text("Edit Mission");
+        //     $(".mission-btn span").text("Update Mission");
+        //     $(".mission-btn svg").attr({ "width": "30", "height": "30" });
+        // });
         
    
         

@@ -147,7 +147,7 @@ $(document).ready(function () {
                         ? `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`
                         : mission.status === "Completed"
                             ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
-                            : `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
+                            : `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
     
                             const getStatusBadge = (value) => {
                                 switch (value) {
@@ -176,7 +176,7 @@ $(document).ready(function () {
                                         <div class="col-2 text-center">
                                         ${editButton}
                                         ${deleteButton}
-                                            <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                                            <img src="./images/view.png" alt="View" class=" view-mission img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
                                         </div>
                                     </div>
                                 </button>
@@ -239,7 +239,17 @@ $(document).ready(function () {
     // Submit Add Mission Form via AJAX
 $('#addMissionForm').on('submit', function (e) {
     e.preventDefault();
-
+    const checkForPilot = $('input[name="pilot_id"]').val();
+    if (!checkForPilot) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'No pilot assigned to this region. Please contact Modon Authority.',
+            background: '#101625',
+            color: '#ffffff'
+        });
+        return;
+    }
     const $form = $(this);
     const $errorDiv = $('#mission-validation-errors').addClass('d-none');
     
@@ -421,12 +431,16 @@ $('#addMissionForm').on('submit', function (e) {
             });
         }
 
-
+        $(document).on('click', '.view-mission', function () {
+        
+            resetValues();
+        });
     // Delete Mission
-
-    $(document).on('click', '.delete-mission', function () {
-        const missionId = $(this).data('id');
     
+
+        $(document).on('click', '.delete-mission', function () {
+        const missionId = $(this).data('id');
+        resetValues();
         Swal.fire({
             title: 'Are you sure?',
             text: "This mission will be permanently deleted.",
@@ -528,10 +542,7 @@ $('#addMissionForm').on('submit', function (e) {
         
     
       
-   
-        
-        $(document).on("click", ".cancel-btn", function () {
-            // ✅ Reset Form Fields
+        function resetValues(){
             $("#addMissionForm")[0].reset();
         
             // ✅ Uncheck All Checkboxes
@@ -547,6 +558,11 @@ $('#addMissionForm').on('submit', function (e) {
             // ✅ Clear Mission ID
             $("#addMissionForm").removeAttr("data-mission-id");
             $(".cancel-btn").addClass("d-none");
+        }
+        
+        $(document).on("click", ".cancel-btn", function () {
+            // ✅ Reset Form Fields
+            resetValues();
         });
         
     

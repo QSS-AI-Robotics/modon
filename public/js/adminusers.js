@@ -11,7 +11,7 @@ $(document).ready(function () {
             labels: [],
             datasets: [{
                 data: [],
-                backgroundColor: ['#C6B40D', '#E9393B', '#78EC70'],
+                backgroundColor: ['#FFE500', '#81FF76', '#AD2727'],
                 borderColor: '#121212',
                 borderWidth: 1
             }]
@@ -37,7 +37,7 @@ $(document).ready(function () {
                     }
                 },
                 datalabels: {
-                    color: '#FFFFFF',
+                    color: 'black',
                     font: {
                         weight: 'bold',
                         size: 12
@@ -240,9 +240,9 @@ $(document).ready(function () {
     
         // Assign colors based on region names
         const colorMap = {
-            'eastern': '#78EC70',
-            'western': '#E9393B',
-            'central': '#C6B40D'
+            'eastern': '#AD2727',
+            'western': '#FFE500',
+            'central': '#81FF76'
         };
     
         const backgroundColors = labels.map(region => colorMap[region.toLowerCase()] || '#ccc');
@@ -309,7 +309,9 @@ $(document).ready(function () {
 
 
 function updateInspectionChart(chart, response) {
-    const chartData = response.data || [];
+    
+    // const chartData = response.data || [];
+    const chartData = (response.data || []).filter(item => item.region !== 'all');
 
     const labels = chartData.map(item => item.region);
     const rawValues = chartData.map(item => item.inspections);
@@ -320,7 +322,7 @@ function updateInspectionChart(chart, response) {
     // Determine max real value (not 0.2)
     const maxValue = Math.max(...rawValues);
     const barColors = rawValues.map(value =>
-        value === maxValue && value > 0 ? 'red' : 'black'
+        value === maxValue && value > 0 ? '#AD2727' : '#0A415B'
     );
 
     const hasData = labels.length > 0;

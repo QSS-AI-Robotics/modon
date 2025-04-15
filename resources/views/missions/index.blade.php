@@ -131,8 +131,11 @@
                                 <label class="form-check-label label-text py-1">Location</label>
                             
                                 @if($locationData)
-                                    <input type="text" class="form-control dateInput mx-1"  name="location_id" id="location_id" data-location-id="{{ $locationData['id'] }}"  value="{{ $locationData['name'] }}" disabled>
-                                 @endif
+                                <input type="text" class="form-control dateInput mx-1"  name="location_id" id="location_id" data-location-id="{{ $locationData['id'] }}"  value="{{ $locationData['name'] }}" disabled>
+                                @else
+                                    <input type="text" class="form-control dateInput mx-1" value="No location Found for Region"/>
+                                @endif
+
                             </div>
 
                             <div class="col-md-5 col-sm-12 p-2">

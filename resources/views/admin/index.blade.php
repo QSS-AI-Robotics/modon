@@ -164,7 +164,7 @@
             
                             <!-- Pilot Grid -->
                             <div class="px-3 pb-3 flex-grow-1 overflow-auto">
-                                {{-- <div class="row h-100" id="missionsPanel"> --}}
+                             
                                     <div class="row flex-nowrap overflow-auto h-100" id="missionsPanel" style="white-space: nowrap;">
 
                                   
@@ -220,20 +220,38 @@
             
                     <!-- === Second Half: Incident Chart === -->
                     <div class="flex-grow-1 mt-2">
-                        <div class="bg-section d-flex flex-column h-100">
+                        <div class=" d-flex flex-column h-100">
                             <!-- Header -->
-                            <div class="py-3 px-3 d-flex justify-content-between">
+                            {{-- <div class="py-3 px-3 d-flex justify-content-around">
                                 <p class="mb-0">Incident Chart</p>
+                                <p class="mb-0">Heat Map</p>
                                 
-                            </div>
+                            </div> --}}
             
                             <!-- Chart -->
-                            <div class="flex-grow-1 px-3 pb-3">
-                                <canvas id="regionBarChart" class="w-100" style="height: 30vh"></canvas>
-                                <div id="noregionDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
-                                    No data found
+                            <div class="flex-grow-1 px-3 pb-1">
+                                <div class="row bg-section">
+                                    <div class="col-lg-12 d-flex justify-content-between">
+
+                                        <p class="mb-0 py-3">Incident Chart</p>
+                                        <p class="mb-0 py-4">Heat Map</p>
+                                    </div>
+                                    <div class="col-lg-6 ">
+                                      
+                                        <canvas id="regionBarChart" class="w-100" style="height: 30vh"></canvas>
+                                        <div id="noregionDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
+                                            No data found
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        
+                                            <img src="{{ asset('images/headmap.png') }}" class="img-fluid  object-fit-cover rounded" style="height: 200px">
+                                      
+                                    </div>
                                 </div>
+                               
                             </div>
+                          
                         </div>
                     </div>
             

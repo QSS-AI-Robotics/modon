@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class NavigationLink extends Model
 {
-    protected $fillable = ['name', 'url', 'sort_order'];
+    protected $fillable = ['name', 'url', 'sort_order','icon'];
 
     public function userTypes()
     {

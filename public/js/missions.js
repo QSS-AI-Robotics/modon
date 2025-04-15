@@ -280,14 +280,15 @@ $('#addMissionForm').on('submit', function (e) {
     console.log(selectedLocations)
     // UI feedback
     const buttonText = missionId ? "Updating..." : "Creating...";
+    const methofs = missionId?"PUT":"POST";
     $(".mission-btn span").text(buttonText);
     $(".mission-btn svg").attr({ "width": "20", "height": "20" });
-    // console.table(formData);
+   console.table(formData);
 
     // ✅ Send AJAX
     $.ajax({
         url: url,
-        type: "POST",
+        type: methofs,
         data: formData,
         success: function (response) {
             Swal.fire({

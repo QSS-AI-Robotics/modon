@@ -6,9 +6,9 @@
         <div class="row header shadows bg-section p-1 mb-2 align-items-center">
             <div class="col-2 d-flex align-items-center">
                 <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50">
+                <img src="{{ asset('images/smodon.png') }}" alt="Logo" class="img-fluid px-2 mb-1" style="width:32%">
             </div>
             <div class="col-7 d-flex">
-
                 @foreach($navLinks as $link)
                     @php
                         $isActive = $link->url === '/'
@@ -16,12 +16,14 @@
                             : request()->is(ltrim($link->url, '/') . '*');
                     @endphp
                     <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ $isActive ? 'selected' : '' }}">
+                        @if($link->icon)
+                            <img src="{{ asset('images/' . $link->icon) }}" alt="{{ $link->name }}" class="" style="width:15px">
+                        @endif
                         {{ $link->name }}
                     </a>
                 @endforeach
-
-
             </div>
+            
             
             <div class="col-3 d-flex justify-content-end">
 

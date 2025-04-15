@@ -12,7 +12,7 @@
     <div class="container ">
         <div class="wrapper">
           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12   text-center ">
-              <img src="./images/mudon.jpg"  alt="" class=" rounded w-75">
+              <img src="./images/modon.png"  alt="" class=" rounded w-25 pt-5">
           </div>
           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 p-4">
             <div class="row ">
@@ -20,20 +20,21 @@
                     @csrf
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
                         <label for="exampleFormControlInput1" class="form-label">Email address</label>
-                        <input type="email"  class="fldsty form-control InputField" id="email" name="email" value="nabeel@qltyss.com" placeholder="Email Here...." required/>
+                        <input type="email"  class=" form-control input-dark-blue" id="email" name="email" value="nabeel@qltyss.com" placeholder="Email Here...." required/>
                     </div>
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 py-4">
                         <label for="exampleFormControlInput1" class="form-label">Password</label>
-                        <input type="password" name="password" class="fldsty form-control InputField" id="password" value="admin1234"  placeholder="**********" required />
+                        <input type="password" name="password" class=" form-control input-dark-blue" id="password" value="admin1234"  placeholder="**********" required />
                     </div>
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 d-grid p-3 button">
-                        <button type="submit" class="p-2 signInbtn" >SignIn</button>
+                        <button type="submit" class="p-2 signInbtn fw-semibold" >Sign In</button>
                         <div class="text-danger text-center" id="response-message"></div>
                     </div>
                     
               </form>
-              <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center fw-bold p-2">
-                 Powered By Quality Support Solutions
+              <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center fw-bold ">
+                 {{-- Powered By QSS AI & ROBOTICS --}}
+                 <img src="./images/qsslogo.png"  alt="" class=" rounded img-fluid ">
               </div>
             </div>
           </div>

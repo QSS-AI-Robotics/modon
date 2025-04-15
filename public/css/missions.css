@@ -2,7 +2,7 @@
     font-size: 0.8rem;
 }
 .progress {
-    background-color: #323849 !important; /* Custom background */
+    background-color: black !important; /* Custom background */
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Adds shadow effect */
     height: 5px; /* Reduce height */
     border-radius: 5px; /* Slightly rounded edges */
@@ -17,8 +17,8 @@
 .form-check-input {
     width: 18px;  /* Adjust size */
     height: 18px;
-    border: 2px solid #101625 !important; /* Change border color */
-    background-color: #242C45 !important; /* Change background color */
+    border: 2px solid #75797c1e !important; /* Change border color */
+    background-color: #0A415B !important; /* Change background color */
     appearance: none; /* Removes default browser styling */
     border-radius: 4px; /* Optional: Add rounded corners */
     display: inline-block;
@@ -28,8 +28,8 @@
 
 /* Add a checkmark when selected */
 .form-check-input:checked {
-    background-color: #101625 !important; /* Change background color when checked */
-    border-color: #101625 !important; /* Change border color when checked */
+    background-color: #092B3B !important; /* Change background color when checked */
+    border-color: #81FF76 !important; /* Change border color when checked */
 }
 
 
@@ -56,12 +56,14 @@
 }
 
 .mission-btn{
+    color:white;
     background:#47D16C;
+    border:2px solid transparent;
     
 }
 .mission-btn:hover{
-    border:1px solid #1E253B;
-    background:#47D16C;
+    background:none;
+    border:2px solid #47D16C;
 
 }
 .gray-text{

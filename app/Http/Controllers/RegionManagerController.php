@@ -481,37 +481,40 @@ class RegionManagerController extends Controller
     }
     // update a mission
     public function updateMission(Request $request)
-{
-    Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
+    {
+        
 
-    // ✅ Validate input
-    $request->validate([
-        'mission_id' => 'required|exists:missions,id',
-        'inspection_type' => 'required|exists:inspection_types,id',
-        'mission_date' => 'required|date',
-        'note' => 'nullable|string',
-        'locations' => 'required|array',
-        'locations.*' => 'exists:locations,id',
-        'pilot_id' => 'required|exists:users,id', // ✅ Validate pilot_id
-    ]);
+        Log::info('🔍 mission_id received:', ['id' => $request->all()]);
+        Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
 
-    // ✅ Find mission
-    $mission = Mission::findOrFail($request->mission_id);
+        // ✅ Validate input
+        $request->validate([
+            'mission_id' => 'required|exists:missions,id',
+            'inspection_type' => 'required|exists:inspection_types,id',
+            'mission_date' => 'required|date',
+            'note' => 'nullable|string',
+            'locations' => 'required|array',
+            'locations.*' => 'exists:locations,id',
+            'pilot_id' => 'required|exists:users,id', // ✅ Validate pilot_id
+        ]);
 
-    // ✅ Update mission fields
-    $mission->mission_date = $request->mission_date;
-    $mission->note = $request->note ?? "";
-    $mission->pilot_id = $request->pilot_id; // ✅ Update pilot
-    $mission->save();
+        // ✅ Find mission
+        $mission = Mission::findOrFail($request->mission_id);
 
-    // ✅ Sync inspection type (only one now)
-    $mission->inspectionTypes()->sync([$request->inspection_type]);
+        // ✅ Update mission fields
+        $mission->mission_date = $request->mission_date;
+        $mission->note = $request->note ?? "";
+        $mission->pilot_id = $request->pilot_id; // ✅ Update pilot
+        $mission->save();
 
-    // ✅ Sync locations
-    $mission->locations()->sync($request->locations);
+        // ✅ Sync inspection type (only one now)
+        $mission->inspectionTypes()->sync([$request->inspection_type]);
 
-    return response()->json(['message' => '✅ Mission updated successfully!']);
-}
+        // ✅ Sync locations
+        $mission->locations()->sync($request->locations);
+
+        return response()->json(['message' => '✅ Mission updated successfully!']);
+    }
 
 
 

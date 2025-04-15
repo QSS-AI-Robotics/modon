@@ -1,13 +1,16 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Manrope:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
+
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Manrope:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 *{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Cairo", sans-serif;
+   font-family: "Poppins", sans-serif;
 }
 body{
-  background: #101625;
-  background-image: url('../images/qssbkgrnd.png');
+  background: rgba(9, 43, 59, 1);
+  /* background: #101625; */
+  /* background-image: url('../images/qssbkgrnd.png'); */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -21,9 +24,16 @@ body{
   padding: 0 10px;
   margin: 3rem auto;
 }
+.input-dark-blue {
+  background-color: #0A415B;
+  color: #ffffff;
+  border: 1px solid #75797c1e;
+}
+
 .wrapper{
+  color:white;
   width: 100%;
-  background:#ffffff ;
+  background:#105A7E;
   /* background-image: url('../images/login.jpg'); */
 
   height: 85%;
@@ -116,15 +126,17 @@ form .signup-link a:hover{
   text-decoration: underline;
 }
 .signInbtn{
-    background:#2E2F41; 
-    color:white;
-     border:none;
-     border:2px solid #2E2F41;
+    background:#81FF76; 
+    color:#1E6F7D;
+     border:2px solid transparent;
+     border-radius:12px;
+
 }
 .signInbtn:hover{
 
-    background: none !important;
-    border:2px solid #101625;
-    color: black;
+    background: #0A415B !important;
+    border:2px solid #81FF76;
+    color: white;
     cursor: pointer;
+    border-radius:12px;
 }

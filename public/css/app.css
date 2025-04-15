@@ -8,7 +8,7 @@
 }
 body{
  
-    background:#101625;
+    background:#092B3B;
     color:white;
     font-family: "Poppins", sans-serif;
 
@@ -34,7 +34,7 @@ body{
 }
 
 .bg-section {
-    background-color: #1C2235; /* Light background for visual distinction */
+    background-color: #105A7E; /* Light background for visual distinction */
     border-radius: 10px /* Optional: adds a border for better visibility */
 }
 
@@ -54,7 +54,7 @@ body{
 
 }
 .cont-btn:hover{
-    background: #101625;
+    background: #092B3B;
     color: white !important;
 
 }
@@ -66,7 +66,7 @@ body{
 }
 
 .search-input {
-    /* background: #101625 !important;
+    /* background: #092B3B !important;
     border-radius: 6px;
     padding: 0.3rem 0.5rem;
     outline: none;
@@ -137,7 +137,7 @@ body{
 }
 
 .datePanel-input {
-    background: #101625 !important;
+    background: #092B3B !important;
     border-radius: 6px;
     padding: 0.25rem 0.4rem;
     outline: none;
@@ -168,7 +168,7 @@ body{
 } */
 
 .selected{
-    background: #101625;
+    background: #0A415B;
     color:white !important;
 }
 .dropdown:hover .dropdown-menu {
@@ -191,7 +191,7 @@ body{
     
 }
 .alertpanel{
-    background: #101625;
+    background: #092B3B;
     border-radius: 8px;
 }
 .w-90{
@@ -246,19 +246,19 @@ body{
 
 /* For the scrollbar track (background of the scrollbar) */
 ::-webkit-scrollbar-track {
-    background-color: #101625; /* Change to your desired background color */
+    background-color: #092B3B; /* Change to your desired background color */
     border-radius: 10px;
 }
 
 /* For the scrollbar thumb (the draggable part) */
 ::-webkit-scrollbar-thumb {
-    background-color: #101625; /* Change to your desired color */
+    background-color: #092B3B; /* Change to your desired color */
     border-radius: 10px;
 }
 
 /* On hover, change the thumb color */
 ::-webkit-scrollbar-thumb:hover {
-    background-color: #101625; /* Change to your desired hover color */
+    background-color: #092B3B; /* Change to your desired hover color */
 }
 /* Remove underline and change default color */
 a {
@@ -276,20 +276,20 @@ a:hover {
     border-radius: 12px;
 }
 .notes-textarea{
-    background-color: #242C45; /* Set background color */
+    background-color: #0A415B; /* Set background color */
     color: white !important; /* Text color */
     /* height: 32px !important;  */
-    border: 1px solid #242C45  !important; /* Soft border */
+    border: 1px solid #75797c1e  !important; /* Soft border */
     border-radius: 4px; /* Slight rounded corners */
     padding: 5px 10px; /* Padding for spacing */
     font-size: 12px;
 }
 /* Default state */
 .dateInput {
-    background-color: #242C45 !important; /* Set background color */
+    background-color: #0A415B !important; /* Set background color */
     color: #cfcaca !important; /* Text color */
     height: 32px !important; /* Reduce height */
-    border: 1px solid #101625 !important; /* Soft border */
+    border: 1px solid #75797c1e !important; /* Soft border */
     border-radius: 4px; /* Slight rounded corners */
     padding: 5px 10px; /* Padding for spacing */
     font-size: 12px;
@@ -309,7 +309,7 @@ a:hover {
     outline: none; /* Remove default focus outline */
 }
 .bg-modal{
-    background: #1C2235;
+    background: #105A7E;
     color: white;
 }
 .image-preview {
@@ -460,7 +460,7 @@ iframe {
     border-left:5px solid transparent;
 }
 .incidentDiv {
-    /* background: #101625; */
+    /* background: #092B3B; */
     /* background: linear-gradient(to bottom, #121a2b, #0e1320);  */
     background: linear-gradient(to bottom, rgba(16, 22, 37, 1), rgba(16, 22, 37, 0.7));
     color: #fff; /* if you want white text */
@@ -487,7 +487,7 @@ iframe {
     border-radius: 4px;
 }
 .modonbtn{
-    background: #101625;
+    background: #092B3B;
     color:white;
     font-size: 12px;
 }
@@ -502,7 +502,7 @@ iframe {
 }
 .custImg{
     height: 28px; 
-    background: #101625;
+    background: #092B3B;
      border-radius: 6px;
 }
 
@@ -510,7 +510,7 @@ iframe {
     transform: scale(1.5); /* increase or decrease as needed */
 }
 .bg-modon{
-    background: #101625;
+    background: #0A415B;
     border-radius: 6px;
 }
 
@@ -544,7 +544,7 @@ iframe {
     top: 100%;
     right: 0;
     width: 200px;
-    background: #101625;
+    background: #092B3B;
     border: 1px solid #444;
     border-radius: 6px;
     padding: 0.75rem;
@@ -567,7 +567,7 @@ iframe {
 }
 .IncidentPanel {
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #101625 transparent; /* Firefox */
+    scrollbar-color: #092B3B transparent; /* Firefox */
 }
 
 /* Chrome, Edge, Safari */
@@ -580,14 +580,14 @@ iframe {
 }
 
 .IncidentPanel::-webkit-scrollbar-thumb {
-    background-color: #101625; /* Scrollbar color */
+    background-color: #092B3B; /* Scrollbar color */
     border-radius: 6px;
     border: 2px solid transparent;
     background-clip: content-box;
 }
 
 .IncidentPanel::-webkit-scrollbar-thumb:hover {
-    background-color: #101625; /* Hover color */
+    background-color: #092B3B; /* Hover color */
 }
 @keyframes pulse {
     0%, 100% {
@@ -609,7 +609,7 @@ iframe {
 }
 
   /* .accordion-button{
-    background-color: #1C2235;
+    background-color: #105A7E;
     color: white;
     border:none !important; 
     border-radius: none !important;
@@ -634,7 +634,7 @@ iframe {
     border:none !important;
 } */
 .accordion-button {
-    background-color: #1C2235;
+    background-color: #105A7E;
     color: white;
     border: none !important;
     border-radius: 0 !important;
@@ -644,7 +644,7 @@ iframe {
 
 /* When accordion is expanded (remove white background) */
 .accordion-button:not(.collapsed) {
-    background-color: #1C2235 !important;
+    background-color: #105A7E !important;
     color: white !important;
     box-shadow: none !important;
 }
@@ -664,7 +664,7 @@ iframe {
 }
 
 .accordion-body {
-    background-color: #1C2235;
+    background-color: #105A7E;
     color: white;
     border: none !important;
     border-radius: 0 !important;
@@ -672,4 +672,8 @@ iframe {
 
 .accordion-item {
     border: none !important;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Inverts color to white */
+    cursor: pointer;
 }

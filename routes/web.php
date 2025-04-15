@@ -47,7 +47,8 @@ Route::middleware(['auth', 'checkUserType:city_supervisor,qss_admin,city_manager
     Route::post('/missions/store', [RegionManagerController::class, 'storeMission'])->name('missions.store'); 
     Route::post('/missions/{id}', [RegionManagerController::class, 'destroyMission'])->name('missions.destroy');
     Route::get('/missions/{id}/edit', [RegionManagerController::class, 'editMission'])->name('missions.edit');
-    Route::post('/missions/update', [RegionManagerController::class, 'updateMission'])->name('missions.update');
+    // Route::post('/missions/update', [RegionManagerController::class, 'updateMission'])->name('missions.update');
+    Route::put('/missions/{mission}', [RegionManagerController::class, 'updateMission']);
     Route::get('/missions/stats', [RegionManagerController::class, 'getMissionStats'])->name('missions.stats');
    // web.php or a controller group
     Route::get('/missions/inspection-data', [RegionManagerController::class, 'getInspectionTypes'])->name('missions.inspectionTypes');

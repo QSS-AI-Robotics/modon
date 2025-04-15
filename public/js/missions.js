@@ -446,7 +446,7 @@ $('#addMissionForm').on('submit', function (e) {
             text: "This mission will be permanently deleted.",
             icon: 'warning',
             input: 'textarea',
-            inputLabel: 'Reason for deletion (required for region managers)',
+            inputLabel: 'Reason for Deletion',
             inputPlaceholder: 'Type reason here...',
             inputAttributes: {
                 'aria-label': 'Reason for deletion'

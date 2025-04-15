@@ -398,6 +398,7 @@ class RegionManagerController extends Controller
 
     // ✅ Store the reason
     $mission->delete_reason = $request->delete_reason;
+    $mission->deleted_by = $user->id;
     $mission->save();
 
     // ✅ Soft delete

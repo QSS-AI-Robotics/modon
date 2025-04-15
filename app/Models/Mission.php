@@ -9,7 +9,7 @@ class Mission extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'mission_date', 'note', 'region_id', 'pilot_id','delete_reason'];
+    protected $fillable = ['user_id', 'mission_date', 'note', 'region_id', 'pilot_id','delete_reason','deleted_by', ];
 
 
     /**
@@ -44,5 +44,9 @@ class Mission extends Model
     public function pilot()
     {
         return $this->belongsTo(User::class, 'pilot_id');
+    }
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }

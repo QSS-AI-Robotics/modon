@@ -25,7 +25,7 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Reports List</h5>
+                                    <h5>Mission List</h5>
                                 </div>
                                 <div class="col-lg-4 text-end search-container">
                                     <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
@@ -36,7 +36,7 @@
 
 
                         <div class="flex-grow 1">
-                            <div class="row fw-bold   label-text w-100  px-3 py-2 justify-content-between">
+                            <div class="row fw-bold custom-bborder  label-text w-100  px-3 py-2 justify-content-between">
                                 <div class="col-3">Inspection Type</div>
                                 <div class="col-2 text-center">Mission Date</div>
                                 <div class="col-3 text-center">Location</div>

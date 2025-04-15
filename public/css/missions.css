@@ -67,7 +67,7 @@
 
 }
 .gray-text{
-    color: #FFFFFF33;
+    color: #ffffff87;
 
 }
 .table {
@@ -222,4 +222,8 @@ table tr {
 }
 textarea:focus{
     background-color: #171f33 !important;
+}
+.custom-bborder{
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    margin-left: 1px;
 }

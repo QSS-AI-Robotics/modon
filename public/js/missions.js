@@ -123,11 +123,7 @@ $(document).ready(function () {
                     const shortNote = noteWords.slice(0, 2).join(" ");
                     const fullNote = mission.note || "No Notes";
     
-                    const noteHTML = `
-                        <span class="text-truncate d-inline-block">
-                            ${shortNote}...
-                        </span>
-                    `;
+             
     
                     let statusBadge = "";
                     switch (mission.status) {
@@ -188,8 +184,11 @@ $(document).ready(function () {
                             <div id="collapse-${mission.id}" class="accordion-collapse collapse  " aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
                                 <div class="accordion-body px-4 py-2 label-text">
                                     <strong>Program:</strong> ${inspectionName}<br>
+                                    
                                     <strong>Mission Date:</strong> ${mission.mission_date}<br>
                                     <strong>Locations:</strong> ${locations}<br>
+                                    <strong data-pilot-id="${mission.pilot_info.id}">Pilot Name:</strong> ${mission.pilot_info.name}<br>
+
                                     <strong>Note:</strong class="mission_note"> ${fullNote}<br><br>
                                     <div class="d-flex ">
                                        <div class="row w-100   align-items-center">

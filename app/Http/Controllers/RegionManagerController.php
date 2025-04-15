@@ -120,63 +120,87 @@ class RegionManagerController extends Controller
      * Display the missions page for the authenticated user's region.
      */
     public function getmanagermissions()
-{
-    if (!Auth::check()) {
-        return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+    
+        $user = Auth::user();
+    
+        // ✅ Get all region IDs assigned to the user
+        $regionIds = $user instanceof User
+            ? $user->regions()->pluck('regions.id')
+            : collect();
+    
+        // ✅ Fetch all missions for the user's regions
+        $missions = Mission::whereIn('region_id', $regionIds)
+            ->with([
+                'inspectionTypes:id,name',
+                'locations:id,name',
+                'pilot:id,name', // ✅ Eager load pilot info
+                'approvals:id,mission_id,city_manager_approved,region_manager_approved,modon_admin_approved'
+            ])
+            ->get();
+    
+        // ✅ Format response with approval status + pilot info
+        $missions = $missions->map(function ($mission) {
+            $mission->approval_status = [
+                'city_manager_approved' => $mission->approvals->city_manager_approved ?? null,
+                'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
+                'modon_admin_approved' => $mission->approvals->modon_admin_approved ?? null,
+            ];
+    
+            $mission->pilot_info = [
+                'id' => $mission->pilot->id ?? null,
+                'name' => $mission->pilot->name ?? null,
+            ];
+    
+            unset($mission->approvals, $mission->pilot); // Optional cleanup
+            return $mission;
+        });
+    
+        return response()->json([
+            'missions' => $missions
+        ]);
     }
-
-    $user = Auth::user();
-
-    $regionIds = $user instanceof User
-        ? $user->regions()->pluck('regions.id')
-        : collect();
-
-    $missions = Mission::whereIn('region_id', $regionIds)
-        ->with([
-            'inspectionTypes:id,name',
-            'locations:id,name',
-            'approvals:id,mission_id,city_manager_approved,region_manager_approved,modon_admin_approved'
-        ])
-        ->get();
-
-    $missions = $missions->map(function ($mission) {
-        $mission->approval_status = [
-            'city_manager_approved' => $mission->approvals->city_manager_approved ?? null,
-            'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
-            'modon_admin_approved' => $mission->approvals->modon_admin_approved ?? null,
-        ];
-        unset($mission->approvals);
-        return $mission;
-    });
-
-    return response()->json([
-        'missions' => $missions
-    ]);
-}
+    
 
     // public function getmanagermissions()
     // {
     //     if (!Auth::check()) {
     //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
     //     }
-    
+
     //     $user = Auth::user();
-        
-    //     // ✅ Get all assigned region IDs (support multiple regions)
+
     //     $regionIds = $user instanceof User
     //         ? $user->regions()->pluck('regions.id')
     //         : collect();
-    
-    //     // ✅ Fetch all missions for the user's regions
+
     //     $missions = Mission::whereIn('region_id', $regionIds)
-    //         ->with(['inspectionTypes:id,name', 'locations:id,name']) // Eager load related data
+    //         ->with([
+    //             'inspectionTypes:id,name',
+    //             'locations:id,name',
+    //             'approvals:id,mission_id,city_manager_approved,region_manager_approved,modon_admin_approved'
+    //         ])
     //         ->get();
-    
+
+    //     $missions = $missions->map(function ($mission) {
+    //         $mission->approval_status = [
+    //             'city_manager_approved' => $mission->approvals->city_manager_approved ?? null,
+    //             'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
+    //             'modon_admin_approved' => $mission->approvals->modon_admin_approved ?? null,
+    //         ];
+    //         unset($mission->approvals);
+    //         return $mission;
+    //     });
+
     //     return response()->json([
     //         'missions' => $missions
     //     ]);
     // }
-    
+
+   
     
     
 

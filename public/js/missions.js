@@ -437,14 +437,20 @@ $('#addMissionForm').on('submit', function (e) {
         });
     // Delete Mission
     
-
-        $(document).on('click', '.delete-mission', function () {
+    $(document).on('click', '.delete-mission', function () {
         const missionId = $(this).data('id');
         resetValues();
+    
         Swal.fire({
             title: 'Are you sure?',
             text: "This mission will be permanently deleted.",
             icon: 'warning',
+            input: 'textarea',
+            inputLabel: 'Reason for deletion (required for region managers)',
+            inputPlaceholder: 'Type reason here...',
+            inputAttributes: {
+                'aria-label': 'Reason for deletion'
+            },
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
@@ -452,9 +458,14 @@ $('#addMissionForm').on('submit', function (e) {
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
+                const deleteReason = result.value?.trim();
+    
                 $.ajax({
                     url: `/missions/${missionId}`,
-                    type: "DELETE",
+                    type: "POST",
+                    data: {
+                        delete_reason: deleteReason
+                    },
                     success: function (response) {
                         Swal.fire({
                             icon: 'success',
@@ -485,6 +496,54 @@ $('#addMissionForm').on('submit', function (e) {
             }
         });
     });
+    
+    //     $(document).on('click', '.delete-mission', function () {
+    //     const missionId = $(this).data('id');
+    //     resetValues();
+    //     Swal.fire({
+    //         title: 'Are you sure?',
+    //         text: "This mission will be permanently deleted.",
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#d33',
+    //         cancelButtonColor: '#6c757d',
+    //         confirmButtonText: 'Yes, delete it!',
+    //         cancelButtonText: 'Cancel'
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             $.ajax({
+    //                 url: `/missions/${missionId}`,
+    //                 type: "DELETE",
+    //                 success: function (response) {
+    //                     Swal.fire({
+    //                         icon: 'success',
+    //                         title: 'Deleted!',
+    //                         text: response.message || 'Mission has been deleted.',
+    //                         timer: 2000,
+    //                         showConfirmButton: false,
+    //                         background: '#101625',
+    //                         color: '#ffffff'
+    //                     });
+    
+    //                     $('#missionRow-' + missionId).remove(); // Remove mission row
+    //                     // getMissionStats();
+    //                 },
+    //                 error: function (xhr) {
+    //                     const errorMessage = xhr.responseJSON?.error || 'Something went wrong.';
+    
+    //                     Swal.fire({
+    //                         icon: 'error',
+    //                         title: 'Error!',
+    //                         text: errorMessage,
+    //                         background: '#101625',
+    //                         color: '#ffffff',
+    //                         confirmButtonColor: '#d33'
+    //                     });
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
     
     
 

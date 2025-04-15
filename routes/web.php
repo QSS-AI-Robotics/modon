@@ -39,13 +39,13 @@ Route::middleware('auth')->group(function () {
 // ✅ Protected Routes for Region Manager
 
 
-Route::middleware(['auth', 'checkUserType:city_supervisor,qss_admin'])->group(function () {
+Route::middleware(['auth', 'checkUserType:city_supervisor,qss_admin,city_manager,region_manager'])->group(function () {
 
     
     Route::get('/missions', [RegionManagerController::class, 'index'])->name('missions.index');
     Route::get('/getmanagermissions', [RegionManagerController::class, 'getmanagermissions'])->name('missions.getmanagermissions');
     Route::post('/missions/store', [RegionManagerController::class, 'storeMission'])->name('missions.store'); 
-    Route::delete('/missions/{id}', [RegionManagerController::class, 'destroyMission'])->name('missions.destroy');
+    Route::post('/missions/{id}', [RegionManagerController::class, 'destroyMission'])->name('missions.destroy');
     Route::get('/missions/{id}/edit', [RegionManagerController::class, 'editMission'])->name('missions.edit');
     Route::post('/missions/update', [RegionManagerController::class, 'updateMission'])->name('missions.update');
     Route::get('/missions/stats', [RegionManagerController::class, 'getMissionStats'])->name('missions.stats');

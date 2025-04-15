@@ -9,7 +9,7 @@ class Mission extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'mission_date', 'note', 'region_id', 'pilot_id'];
+    protected $fillable = ['user_id', 'mission_date', 'note', 'region_id', 'pilot_id','delete_reason'];
 
 
     /**

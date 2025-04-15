@@ -108,6 +108,8 @@ class AuthController extends Controller
                  case 'region_manager':
                      $redirect = route('missions.index');
                      break;
+                 case 'region_manager':
+                 case 'city_manager':
                  case 'city_supervisor':
                      $redirect = route('missions.index');
                      break;

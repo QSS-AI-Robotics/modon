@@ -34,27 +34,7 @@
                             </div>
                         </div>
 
-                        <!-- Reports Table -->
-                        {{-- <div class="table-responsive flex-grow-1 overflow-auto">
-                            <table class="table table-text">
-                                <thead>
-                                    <tr>
-                                        <th>Inspection Type</th>
-                                        <th>Mission Date</th>
-                                        
-                                        <th>Location</th>
-                                        <th>Note</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="missionTableBody" class="align-items-center">
-                                    <tr>
-                                        <td colspan="7" class="text-center text-muted">Loading missions...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div> --}}
+
                         <div class="flex-grow 1">
                             <div class="row fw-bold   label-text w-100  px-3 py-2 justify-content-between">
                                 <div class="col-3">Inspection Type</div>
@@ -147,18 +127,48 @@
                             </div>
                       
 
-                            <div class="col-md-12 col-sm-12 p-2">
+                            <div class="col-md-7 col-sm-12 p-2">
                                 <label class="form-check-label label-text py-1">Location</label>
                             
                                 @if($locationData)
-                                    <input type="text" class="form-control dateInput"  name="location_id" id="location_id" data-location-id="{{ $locationData['id'] }}"  value="{{ $locationData['name'] }}" disabled>
+                                    <input type="text" class="form-control dateInput mx-1"  name="location_id" id="location_id" data-location-id="{{ $locationData['id'] }}"  value="{{ $locationData['name'] }}" disabled>
                                  @endif
                             </div>
+
+                            <div class="col-md-5 col-sm-12 p-2">
+                                <label for="pilot_id" class="form-check-label label-text py-1"> Pilot</label>
+                            
+                                @if($pilots->count() === 1)
+                                    <!-- Only one pilot: auto-selected and disabled -->
+                                    <select name="pilot_id" id="pilot_id" class="form-select  form-control dateInput mx-1" disabled>
+                                        <option value="{{ $pilots[0]->id }}" selected>{{ $pilots[0]->name }}</option>
+                                    </select>
+                            
+                                    <!-- Hidden input to still submit the selected pilot -->
+                                    <input type="hidden" name="pilot_id" value="{{ $pilots[0]->id }}">
+                                
+                                @elseif($pilots->count() > 1)
+                                    <!-- Multiple pilots: allow user to select, and make it required -->
+                                    <select name="pilot_id" id="pilot_id" class="form-select  form-control dateInput mx-1" required>
+                                        <option value="">Select Pilot</option>
+                                        @foreach($pilots as $pilot)
+                                            <option value="{{ $pilot->id }}">{{ $pilot->name }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <!-- No pilot available -->
+                                    <select class="form-select form-control dateInput mx-1" disabled required>
+                                        <option class="text-danger" >No pilots available for this region.</option>
+                                    </select>
+                                @endif
+                            </div>
+                            
+
 
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-check-label label-text py-2">Notes</label>
-                                <textarea id="note" name="note" class="form-control notes-textarea flex-grow-1" rows="3"></textarea>
+                                <textarea id="note" name="note" class="form-control notes-textarea flex-grow-1 mx-1" rows="3"></textarea>
 
                             </div>
 

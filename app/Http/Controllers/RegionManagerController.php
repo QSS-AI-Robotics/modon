@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 use App\Models\MissionApproval; 
 class RegionManagerController extends Controller
 {
+
+
     public function index()
     {
         if (!Auth::check()) {
@@ -23,31 +25,56 @@ class RegionManagerController extends Controller
 
         // 👇 Fetch assigned location (if applicable)
         $location = in_array(strtolower($userType), ['city_manager', 'city_supervisor'])
-            ? $user->assignedLocations->first() // returns a Location model or null
+            ? $user->assignedLocations->first()
             : null;
 
-        // Pass both name and id if available
         $locationData = $location ? [
             'id' => $location->id,
             'name' => $location->name
         ] : null;
 
-        return view('missions.index', compact('userType', 'locationData'));
+        // ✅ Get region IDs the current user has access to
+        $regionIds = optional(Auth::user())->regions()->pluck('regions.id');
+
+        
+
+        // ✅ Fetch pilots assigned to those regions
+        $pilots = \App\Models\User::whereHas('regions', function ($query) use ($regionIds) {
+            $query->whereIn('regions.id', $regionIds);
+        })->whereHas('userType', function ($q) {
+            $q->where('name', 'pilot');
+        })->get();
+
+        return view('missions.index', compact('userType', 'locationData', 'pilots'));
     }
 
-    /**
-     * Display the locations page with all locations for the authenticated user's region.
-     */
+
+
+
     // public function index()
     // {
     //     if (!Auth::check()) {
     //         return redirect()->route('signin.form')->with('error', 'Please log in first.');
     //     }
-    
-    //     $userType = optional(Auth::user()->userType)->name ?? 'Control';
-    
-    //     return view('missions.index', compact('userType')); // Only pass userType
+
+    //     $user = Auth::user();
+    //     $userType = optional($user->userType)->name ?? 'Control';
+
+    //     // 👇 Fetch assigned location (if applicable)
+    //     $location = in_array(strtolower($userType), ['city_manager', 'city_supervisor'])
+    //         ? $user->assignedLocations->first() // returns a Location model or null
+    //         : null;
+
+    //     // Pass both name and id if available
+    //     $locationData = $location ? [
+    //         'id' => $location->id,
+    //         'name' => $location->name
+    //     ] : null;
+
+    //     return view('missions.index', compact('userType', 'locationData'));
     // }
+
+
 
     
     public function getInspectionTypes()
@@ -184,6 +211,7 @@ class RegionManagerController extends Controller
                 'note' => $request->note,
                 'region_id' => $regionId,
                 'user_id' => $userId,
+                'pilot_id' => $request->pilot_id,
             ]);
     
             // ✅ Sync relationships
@@ -387,6 +415,7 @@ class RegionManagerController extends Controller
         'note' => 'nullable|string',
         'locations' => 'required|array',
         'locations.*' => 'exists:locations,id',
+        'pilot_id' => 'required|exists:users,id', // ✅ Validate pilot_id
     ]);
 
     // ✅ Find mission
@@ -395,6 +424,7 @@ class RegionManagerController extends Controller
     // ✅ Update mission fields
     $mission->mission_date = $request->mission_date;
     $mission->note = $request->note ?? "";
+    $mission->pilot_id = $request->pilot_id; // ✅ Update pilot
     $mission->save();
 
     // ✅ Sync inspection type (only one now)
@@ -406,25 +436,7 @@ class RegionManagerController extends Controller
     return response()->json(['message' => '✅ Mission updated successfully!']);
 }
 
-    // public function updateMission(Request $request)
-    // {
-    //     Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
 
-    //     // ✅ Find mission
-    //     $mission = Mission::findOrFail($request->mission_id);
-
-    //     // ✅ Update mission fields
-    //     $mission->start_datetime = $request->start_datetime;
-    //     $mission->end_datetime = $request->end_datetime;
-    //     $mission->note = $request->note ?? "";
-    //     $mission->save();
-
-    //     // ✅ Sync relationships
-    //     $mission->inspectionTypes()->sync($request->inspection_types);
-    //     $mission->locations()->sync($request->locations);
-
-    //     return response()->json(['message' => '✅ Mission updated successfully!']);
-    // }
 
     // public function getMissionStats()
     // {

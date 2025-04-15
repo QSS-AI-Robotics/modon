@@ -9,7 +9,8 @@ class Mission extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id','mission_date', 'note', 'region_id'];
+    protected $fillable = ['user_id', 'mission_date', 'note', 'region_id', 'pilot_id'];
+
 
     /**
      * A mission belongs to multiple inspection types.
@@ -39,5 +40,9 @@ class Mission extends Model
     public function locations()
     {
         return $this->belongsToMany(Location::class, 'mission_location');
+    }
+    public function pilot()
+    {
+        return $this->belongsTo(User::class, 'pilot_id');
     }
 }

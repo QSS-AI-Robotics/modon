@@ -133,8 +133,10 @@ $(document).ready(function () {
                     switch (mission.status) {
                         case "Pending":
                             statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
+                        case "Rejected":
+                            statusBadge = `<span class="badge p-2 bg-warning">Rejected</span>`; break;
                         case "In Progress":
-                            statusBadge = `<span class="badge p-2 bg-warning text-dark">In Progress</span>`; break;
+                            statusBadge = `<span class="badge p-2 bg-info text-dark">In Progress</span>`; break;
                         case "Awaiting Report":
                             statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
                         case "Completed":
@@ -151,19 +153,22 @@ $(document).ready(function () {
                             ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
                             : `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
     
-                    const modonManagerStatus = mission.approval_status?.modon_manager_approved == 1
-                        ? `<Strong class="text-success">Approved</Strong>`
-                        : `<Strong class="text-danger">Pending</Strong>`;
-                        
-                    const regionManagerStatus = mission.approval_status?.region_manager_approved == 1
-                        ? `<Strong class="text-success">Approved</Strong>`
-                        : `<Strong class="text-danger">Pending</Strong>`;
-                        
-                    const cityManagerStatus = mission.approval_status?.city_manager_approved == 1
-                        ? `<Strong class="text-success">Approved</Strong>`
-                        : `<Strong class="text-danger">Pending</Strong>`;
+                            const getStatusBadge = (value) => {
+                                switch (value) {
+                                    case 1:
+                                        return `<strong class="text-success">Approved</strong>`;
+                                    case 2:
+                                        return `<strong class="text-danger">Rejected</strong>`;
+                                    default:
+                                        return `<strong class="text-warning">Pending</strong>`;
+                                }
+                            };
+                            
+                            const modonManagerStatus = getStatusBadge(mission.approval_status?.modon_manager_approved);
+                            const regionManagerStatus = getStatusBadge(mission.approval_status?.region_manager_approved);
+                            const cityManagerStatus = getStatusBadge(mission.approval_status?.city_manager_approved);
                     const row = `
-                        <div class="accordion-item " id="missionRow-${mission.id}">
+                        <div class="accordion-item " id="missionRow-${mission.id}"   data-pilot-id="${mission.pilot_id}">
                             <h2 class="accordion-header" id="heading-${mission.id}">
                                 <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
                                     <div class="row w-100 justify-content-between label-text">
@@ -248,16 +253,17 @@ $('#addMissionForm').on('submit', function (e) {
 
     const locationId = $('#location_id').data('location-id');
     const selectedLocations = locationId ? [locationId] : [];
+    const pilotId = $('#pilot_id').val();
     const formData = {
         mission_id: missionId,
         inspection_type: inspectionType,
         mission_date: $('#mission_date').val(),
         note: $('#note').val(),
-        locations: selectedLocations
+        locations: selectedLocations,
+        pilot_id: pilotId
     };
-
-    // ✅ Validation
-    if (!formData.mission_date || !inspectionType || selectedLocations.length === 0) {
+    
+    if (!formData.mission_date || !inspectionType || !pilotId || selectedLocations.length === 0) {
         $errorDiv.removeClass('d-none').text("All fields are required.");
         return;
     }
@@ -267,6 +273,7 @@ $('#addMissionForm').on('submit', function (e) {
     const buttonText = missionId ? "Updating..." : "Creating...";
     $(".mission-btn span").text(buttonText);
     $(".mission-btn svg").attr({ "width": "20", "height": "20" });
+    // console.table(formData);
 
     // ✅ Send AJAX
     $.ajax({
@@ -469,7 +476,7 @@ $('#addMissionForm').on('submit', function (e) {
     
 
 
-        // Handle Edit Mission Button Click44
+        // Handle Edit Mission Button Click
         $(document).on("click", ".edit-mission", function () {
             $(".cancel-btn").removeClass("d-none");
         
@@ -490,12 +497,20 @@ $('#addMissionForm').on('submit', function (e) {
             const locationsText = row.find(".accordion-button .col-3").eq(1).text(); // second .col-3 (location)
             const locationNames = locationsText.split(',').map(loc => loc.trim().toLowerCase());
         
+            // ✅ Get assigned pilot ID (from hidden input or attribute)
+            const pilotId = row.data('pilot-id'); // requires pilot_id to be stored as data attribute
+        
             // ✅ Fill the form fields
             $('#mission_date').val(missionDate);
             $('#note').val(fullNote);
         
             // ✅ Select the correct inspection type radio button
             $(`input[name="inspection_type"][value="${inspectionTypeId}"]`).prop("checked", true);
+        
+            // ✅ Select the correct pilot in the dropdown
+            if (pilotId) {
+                $('#pilot_id').val(pilotId);
+            }
         
             // ✅ Check checkboxes for locations
             $(".location-checkbox").each(function () {
@@ -512,45 +527,8 @@ $('#addMissionForm').on('submit', function (e) {
             $(".mission-btn svg").attr({ "width": "30", "height": "30" });
         });
         
-        // $(document).on("click", ".edit-mission", function () {
-        //     $(".cancel-btn").removeClass("d-none");
-        
-        //     const missionId = $(this).data("id");
-        //     const row = $(`#missionRow-${missionId}`);
-        
-        //     // ✅ Get inspection type info from row <td>
-        //     const inspectionTypeId = row.find("td:nth-child(1)").data("inspectiontype-id");
-        //     const inspectionTypeName = row.find("td:nth-child(1)").data("name");
-        
-        //     // ✅ Get date and note
-        //     const missionDate = row.find("td:nth-child(2)").text().trim();
-        //     const noteText = row.find("td:nth-child(4)").text().trim().replace(/\.\.\.$/, ''); // remove trailing ...
-        
-        //     // ✅ Get location names (used to check checkboxes)
-        //     const locationNames = row.find("td:nth-child(3)").text().split(',').map(loc => loc.trim().toLowerCase());
-        
-        //     // ✅ Fill form fields
-        //     $('#mission_date').val(missionDate);
-        //     $('#note').val(noteText);
-        
-        //     // ✅ Select the correct inspection type radio button by ID
-        //     $(`input[name="inspection_type"][value="${inspectionTypeId}"]`).prop("checked", true);
-        
-        //     // ✅ Check location checkboxes based on location name
-        //     $(".location-checkbox").each(function () {
-        //         const labelText = $(this).siblings("label").text().trim().toLowerCase();
-        //         $(this).prop("checked", locationNames.includes(labelText));
-        //     });
-        
-        //     // ✅ Set mission ID for update tracking
-        //     $("#addMissionForm").attr("data-mission-id", missionId);
-        
-        //     // ✅ UI updates
-        //     $(".form-title").text("Edit Mission");
-        //     $(".mission-btn span").text("Update Mission");
-        //     $(".mission-btn svg").attr({ "width": "30", "height": "30" });
-        // });
-        
+    
+      
    
         
         $(document).on("click", ".cancel-btn", function () {

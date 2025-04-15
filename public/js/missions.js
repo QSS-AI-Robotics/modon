@@ -96,19 +96,18 @@ $(document).ready(function () {
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
         $(".cancel-btn").addClass("d-none");
-        $('#missionsAccordion').empty();
+
         $.ajax({
             url: "/getmanagermissions",
             type: "GET",
             success: function (response) {
-                $('#missionTableBody').empty();
+                console.log("mission detal",response)
+                $('#missionsAccordion').empty();
                 $(".mission-details-wrapper").remove(); // remove any existing detail divs
     
                 if (!response.missions.length) {
-                    $('#missionTableBody').append(`
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">No missions available.</td>
-                        </tr>
+                    $('#missionsAccordion').append(`
+                       <div class="col-12 text-center  my-4">No Missions Found For This Region</div>
                     `);
                     return;
                 }
@@ -152,66 +151,61 @@ $(document).ready(function () {
                             ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
                             : `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
     
-                    //         const row = `
-                    //         <tr id="missionRow-${mission.id}" class="text-start">
-                    //             <td data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</td>
-                    //             <td>${mission.mission_date}</td>
-                    //             <td>${locations}</td>
-                    //             <td class="cursor-pointer text-capitalize">${noteHTML}</td>
-                    //             <td>${statusBadge}</td>
-                    //             <td>
-                    //                 ${editButton}
-                    //                 ${deleteButton}
-                    //                 <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}">
-                    //             </td>
-                    //         </tr>
-                    //         <tr class="detail-row" data-id="${mission.id}">
-                    //             <td colspan="6" style="padding: 0; border: none;">
-                    //                 <div class="detail-container p-3" style="display: none;">
-                    //                     <div class="detail-content">
-                    //                         <strong>Program:</strong> ${inspectionName}<br>
-                    //                         <strong>Mission Date:</strong> ${mission.mission_date}<br>
-                    //                         <strong>Locations:</strong> ${locations}<br>
-                    //                         <strong>Note:</strong> ${fullNote}
-                    //                     </div>
-                    //                 </div>
-                    //             </td>
-                    //         </tr>
-                    //     `;             
-    
-                    // $('#missionTableBody').append(row);
+                    const modonManagerStatus = mission.approval_status?.modon_manager_approved == 1
+                        ? `<Strong class="text-success">Approved</Strong>`
+                        : `<Strong class="text-danger">Pending</Strong>`;
+                        
+                    const regionManagerStatus = mission.approval_status?.region_manager_approved == 1
+                        ? `<Strong class="text-success">Approved</Strong>`
+                        : `<Strong class="text-danger">Pending</Strong>`;
+                        
+                    const cityManagerStatus = mission.approval_status?.city_manager_approved == 1
+                        ? `<Strong class="text-success">Approved</Strong>`
+                        : `<Strong class="text-danger">Pending</Strong>`;
                     const row = `
-    <div class="accordion-item " id="missionRow-${mission.id}">
-        <h2 class="accordion-header" id="heading-${mission.id}">
-            <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
-                <div class="row w-100 justify-content-between label-text">
-                    <div class="col-3 " data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
-                    <div class="col-2 text-center mission_date">${mission.mission_date}</div>
-                    <div class="col-3 text-center">${locations}</div>
-                    <div class="col-2 text-center">${statusBadge}</div>
-                 
-                    <div class="col-2 text-center">
-                     ${editButton}
-                    ${deleteButton}
-                         <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
-                    </div>
-                </div>
-            </button>
-        </h2>
-        <div id="collapse-${mission.id}" class="accordion-collapse collapse  " aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
-            <div class="accordion-body px-4 py-2 label-text">
-                <strong>Program:</strong> ${inspectionName}<br>
-                <strong>Mission Date:</strong> ${mission.mission_date}<br>
-                <strong>Locations:</strong> ${locations}<br>
-                <strong>Note:</strong class="mission_note"> ${fullNote}<br><br>
-                <div class="d-flex gap-2 justify-content-end">
-                  
-                </div>
-            </div>
-        </div>
-    </div>
-`;
-$('#missionsAccordion').append(row);
+                        <div class="accordion-item " id="missionRow-${mission.id}">
+                            <h2 class="accordion-header" id="heading-${mission.id}">
+                                <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
+                                    <div class="row w-100 justify-content-between label-text">
+                                        <div class="col-3 " data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                        <div class="col-2 text-center mission_date">${mission.mission_date}</div>
+                                        <div class="col-3 text-center">${locations}</div>
+                                        <div class="col-2 text-center">${statusBadge}</div>
+                                    
+                                        <div class="col-2 text-center">
+                                        ${editButton}
+                                        ${deleteButton}
+                                            <img src="./images/view.png" alt="View" class="img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapse-${mission.id}" class="accordion-collapse collapse  " aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
+                                <div class="accordion-body px-4 py-2 label-text">
+                                    <strong>Program:</strong> ${inspectionName}<br>
+                                    <strong>Mission Date:</strong> ${mission.mission_date}<br>
+                                    <strong>Locations:</strong> ${locations}<br>
+                                    <strong>Note:</strong class="mission_note"> ${fullNote}<br><br>
+                                    <div class="d-flex ">
+                                       <div class="row w-100   align-items-center">
+                                            <strong>Mission Approval</strong><br>
+                                              <div class="col-3 label-text">
+                                                    <p>Modon Manager: ${modonManagerStatus}</p>
+                                              </div>
+                                              <div class="col-3 label-text">
+                                                    <p>Region Manager: ${regionManagerStatus}</p>
+                                              </div>
+                                              <div class="col-3 label-text">
+                                                    <p>City Manager: ${cityManagerStatus}</p>
+                                              </div>
+                                             
+                                       </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $('#missionsAccordion').append(row);
                 });
             },
             error: function (xhr) {
@@ -456,18 +450,22 @@ $('#addMissionForm').on('submit', function (e) {
                         // getMissionStats();
                     },
                     error: function (xhr) {
+                        const errorMessage = xhr.responseJSON?.error || 'Something went wrong.';
+    
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: xhr.responseJSON?.message || 'Something went wrong.',
+                            text: errorMessage,
                             background: '#101625',
-                            color: '#ffffff'
+                            color: '#ffffff',
+                            confirmButtonColor: '#d33'
                         });
                     }
                 });
             }
         });
     });
+    
     
 
 

@@ -93,27 +93,62 @@ class RegionManagerController extends Controller
      * Display the missions page for the authenticated user's region.
      */
     public function getmanagermissions()
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
-    
-        $user = Auth::user();
-        
-        // ✅ Get all assigned region IDs (support multiple regions)
-        $regionIds = $user instanceof User
-            ? $user->regions()->pluck('regions.id')
-            : collect();
-    
-        // ✅ Fetch all missions for the user's regions
-        $missions = Mission::whereIn('region_id', $regionIds)
-            ->with(['inspectionTypes:id,name', 'locations:id,name']) // Eager load related data
-            ->get();
-    
-        return response()->json([
-            'missions' => $missions
-        ]);
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
     }
+
+    $user = Auth::user();
+
+    $regionIds = $user instanceof User
+        ? $user->regions()->pluck('regions.id')
+        : collect();
+
+    $missions = Mission::whereIn('region_id', $regionIds)
+        ->with([
+            'inspectionTypes:id,name',
+            'locations:id,name',
+            'approvals:id,mission_id,city_manager_approved,region_manager_approved,modon_admin_approved'
+        ])
+        ->get();
+
+    $missions = $missions->map(function ($mission) {
+        $mission->approval_status = [
+            'city_manager_approved' => $mission->approvals->city_manager_approved ?? null,
+            'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
+            'modon_admin_approved' => $mission->approvals->modon_admin_approved ?? null,
+        ];
+        unset($mission->approvals);
+        return $mission;
+    });
+
+    return response()->json([
+        'missions' => $missions
+    ]);
+}
+
+    // public function getmanagermissions()
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
+    
+    //     $user = Auth::user();
+        
+    //     // ✅ Get all assigned region IDs (support multiple regions)
+    //     $regionIds = $user instanceof User
+    //         ? $user->regions()->pluck('regions.id')
+    //         : collect();
+    
+    //     // ✅ Fetch all missions for the user's regions
+    //     $missions = Mission::whereIn('region_id', $regionIds)
+    //         ->with(['inspectionTypes:id,name', 'locations:id,name']) // Eager load related data
+    //         ->get();
+    
+    //     return response()->json([
+    //         'missions' => $missions
+    //     ]);
+    // }
     
     
     
@@ -244,34 +279,81 @@ class RegionManagerController extends Controller
     /**
      * Delete a mission.
      */
-
+    public function destroyMission($id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+    
+        $user = Auth::user();
+    
+        // ✅ Get all region IDs this user is assigned to
+        $regionIds = $user instanceof \App\Models\User
+            ? $user->regions()->pluck('regions.id')->toArray()
+            : [];
+    
+        // ✅ Find mission with approvals
+        $mission = Mission::with('approvals')->findOrFail($id);
+    
+        // ✅ Ensure user is assigned to this mission's region
+        if (!in_array($mission->region_id, $regionIds)) {
+            return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
+        }
+    
+        // ✅ Get the approval record
+        $approval = $mission->approvals;
+    
+        $hasBeenApproved = $approval && (
+            $approval->city_manager_approved ||
+            $approval->region_manager_approved ||
+            $approval->modon_manager_approved
+        );
+    
+        // ✅ If any approvals exist...
+        if ($hasBeenApproved) {
+            // Check if user is region manager of this mission's region
+            $isRegionManager = $user->type === 'region_manager';
+    
+            if (!$isRegionManager) {
+                return response()->json([
+                    'error' => '❌ This mission has already been approved. Only the region manager can delete it now.'
+                ], 403);
+            }
+        }
+    
+        // ✅ Passed all checks — soft delete
+        $mission->delete();
+    
+        return response()->json(['message' => '✅ Mission deleted successfully!']);
+    }
+    
   
-     public function destroyMission($id)
-     {
-         if (!Auth::check()) {
-             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-         }
+    //  public function destroyMission($id)
+    //  {
+    //      if (!Auth::check()) {
+    //          return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //      }
      
-         $user = Auth::user();
+    //      $user = Auth::user();
      
-         // ✅ Get all region IDs this user is assigned to (via user_region pivot)
-         $regionIds = $user instanceof \App\Models\User
-             ? $user->regions()->pluck('regions.id')->toArray()
-             : [];
+    //      // ✅ Get all region IDs this user is assigned to (via user_region pivot)
+    //      $regionIds = $user instanceof \App\Models\User
+    //          ? $user->regions()->pluck('regions.id')->toArray()
+    //          : [];
      
-         // ✅ Find the mission
-         $mission = Mission::findOrFail($id);
+    //      // ✅ Find the mission
+    //      $mission = Mission::findOrFail($id);
      
-         // ✅ Ensure the mission belongs to one of the user's regions
-         if (!in_array($mission->region_id, $regionIds)) {
-             return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
-         }
+    //      // ✅ Ensure the mission belongs to one of the user's regions
+    //      if (!in_array($mission->region_id, $regionIds)) {
+    //          return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
+    //      }
      
-         // ✅ Delete the mission
-         $mission->delete();
+    //      // ✅ Delete the mission
+    //      $mission->delete();
      
-         return response()->json(['message' => '✅ Mission deleted successfully!']);
-     }
+    //      return response()->json(['message' => '✅ Mission deleted successfully!']);
+    //  }
      
 
     // edit a mission

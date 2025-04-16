@@ -154,9 +154,9 @@
                                 @endif --}}
 
                                 <select class="form-select mx-1 dateInput" name="location_id" id="location_id"
-                                    @if(($userType === 'region_manager' && $locations->count() === 1) || ($locationData)) disabled @endif required>
+                                    @if(($userType === 'region_manager'  && $locations->count() === 1) || ($locationData)) disabled @endif required>
                         
-                                    @if($userType === 'region_manager')
+                                    @if($userType === 'region_manager' || $userType === 'qss_admin'  || $userType === 'modon_admin' )
                                         @if($locations->count() === 1)
                                             {{-- ✅ One location: pre-select and disable --}}
                                             <option value="{{ $locations[0]->id }}" selected>{{ $locations[0]->name }}</option>

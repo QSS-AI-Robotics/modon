@@ -38,20 +38,36 @@ class RegionManagerController extends Controller
         ] : null;
     
         // ✅ Fetch pilots assigned to the user's regions
-        $pilots = \App\Models\User::whereHas('regions', function ($query) use ($regionIds) {
-            $query->whereIn('regions.id', $regionIds);
-        })->whereHas('userType', function ($q) {
-            $q->where('name', 'pilot');
-        })->get();
+        if (in_array($userType, ['modon_admin', 'qss_admin'])) {
+            // 🔓 Show all pilots for high-level admins
+            $pilots = \App\Models\User::whereHas('userType', function ($q) {
+                $q->where('name', 'pilot');
+            })->get();
+        } else {
+            // 🔒 Only show pilots assigned to user's regions
+            $pilots = \App\Models\User::whereHas('regions', function ($query) use ($regionIds) {
+                $query->whereIn('regions.id', $regionIds);
+            })->whereHas('userType', function ($q) {
+                $q->where('name', 'pilot');
+            })->get();
+        }
     
         // ✅ If user is region manager → fetch locations via location_assignment
         $locations = collect();
-        if ($userType === 'region_manager') {
+
+        if ($userType === 'modon_admin' || $userType === 'qss_admin') {
+            // 🔓 Show all locations for higher-level admins
+            $locations = \App\Models\Location::select('id', 'name')->get();
+            Log::info('📍 Locations for region manager:', $locations->toArray());
+        } elseif ($userType === 'region_manager') {
+            // 🔒 Show locations only assigned to the manager's regions
             $locations = \App\Models\Location::whereHas('locationAssignments', function ($query) use ($regionIds) {
                 $query->whereIn('region_id', $regionIds);
             })->select('id', 'name')->get();
+            Log::info('📍 Locations for region manager:', $locations->toArray());
         }
-        Log::info('📍 Locations for region manager:', $locations->toArray());
+        
+       
         return view('missions.index', compact('userType', 'locationData', 'locations', 'pilots'));
     }
     

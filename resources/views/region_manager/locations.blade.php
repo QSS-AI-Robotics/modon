@@ -24,11 +24,11 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Reports List</h5>
+                                    <h5>Locations List</h5>
                                 </div>
                                 <div class="col-lg-4 text-end search-container">
                                     <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input">
+                                    <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
                                 </div>
                             </div>
                         </div>

@@ -529,8 +529,6 @@ public function updateUser(Request $request, $id)
     
 
     
-
-
     public function inspectionsByRegion(Request $request)
     {
         $start = $request->input('start_date');
@@ -539,14 +537,15 @@ public function updateUser(Request $request, $id)
         $query = DB::table('regions')
             ->leftJoin('missions', function ($join) use ($start, $end) {
                 $join->on('regions.id', '=', 'missions.region_id')
-                     ->where('missions.status', 'Completed');
+                     ->where('missions.status', 'Pending')
+                     ->whereNull('missions.deleted_at'); // ✅ Exclude soft-deleted
     
                 if ($start) {
-                    $join->whereDate('missions.start_datetime', '>=', Carbon::parse($start));
+                    $join->whereDate('missions.mission_date', '>=', Carbon::parse($start));
                 }
     
                 if ($end) {
-                    $join->whereDate('missions.end_datetime', '<=', Carbon::parse($end));
+                    $join->whereDate('missions.mission_date', '<=', Carbon::parse($end));
                 }
             })
             ->leftJoin('pilot_reports', 'missions.id', '=', 'pilot_reports.mission_id')
@@ -565,6 +564,42 @@ public function updateUser(Request $request, $id)
             'data' => $query
         ]);
     }
+    
+
+    // public function inspectionsByRegion(Request $request)
+    // {
+    //     $start = $request->input('start_date');
+    //     $end = $request->input('end_date');
+    
+    //     $query = DB::table('regions')
+    //         ->leftJoin('missions', function ($join) use ($start, $end) {
+    //             $join->on('regions.id', '=', 'missions.region_id')
+    //                  ->where('missions.status', 'Completed');
+    
+    //             if ($start) {
+    //                 $join->whereDate('missions.start_datetime', '>=', Carbon::parse($start));
+    //             }
+    
+    //             if ($end) {
+    //                 $join->whereDate('missions.end_datetime', '<=', Carbon::parse($end));
+    //             }
+    //         })
+    //         ->leftJoin('pilot_reports', 'missions.id', '=', 'pilot_reports.mission_id')
+    //         ->leftJoin('pilot_report_images', 'pilot_reports.id', '=', 'pilot_report_images.pilot_report_id')
+    //         ->select(
+    //             'regions.name as region',
+    //             DB::raw('COUNT(pilot_report_images.id) as inspections')
+    //         )
+    //         ->groupBy('regions.id', 'regions.name')
+    //         ->get();
+    
+    //     return response()->json([
+    //         'from' => $start ?? null,
+    //         'to' => $end ?? null,
+    //         'filtered' => (bool)($start || $end),
+    //         'data' => $query
+    //     ]);
+    // }
 
 
 
@@ -574,21 +609,22 @@ public function updateUser(Request $request, $id)
         $end = $request->input('end_date');
     
         $pilots = User::whereHas('userType', function ($query) {
-                $query->where('name', 'Pilot');
+                $query->where('name', 'pilot');
             })
-            ->with('region') // Eager load region relation
-            ->select('id', 'name', 'region_id', 'image')
+            ->with('regions') // if you still want region info
+            ->select('id', 'name', 'image')
             ->get()
             ->map(function ($pilot) use ($start, $end) {
                 $missionsQuery = DB::table('missions')
-                    ->where('region_id', $pilot->region_id);
+                    ->where('pilot_id', $pilot->id)
+                    ->whereNull('deleted_at'); // Exclude soft-deleted
     
                 if ($start) {
-                    $missionsQuery->whereDate('start_datetime', '>=', Carbon::parse($start));
+                    $missionsQuery->whereDate('mission_date', '>=', Carbon::parse($start));
                 }
     
                 if ($end) {
-                    $missionsQuery->whereDate('start_datetime', '<=', Carbon::parse($end));
+                    $missionsQuery->whereDate('mission_date', '<=', Carbon::parse($end));
                 }
     
                 $total = (clone $missionsQuery)->count();
@@ -597,8 +633,8 @@ public function updateUser(Request $request, $id)
     
                 return [
                     'name' => $pilot->name,
-                    'region' => optional($pilot->region)->name ?? 'N/A',
-                    'image' => $pilot->image_url ?? asset('images/default-user.png'),
+                    'region' => $pilot->regions->pluck('name')->implode(', ') ?: 'N/A',
+                    'image' => $pilot->image ?? asset('images/default-user.png'),
                     'total_missions' => $total,
                     'completed_missions' => $completed,
                     'pending_missions' => $pending,

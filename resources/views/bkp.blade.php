@@ -1,191 +1,248 @@
+@extends('layouts.app')
 
+@section('title', 'Admin Dashboard')
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flex Layout</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/modon.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/missions.css') }}">
-
-</head>
-<body>
-    <div class="container-fluid vh-100 d-flex flex-column padded-container">
-        <div class="row header shadows bg-section p-1 mb-2 align-items-center ">
-            <div class="col-2 d-flex align-items-center">
-                <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50" style="">
-            </div>
-            <div class="col-7 d-flex ">
-                <button class="btn cont-btn selected mx-1"> Overview</button>
-                <button class="btn cont-btn mx-1">Map View</button>
-                <button class="btn cont-btn mx-1">All Drones</button>
-                <button class="btn cont-btn mx-1">Controller</button>
-                <button class="btn cont-btn mx-1">Reports</button>
-            </div>
-            <div class="col-3 d-flex justify-content-end">
-                <div class="dropdown">
-                    <img src="{{ asset('images/user.png') }}" alt="Profile" class="img-fluid rounded-circle" style="max-height: 50px; cursor: pointer;">
-                  
-                </div>
-            </div>
-        </div>
-
-        <div class="row shadows mainPanel p-0 flex-grow-1 ">  
-            <div class="col-lg-3 d-flex p-0 flex-column">
-                <!-- Mission Analytics: Height based on content -->
-                <div class="bg-section mb-2">
-                    <div class="row g-0 ">
-                        <div class="col-lg-6 label-text col-md-6 p-3">
-                            <h6>Mission Analytics</h6>
-                        </div>
-                        <div class="col-lg-6 col-md-6 label-text p-3 text-end">
-                            <p>Last 7 Days</p>
-                        </div>
-                        <div class="col-lg-12 p-2">
-                            <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                <label class="form-check-label label-text mb-0" for="exampleCheck1">Pending Missions</label>
-                                <p class="mb-0 fw-bold">75%</p>
-                            </div>
-                            <div class="progress" role="progressbar">
-                                <div class="progress-bar text-bg-danger" style="width: 75%"></div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12 p-2">
-                            <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                <label class="form-check-label label-text mb-0" for="exampleCheck1">Finished Missions</label>
-                                <p class="mb-0 fw-bold">25%</p>
-                            </div>
-                            <div class="progress" role="progressbar">
-                                <div class="progress-bar text-bg-success" style="width: 25%"></div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12 p-2 mb-2">
-                            <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                <label class="form-check-label label-text mb-0" for="exampleCheck1">Total Missions</label>
-                                <p class="mb-0 fw-bold">102</p>
-                            </div>
-                            <div class="progress" role="progressbar">
-                                <div class="progress-bar text-bg-warning text-white" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+@section('content')
+        <!-- Main Panel -->
+        <div class="row shadows mainPanel p-0 flex-grow-1 ">
             
-                <!-- Create New Mission: Occupies Remaining Space -->
-                <div class="d-flex flex-column bg-section  p-3 flex-grow-1">
-                    <h6 class="text-left pt-2">Create New Mission</h6>
-                    <label class="form-check-label label-text mb-2">Select Inspection</label>
-                
-                    <div class="p-2">
-                        <div class="row">
-                            <!-- Checkboxes -->
-                            <div class="col-6 col-md-6 col-sm-12">
-                                <div class="form-check">
-                                    <input type="checkbox" id="trafficAnalysis" class="form-check-input">
-                                    <label class="form-check-label checkbox-text" for="trafficAnalysis">Gas Leaks</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <div class="form-check">
-                                    <input type="checkbox" id="thermalAnomalies" class="form-check-input">
-                                    <label class="form-check-label checkbox-text" for="thermalAnomalies">Road Safety</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <div class="form-check">
-                                    <input type="checkbox" id="gasLeaks" class="form-check-input">
-                                    <label class="form-check-label checkbox-text" for="gasLeaks">Traffic Analysis</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <div class="form-check">
-                                    <input type="checkbox" id="roadCracks" class="form-check-input">
-                                    <label class="form-check-label checkbox-text" for="roadCracks">Road Cracks</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <div class="form-check">
-                                    <input type="checkbox" id="roadSafety" class="form-check-input">
-                                    <label class="form-check-label checkbox-text" for="roadSafety">Thermal Anomalies</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <div class="form-check">
-                                    <input type="checkbox" id="storageArea" class="form-check-input">
-                                    <label class="form-check-label checkbox-text" for="storageArea">Storage Area</label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input type="checkbox" id="outdoorViolation" class="form-check-input">
-                                    <label class="form-check-label checkbox-text" for="outdoorViolation">Outdoor Violation</label>
-                                </div>
-                            </div>
-                
-                            <!-- Start & End Date -->
-                            <div class="col-md-6 col-sm-12">
-                                <label for="startDate" class="form-label label-text">Start Date</label>
-                                <input type="date" id="startDate" class="form-control dateInput">
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <label for="endDate" class="form-label label-text">End Date</label>
-                                <input type="date" id="endDate" class="form-control dateInput">
-                            </div>
-                
-                            <!-- Location & Additional Notes -->
-                            <div class="col-md-6 col-sm-12 p-2">
-                                <div class="row p-2">
-                                    <label class="form-check-label label-text py-2">Select Locations</label>
-                                    <div class="col-12 scroll-container">
-                                        <div class="form-check">
-                                            <input type="checkbox" id="location1" class="form-check-input">
-                                            <label class="form-check-label checkbox-text" for="location1">A</label>
+            
+
+            <!-- First Column -->
+            <div class="col-lg-3 d-flex p-0 flex-column h-100">
+                <div class="row flex-grow-1 mx-2 my-1 h-100">
+                    <div class="col-lg-12 d-flex flex-column h-100">
+
+                        <!-- Container for the stack -->
+                        <div class="d-flex flex-column flex-grow-1">
+
+                            <!-- Row 1: Pilots & Drones (25%) -->
+                            <div class="row mb-2 " style="flex-grow: 1;">
+                                <div class="col-lg-6 righttransparentBorder h-100">
+                                    <div class="row bg-section h-100 d-flex flex-column justify-content-between">
+                                        <div class="col-lg-12 p-2 d-flex align-items-center">
+                                            <img src="{{ asset('images/pilot-hat.png') }}" class="img-fluid" style="height: 24px;">
+                                            <p class="ps-2 mb-0">Pilots</p>
                                         </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" id="location2" class="form-check-input">
-                                            <label class="form-check-label checkbox-text" for="location2">B</label>
+                                        <div class="col-lg-12 text-end">
+                                            <h1 id="totalPilots">{{ $pilot }}</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 lefttransparentBorder h-100">
+                                    <div class="row bg-section h-100 d-flex flex-column justify-content-between">
+                                        <div class="col-lg-12 p-2 d-flex align-items-center">
+                                            <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 20px;">
+                                            <p class="ps-2 mb-0">Drones</p>
+                                        </div>
+                                        <div class="col-lg-12 text-end">
+                                            <h1 id="totaldrones">{{ $drones }}</h1>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-sm-12 p-2">
-                                <div class="row p-2">
-                                    <label class="form-check-label label-text py-2">Notes</label>
-                                    <div class="col-12">
-                                        <textarea id="additionalNotes" class="form-control notes-textarea" rows="2"></textarea>
+                            
+
+                            <!-- Row 2: Missions (25%) -->
+                            <div class="row mb-2" style="flex-grow: 1;">
+                                <div class="col-lg-12">
+                                    <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
+                                        <div class="col-lg-12 p-2 d-flex align-items-center">
+                                            <img src="{{ asset('images/missions.png') }}" class="img-fluid" style="height: 24px;">
+                                            <p class="ps-2 mb-0">Missions</p>
+                                        </div>
+                                        <div class="col-lg-12 text-end">
+                                            <h1 id="totalMissions">{{ $missions }}</h1>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                
-                            <!-- New Mission Button -->
-                            <div class="col-md-5 col-sm-12">
-                                <div class="btn mission-btn btn-sm d-flex align-items-center gap-1 w-100">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M19 12V8.7241C19 8.25623 18.836 7.80316 18.5364 7.44373L14.5997 2.71963C14.2197 2.26365 13.6568 2 13.0633 2H11H7C4.79086 2 3 3.79086 3 6V18C3 20.2091 4.79086 22 7 22H12" stroke="#101625" stroke-width="1.5" stroke-linecap="round"/>
-                                        <path d="M16 19H22" stroke="#101625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M19 16L19 22" stroke="#101625" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M14 2.5V6C14 7.10457 14.8954 8 16 8H18.5" stroke="#101625" stroke-width="1.5" stroke-linecap="round"/>
-                                    </svg>
-                                    <span>New Mission</span>
+
+                            <!-- Row 3: Regions & Locations (25%) -->
+                            <div class="row mb-2" style="flex-grow: 1;">
+                                <div class="col-lg-6 righttransparentBorder">
+                                    <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
+                                        <div class="col-lg-12 p-2 d-flex align-items-center">
+                                            <img src="{{ asset('images/regions.png') }}" class="img-fluid" style="height: 20px;">
+                                            <p class="ps-2 mb-0">Regions</p>
+                                        </div>
+                                        <div class="col-lg-12 text-end">
+                                            <h1 id="totalRegions">{{ $regions }}</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 lefttransparentBorder">
+                                    <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
+                                        <div class="col-lg-12 p-2 d-flex align-items-center">
+                                            <img src="{{ asset('images/locations.png') }}" class="img-fluid" style="height: 20px;">
+                                            <p class="ps-2 mb-0">Locations</p>
+                                        </div>
+                                        <div class="col-lg-12 text-end">
+                                            <h1 id="totalLocations">{{ $locations }}</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Row 4: Chart (25%) -->
+                            <div class="row" style="flex-grow: 1; min-height: 0;">
+                                <div class="col-lg-12 d-flex flex-column h-100">
+                                    <div class="row bg-section flex-grow-1">
+                                        <div class="col-lg-12 py-3 d-flex align-items-center justify-content-between">
+                                            <p class="mb-0">Missions Analytics</p>
+                                            {{-- <small class="mb-0">last 7 days</small> --}}
+                                        </div>
+                                        
+                                        <div class="col-lg-12 flex-grow-1 position-relative d-flex justify-content-center text-center" style="height: 35vh" >
+                                            <canvas id="regionMissionChart" class="text-capitalize " ></canvas>
+                                            <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
+                                                No data found
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div> <!-- End stack -->
+                    </div>
+                </div>
+            </div>
+             <!-- first Right Column -->
+
+
+            <!-- second Column (Mission Analytics & Create New Mission) -->
+            <div class="col-lg-3 d-flex p-0 flex-column h-100 ">
+                <div class="row flex-grow-1 mx-2 my-1 d-flex flex-column  h-100">
+            
+
+                    <div class="col-12 bg-section " style="height:35%;">
+                        <p class="mb-4 pt-2" style="height:10%">Latest Missions</p>
+                        <div class="latestMissionPanel" style="overflow-y:auto;height:80%;overflow-x:hidden">
+                            
+                            
+                        </div>
+                    </div>
+                    <div class="col-12 bg-section mt-3 " style="height:62%;">
+                        <p class="mb-0 pt-3"  style="height:10%">Latest Incidents</p>
+                        <div class="IncidentPanel" style="overflow-y:auto;height:85%;overflow-x:hidden">
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+            
+
+             <!-- End second Column -->
+            {{-- third column start --}}
+            <div class="col-lg-6 d-flex px-2 flex-column h-100 gap-2">
+           
+            
+                    <!-- === First Half: Pilot Tracking === -->
+                    <div class="pt-1" style="height:50%">
+                        <div class="bg-section d-flex flex-column h-100">
+                            <!-- Header -->
+                            <div class="py-3 px-3 d-flex align-items-center justify-content-between">
+                                <p class="mb-0">Pilot Tracking</p>
+                                <div class="col-lg-4 text-end datePanel-container">
+                                    <div class="date-fields-wrapper">
+                                        <div class="date-wrapper">
+                                            <label for="start-date" class="date-label">Start Date</label>
+                                            <input type="date" id="start-date" class="datePanel-input date start-date">
+                                        </div>
+                                        <div class="date-wrapper">
+                                            <label for="end-date" class="date-label">End Date</label>
+                                            <input type="date" id="end-date" class="datePanel-input end-date">
+                                        </div>
+                                    </div>
+                                
+                                    <img src="./images/calendar.png" alt="Search" class="img-fluid datePanel-icon pt-2 imghover">
+                                    <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 mt-2 imghover custImg refreshIcon" >
+                                </div>
+
+                            </div>
+            
+                            <!-- Pilot Grid -->
+                            <div class="px-3 pb-3 flex-grow-1 overflow-auto">
+                                {{-- <div class="row h-100" id="missionsPanel"> --}}
+                                    <div class="row flex-nowrap overflow-auto h-100" id="missionsPanel" style="white-space: nowrap;">
+
+                                  
+                                        
+                                        <div class="col-lg-4 h-100 pb-1 rounded">
+                                            <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
+                                                <div class="d-flex align-items-end mb-2">
+                                                    <img src="./images/default-user.png" alt="Search" class="imghover rounded" style="width:50px; height:50px">
+                                                    <div>
+                                                        <p class="px-2 mb-0 lh-1" id="pilotname">Loading...</p>
+                                                        <small class="cont-btn px-2 mb-0 lh-1">Loading</small>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0">Pending</label>
+                                                        
+                                                        <p class="mb-0 fw-bold">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-danger" style="width: 0%"></div>
+                                                    </div>
+                                                </div>
+            
+                                                <div class="p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0">Finished</label>
+                                                        <p class="mb-0 fw-bold">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-success" style="width: 0%"></div>
+                                                    </div>
+                                                </div>
+            
+                                                <div class="p-2 mb-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0">Total Missions</label>
+                                                        <p class="mb-0 fw-bold">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                  
+                                    
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-            </div>
             
+                    <div class="pt-1 bg-section mb-2" style="height:50%;">
+                        <p class="p-2">Pilot Tracking</p>
+                        <div class="rounded px-2">
+                            <div class="card" style="width:28rem;background:none">
+                               
+                                <img src="../images/headmap.png" class="card-img-top img-fluid" alt="...">
+                           
+                              </div>
+                              
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+
             
-
-
-
-
+               
+         
             
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-</body>
-</html>
+            <!-- End  third Column -->            
+        </div> 
+        <!-- End Main Panel -->
+
+@endsection
+@push('scripts')
+<script src="{{ asset('js/adminusers.js') }}"></script>
+@endpush

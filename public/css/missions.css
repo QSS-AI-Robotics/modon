@@ -227,3 +227,16 @@ textarea:focus{
     border-bottom: 1px solid rgba(255, 255, 255, 0.4);
     margin-left: 1px;
 }
+.mstatus {
+    background: #0A415B;
+    min-width: 80px;  /* adjust as needed */
+    text-align: center;
+    display: inline-block;
+}
+.mstatus:hover{
+    cursor: pointer;
+    background:#092B3B;
+}
+.activeStatus{
+    background:#092B3B;
+}

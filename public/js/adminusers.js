@@ -37,7 +37,7 @@ $(document).ready(function () {
                     }
                 },
                 datalabels: {
-                    color: 'black',
+                    color: 'white',
                     font: {
                         weight: 'bold',
                         size: 12
@@ -241,8 +241,8 @@ $(document).ready(function () {
         // Assign colors based on region names
         const colorMap = {
             'eastern': '#AD2727',
-            'western': '#FFE500',
-            'central': '#81FF76'
+            'western': '#C6B40D',
+            'central': '#80FE76'
         };
     
         const backgroundColors = labels.map(region => colorMap[region.toLowerCase()] || '#ccc');
@@ -298,7 +298,7 @@ $(document).ready(function () {
             },
             dataType: 'json',
             success: function (data) {
-                // console.log("✅ Inspections by Region:", data);
+                console.log("✅ Inspections by Region:", data);
                 updateInspectionChart(chartInstance, data);
             },
             error: function (xhr, status, error) {
@@ -309,13 +309,12 @@ $(document).ready(function () {
 
 
 function updateInspectionChart(chart, response) {
-    
-    // const chartData = response.data || [];
-    const chartData = (response.data || []).filter(item => item.region !== 'all');
+    const chartData = response.data || [];
 
     const labels = chartData.map(item => item.region);
-    const rawValues = chartData.map(item => item.inspections);
-
+    const rawValues = [8,5,1,3];
+    // const rawValues = chartData.map(item => item.inspections);
+  
     // Used only for visual display
     const visualValues = rawValues.map(value => value === 0 ? 0.2 : value);
 
@@ -400,7 +399,7 @@ function updateInspectionChart(chart, response) {
                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
                                
                                 <div class="d-flex align-items-end mb-2">
-                                    <img src="${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
+                                    <img src="./storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
                                     <div>
                                         <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
                                         <small class="cont-btn px-2 mb-0 lh-1  text-capitalize">${pilot.region}</small>

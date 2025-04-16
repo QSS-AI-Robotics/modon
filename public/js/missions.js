@@ -111,20 +111,16 @@ $(document).ready(function () {
                     `);
                     return;
                 }
-    
                 $.each(response.missions, function (index, mission) {
                     const inspection = mission.inspection_types[0] || {};
                     const inspectionName = inspection.name || 'N/A';
                     const inspectionId = inspection.id || '';
-    
                     const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
-    
                     const noteWords = mission.note ? mission.note.split(" ") : [];
                     const shortNote = noteWords.slice(0, 2).join(" ");
                     const fullNote = mission.note || "No Notes";
-    
-             
-    
+                
+                    // Status badge
                     let statusBadge = "";
                     switch (mission.status) {
                         case "Pending":
@@ -138,79 +134,183 @@ $(document).ready(function () {
                         case "Completed":
                             statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
                     }
-    
-                    const editButton = mission.status === "Pending"
-                        ? `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`
-                        : "";
-    
-                    const deleteButton = mission.status === "Pending"
-                        ? `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`
-                        : mission.status === "Completed"
-                            ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
-                            : `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
-    
-                            const getStatusBadge = (value) => {
-                                switch (value) {
-                                    case 1:
-                                        return `<strong class="text-success">Approved</strong>`;
-                                    case 2:
-                                        return `<strong class="text-danger">Rejected</strong>`;
-                                    default:
-                                        return `<strong class="text-warning">Pending</strong>`;
-                                }
-                            };
-                            
-                            const modonManagerStatus = getStatusBadge(mission.approval_status?.modon_manager_approved);
-                            const regionManagerStatus = getStatusBadge(mission.approval_status?.region_manager_approved);
-                            const cityManagerStatus = getStatusBadge(mission.approval_status?.city_manager_approved);
+                
+                    // Approval status checks
+                    const modonApproved = mission.approval_status?.modon_manager_approved === 1;
+                    const regionApproved = mission.approval_status?.region_manager_approved === 1;
+                    const cityApproved = mission.approval_status?.city_manager_approved === 1;
+                
+                    let editButton = '';
+                    let deleteButton = '';
+                
+                    if (mission.status === "Pending") {
+                        if (modonApproved) {
+                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity: 0.5; cursor: not-allowed;" title="This mission is fully approved and cannot be edited">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="This mission is fully approved and cannot be deleted">`;
+                        } else if (regionApproved || cityApproved) {
+                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity: 0.5; cursor: not-allowed;" title="Already approved by management">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
+                        } else {
+                            editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
+                        }
+                    } else if (mission.status === "Completed") {
+                        deleteButton = `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`;
+                    } else {
+                        deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
+                    }
+                
+                    const getStatusBadge = (value) => {
+                        switch (value) {
+                            case 1: return `<strong class="text-success">Approved</strong>`;
+                            case 2: return `<strong class="text-danger">Rejected</strong>`;
+                            default: return `<strong class="text-warning">Pending</strong>`;
+                        }
+                    };
+                
+                    const modonManagerStatus = getStatusBadge(mission.approval_status?.modon_manager_approved);
+                    const regionManagerStatus = getStatusBadge(mission.approval_status?.region_manager_approved);
+                    const cityManagerStatus = getStatusBadge(mission.approval_status?.city_manager_approved);
+                
                     const row = `
-                        <div class="accordion-item " id="missionRow-${mission.id}"   data-pilot-id="${mission.pilot_id}">
+                        <div class="accordion-item" id="missionRow-${mission.id}" data-pilot-id="${mission.pilot_id}">
                             <h2 class="accordion-header" id="heading-${mission.id}">
-                                <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
+                                <button class="accordion-button collapsed d-flex px-3 py-2" type="button">
                                     <div class="row w-100 justify-content-between label-text">
-                                        <div class="col-3 " data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
-                                        <div class="col-2 text-center mission_date">${mission.mission_date}</div>
+                                        <div class="col-3 ps-2" data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                        <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
                                         <div class="col-3 text-center">${locations}</div>
-                                        <div class="col-2 text-center">${statusBadge}</div>
-                                    
-                                        <div class="col-2 text-center">
-                                        ${editButton}
-                                        ${deleteButton}
-                                            <img src="./images/view.png" alt="View" class=" view-mission img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                                        <div class="col-2 text-center ps-5">${statusBadge}</div>
+                                        <div class="col-2 text-center ps-5">
+                                            ${editButton}
+                                            ${deleteButton}
+                                            <img src="./images/view.png" alt="View" class="view-mission img-fluid actions toggle-details" data-id="${mission.id}" data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
                                         </div>
                                     </div>
                                 </button>
                             </h2>
-                            <div id="collapse-${mission.id}" class="accordion-collapse collapse  " aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
+                            <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
                                 <div class="accordion-body px-4 py-2 label-text">
-                                    <strong>Program:</strong> ${inspectionName}<br>
-                                    
-                                    <strong>Mission Date:</strong> ${mission.mission_date}<br>
-                                    <strong>Locations:</strong> ${locations}<br>
-                                    <strong data-pilot-id="${mission.pilot_info.id}">Pilot Name:</strong> ${mission.pilot_info.name}<br>
-
-                                    <strong>Note:</strong class="mission_note"> ${fullNote}<br><br>
-                                    <div class="d-flex ">
-                                       <div class="row w-100   align-items-center">
+                                    <strong>Program</strong><br>${inspectionName}<br>
+                                    <strong>Mission Date</strong><br>${mission.mission_date}<br>
+                                    <strong>Locations</strong><br>${locations}<br>
+                                    <strong data-pilot-id="${mission.pilot_info?.id}">Pilot Name</strong><br>${mission.pilot_info?.name || 'N/A'}<br>
+                                    <strong>Note:</strong><br>${fullNote}<br><br>
+                                    <div class="d-flex">
+                                        <div class="row w-100 align-items-center">
                                             <strong>Mission Approval</strong><br>
-                                              <div class="col-3 label-text">
-                                                    <p>Modon Manager: ${modonManagerStatus}</p>
-                                              </div>
-                                              <div class="col-3 label-text">
-                                                    <p>Region Manager: ${regionManagerStatus}</p>
-                                              </div>
-                                              <div class="col-3 label-text">
-                                                    <p>City Manager: ${cityManagerStatus}</p>
-                                              </div>
-                                             
-                                       </div>
+                                            <div class="col-3 label-text"><p>Modon Manager: ${modonManagerStatus}</p></div>
+                                            <div class="col-3 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                            <div class="col-3 label-text"><p>City Manager: ${cityManagerStatus}</p></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     `;
+                
                     $('#missionsAccordion').append(row);
                 });
+                
+                // $.each(response.missions, function (index, mission) {
+                //     const inspection = mission.inspection_types[0] || {};
+                //     const inspectionName = inspection.name || 'N/A';
+                //     const inspectionId = inspection.id || '';
+    
+                //     const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
+    
+                //     const noteWords = mission.note ? mission.note.split(" ") : [];
+                //     const shortNote = noteWords.slice(0, 2).join(" ");
+                //     const fullNote = mission.note || "No Notes";
+    
+             
+    
+                //     let statusBadge = "";
+                //     switch (mission.status) {
+                //         case "Pending":
+                //             statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
+                //         case "Rejected":
+                //             statusBadge = `<span class="badge p-2 bg-warning">Rejected</span>`; break;
+                //         case "In Progress":
+                //             statusBadge = `<span class="badge p-2 bg-info text-dark">In Progress</span>`; break;
+                //         case "Awaiting Report":
+                //             statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
+                //         case "Completed":
+                //             statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
+                //     }
+    
+                //     const editButton = mission.status === "Pending"
+                //         ? `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`
+                //         : "";
+    
+                //     const deleteButton = mission.status === "Pending"
+                //         ? `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`
+                //         : mission.status === "Completed"
+                //             ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
+                //             : `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
+    
+                //             const getStatusBadge = (value) => {
+                //                 switch (value) {
+                //                     case 1:
+                //                         return `<strong class="text-success">Approved</strong>`;
+                //                     case 2:
+                //                         return `<strong class="text-danger">Rejected</strong>`;
+                //                     default:
+                //                         return `<strong class="text-warning">Pending</strong>`;
+                //                 }
+                //             };
+                            
+                //             const modonManagerStatus = getStatusBadge(mission.approval_status?.modon_manager_approved);
+                //             const regionManagerStatus = getStatusBadge(mission.approval_status?.region_manager_approved);
+                //             const cityManagerStatus = getStatusBadge(mission.approval_status?.city_manager_approved);
+                //     const row = `
+                //         <div class="accordion-item " id="missionRow-${mission.id}"   data-pilot-id="${mission.pilot_id}">
+                //             <h2 class="accordion-header" id="heading-${mission.id}">
+                //                 <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
+                //                     <div class="row w-100 justify-content-between label-text">
+                //                         <div class="col-3 ps-2" data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                //                         <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
+                //                         <div class="col-3 text-center">${locations}</div>
+                //                         <div class="col-2 text-center ps-5">${statusBadge}</div>
+                                    
+                //                         <div class="col-2 text-center ps-5">
+                //                         ${editButton}
+                //                         ${deleteButton}
+                //                             <img src="./images/view.png" alt="View" class=" view-mission img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                //                         </div>
+                //                     </div>
+                //                 </button>
+                //             </h2>
+                //             <div id="collapse-${mission.id}" class="accordion-collapse collapse  " aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
+                //                 <div class="accordion-body px-4 py-2 label-text">
+                //                     <strong>Program</strong> <br>   ${inspectionName}<br>
+                                    
+                //                     <strong>Mission Date</strong><br> ${mission.mission_date}<br>
+                //                     <strong>Locations</strong><br> ${locations}<br>
+                //                     <strong data-pilot-id="${mission.pilot_info.id}">Pilot Name</strong><br> ${mission.pilot_info.name}<br>
+
+                //                     <strong>Note:</strong class="mission_note"> ${fullNote}<br><br>
+                //                     <div class="d-flex ">
+                //                        <div class="row w-100   align-items-center">
+                //                             <strong>Mission Approval</strong><br>
+                //                               <div class="col-3 label-text">
+                //                                     <p>Modon Manager: ${modonManagerStatus}</p>
+                //                               </div>
+                //                               <div class="col-3 label-text">
+                //                                     <p>Region Manager: ${regionManagerStatus}</p>
+                //                               </div>
+                //                               <div class="col-3 label-text">
+                //                                     <p>City Manager: ${cityManagerStatus}</p>
+                //                               </div>
+                                             
+                //                        </div>
+                //                     </div>
+                //                 </div>
+                //             </div>
+                //         </div>
+                //     `;
+                //     $('#missionsAccordion').append(row);
+                // });
             },
             error: function (xhr) {
                 console.error("❌ Error fetching missions:", xhr.responseText);
@@ -250,19 +350,19 @@ $('#addMissionForm').on('submit', function (e) {
         });
         return;
     }
+    
     const $form = $(this);
     const $errorDiv = $('#mission-validation-errors').addClass('d-none');
     
     const missionId = $form.attr("data-mission-id");
     const url = missionId ? "/missions/update" : "/missions/store";
-
-    // ✅ Single inspection_type (radio)
+    
+    // ✅ Collect form data
     const inspectionType = $('input[name="inspection_type"]:checked').val();
-
-
-    const locationId = $('#location_id').data('location-id');
+    const locationId = $('#location_id').val();
     const selectedLocations = locationId ? [locationId] : [];
     const pilotId = $('#pilot_id').val();
+    
     const formData = {
         mission_id: missionId,
         inspection_type: inspectionType,
@@ -272,23 +372,43 @@ $('#addMissionForm').on('submit', function (e) {
         pilot_id: pilotId
     };
     
-    if (!formData.mission_date || !inspectionType || !pilotId || selectedLocations.length === 0) {
-        $errorDiv.removeClass('d-none').text("All fields are required.");
+    // ✅ Validation - collect missing fields
+    let errors = [];
+    
+    if (!formData.mission_date) errors.push("Mission date is required.");
+    if (!inspectionType) errors.push("Please select an inspection type.");
+    if (!pilotId) errors.push("Please select a pilot.");
+    if (selectedLocations.length === 0) errors.push("Please select at least one location.");
+    
+    if (errors.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Missing Information!',
+            html: `<ul style="text-align:left;">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`,
+            background: '#101625',
+            color: '#ffffff',
+            confirmButtonColor: '#d33'
+        });
         return;
     }
-
-    console.log(selectedLocations)
-    // UI feedback
+    
+    // ✅ UI feedback during request
     const buttonText = missionId ? "Updating..." : "Creating...";
-    const methofs = missionId?"PUT":"POST";
+    const method = missionId ? "PUT" : "POST";
+    
     $(".mission-btn span").text(buttonText);
     $(".mission-btn svg").attr({ "width": "20", "height": "20" });
-   console.table(formData);
+    
+    // ✅ Debug log
+    console.table(formData);
+    
+    // 👉 Continue with your AJAX submission below
+    
 
     // ✅ Send AJAX
     $.ajax({
         url: url,
-        type: methofs,
+        type: method,
         data: formData,
         success: function (response) {
             Swal.fire({

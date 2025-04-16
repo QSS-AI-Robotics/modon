@@ -27,9 +27,26 @@
                                 <div class="col-lg-4">
                                     <h5>Mission List</h5>
                                 </div>
-                                <div class="col-lg-4 text-end search-container">
-                                    <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input">
+                                <div class="col-lg-4 text-end ">
+                                    {{-- <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
+                                    <input type="search" placeholder="Search Reports Here" class="search-input"> --}}
+                                    <input type="date" placeholder="" class="dateInput">
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="row py-2 gap-2">
+                                        <div class="col-lg-2 col-2">
+                                            <span class="badge p-2  mstatus activeStatus" id="allMissions">All </span>
+                                        </div>
+                                        <div class="col-lg-2 col-2">
+                                            <span class="badge p-2  mstatus" id="pending">Pending</span>
+                                        </div>
+                                        <div class="col-lg-2 col-2">
+                                            <span class="badge p-2  mstatus" id="rejected">Rejected</span>
+                                        </div>
+                                        <div class="col-lg-2 col-2">
+                                            <span class="badge p-2  mstatus" id="completed">Completed</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -37,11 +54,11 @@
 
                         <div class="flex-grow 1">
                             <div class="row fw-bold custom-bborder  label-text w-100  px-3 py-2 justify-content-between">
-                                <div class="col-3">Inspection Type</div>
-                                <div class="col-2 text-center">Mission Date</div>
+                                <div class="col-3 ">Inspection Type</div>
+                                <div class="col-2 ">Mission Date</div>
                                 <div class="col-3 text-center">Location</div>
                                 <div class="col-2 text-center">Status</div>
-                                <div class="col-2 text-center">Detail</div>
+                                <div class="col-2 text-center">Actions</div>
                             </div>
                             <div class="accordion " id="missionsAccordion">
                                 <!-- Dynamic rows will go here -->
@@ -130,11 +147,39 @@
                             <div class="col-md-7 col-sm-12 p-2">
                                 <label class="form-check-label label-text py-1">Location</label>
                             
-                                @if($locationData)
+                                {{-- @if($locationData)
                                 <input type="text" class="form-control dateInput mx-1"  name="location_id" id="location_id" data-location-id="{{ $locationData['id'] }}"  value="{{ $locationData['name'] }}" disabled>
                                 @else
                                     <input type="text" class="form-control dateInput mx-1" value="No location Found for Region"/>
-                                @endif
+                                @endif --}}
+
+                                <select class="form-select mx-1 dateInput" name="location_id" id="location_id"
+                                    @if(($userType === 'region_manager' && $locations->count() === 1) || ($locationData)) disabled @endif required>
+                        
+                                    @if($userType === 'region_manager')
+                                        @if($locations->count() === 1)
+                                            {{-- ✅ One location: pre-select and disable --}}
+                                            <option value="{{ $locations[0]->id }}" selected>{{ $locations[0]->name }}</option>
+                                        @elseif($locations->isNotEmpty())
+                                            <option value="">-- Select Location --</option>
+                                            @foreach($locations as $loc)
+                                                <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                                            @endforeach
+                                        @else
+                                            {{-- ❌ No locations for region --}}
+                                            <option value="">No location found for this region</option>
+                                        @endif
+                                
+                                    @elseif($locationData)
+                                        {{-- ✅ For city-level users (1 fixed location, disabled select) --}}
+                                        <option value="{{ $locationData['id'] }}" selected>{{ $locationData['name'] }}</option>
+                                    @else
+                                        {{-- ❌ Fallback for any other users --}}
+                                        <option value="">No location found</option>
+                                    @endif
+                                </select>
+                        
+                                
 
                             </div>
 

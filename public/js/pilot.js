@@ -72,6 +72,7 @@ $(document).ready(function () {
         
                         const modonApproved  = mission.approval_status?.modon_admin_approved;
                         const regionApproved = mission.approval_status?.region_manager_approved;
+                        const pilotApproved = mission.approval_status?.pilot_approved;
         
                         const getStatusBadge = value => {
                             switch (value) {
@@ -83,6 +84,7 @@ $(document).ready(function () {
         
                         const modonManagerStatus  = getStatusBadge(modonApproved);
                         const regionManagerStatus = getStatusBadge(regionApproved);
+                        const pilotApprovedStatus = getStatusBadge(pilotApproved);
         
                         // ✅ Conditional edit/delete buttons (modon_admin only)
                         let editButton = '';
@@ -99,27 +101,22 @@ $(document).ready(function () {
                         }
         
                         // ✅ Conditional Approve/Reject buttons
-                        let approvalButtons = '';
-                        if (
-                            mission.status === "Pending" &&
-                            (
-                                (userType === 'modon_admin' && modonApproved === 0) ||
-                                (userType === 'region_manager' && regionApproved === 0)
-                            )
-                        ) {
+                        if(pilotApprovedStatus){
                             approvalButtons = `
                                 <strong class="text-end">
-                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMission"
+                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMissionbyPilot"
                                         data-mission-decision="approve" data-mission-id="${mission.id}">
                                         Approve
                                     </span>
-                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMission"
+                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMissionbyPilot"
                                         data-mission-decision="reject" data-mission-id="${mission.id}">
                                         Reject
                                     </span>
                                 </strong>
                             `;
                         }
+
+                        
         
                         // ✅ Final row HTML
                         const row = `
@@ -132,8 +129,7 @@ $(document).ready(function () {
                                             <div class="col-3 text-center">${locations}</div>
                                             <div class="col-2 text-center ps-5">${statusBadge}</div>
                                             <div class="col-2 text-center ps-5">
-                                                ${editButton}
-                                                ${deleteButton}
+                                             
                                                 <img src="./images/view.png" alt="View" class="view-mission img-fluid actions toggle-details" data-id="${mission.id}" data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
                                             </div>
                                         </div>
@@ -185,7 +181,80 @@ $(document).ready(function () {
                 }
             });
         }
+        $(document).on('click', '.approvalMissionbyPilot', function () {
+            const missionId = $(this).data('mission-id');
+            const decision  = $(this).data('mission-decision');
         
+            if (!missionId || !decision) {
+                return Swal.fire('Error', 'Missing mission ID or decision', 'error');
+            }
+        
+            const isApproval = decision === 'approve';
+            const actionText = isApproval ? 'Approve' : 'Reject';
+            const confirmButtonColor = isApproval ? '#28a745' : '#dc3545';
+        
+            Swal.fire({
+                title: `${actionText} Mission?`,
+                text: `Are you sure you want to ${actionText.toLowerCase()} this mission?`,
+                icon: isApproval ? 'success' : 'warning',
+                showCancelButton: true,
+                confirmButtonColor: confirmButtonColor,
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: `Yes, ${actionText}`,
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+        
+                // ✅ If approving, go straight to AJAX
+                if (isApproval) {
+                    submitPilotApproval(missionId, decision);
+                } else {
+                    // ❌ If rejecting, ask for reason
+                    Swal.fire({
+                        title: 'Rejection Reason',
+                        input: 'textarea',
+                        inputLabel: 'Please explain why you’re rejecting this mission',
+                        inputPlaceholder: 'Enter reason here...',
+                        inputAttributes: {
+                            'aria-label': 'Rejection reason'
+                        },
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'Rejection reason is required!';
+                            }
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit Rejection',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                    }).then((rejectResult) => {
+                        if (rejectResult.isConfirmed) {
+                            submitPilotApproval(missionId, decision, rejectResult.value);
+                        }
+                    });
+                }
+            });
+        });
+        function submitPilotApproval(missionId, decision, rejectionNote = null) {
+            $.ajax({
+                url: `/pilot/${missionId}/pilot-decision`,
+                method: 'POST',
+                data: {
+                    mission_id: missionId,
+                    decision: decision,
+                    rejection_note: rejectionNote,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    Swal.fire('Success', response.message || 'Decision updated!', 'success');
+                    getRegionManagerMissions();
+                },
+                error: function (xhr) {
+                    Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+                }
+            });
+        }
     // fetchMissions();
 
     // function fetchMissions() {

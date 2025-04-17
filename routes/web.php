@@ -79,6 +79,8 @@ Route::middleware(['auth', 'checkUserType:pilot'])->group(function () {
     //update mission status
     Route::post('/pilot/missions/update-status', [PilotController::class, 'updateMissionStatus']);
 
+    Route::post('/pilot/{mission}/pilot-decision', [PilotController::class, 'pilotDecision']);
+
 });
 
 // Admin Routes

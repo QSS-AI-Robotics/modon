@@ -36,7 +36,7 @@
                                 </div>
         
                                 <!-- Missions Table -->
-                                <div class="table-responsive flex-grow-1 overflow-auto">
+                                {{-- <div class="table-responsive flex-grow-1 overflow-auto">
                                     <table class="table table-text">
                                         <thead>
                                             <tr>
@@ -54,7 +54,22 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div> --}}
+                                <div class="flex-grow 1">
+                                    <div class="row fw-bold custom-bborder  label-text w-100  px-3 py-2 justify-content-between">
+                                        <div class="col-3 ">Inspection Type</div>
+                                        <div class="col-2 ">Mission Date</div>
+                                        <div class="col-3 text-center">Location</div>
+                                        <div class="col-2 text-center">Status</div>
+                                        <div class="col-2 text-center">Actions</div>
+                                    </div>
+                                    <div class="accordion " id="pilotTableBody">
+                                        <!-- Dynamic rows will go here -->
+                                    </div>
+                                    
                                 </div>
+
+
                             </div>
                         </div>
         

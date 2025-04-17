@@ -24,89 +24,228 @@ class PilotController extends Controller
         return view('pilot.pilot'); // ✅ Loads `pilot.blade.php`
     }
 
+
+    public function pilotDecision(Request $request, Mission $mission)
+{
+    $request->validate([
+        'decision'       => 'required|in:approve,reject',
+        'rejection_note' => 'nullable|string',
+    ]);
+
+    $pilot = Auth::user();
+
+    if ($mission->pilot_id !== $pilot->id) {
+        Log::warning("🚫 Unauthorized pilot (User ID: $pilot->id) tried to decide on mission #{$mission->id}");
+        return response()->json(['message' => 'You are not authorized to respond to this mission.'], 403);
+    }
+
+    $decision = $request->decision === 'approve' ? 1 : 2;
+
+    Log::info("🛩️ Pilot (ID: {$pilot->id}) submitted decision for Mission #{$mission->id}: " . ($decision === 1 ? 'Approved' : 'Rejected'));
+
+    // ✅ Prepare approval data
+    $approvalData = [
+        'is_fully_approved' => $decision,
+    ];
+
+    if ($decision === 2) {
+        $approvalData['rejected_by']    = $pilot->id;
+        $approvalData['rejection_note'] = $request->rejection_note ?? 'Rejected by pilot';
+    }
+
+    // ✅ Update/Create approval first
+    $approval = \App\Models\MissionApproval::updateOrCreate(
+        ['mission_id' => $mission->id],
+        $approvalData
+    );
+
+    Log::info("✅ MissionApproval updated", [
+        'mission_id'         => $approval->mission_id,
+        'is_fully_approved'  => $approval->is_fully_approved,
+        'rejected_by'        => $approval->rejected_by,
+        'rejection_note'     => $approval->rejection_note,
+    ]);
+
+    // ✅ Now update mission status based on decision
+    $mission->status = $decision === 1 ? 'Approved' : 'Rejected';
+    $mission->save();
+
+    Log::info("✅ Mission status updated", [
+        'mission_id' => $mission->id,
+        'status'     => $mission->status,
+    ]);
+
+    return response()->json(['message' => 'Pilot decision recorded successfully.']);
+}
+
+
+
+
     /**
      * Fetch missions assigned to the pilot's region.
      */
 
-
      public function getAllApprovedMissionsByUserType()
-{
-    if (!Auth::check()) {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
+     {
+         if (!Auth::check()) {
+             return response()->json(['error' => 'Unauthorized'], 401);
+         }
+     
+         $user = Auth::user();
+         $userType = strtolower(optional($user->userType)->name ?? '');
+     
+         $regionIds = $user instanceof \App\Models\User
+             ? $user->regions()->pluck('regions.id')->toArray()
+             : [];
+     
+         $locationIds = $user instanceof \App\Models\User
+             ? $user->assignedLocations()->pluck('locations.id')->toArray()
+             : [];
+     
+         Log::info("🔍 User: {$user->id}, Type: {$userType}");
+         Log::info("📍 Regions: ", $regionIds);
+         Log::info("📍 Locations: ", $locationIds);
+     
+         $missions = Mission::query()
+             ->whereHas('approvals', function ($q) {
+                 $q->where('region_manager_approved', 1)
+                   ->where('modon_admin_approved', 1);
+             }) // ✅ Only fetch missions with both approvals
+             ->when($userType === 'region_manager', function ($q) use ($regionIds) {
+                 $q->whereIn('region_id', $regionIds);
+             })
+             ->when($userType === 'city_manager', function ($q) use ($regionIds, $locationIds) {
+                 $q->whereIn('region_id', $regionIds)
+                   ->whereHas('locations', fn($lq) => $lq->whereIn('locations.id', $locationIds));
+             })
+             ->with([
+                 'inspectionTypes:id,name',
+                 'locations:id,name',
+                 'locations.geoLocation:location_id,latitude,longitude',
+                 'locations.locationAssignments.region:id,name',
+                 'pilot:id,name',
+                 'approvals:id,mission_id,region_manager_approved,modon_admin_approved,pilot_approved',
+                 'user:id,name,user_type_id',
+                 'user.userType:id,name',
+             ])
+             ->get()
+             ->map(function ($mission) {
+                 $mission->approval_status = [
+                     'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
+                     'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
+                     'pilot_approved'    => $mission->approvals?->pilot_approved    ?? 0,
+                 ];
+     
+                 $mission->pilot_info = [
+                     'id'   => $mission->pilot->id   ?? null,
+                     'name' => $mission->pilot->name ?? null,
+                 ];
+     
+                 $mission->created_by = [
+                     'id'        => $mission->user->id   ?? null,
+                     'name'      => $mission->user->name ?? null,
+                     'user_type' => $mission->user->userType->name ?? null,
+                 ];
+     
+                 $mission->locations = $mission->locations->map(function ($loc) {
+                     $region = $loc->locationAssignments->pluck('region')->filter()->first();
+                     return [
+                         'id'          => $loc->id,
+                         'name'        => $loc->name,
+                         'latitude'    => $loc->geoLocation->latitude  ?? null,
+                         'longitude'   => $loc->geoLocation->longitude ?? null,
+                         'region_id'   => $region?->id,
+                         'region_name' => $region?->name,
+                     ];
+                 })->values();
+     
+                 unset($mission->approvals, $mission->pilot, $mission->user);
+                 return $mission;
+             });
+     
+         Log::info("✅ Approved Missions returned: " . $missions->count());
+     
+         return response()->json(['missions' => $missions]);
+     }
+     
+//      public function getAllApprovedMissionsByUserType()
+// {
+//     if (!Auth::check()) {
+//         return response()->json(['error' => 'Unauthorized'], 401);
+//     }
 
-    $user = Auth::user();
-    $userType = strtolower(optional($user->userType)->name ?? '');
+//     $user = Auth::user();
+//     $userType = strtolower(optional($user->userType)->name ?? '');
 
-    $regionIds = $user instanceof \App\Models\User
-        ? $user->regions()->pluck('regions.id')->toArray()
-        : [];
+//     $regionIds = $user instanceof \App\Models\User
+//         ? $user->regions()->pluck('regions.id')->toArray()
+//         : [];
 
-    $locationIds = $user instanceof \App\Models\User
-        ? $user->assignedLocations()->pluck('locations.id')->toArray()
-        : [];
+//     $locationIds = $user instanceof \App\Models\User
+//         ? $user->assignedLocations()->pluck('locations.id')->toArray()
+//         : [];
 
-    Log::info("🔍 User: {$user->id}, Type: {$userType}");
-    Log::info("📍 Regions: ", $regionIds);
-    Log::info("📍 Locations: ", $locationIds);
+//     Log::info("🔍 User: {$user->id}, Type: {$userType}");
+//     Log::info("📍 Regions: ", $regionIds);
+//     Log::info("📍 Locations: ", $locationIds);
 
-    $missions = Mission::query()
-        ->where('status', 'Approved') // ✅ Only approved missions
-        ->when($userType === 'region_manager', function ($q) use ($regionIds) {
-            $q->whereIn('region_id', $regionIds);
-        })
-        ->when($userType === 'city_manager', function ($q) use ($regionIds, $locationIds) {
-            $q->whereIn('region_id', $regionIds)
-              ->whereHas('locations', fn($lq) => $lq->whereIn('locations.id', $locationIds));
-        })
-        ->with([
-            'inspectionTypes:id,name',
-            'locations:id,name',
-            'locations.geoLocation:location_id,latitude,longitude',
-            'locations.locationAssignments.region:id,name',
-            'pilot:id,name',
-            'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
-            'user:id,name,user_type_id',
-            'user.userType:id,name',
-        ])
-        ->get()
-        ->map(function ($mission) {
-            $mission->approval_status = [
-                'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
-                'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
-            ];
+//     $missions = Mission::query()
+//         ->where('status', 'Approved') // ✅ Only approved missions
+//         ->when($userType === 'region_manager', function ($q) use ($regionIds) {
+//             $q->whereIn('region_id', $regionIds);
+//         })
+//         ->when($userType === 'city_manager', function ($q) use ($regionIds, $locationIds) {
+//             $q->whereIn('region_id', $regionIds)
+//               ->whereHas('locations', fn($lq) => $lq->whereIn('locations.id', $locationIds));
+//         })
+//         ->with([
+//             'inspectionTypes:id,name',
+//             'locations:id,name',
+//             'locations.geoLocation:location_id,latitude,longitude',
+//             'locations.locationAssignments.region:id,name',
+//             'pilot:id,name',
+//             'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
+//             'user:id,name,user_type_id',
+//             'user.userType:id,name',
+//         ])
+//         ->get()
+//         ->map(function ($mission) {
+//             $mission->approval_status = [
+//                 'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
+//                 'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
+//             ];
 
-            $mission->pilot_info = [
-                'id'   => $mission->pilot->id   ?? null,
-                'name' => $mission->pilot->name ?? null,
-            ];
+//             $mission->pilot_info = [
+//                 'id'   => $mission->pilot->id   ?? null,
+//                 'name' => $mission->pilot->name ?? null,
+//             ];
 
-            $mission->created_by = [
-                'id'        => $mission->user->id   ?? null,
-                'name'      => $mission->user->name ?? null,
-                'user_type' => $mission->user->userType->name ?? null,
-            ];
+//             $mission->created_by = [
+//                 'id'        => $mission->user->id   ?? null,
+//                 'name'      => $mission->user->name ?? null,
+//                 'user_type' => $mission->user->userType->name ?? null,
+//             ];
 
-            $mission->locations = $mission->locations->map(function ($loc) {
-                $region = $loc->locationAssignments->pluck('region')->filter()->first();
-                return [
-                    'id'          => $loc->id,
-                    'name'        => $loc->name,
-                    'latitude'    => $loc->geoLocation->latitude  ?? null,
-                    'longitude'   => $loc->geoLocation->longitude ?? null,
-                    'region_id'   => $region?->id,
-                    'region_name' => $region?->name,
-                ];
-            })->values();
+//             $mission->locations = $mission->locations->map(function ($loc) {
+//                 $region = $loc->locationAssignments->pluck('region')->filter()->first();
+//                 return [
+//                     'id'          => $loc->id,
+//                     'name'        => $loc->name,
+//                     'latitude'    => $loc->geoLocation->latitude  ?? null,
+//                     'longitude'   => $loc->geoLocation->longitude ?? null,
+//                     'region_id'   => $region?->id,
+//                     'region_name' => $region?->name,
+//                 ];
+//             })->values();
 
-            unset($mission->approvals, $mission->pilot, $mission->user);
-            return $mission;
-        });
+//             unset($mission->approvals, $mission->pilot, $mission->user);
+//             return $mission;
+//         });
 
-    Log::info("✅ Approved Missions returned: " . $missions->count());
+//     Log::info("✅ Approved Missions returned: " . $missions->count());
 
-    return response()->json(['missions' => $missions]);
-}
+//     return response()->json(['missions' => $missions]);
+// }
 
 
 

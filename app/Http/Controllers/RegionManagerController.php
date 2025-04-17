@@ -186,55 +186,7 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
     }
     
 
-    // public function getmanagermissions()
-    // {
-    //     if (!Auth::check()) {
-    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-    //     }
-    
-    //     $user      = Auth::user();
-    //     $regionIds = $user instanceof User
-    //         ? $user->regions()->pluck('regions.id')
-    //         : collect();
-    
-    //     $missions = Mission::whereIn('region_id', $regionIds)
-    //         ->with([
-    //             'inspectionTypes:id,name',
-    //             'locations:id,name',
-    //             // eager‑load geoLocation on each location
-    //             'locations.geoLocation:location_id,latitude,longitude',
-    //             'pilot:id,name',
-    //             'approvals:id,mission_id,region_manager_approved,modon_admin_approved'
-    //         ])
-    //         ->get()
-    //         ->map(function ($mission) {
-    //             // build approval_status & pilot_info as before
-    //             $mission->approval_status = [
-    //                 'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
-    //                 'modon_admin_approved'    => $mission->approvals->modon_admin_approved    ?? null,
-    //             ];
-    //             $mission->pilot_info = [
-    //                 'id'   => $mission->pilot->id   ?? null,
-    //                 'name' => $mission->pilot->name ?? null,
-    //             ];
-    
-    //             // remap locations to include geoLocation
-    //             $mission->locations = $mission->locations->map(function ($loc) {
-    //                 return [
-    //                     'id'        => $loc->id,
-    //                     'name'      => $loc->name,
-    //                     'latitude'  => $loc->geoLocation->latitude  ?? null,
-    //                     'longitude' => $loc->geoLocation->longitude ?? null,
-    //                 ];
-    //             })->values();
-    
-    //             unset($mission->approvals, $mission->pilot);
-    //             return $mission;
-    //         });
-    
-    //     return response()->json(['missions' => $missions]);
-    // }
-    
+   
 
 
     

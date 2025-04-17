@@ -170,6 +170,7 @@ $(document).ready(function () {
                     const inspectionName = inspection.name || 'N/A';
                     const inspectionId = inspection.id || '';
                     const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
+                    const locationID = mission.locations.map(loc => loc.id).join(', ') || 'N/A';
                     const noteWords = mission.note ? mission.note.split(" ") : [];
                     const fullNote = mission.note || "No Notes";
     
@@ -247,7 +248,7 @@ $(document).ready(function () {
                                 <div class="accordion-body px-4 py-2 label-text">
                                     <strong>Program</strong>:${inspectionName}<br>
                                     <strong>Mission Date</strong>:${mission.mission_date}<br>
-                                    <strong>Locations</strong>:${locations}<br>
+                                    <strong data-location-id=${locationID}>Locations</strong>:${locations}<br>
                                     <strong 
                                         data-latitude="${mission.locations[0]?.geo_location?.latitude}" data-longitude="${mission.locations[0]?.geo_location?.longitude}">
                                       Geo
@@ -323,7 +324,7 @@ $('#addMissionForm').on('submit', function (e) {
     // ✅ Collect form data
     const inspectionType = $('input[name="inspection_type"]:checked').val();
     const locationId = $('#location_id').val();
-    const regionId = $('#region_id').val();
+    const region_id = $('#region_id').val();
     const selectedLocations = locationId ? [locationId] : [];
     const pilotId = $('#pilot_id').val();
     const latitude = $('#latitude').val();
@@ -338,7 +339,7 @@ $('#addMissionForm').on('submit', function (e) {
         pilot_id: pilotId,
         latitude: latitude,
         longitude: longitude,
-        regionId:regionId
+        region_id:region_id
     };
     
     // ✅ Validation - collect missing fields
@@ -346,7 +347,7 @@ $('#addMissionForm').on('submit', function (e) {
     
     if (!formData.mission_date) errors.push("Mission date is required.");
     if (!inspectionType) errors.push("Please select an inspection type.");
-    if (!regionId) errors.push("Please select an Region ");
+    if (!region_id) errors.push("Please select an Region ");
     if (!pilotId) errors.push("Please select a pilot.");
     if (!latitude) errors.push("Please Enter a latitude.");
     if (!longitude) errors.push("Please Enter a longitude.");
@@ -655,30 +656,28 @@ $('#addMissionForm').on('submit', function (e) {
         
             // ✅ Get mission date & note
             const missionDate = row.find(".mission_date").text().trim();
-            const fullNote    = row.find(".accordion-body")
-                                   .text()
-                                   .match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
+            const fullNote    = row.find(".accordion-body").text().match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
         
-            // ✅ Get locations list (for checkboxes)
-            const locationsText = row.find(".accordion-button .col-3").eq(1).text();
-            const locationNames = locationsText
-                                      .split(',')
-                                      .map(loc => loc.trim().toLowerCase());
+            // ✅ Get locations (names & IDs)
+            const locationNames = row.find("[data-location-id]").text().split(',').map(loc => loc.trim().toLowerCase());
+            const locationIds   = row.find("[data-location-id]").data("location-id").toString().split(',');
         
             // ✅ Get pilot id
             const pilotId = row.data('pilot-id');
         
-            // ✅ Get geo coords from attributes on the location cell
+            // ✅ Get geo coords
             const latitude  = row.find("[data-latitude]").data("latitude");
             const longitude = row.find("[data-longitude]").data("longitude");
+        
+            // ✅ Get region from the first location option
+            const regionId = $('#location_id option[value="' + locationIds[0] + '"]').data('region-id');
         
             // — Fill the form —
             $('#mission_date').val(missionDate);
             $('#note').val(fullNote);
         
             // inspection type radio
-            $(`input[name="inspection_type"][value="${inspectionTypeId}"]`)
-                .prop("checked", true);
+            $(`input[name="inspection_type"][value="${inspectionTypeId}"]`).prop("checked", true);
         
             // pilot dropdown
             if (pilotId) {
@@ -689,18 +688,91 @@ $('#addMissionForm').on('submit', function (e) {
             $('#latitude').val(latitude ?? '');
             $('#longitude').val(longitude ?? '');
         
-            // location checkboxes
+            // ✅ Set region and trigger filtering
+            if (regionId) {
+                $('#region_id').val(regionId).trigger('change');
+        
+                // Small delay to ensure filtering is done before selecting location
+                setTimeout(() => {
+                    $('#location_id option').each(function () {
+                        const locId = $(this).val();
+                        $(this).prop("selected", locationIds.includes(locId));
+                    });
+                }, 100);
+            }
+        
+            // ✅ Checkboxes (if used anywhere else)
             $(".location-checkbox").each(function () {
                 const labelText = $(this).siblings("label").text().trim().toLowerCase();
                 $(this).prop("checked", locationNames.includes(labelText));
             });
         
-            // set form into “edit” mode
+            // — Set form into “edit” mode —
             $("#addMissionForm").attr("data-mission-id", missionId);
             $(".form-title").text("Edit Mission");
             $(".mission-btn span").text("Update Mission");
             $(".mission-btn svg").attr({ "width": "30", "height": "30" });
         });
+        
+        // $(document).on("click", ".edit-mission", function () {
+        //     $(".cancel-btn").removeClass("d-none");
+        
+        //     const missionId = $(this).data("id");
+        //     const row = $(`#missionRow-${missionId}`);
+        
+        //     // ✅ Get inspection type info
+        //     const inspectionTypeEl   = row.find("[data-name][data-inspectiontype-id]");
+        //     const inspectionTypeId   = inspectionTypeEl.data("inspectiontype-id");
+        //     const inspectionTypeName = inspectionTypeEl.data("name");
+        
+        //     // ✅ Get mission date & note
+        //     const missionDate = row.find(".mission_date").text().trim();
+        //     const fullNote    = row.find(".accordion-body")
+        //                            .text()
+        //                            .match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
+        
+        //     // ✅ Get locations list (for checkboxes)
+        //     const locationsText = row.find(".accordion-button .col-3").eq(1).text();
+        //     const locationNames = locationsText
+        //                               .split(',')
+        //                               .map(loc => loc.trim().toLowerCase());
+        
+        //     // ✅ Get pilot id
+        //     const pilotId = row.data('pilot-id');
+        
+        //     // ✅ Get geo coords from attributes on the location cell
+        //     const latitude  = row.find("[data-latitude]").data("latitude");
+        //     const longitude = row.find("[data-longitude]").data("longitude");
+        
+        //     // — Fill the form —
+        //     $('#mission_date').val(missionDate);
+        //     $('#note').val(fullNote);
+        
+        //     // inspection type radio
+        //     $(`input[name="inspection_type"][value="${inspectionTypeId}"]`)
+        //         .prop("checked", true);
+        
+        //     // pilot dropdown
+        //     if (pilotId) {
+        //         $('#pilot_id').val(pilotId);
+        //     }
+        
+        //     // lat / lng inputs
+        //     $('#latitude').val(latitude ?? '');
+        //     $('#longitude').val(longitude ?? '');
+        
+        //     // location checkboxes
+        //     $(".location-checkbox").each(function () {
+        //         const labelText = $(this).siblings("label").text().trim().toLowerCase();
+        //         $(this).prop("checked", locationNames.includes(labelText));
+        //     });
+        
+        //     // set form into “edit” mode
+        //     $("#addMissionForm").attr("data-mission-id", missionId);
+        //     $(".form-title").text("Edit Mission");
+        //     $(".mission-btn span").text("Update Mission");
+        //     $(".mission-btn svg").attr({ "width": "30", "height": "30" });
+        // });
         
 
         

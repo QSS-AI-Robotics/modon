@@ -20,7 +20,7 @@
                     @csrf
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
                         <label for="exampleFormControlInput1" class="form-label">Email address</label>
-                        <input type="email"  class=" form-control input-dark-blue" id="email" name="email" value="nabeel@qltyss.com" placeholder="Email Here...." required/>
+                        <input type="email"  class=" form-control input-dark-blue" id="email" name="email" value="momin@qltyss.com" placeholder="Email Here...." required/>
                     </div>
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 py-4">
                         <label for="exampleFormControlInput1" class="form-label">Password</label>

@@ -249,3 +249,8 @@ textarea:focus{
     transform: scale(1.2);
     cursor: pointer;
 }
+.disabled-edit,
+.disabled-delete {
+    pointer-events: none;
+    opacity: 0.5;
+}

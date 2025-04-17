@@ -328,6 +328,7 @@ class RegionManagerController extends Controller
             'inspectionTypes:id,name',
             'locations:id,name',
             'locations.geoLocation:location_id,latitude,longitude',
+            'locations.locationAssignments.region:id,name',
             'pilot:id,name',
             'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
             'user:id,name,user_type_id',
@@ -347,22 +348,27 @@ class RegionManagerController extends Controller
                 'name' => $mission->pilot->name ?? null,
             ];
 
-            // ✅ Created By (user who created the mission)
+            // ✅ Created By
             $mission->created_by = [
                 'id'        => $mission->user->id   ?? null,
                 'name'      => $mission->user->name ?? null,
                 'user_type' => $mission->user->userType->name ?? null,
             ];
 
-            // ✅ Locations
-            $mission->locations = $mission->locations->map(fn($loc) => [
-                'id'        => $loc->id,
-                'name'      => $loc->name,
-                'latitude'  => $loc->geoLocation->latitude  ?? null,
-                'longitude' => $loc->geoLocation->longitude ?? null,
-            ])->values();
+            // ✅ Locations with region name from locationAssignments
+            $mission->locations = $mission->locations->map(function ($loc) {
+                $region = $loc->locationAssignments->pluck('region')->filter()->first();
 
-            // ✅ Clean up unneeded relations
+                return [
+                    'id'          => $loc->id,
+                    'name'        => $loc->name,
+                    'latitude'    => $loc->geoLocation->latitude  ?? null,
+                    'longitude'   => $loc->geoLocation->longitude ?? null,
+                    'region_id'   => $region?->id,
+                    'region_name' => $region?->name,
+                ];
+            })->values();
+
             unset($mission->approvals, $mission->pilot, $mission->user);
             return $mission;
         });
@@ -370,58 +376,73 @@ class RegionManagerController extends Controller
     return response()->json(['missions' => $missions]);
 }
 
-    // public function getmanagermissions()
-    // {
-    //     if (! Auth::check()) {
-    //         return response()->json(['error' => 'Unauthorized access.'], 401);
-    //     }
-    
-    //     $user     = Auth::user();
-    //     $userType = optional($user->userType)->name ?? '';
-    
-    //     // ✅ Compute region IDs once
-    //     $regionIds = $user instanceof User
-    //         ? $user->regions()->pluck('regions.id')->toArray()
-    //         : [];
-    
-    //     // ✅ Build query, only restrict by region_id when NOT admin
-    //     $missions = Mission::query()
-    //         ->when(
-    //             ! in_array($userType, ['qss_admin', 'modon_admin']),
-    //             fn($q) => $q->whereIn('region_id', $regionIds)
-    //         )
-    //         ->with([
-    //             'inspectionTypes:id,name',
-    //             'locations:id,name',
-    //             'locations.geoLocation:location_id,latitude,longitude',
-    //             'pilot:id,name',
-    //             'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
-    //         ])
-    //         ->get()
-    //         ->map(function ($mission) {
-    //             $mission->approval_status = [
-    //                 'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
-    //                 'modon_admin_approved'    => $mission->approvals->modon_admin_approved    ?? null,
-    //             ];
-    //             $mission->pilot_info = [
-    //                 'id'   => $mission->pilot->id   ?? null,
-    //                 'name' => $mission->pilot->name ?? null,
-    //             ];
-    //             $mission->locations = $mission->locations->map(fn($loc) => [
-    //                 'id'        => $loc->id,
-    //                 'name'      => $loc->name,
-    //                 'latitude'  => $loc->geoLocation->latitude  ?? null,
-    //                 'longitude' => $loc->geoLocation->longitude ?? null,
-    //             ])->values();
-    
-    //             unset($mission->approvals, $mission->pilot);
-    //             return $mission;
-    //         });
-    
-    //     return response()->json(['missions' => $missions]);
-    // }
-    
+//     public function getmanagermissions()
+// {
+//     if (! Auth::check()) {
+//         return response()->json(['error' => 'Unauthorized access.'], 401);
+//     }
 
+//     $user     = Auth::user();
+//     $userType = optional($user->userType)->name ?? '';
+
+//     // ✅ Compute region IDs once
+//     $regionIds = $user instanceof User
+//         ? $user->regions()->pluck('regions.id')->toArray()
+//         : [];
+
+//     // ✅ Build query, only restrict by region_id when NOT admin
+//     $missions = Mission::query()
+//         ->when(
+//             ! in_array($userType, ['qss_admin', 'modon_admin']),
+//             fn($q) => $q->whereIn('region_id', $regionIds)
+//         )
+//         ->with([
+//             'inspectionTypes:id,name',
+//             'locations:id,name',
+//             'locations.geoLocation:location_id,latitude,longitude',
+//             'pilot:id,name',
+//             'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
+//             'user:id,name,user_type_id',
+//             'user.userType:id,name',
+//         ])
+//         ->get()
+//         ->map(function ($mission) {
+//             // ✅ Approval Status
+//             $mission->approval_status = [
+//                 'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
+//                 'modon_admin_approved'    => $mission->approvals->modon_admin_approved    ?? null,
+//             ];
+
+//             // ✅ Pilot Info
+//             $mission->pilot_info = [
+//                 'id'   => $mission->pilot->id   ?? null,
+//                 'name' => $mission->pilot->name ?? null,
+//             ];
+
+//             // ✅ Created By (user who created the mission)
+//             $mission->created_by = [
+//                 'id'        => $mission->user->id   ?? null,
+//                 'name'      => $mission->user->name ?? null,
+//                 'user_type' => $mission->user->userType->name ?? null,
+//             ];
+
+//             // ✅ Locations
+//             $mission->locations = $mission->locations->map(fn($loc) => [
+//                 'id'        => $loc->id,
+//                 'name'      => $loc->name,
+//                 'latitude'  => $loc->geoLocation->latitude  ?? null,
+//                 'longitude' => $loc->geoLocation->longitude ?? null,
+//             ])->values();
+
+//             // ✅ Clean up unneeded relations
+//             unset($mission->approvals, $mission->pilot, $mission->user);
+//             return $mission;
+//         });
+
+//     return response()->json(['missions' => $missions]);
+// }
+
+   
    
 
 
@@ -486,11 +507,13 @@ class RegionManagerController extends Controller
         $mission->locations()->sync($request->locations);
 
         $regionApproved = $userType === 'region_manager';
+        $modonApproved  = $userType === 'modon_admin';
+        
         MissionApproval::create([
-            'mission_id'                => $mission->id,
-            'region_manager_approved'   => $regionApproved,
-            'modon_admin_approved'      => false,
-            'is_fully_approved'         => false,
+            'mission_id'              => $mission->id,
+            'region_manager_approved' => $regionApproved,
+            'modon_admin_approved'    => $modonApproved,
+            'is_fully_approved'       => false,
         ]);
 
         // geo‐location saving…
@@ -546,14 +569,15 @@ class RegionManagerController extends Controller
     }
 
     $user = Auth::user();
-
+    $userType = strtolower(optional($user->userType)->name ?? '');
     $regionIds = $user instanceof User
         ? $user->regions()->pluck('regions.id')->toArray()
         : [];
 
     $mission = Mission::with('approvals')->findOrFail($id);
 
-    if (!in_array($mission->region_id, $regionIds)) {
+    // ✅ Allow modon_admin to bypass region check
+    if ($userType !== 'modon_admin' && !in_array($mission->region_id, $regionIds)) {
         return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
     }
 
@@ -565,88 +589,96 @@ class RegionManagerController extends Controller
         $approval->modon_admin_approved
     );
 
-    Log::info('🧑‍💼 User attempting to delete approved mission', [
-        'user_id' => $user->id,
-        'user_type' => optional($user->userType)->name ?? 'N/A'
+    // ✅ Log the attempt
+    Log::info('🧑‍💼 User attempting to delete mission', [
+        'user_id'   => $user->id,
+        'user_type' => $userType,
+        'approved'  => $hasBeenApproved,
     ]);
 
-    $isRegionManager = optional($user->userType)->name === 'region_manager';
-
-    if ($hasBeenApproved && !$isRegionManager) {
+    // ✅ Only region_manager can delete approved missions (unless user is modon_admin)
+    if ($hasBeenApproved && $userType !== 'modon_admin' && $userType !== 'region_manager') {
         return response()->json([
-            'error' => '❌ This mission has already been approved. Only the region manager can delete it now.'
+            'error' => '❌ This mission has already been approved. Only the region manager or modon admin can delete it.'
         ], 403);
     }
 
-    // ✅ Require delete reason from everyone
+    // ✅ Require delete reason
     if (!$request->delete_reason) {
         return response()->json([
             'error' => 'Please provide a reason for deleting this mission.'
         ], 422);
     }
 
-    // ✅ Store the reason
+    // ✅ Store reason and who deleted
     $mission->delete_reason = $request->delete_reason;
     $mission->deleted_by = $user->id;
     $mission->save();
 
-    // ✅ Soft delete
+    // ✅ Soft delete the mission
     $mission->delete();
 
     return response()->json(['message' => '✅ Mission deleted successfully!']);
 }
 
-    // public function destroyMission($id)
+    // public function destroyMission(Request $request, $id)
     // {
     //     if (!Auth::check()) {
     //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
     //     }
-    
+
     //     $user = Auth::user();
-    
-    //     // ✅ Get all region IDs this user is assigned to
-    //     $regionIds = $user instanceof \App\Models\User
+
+    //     $regionIds = $user instanceof User
     //         ? $user->regions()->pluck('regions.id')->toArray()
     //         : [];
-    
-    //     // ✅ Find mission with approvals
+
     //     $mission = Mission::with('approvals')->findOrFail($id);
-    
-    //     // ✅ Ensure user is assigned to this mission's region
+
     //     if (!in_array($mission->region_id, $regionIds)) {
     //         return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
     //     }
-    
-    //     // ✅ Get the approval record
+
     //     $approval = $mission->approvals;
-    
+
     //     $hasBeenApproved = $approval && (
     //         $approval->city_manager_approved ||
     //         $approval->region_manager_approved ||
-    //         $approval->modon_manager_approved
+    //         $approval->modon_admin_approved
     //     );
-    
-    //     // ✅ If any approvals exist...
-    //     if ($hasBeenApproved) {
-    //         Log::info('🧑‍💼 User attempting to delete approved mission', [
-    //             'user_id' => $user->id,
-    //             'user_type' => optional($user->userType)->name ?? 'N/A'
-    //         ]);
-    //         $isRegionManager = optional($user->userType)->name === 'region_manager';
-    
-    //         if (!$isRegionManager) {
-    //             return response()->json([
-    //                 'error' => '❌ This mission has already been approved. Only the region manager can delete it now.'
-    //             ], 403);
-    //         }
+
+    //     Log::info('🧑‍💼 User attempting to delete approved mission', [
+    //         'user_id' => $user->id,
+    //         'user_type' => optional($user->userType)->name ?? 'N/A'
+    //     ]);
+
+    //     $isRegionManager = optional($user->userType)->name === 'region_manager';
+
+    //     if ($hasBeenApproved && !$isRegionManager) {
+    //         return response()->json([
+    //             'error' => '❌ This mission has already been approved. Only the region manager can delete it now.'
+    //         ], 403);
     //     }
-    
-    //     // ✅ Passed all checks — soft delete
+
+    //     // ✅ Require delete reason from everyone
+    //     if (!$request->delete_reason) {
+    //         return response()->json([
+    //             'error' => 'Please provide a reason for deleting this mission.'
+    //         ], 422);
+    //     }
+
+    //     // ✅ Store the reason
+    //     $mission->delete_reason = $request->delete_reason;
+    //     $mission->deleted_by = $user->id;
+    //     $mission->save();
+
+    //     // ✅ Soft delete
     //     $mission->delete();
-    
+
     //     return response()->json(['message' => '✅ Mission deleted successfully!']);
     // }
-    
+
+   
   
      
 

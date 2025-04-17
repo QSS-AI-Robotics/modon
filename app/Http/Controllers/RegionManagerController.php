@@ -47,21 +47,21 @@ class RegionManagerController extends Controller
                         ->get();
         }
 
+   
         // —————— Locations ——————
-// —————— Locations ——————
-if (in_array($userType, ['modon_admin','qss_admin'])) {
-    $locations = Location::with(['locationAssignments.region:id,name']) // load only id and name of region
-                ->select('id', 'name')
-                ->get();
-} elseif ($userType === 'region_manager') {
-    $locations = Location::whereHas('locationAssignments', fn($q) =>
-                        $q->whereIn('region_id', $regionIds))
-                ->with(['locationAssignments.region:id,name']) // eager-load region
-                ->select('id', 'name')
-                ->get();
-} else {
-    $locations = collect();
-}
+        if (in_array($userType, ['modon_admin','qss_admin'])) {
+            $locations = Location::with(['locationAssignments.region:id,name']) // load only id and name of region
+                        ->select('id', 'name')
+                        ->get();
+        } elseif ($userType === 'region_manager') {
+            $locations = Location::whereHas('locationAssignments', fn($q) =>
+                                $q->whereIn('region_id', $regionIds))
+                        ->with(['locationAssignments.region:id,name']) // eager-load region
+                        ->select('id', 'name')
+                        ->get();
+        } else {
+            $locations = collect();
+        }
 
 
         // —————— Regions ——————
@@ -90,7 +90,12 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
 
     
 
-    public function approve(Request $request)
+
+
+
+    
+ 
+public function approve(Request $request)
 {
     $request->validate([
         'mission_id' => 'required',
@@ -105,13 +110,15 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
     // ✅ Get mission (even soft-deleted)
     $mission = Mission::withTrashed()->find($missionId);
     if (! $mission) {
+        Log::warning("❌ Mission not found for ID: $missionId");
         return response()->json(['message' => 'Mission not found.'], 404);
     }
 
     // ✅ Region access check for region_manager
     if ($userType === 'region_manager') {
-        $regionIds = optional(Auth::user())->regions()->pluck('regions.id');
+        $regionIds = optional($user)->regions()->pluck('regions.id');
         if (! $regionIds->contains($mission->region_id)) {
+            Log::warning("🚫 Unauthorized region_manager (User ID: $user->id) tried to approve mission in region {$mission->region_id}");
             return response()->json(['message' => 'You are not authorized to approve this mission.'], 403);
         }
     }
@@ -124,36 +131,45 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
     };
 
     if (! $approvalColumn) {
+        Log::warning("❌ User type $userType is not allowed to approve.");
         return response()->json(['message' => 'User type not allowed to approve.'], 403);
     }
 
-    // ✅ Update or create the approval record
+    // ✅ Update or create the mission approval record
     $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
     $approval->{$approvalColumn} = $decision;
     $approval->save();
 
-    // ✅ Refresh and check combined approval statuses
+    // ✅ Refresh and evaluate approval status
     $approval->refresh();
 
     $isFullyApproved = 0;
-    $missionStatus   = $mission->status; // Keep as is by default
+    $newMissionStatus = 'Pending'; // default
 
     if (
         $approval->region_manager_approved == 2 ||
         $approval->modon_admin_approved == 2
     ) {
-        $isFullyApproved = 2;            // Rejected
-        $missionStatus   = 'Rejected';   // Update mission status
+        $isFullyApproved = 2;
+        $newMissionStatus = 'Rejected';
     } elseif (
         $approval->region_manager_approved == 1 &&
         $approval->modon_admin_approved == 1
     ) {
-        $isFullyApproved = 1; // Fully approved
+        $isFullyApproved = 1;
+        $newMissionStatus = 'Approved';
     }
 
-    // ✅ Save final approval state
+    // ✅ Log approval decision
+    Log::info("📋 Mission #$missionId approval update by $userType (User ID: $user->id):");
+    Log::info("➡️ $approvalColumn = $decision");
+    Log::info("✅ is_fully_approved = $isFullyApproved");
+    Log::info("📌 Mission status will be updated to: $newMissionStatus");
+
+    // ✅ Save final states
     $approval->update(['is_fully_approved' => $isFullyApproved]);
-    $mission->update(['status' => $missionStatus]);
+    $mission->status = $newMissionStatus;
+    $mission->save();
 
     return response()->json(['message' => 'Mission approval updated successfully.']);
 }
@@ -203,55 +219,121 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
      * Display the missions page for the authenticated user's region.
      */
     public function getmanagermissions()
-    {
-        if (! Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access.'], 401);
-        }
-    
-        $user     = Auth::user();
-        $userType = optional($user->userType)->name ?? '';
-    
-        // ✅ Compute region IDs once
-        $regionIds = $user instanceof User
-            ? $user->regions()->pluck('regions.id')->toArray()
-            : [];
-    
-        // ✅ Build query, only restrict by region_id when NOT admin
-        $missions = Mission::query()
-            ->when(
-                ! in_array($userType, ['qss_admin', 'modon_admin']),
-                fn($q) => $q->whereIn('region_id', $regionIds)
-            )
-            ->with([
-                'inspectionTypes:id,name',
-                'locations:id,name',
-                'locations.geoLocation:location_id,latitude,longitude',
-                'pilot:id,name',
-                'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
-            ])
-            ->get()
-            ->map(function ($mission) {
-                $mission->approval_status = [
-                    'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
-                    'modon_admin_approved'    => $mission->approvals->modon_admin_approved    ?? null,
-                ];
-                $mission->pilot_info = [
-                    'id'   => $mission->pilot->id   ?? null,
-                    'name' => $mission->pilot->name ?? null,
-                ];
-                $mission->locations = $mission->locations->map(fn($loc) => [
-                    'id'        => $loc->id,
-                    'name'      => $loc->name,
-                    'latitude'  => $loc->geoLocation->latitude  ?? null,
-                    'longitude' => $loc->geoLocation->longitude ?? null,
-                ])->values();
-    
-                unset($mission->approvals, $mission->pilot);
-                return $mission;
-            });
-    
-        return response()->json(['missions' => $missions]);
+{
+    if (! Auth::check()) {
+        return response()->json(['error' => 'Unauthorized access.'], 401);
     }
+
+    $user     = Auth::user();
+    $userType = optional($user->userType)->name ?? '';
+
+    // ✅ Compute region IDs once
+    $regionIds = $user instanceof User
+        ? $user->regions()->pluck('regions.id')->toArray()
+        : [];
+
+    // ✅ Build query, only restrict by region_id when NOT admin
+    $missions = Mission::query()
+        ->when(
+            ! in_array($userType, ['qss_admin', 'modon_admin']),
+            fn($q) => $q->whereIn('region_id', $regionIds)
+        )
+        ->with([
+            'inspectionTypes:id,name',
+            'locations:id,name',
+            'locations.geoLocation:location_id,latitude,longitude',
+            'pilot:id,name',
+            'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
+            'user:id,name,user_type_id',
+            'user.userType:id,name',
+        ])
+        ->get()
+        ->map(function ($mission) {
+            // ✅ Approval Status
+            $mission->approval_status = [
+                'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
+                'modon_admin_approved'    => $mission->approvals->modon_admin_approved    ?? null,
+            ];
+
+            // ✅ Pilot Info
+            $mission->pilot_info = [
+                'id'   => $mission->pilot->id   ?? null,
+                'name' => $mission->pilot->name ?? null,
+            ];
+
+            // ✅ Created By (user who created the mission)
+            $mission->created_by = [
+                'id'        => $mission->user->id   ?? null,
+                'name'      => $mission->user->name ?? null,
+                'user_type' => $mission->user->userType->name ?? null,
+            ];
+
+            // ✅ Locations
+            $mission->locations = $mission->locations->map(fn($loc) => [
+                'id'        => $loc->id,
+                'name'      => $loc->name,
+                'latitude'  => $loc->geoLocation->latitude  ?? null,
+                'longitude' => $loc->geoLocation->longitude ?? null,
+            ])->values();
+
+            // ✅ Clean up unneeded relations
+            unset($mission->approvals, $mission->pilot, $mission->user);
+            return $mission;
+        });
+
+    return response()->json(['missions' => $missions]);
+}
+
+    // public function getmanagermissions()
+    // {
+    //     if (! Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access.'], 401);
+    //     }
+    
+    //     $user     = Auth::user();
+    //     $userType = optional($user->userType)->name ?? '';
+    
+    //     // ✅ Compute region IDs once
+    //     $regionIds = $user instanceof User
+    //         ? $user->regions()->pluck('regions.id')->toArray()
+    //         : [];
+    
+    //     // ✅ Build query, only restrict by region_id when NOT admin
+    //     $missions = Mission::query()
+    //         ->when(
+    //             ! in_array($userType, ['qss_admin', 'modon_admin']),
+    //             fn($q) => $q->whereIn('region_id', $regionIds)
+    //         )
+    //         ->with([
+    //             'inspectionTypes:id,name',
+    //             'locations:id,name',
+    //             'locations.geoLocation:location_id,latitude,longitude',
+    //             'pilot:id,name',
+    //             'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
+    //         ])
+    //         ->get()
+    //         ->map(function ($mission) {
+    //             $mission->approval_status = [
+    //                 'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
+    //                 'modon_admin_approved'    => $mission->approvals->modon_admin_approved    ?? null,
+    //             ];
+    //             $mission->pilot_info = [
+    //                 'id'   => $mission->pilot->id   ?? null,
+    //                 'name' => $mission->pilot->name ?? null,
+    //             ];
+    //             $mission->locations = $mission->locations->map(fn($loc) => [
+    //                 'id'        => $loc->id,
+    //                 'name'      => $loc->name,
+    //                 'latitude'  => $loc->geoLocation->latitude  ?? null,
+    //                 'longitude' => $loc->geoLocation->longitude ?? null,
+    //             ])->values();
+    
+    //             unset($mission->approvals, $mission->pilot);
+    //             return $mission;
+    //         });
+    
+    //     return response()->json(['missions' => $missions]);
+    // }
     
 
    

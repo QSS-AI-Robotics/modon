@@ -221,6 +221,8 @@ $(document).ready(function () {
                     // Status badge
                     let statusBadge = "";
                     switch (mission.status) {
+                        case "Approved":
+                            statusBadge = `<span class="badge p-2 bg-success">Approved</span>`; break;
                         case "Pending":
                             statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
                         case "Rejected":
@@ -312,19 +314,21 @@ $(document).ready(function () {
                             <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
                                 <div class="accordion-body px-4 py-2 label-text">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <strong>Program: ${inspectionName}</strong>
+                                        <strong class="py-1">Program:${inspectionName}</strong> 
                                         ${approvalButtons}
                                     </div>
-                                    <strong>Mission Date</strong>: ${mission.mission_date}<br>
-                                    <strong data-location-id="${locationID}">Locations</strong>: ${locations}<br>
-                                    <strong 
+                                    <strong class="py-3">Mission Date</strong>: ${mission.mission_date}<br>
+                                    <strong  class="py-3" data-location-id="${locationID}">Locations</strong>: ${locations}<br>
+                                    <strong  class="py-3"
                                         data-latitude="${mission.locations[0]?.geo_location?.latitude}" 
                                         data-longitude="${mission.locations[0]?.geo_location?.longitude}">
                                         Geo
                                     </strong>
                                     ${mission.locations[0]?.geo_location?.latitude ?? 'N/A'}, ${mission.locations[0]?.geo_location?.longitude ?? 'N/A'}<br>
-                                    <strong data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: ${mission.pilot_info?.name || 'N/A'}<br>
-                                    <strong>Note:</strong><br>${fullNote}<br><br>
+                                    <strong  class="py-3"data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: ${mission.pilot_info?.name || 'N/A'}<br>
+                                   
+                                    <strong class="py-3">Mission Created By:</strong><ad class="text-capitalize">${mission.created_by.name}</ad> (${mission.created_by.user_type})<br>
+                                     <strong class="py-3">Note:</strong>${fullNote}<br><br>
                                     <div class="d-flex">
                                         <div class="row w-100 align-items-center">
                                             <strong>Mission Approval</strong><br>

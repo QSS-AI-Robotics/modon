@@ -16,6 +16,113 @@ use Illuminate\Support\Facades\DB;
 class RegionManagerController extends Controller
 {
 
+
+
+
+
+
+
+
+
+
+
+
+    public function getAllMissionsByUserType()
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        $user = Auth::user();
+        $userType = strtolower(optional($user->userType)->name ?? '');
+        $regionIds = $user instanceof \App\Models\User
+        ? $user->regions()->pluck('regions.id')->toArray()
+        : [];
+    
+        $locationIds = $user instanceof \App\Models\User
+            ? $user->assignedLocations()->pluck('locations.id')->toArray()
+            : [];
+    
+        Log::info("🔍 User: {$user->id}, Type: {$userType}");
+        Log::info("📍 Regions: ", $regionIds);
+        Log::info("📍 Locations: ", $locationIds);
+    
+        $missions = Mission::query()
+            ->when($userType === 'region_manager', function ($q) use ($regionIds) {
+                $q->whereIn('region_id', $regionIds);
+            })
+            ->when($userType === 'city_manager', function ($q) use ($regionIds, $locationIds) {
+                $q->whereIn('region_id', $regionIds)
+                  ->whereHas('locations', fn($lq) => $lq->whereIn('locations.id', $locationIds));
+            })
+            ->with([
+                'inspectionTypes:id,name',
+                'locations:id,name',
+                'locations.geoLocation:location_id,latitude,longitude',
+                'locations.locationAssignments.region:id,name',
+                'pilot:id,name',
+                'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
+                'user:id,name,user_type_id',
+                'user.userType:id,name',
+            ])
+            ->get()
+            ->map(function ($mission) {
+                $mission->approval_status = [
+                    'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
+                    'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
+                ];
+                
+                
+    
+                $mission->pilot_info = [
+                    'id'   => $mission->pilot->id   ?? null,
+                    'name' => $mission->pilot->name ?? null,
+                ];
+    
+                $mission->created_by = [
+                    'id'        => $mission->user->id   ?? null,
+                    'name'      => $mission->user->name ?? null,
+                    'user_type' => $mission->user->userType->name ?? null,
+                ];
+    
+                $mission->locations = $mission->locations->map(function ($loc) {
+                    $region = $loc->locationAssignments->pluck('region')->filter()->first();
+                    return [
+                        'id'          => $loc->id,
+                        'name'        => $loc->name,
+                        'latitude'    => $loc->geoLocation->latitude  ?? null,
+                        'longitude'   => $loc->geoLocation->longitude ?? null,
+                        'region_id'   => $region?->id,
+                        'region_name' => $region?->name,
+                    ];
+                })->values();
+    
+                unset($mission->approvals, $mission->pilot, $mission->user);
+                return $mission;
+            });
+    
+       Log::info("✅ Missions returned: " . $missions->count());
+    
+        return response()->json(['missions' => $missions]);
+    }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     public function index()
     {
         if (! Auth::check()) {
@@ -318,6 +425,9 @@ class RegionManagerController extends Controller
         ? $user->regions()->pluck('regions.id')->toArray()
         : [];
 
+    Log::info("🔐 Logged in user: ID = {$user->id}, Type = {$userType}");
+    Log::info("🌍 Region IDs assigned to user: ", $regionIds);
+
     // ✅ Build query, only restrict by region_id when NOT admin
     $missions = Mission::query()
         ->when(
@@ -373,6 +483,9 @@ class RegionManagerController extends Controller
             return $mission;
         });
 
+    Log::info("📦 Total Missions fetched: " . $missions->count());
+    Log::info("🧾 Mission IDs: ", $missions->pluck('id')->toArray());
+
     return response()->json(['missions' => $missions]);
 }
 
@@ -400,6 +513,7 @@ class RegionManagerController extends Controller
 //             'inspectionTypes:id,name',
 //             'locations:id,name',
 //             'locations.geoLocation:location_id,latitude,longitude',
+//             'locations.locationAssignments.region:id,name',
 //             'pilot:id,name',
 //             'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
 //             'user:id,name,user_type_id',
@@ -419,22 +533,27 @@ class RegionManagerController extends Controller
 //                 'name' => $mission->pilot->name ?? null,
 //             ];
 
-//             // ✅ Created By (user who created the mission)
+//             // ✅ Created By
 //             $mission->created_by = [
 //                 'id'        => $mission->user->id   ?? null,
 //                 'name'      => $mission->user->name ?? null,
 //                 'user_type' => $mission->user->userType->name ?? null,
 //             ];
 
-//             // ✅ Locations
-//             $mission->locations = $mission->locations->map(fn($loc) => [
-//                 'id'        => $loc->id,
-//                 'name'      => $loc->name,
-//                 'latitude'  => $loc->geoLocation->latitude  ?? null,
-//                 'longitude' => $loc->geoLocation->longitude ?? null,
-//             ])->values();
+//             // ✅ Locations with region name from locationAssignments
+//             $mission->locations = $mission->locations->map(function ($loc) {
+//                 $region = $loc->locationAssignments->pluck('region')->filter()->first();
 
-//             // ✅ Clean up unneeded relations
+//                 return [
+//                     'id'          => $loc->id,
+//                     'name'        => $loc->name,
+//                     'latitude'    => $loc->geoLocation->latitude  ?? null,
+//                     'longitude'   => $loc->geoLocation->longitude ?? null,
+//                     'region_id'   => $region?->id,
+//                     'region_name' => $region?->name,
+//                 ];
+//             })->values();
+
 //             unset($mission->approvals, $mission->pilot, $mission->user);
 //             return $mission;
 //         });
@@ -442,7 +561,7 @@ class RegionManagerController extends Controller
 //     return response()->json(['missions' => $missions]);
 // }
 
-   
+
    
 
 
@@ -708,6 +827,7 @@ class RegionManagerController extends Controller
     // ✅ Validate input (including geo coords)
     $request->validate([
         'mission_id'       => 'required|exists:missions,id',
+        'region_id' => 'required|exists:regions,id',
         'inspection_type'  => 'required|exists:inspection_types,id',
         'mission_date'     => 'required|date',
         'note'             => 'nullable|string',
@@ -723,6 +843,7 @@ class RegionManagerController extends Controller
     $mission->mission_date = $request->mission_date;
     $mission->note         = $request->note ?? "";
     $mission->pilot_id     = $request->pilot_id;
+    $mission->region_id    = $request->region_id;
     $mission->save();
 
     // ✅ Sync inspection type & locations

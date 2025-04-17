@@ -266,16 +266,16 @@
                             
                             <div class="col-md-7 col-sm-6">
                                 <label class="form-label label-text">latitude</label>
-                                <input type="text" class="form-control dateInput" id="latitude" name="latitude" required>
+                                <input type="text" class="form-control dateInput" id="latitude" name="latitude" value="2" required>
                             </div>
                             <div class="col-md-5 col-sm-6 ">
                                 <label class="form-label label-text">longitude</label>
-                                <input type="text" class="form-control dateInput" id="longitude" name="longitude" required>
+                                <input type="text" class="form-control dateInput" id="longitude" name="longitude" value="2" required>
                             </div>
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-check-label label-text py-2">Notes</label>
-                                <textarea id="note" name="note" class="form-control notes-textarea flex-grow-1 mx-1" rows="3"></textarea>
+                                <textarea id="note" name="note" class="form-control notes-textarea flex-grow-1 mx-1" rows="3" >dasdasd</textarea>
 
                             </div>
 

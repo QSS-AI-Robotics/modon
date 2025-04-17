@@ -353,7 +353,7 @@ $(document).ready(function () {
                                         data-region-id="${regionId}" 
                                         data-region-name="${regionName}">
                                         Locations
-                                    </strong>: ${locations}<br>
+                                    </strong>: ${locations} ( ${regionName} )<br>
     
                                     <strong class="py-3"
                                         data-latitude="${latitude}" 

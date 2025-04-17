@@ -54,6 +54,10 @@ Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,reg
     Route::get('/missions/inspection-data', [RegionManagerController::class, 'getInspectionTypes'])->name('missions.inspectionTypes');
     Route::get('/missions/location-data', [RegionManagerController::class, 'getLocations'])->name('missions.locations');
 
+    Route::post('/missions/{mission}/decision', [RegionManagerController::class, 'approve'])->name('missions.approve');
+
+
+
 });
 
 // Pilot Routes

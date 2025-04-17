@@ -11,7 +11,6 @@ class MissionApproval extends Model
 
     protected $fillable = [
         'mission_id',
-        'city_manager_approved',
         'region_manager_approved',
         'modon_admin_approved',
         'is_fully_approved',

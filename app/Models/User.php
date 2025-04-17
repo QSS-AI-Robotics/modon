@@ -44,7 +44,6 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Region::class, 'user_region');
     }
-    
 
     public function drones()
     {

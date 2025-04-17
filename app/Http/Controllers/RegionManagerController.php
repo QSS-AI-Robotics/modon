@@ -88,8 +88,76 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
         ));
     }
 
+    
 
+    public function approve(Request $request)
+{
+    $request->validate([
+        'mission_id' => 'required',
+        'decision'   => 'required|in:approve,reject',
+    ]);
 
+    $user = Auth::user();
+    $userType = strtolower(optional($user->userType)->name);
+    $missionId = $request->mission_id;
+    $decision  = $request->decision === 'approve' ? 1 : 2;
+
+    // ✅ Get mission (even soft-deleted)
+    $mission = Mission::withTrashed()->find($missionId);
+    if (! $mission) {
+        return response()->json(['message' => 'Mission not found.'], 404);
+    }
+
+    // ✅ Region access check for region_manager
+    if ($userType === 'region_manager') {
+        $regionIds = optional(Auth::user())->regions()->pluck('regions.id');
+        if (! $regionIds->contains($mission->region_id)) {
+            return response()->json(['message' => 'You are not authorized to approve this mission.'], 403);
+        }
+    }
+
+    // ✅ Determine approval column
+    $approvalColumn = match ($userType) {
+        'region_manager' => 'region_manager_approved',
+        'modon_admin'    => 'modon_admin_approved',
+        default => null,
+    };
+
+    if (! $approvalColumn) {
+        return response()->json(['message' => 'User type not allowed to approve.'], 403);
+    }
+
+    // ✅ Update or create the approval record
+    $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
+    $approval->{$approvalColumn} = $decision;
+    $approval->save();
+
+    // ✅ Refresh and check combined approval statuses
+    $approval->refresh();
+
+    $isFullyApproved = 0;
+    $missionStatus   = $mission->status; // Keep as is by default
+
+    if (
+        $approval->region_manager_approved == 2 ||
+        $approval->modon_admin_approved == 2
+    ) {
+        $isFullyApproved = 2;            // Rejected
+        $missionStatus   = 'Rejected';   // Update mission status
+    } elseif (
+        $approval->region_manager_approved == 1 &&
+        $approval->modon_admin_approved == 1
+    ) {
+        $isFullyApproved = 1; // Fully approved
+    }
+
+    // ✅ Save final approval state
+    $approval->update(['is_fully_approved' => $isFullyApproved]);
+    $mission->update(['status' => $missionStatus]);
+
+    return response()->json(['message' => 'Mission approval updated successfully.']);
+}
+    
 
     
     public function getInspectionTypes()
@@ -288,104 +356,7 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
     }
 }
 
-    // public function storeMission(Request $request)
-    // {
-    //     if (!Auth::check()) {
-    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-    //     }
-    
-    //     $request->validate([
-    //         'inspection_type' => 'required|exists:inspection_types,id',
-    //         'mission_date' => ['required', 'date', 'after_or_equal:today'],
-    //         'note' => 'nullable|string',
-    //         'locations' => 'required|array',
-    //         'locations.*' => 'exists:locations,id',
-    //         'pilot_id' => 'required|exists:users,id',
-    //         'latitude' => 'required|numeric|between:-90,90',
-    //         'longitude' => 'required|numeric|between:-180,180',
-    //     ]);
-    
-    //     try {
-    //         $user = Auth::user();
-    //         $regionIds = $user instanceof \App\Models\User ? $user->regions()->pluck('regions.id') : collect();
-    //         $regionId = $regionIds->first();
-    //         $userId = $user->id;
-    
-    //         // ✅ Create the mission
-    //         $mission = Mission::create([
-    //             'mission_date' => $request->mission_date,
-    //             'note' => $request->note,
-    //             'region_id' => $regionId,
-    //             'user_id' => $userId,
-    //             'pilot_id' => $request->pilot_id,
-    //         ]);
-    
-    //         // ✅ Sync inspection type and locations
-    //         $mission->inspectionTypes()->sync([$request->inspection_type]);
-    //         $mission->locations()->sync($request->locations);
-    
-    //         // ✅ Determine approval status
-    //         $userType = optional($user->userType)->name;
-    //         $regionApproved = false;
-    
-    //         if ($userType === 'region_manager') {
-    //             $regionApproved = true;
-    //         }
-    
-    //         // ✅ Create approval record (city_manager_approved removed)
-    //         MissionApproval::create([
-    //             'mission_id' => $mission->id,
-    //             'region_manager_approved' => $regionApproved,
-    //             'modon_admin_approved' => false,
-    //             'is_fully_approved' => false,
-    //         ]);
-    
-    //         // ✅ Fetch geo coordinates
-    //         $geoLocations = GeoLocation::whereIn('location_id', $request->locations)
-    //             ->get()
-    //             ->map(function ($geo) {
-    //                 return [
-    //                     'location_id' => $geo->location_id,
-    //                     'latitude' => $geo->latitude,
-    //                     'longitude' => $geo->longitude,
-    //                 ];
-    //             });
-    
-    //         // ✅ Save/Update geo location for the first location
-    //         if (isset($request->locations[0])) {
-    //             $geo = GeoLocation::updateOrCreate(
-    //                 ['location_id' => $request->locations[0]],
-    //                 ['latitude' => $request->latitude, 'longitude' => $request->longitude]
-    //             );
-    
-    //             Log::info('📍 Geo Location saved:', [
-    //                 'location_id' => $geo->location_id,
-    //                 'latitude' => $geo->latitude,
-    //                 'longitude' => $geo->longitude
-    //             ]);
-    //         }
-    
-    //         return response()->json([
-    //             'message' => 'Mission created successfully!',
-    //             'mission' => [
-    //                 'id' => $mission->id,
-    //                 'inspection_type' => [
-    //                     'id' => $request->inspection_type,
-    //                     'name' => InspectionType::find($request->inspection_type)?->name
-    //                 ],
-    //                 'mission_date' => $mission->mission_date,
-    //                 'locations' => $mission->locations->map(fn($loc) => ['id' => $loc->id, 'name' => $loc->name]),
-    //                 'geo_locations' => $geoLocations,
-    //             ]
-    //         ], 201);
-    
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'error' => 'Failed to create mission.',
-    //             'message' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
+   
     
 
 
@@ -576,42 +547,7 @@ if (in_array($userType, ['modon_admin','qss_admin'])) {
 
     return response()->json(['message' => '✅ Mission updated successfully!']);
 }
-    // public function updateMission(Request $request)
-    // {
-        
-
-    //     Log::info('🔍 mission_id received:', ['id' => $request->all()]);
-    //     Log::info("🚀 Incoming Mission Update Request", ['data' => $request->all()]);
-
-    //     // ✅ Validate input
-    //     $request->validate([
-    //         'mission_id' => 'required|exists:missions,id',
-    //         'inspection_type' => 'required|exists:inspection_types,id',
-    //         'mission_date' => 'required|date',
-    //         'note' => 'nullable|string',
-    //         'locations' => 'required|array',
-    //         'locations.*' => 'exists:locations,id',
-    //         'pilot_id' => 'required|exists:users,id', // ✅ Validate pilot_id
-    //     ]);
-
-    //     // ✅ Find mission
-    //     $mission = Mission::findOrFail($request->mission_id);
-
-    //     // ✅ Update mission fields
-    //     $mission->mission_date = $request->mission_date;
-    //     $mission->note = $request->note ?? "";
-    //     $mission->pilot_id = $request->pilot_id; // ✅ Update pilot
-    //     $mission->save();
-
-    //     // ✅ Sync inspection type (only one now)
-    //     $mission->inspectionTypes()->sync([$request->inspection_type]);
-
-    //     // ✅ Sync locations
-    //     $mission->locations()->sync($request->locations);
-
-    //     return response()->json(['message' => '✅ Mission updated successfully!']);
-    // }
-
+   
 
 
     // public function getMissionStats()

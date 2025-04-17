@@ -106,7 +106,51 @@ $(document).ready(function () {
 
 
 
-
+    $(document).on('click', '.approvalMission', function () {
+        const missionId = $(this).data('mission-id');
+        const decision  = $(this).data('mission-decision');
+    
+        if (!missionId || !decision) {
+            return Swal.fire('Error', 'Missing mission ID or decision', 'error');
+        }
+    
+        const isApproval = decision === 'approve';
+        const actionText = isApproval ? 'Approve' : 'Reject';
+        const confirmButtonColor = isApproval ? '#28a745' : '#dc3545';
+    
+        Swal.fire({
+            title: `${actionText} Mission?`,
+            text: `Are you sure you want to ${actionText.toLowerCase()} this mission?`,
+            icon: isApproval ? 'success' : 'warning',
+            showCancelButton: true,
+            confirmButtonColor: confirmButtonColor,
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: `Yes, ${actionText}`,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/missions/${missionId}/decision`,
+                    method: 'POST',
+                    data: {
+                        mission_id: missionId,
+                        decision: decision,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        Swal.fire('Success', response.message || 'Decision updated!', 'success');
+                        getRegionManagerMissions();
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+                    }
+                });
+            }
+        });
+    });
+    
+    
 
 
 
@@ -145,7 +189,6 @@ $(document).ready(function () {
     //         }
     //     });
     // }
-
     function getRegionManagerMissions() {
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
@@ -158,9 +201,11 @@ $(document).ready(function () {
                 console.log("mission detail", response);
                 $('#missionsAccordion').empty();
     
+                const userType = $('#mifu').text().trim();
+    
                 if (!response.missions.length) {
                     $('#missionsAccordion').append(`
-                       <div class="col-12 text-center my-4">No Missions Found For This Region</div>
+                        <div class="col-12 text-center my-4">No Missions Found For This Region</div>
                     `);
                     return;
                 }
@@ -171,7 +216,6 @@ $(document).ready(function () {
                     const inspectionId = inspection.id || '';
                     const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
                     const locationID = mission.locations.map(loc => loc.id).join(', ') || 'N/A';
-                    const noteWords = mission.note ? mission.note.split(" ") : [];
                     const fullNote = mission.note || "No Notes";
     
                     // Status badge
@@ -189,32 +233,8 @@ $(document).ready(function () {
                             statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
                     }
     
-                    // Approval status checks
-                    const modonApproved  = mission.approval_status?.modon_admin_approved   === 1;
-                    const regionApproved = mission.approval_status?.region_manager_approved === 1;
-    
-                    let editButton = '';
-                    let deleteButton = '';
-    
-                    if (mission.status === "Pending") {
-                        if (modonApproved) {
-                            // Fully locked
-                            editButton   = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit"   style="opacity:0.5;cursor:not-allowed" title="Fully approved — cannot edit">`;
-                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Fully approved — cannot delete">`;
-                        } else if (regionApproved) {
-                            // Only delete allowed
-                            editButton   = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit"   style="opacity:0.5;cursor:not-allowed" title="Region approved — cannot edit">`;
-                            deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
-                        } else {
-                            // Fully editable
-                            editButton   = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
-                            deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
-                        }
-                    } else if (mission.status === "Completed") {
-                        deleteButton = `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`;
-                    } else {
-                        deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Only Pending missions can be deleted">`;
-                    }
+                    const modonApproved  = mission.approval_status?.modon_admin_approved;
+                    const regionApproved = mission.approval_status?.region_manager_approved;
     
                     const getStatusBadge = value => {
                         switch (value) {
@@ -224,9 +244,54 @@ $(document).ready(function () {
                         }
                     };
     
-                    const modonManagerStatus  = getStatusBadge(mission.approval_status?.modon_admin_approved);
-                    const regionManagerStatus = getStatusBadge(mission.approval_status?.region_manager_approved);
+                    const modonManagerStatus  = getStatusBadge(modonApproved);
+                    const regionManagerStatus = getStatusBadge(regionApproved);
     
+                    // Conditional edit/delete buttons
+                    let editButton = '';
+                    let deleteButton = '';
+    
+                    if (mission.status === "Pending") {
+                        if (modonApproved === 1) {
+                            editButton   = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit"   style="opacity:0.5;cursor:not-allowed" title="Fully approved — cannot edit">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Fully approved — cannot delete">`;
+                        } else if (regionApproved === 1) {
+                            editButton   = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit"   style="opacity:0.5;cursor:not-allowed" title="Region approved — cannot edit">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
+                        } else {
+                            editButton   = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
+                        }
+                    } else if (mission.status === "Completed") {
+                        deleteButton = `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`;
+                    } else {
+                        deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Only Pending missions can be deleted">`;
+                    }
+    
+                    // ✅ Conditional Approve/Reject buttons
+                    let approvalButtons = '';
+                    if (
+                        mission.status === "Pending" &&
+                        (
+                            (userType === 'modon_admin' && modonApproved === 0) ||
+                            (userType === 'region_manager' && regionApproved === 0)
+                        )
+                    ) {
+                        approvalButtons = `
+                            <strong class="text-end">
+                                <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMission"
+                                    data-mission-decision="approve" data-mission-id="${mission.id}">
+                                    Approve
+                                </span>
+                                <span class="badge p-2 px-3 hoverbtn bg-danger approvalMission"
+                                    data-mission-decision="reject" data-mission-id="${mission.id}">
+                                    Reject
+                                </span>
+                            </strong>
+                        `;
+                    }
+    
+                    // ✅ Final row HTML
                     const row = `
                         <div class="accordion-item" id="missionRow-${mission.id}" data-pilot-id="${mission.pilot_id}">
                             <h2 class="accordion-header" id="heading-${mission.id}">
@@ -248,28 +313,24 @@ $(document).ready(function () {
                                 <div class="accordion-body px-4 py-2 label-text">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <strong>Program: ${inspectionName}</strong>
-                                        <strong class="text-end" >
-                                            <span class="badge   p-2 px-3 me-2 hoverbtn bg-success" data-mission-id="{mission.id}">Approve</span>
-                                            <span class="badge    p-2 px-3 hoverbtn bg-danger" data-mission-id="{mission.id}"> Reject</span>
-                                        </strong>
+                                        ${approvalButtons}
                                     </div>
-                                    <strong>Mission Date</strong>:${mission.mission_date}<br>
-                                    <strong data-location-id=${locationID}>Locations</strong>:${locations}<br>
+                                    <strong>Mission Date</strong>: ${mission.mission_date}<br>
+                                    <strong data-location-id="${locationID}">Locations</strong>: ${locations}<br>
                                     <strong 
-                                        data-latitude="${mission.locations[0]?.geo_location?.latitude}" data-longitude="${mission.locations[0]?.geo_location?.longitude}">
-                                      Geo
+                                        data-latitude="${mission.locations[0]?.geo_location?.latitude}" 
+                                        data-longitude="${mission.locations[0]?.geo_location?.longitude}">
+                                        Geo
                                     </strong>
-                                      ${mission.locations[0]?.geo_location?.latitude ?? 'N/A'}, ${mission.locations[0]?.geo_location?.longitude ?? 'N/A'}
-
-<br>
-                                    <strong data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>:${mission.pilot_info?.name || 'N/A'}<br>
+                                    ${mission.locations[0]?.geo_location?.latitude ?? 'N/A'}, ${mission.locations[0]?.geo_location?.longitude ?? 'N/A'}<br>
+                                    <strong data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: ${mission.pilot_info?.name || 'N/A'}<br>
                                     <strong>Note:</strong><br>${fullNote}<br><br>
                                     <div class="d-flex">
-                                      <div class="row w-100 align-items-center">
-                                        <strong>Mission Approval</strong><br>
-                                        <div class="col-6 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
-                                        <div class="col-6 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
-                                      </div>
+                                        <div class="row w-100 align-items-center">
+                                            <strong>Mission Approval</strong><br>
+                                            <div class="col-6 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
+                                            <div class="col-6 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -286,6 +347,7 @@ $(document).ready(function () {
         });
     }
     
+
   
     
     $(document).on('click', '.toggle-details', function () {

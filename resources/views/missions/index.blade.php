@@ -138,50 +138,103 @@
                             </div>
                      
                             <!-- Date Inputs -->
-                            <div class="col-md-12 col-sm-12 py-1 pt-3">
+                            <div class="col-md-6 col-sm-6 py-1 pt-3">
                                 <label class="form-label label-text">Mission Date</label>
                                 <input type="date" class="form-control dateInput" id="mission_date" name="mission_date" required>
                             </div>
+
+                            <div class="col-md-6 col-sm-6 py-1 pt-3">
+                                <label for="region_id" class="form-label label-text">Region</label>
+                            
+                                @if($regions->isNotEmpty())
+                                    @php
+                                        $selectedRegionId = old('region_id', $locationData['region_id'] ?? $regions->first()->id);
+                                    @endphp
+                            
+                                    <select name="region_id" id="region_id" class="form-select mx-1 dateInput"
+                                            @if($regions->count() === 1) disabled @endif required>
+                                        @foreach($regions as $reg)
+                                            <option value="{{ $reg->id }}"
+                                                @if($selectedRegionId == $reg->id) selected @endif>
+                                                {{ $reg->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                            
+                                    @if($regions->count() === 1)
+                                        {{-- preserve value even when disabled --}}
+                                        <input type="hidden" name="region_id" value="{{ $regions->first()->id }}">
+                                    @endif
+                                @else
+                                    <input type="text"
+                                           class="form-control dateInput mx-1"
+                                           value="No regions available"
+                                           disabled>
+                                @endif
+                            </div>
+                            
+                            
+                            
                       
 
-                            <div class="col-md-7 col-sm-12 p-2">
+                            <div class="col-md-6 col-sm-12 p-2">
                                 <label class="form-check-label label-text py-1">Location</label>
                             
-                                {{-- @if($locationData)
-                                <input type="text" class="form-control dateInput mx-1"  name="location_id" id="location_id" data-location-id="{{ $locationData['id'] }}"  value="{{ $locationData['name'] }}" disabled>
-                                @else
-                                    <input type="text" class="form-control dateInput mx-1" value="No location Found for Region"/>
-                                @endif --}}
-
-                                <select class="form-select mx-1 dateInput" name="location_id" id="location_id"
-                                    @if(($userType === 'region_manager'  && $locations->count() === 1) || ($locationData)) disabled @endif required>
-                        
-                                    @if($userType === 'region_manager' || $userType === 'qss_admin'  || $userType === 'modon_admin' )
-                                        @if($locations->count() === 1)
-                                            {{-- ✅ One location: pre-select and disable --}}
-                                            <option value="{{ $locations[0]->id }}" selected>{{ $locations[0]->name }}</option>
-                                        @elseif($locations->isNotEmpty())
-                                            <option value="">-- Select Location --</option>
+                                @if($userType === 'region_manager' || $userType === 'qss_admin' || $userType === 'modon_admin')
+                                    @if($locations->isNotEmpty())
+                                        @php
+                                            $selectedLocationId = old('location_id', $locationData['id'] ?? $locations->first()->id);
+                                        @endphp
+                            
+                                        <select class="form-select mx-1 dateInput" name="location_id" id="location_id"
+                                            @if($locations->count() === 1 || $locationData) disabled @endif required>
+                            
                                             @foreach($locations as $loc)
-                                                <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                                                @php
+                                                    $region = $loc->locationAssignments->pluck('region')->filter()->first();
+                                                @endphp
+                                                <option 
+                                                    value="{{ $loc->id }}" 
+                                                    data-region-id="{{ $region?->id }}" 
+                                                    data-region-name="{{ $region?->name }}"
+                                                    @if($selectedLocationId == $loc->id) selected @endif>
+                                                    {{ $loc->name }}
+                                                </option>
                                             @endforeach
-                                        @else
-                                            {{-- ❌ No locations for region --}}
-                                            <option value="">No location found for this region</option>
+                                        </select>
+                            
+                                        @if($locations->count() === 1 || $locationData)
+                                            {{-- preserve selected value if select is disabled --}}
+                                            <input type="hidden" name="location_id" value="{{ $selectedLocationId }}">
                                         @endif
-                                
-                                    @elseif($locationData)
-                                        {{-- ✅ For city-level users (1 fixed location, disabled select) --}}
-                                        <option value="{{ $locationData['id'] }}" selected>{{ $locationData['name'] }}</option>
+                            
                                     @else
-                                        {{-- ❌ Fallback for any other users --}}
-                                        <option value="">No location found</option>
+                                        <input type="text"
+                                            class="form-control dateInput mx-1"
+                                            value="No locations found for this region"
+                                            disabled>
                                     @endif
-                                </select>
+                            
+                                @elseif($locationData)
+                                    {{-- ✅ For city-level users (1 fixed location, disabled select) --}}
+                                    <select class="form-select mx-1 dateInput" name="location_id" id="location_id" disabled required>
+                                        <option value="{{ $locationData['id'] }}" selected>{{ $locationData['name'] }}</option>
+                                    </select>
+                                    <input type="hidden" name="location_id" value="{{ $locationData['id'] }}">
+                                
+                                @else
+                                    {{-- ❌ Fallback for any other users --}}
+                                    <input type="text"
+                                        class="form-control dateInput mx-1"
+                                        value="No location found"
+                                        disabled>
+                                @endif
+                            </div>
+                            
+
                         
                                 
 
-                            </div>
 
                             <div class="col-md-5 col-sm-12 p-2">
                                 <label for="pilot_id" class="form-check-label label-text py-1"> Pilot</label>
@@ -211,8 +264,14 @@
                                 @endif
                             </div>
                             
-
-
+                            <div class="col-md-7 col-sm-6">
+                                <label class="form-label label-text">latitude</label>
+                                <input type="text" class="form-control dateInput" id="latitude" name="latitude" required>
+                            </div>
+                            <div class="col-md-5 col-sm-6 ">
+                                <label class="form-label label-text">longitude</label>
+                                <input type="text" class="form-control dateInput" id="longitude" name="longitude" required>
+                            </div>
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-check-label label-text py-2">Notes</label>

@@ -43,11 +43,64 @@ $(document).ready(function () {
 
     
     
+    function filterLocationsByRegionId(regionId) {
+        const locationSelect = document.getElementById('location_id');
+        if (!locationSelect) return;
+    
+        // Clone all original options on first call and store in DOM for reuse
+        if (!locationSelect.dataset.originalOptionsStored) {
+            const allOptions = Array.from(locationSelect.options).map(opt => opt.cloneNode(true));
+            locationSelect.dataset.originalOptionsStored = 'true';
+            locationSelect.dataset.allOptions = JSON.stringify(allOptions.map(opt => ({
+                value: opt.value,
+                text: opt.text,
+                regionId: opt.getAttribute('data-region-id') || '',
+                selected: opt.selected
+            })));
+        }
+    
+        const allOptions = JSON.parse(locationSelect.dataset.allOptions);
+    
+        // Clear current options
+        locationSelect.innerHTML = '';
+    
+        // Filter and re-add options that match the region ID
+        let hasMatch = false;
+        allOptions.forEach(opt => {
+            if (opt.regionId === regionId) {
+                const newOption = document.createElement('option');
+                newOption.value = opt.value;
+                newOption.text = opt.text;
+                newOption.setAttribute('data-region-id', opt.regionId);
+                locationSelect.appendChild(newOption);
+                hasMatch = true;
+            }
+        });
+    
+        // Disable if no matching locations
+        locationSelect.disabled = !hasMatch;
+    
+        // Auto-select the first matching option (optional)
+        if (hasMatch && locationSelect.options.length > 0) {
+            locationSelect.selectedIndex = 0;
+        }
+    }
 
+    $('#region_id').on('change', function () {
+        let selectedRegionId = $(this).val();
+        filterLocationsByRegionId(selectedRegionId)
+    });
 
+    const $regionSelect = $('#region_id');
+    const regionOptionsCount = $regionSelect.find('option').length;
 
-
-
+    // If there are multiple regions, run the filtering function
+    if (regionOptionsCount > 1) {
+        let selectedRegionId = $regionSelect.val();
+        if (selectedRegionId) {
+            filterLocationsByRegionId(selectedRegionId);
+        }
+    }
 
 
 
@@ -92,34 +145,34 @@ $(document).ready(function () {
     //         }
     //     });
     // }
+
     function getRegionManagerMissions() {
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
         $(".cancel-btn").addClass("d-none");
-
+    
         $.ajax({
             url: "/getmanagermissions",
             type: "GET",
             success: function (response) {
-                console.log("mission detal",response)
+                console.log("mission detail", response);
                 $('#missionsAccordion').empty();
-                $(".mission-details-wrapper").remove(); // remove any existing detail divs
     
                 if (!response.missions.length) {
                     $('#missionsAccordion').append(`
-                       <div class="col-12 text-center  my-4">No Missions Found For This Region</div>
+                       <div class="col-12 text-center my-4">No Missions Found For This Region</div>
                     `);
                     return;
                 }
+    
                 $.each(response.missions, function (index, mission) {
                     const inspection = mission.inspection_types[0] || {};
                     const inspectionName = inspection.name || 'N/A';
                     const inspectionId = inspection.id || '';
                     const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
                     const noteWords = mission.note ? mission.note.split(" ") : [];
-                    const shortNote = noteWords.slice(0, 2).join(" ");
                     const fullNote = mission.note || "No Notes";
-                
+    
                     // Status badge
                     let statusBadge = "";
                     switch (mission.status) {
@@ -134,44 +187,45 @@ $(document).ready(function () {
                         case "Completed":
                             statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
                     }
-                
+    
                     // Approval status checks
-                    const modonApproved = mission.approval_status?.modon_manager_approved === 1;
+                    const modonApproved  = mission.approval_status?.modon_admin_approved   === 1;
                     const regionApproved = mission.approval_status?.region_manager_approved === 1;
-                    const cityApproved = mission.approval_status?.city_manager_approved === 1;
-                
+    
                     let editButton = '';
                     let deleteButton = '';
-                
+    
                     if (mission.status === "Pending") {
                         if (modonApproved) {
-                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity: 0.5; cursor: not-allowed;" title="This mission is fully approved and cannot be edited">`;
-                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="This mission is fully approved and cannot be deleted">`;
-                        } else if (regionApproved || cityApproved) {
-                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity: 0.5; cursor: not-allowed;" title="Already approved by management">`;
+                            // Fully locked
+                            editButton   = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit"   style="opacity:0.5;cursor:not-allowed" title="Fully approved — cannot edit">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Fully approved — cannot delete">`;
+                        } else if (regionApproved) {
+                            // Only delete allowed
+                            editButton   = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit"   style="opacity:0.5;cursor:not-allowed" title="Region approved — cannot edit">`;
                             deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                         } else {
-                            editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
+                            // Fully editable
+                            editButton   = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
                             deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                         }
                     } else if (mission.status === "Completed") {
                         deleteButton = `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`;
                     } else {
-                        deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
+                        deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Only Pending missions can be deleted">`;
                     }
-                
-                    const getStatusBadge = (value) => {
+    
+                    const getStatusBadge = value => {
                         switch (value) {
                             case 1: return `<strong class="text-success">Approved</strong>`;
                             case 2: return `<strong class="text-danger">Rejected</strong>`;
                             default: return `<strong class="text-warning">Pending</strong>`;
                         }
                     };
-                
-                    const modonManagerStatus = getStatusBadge(mission.approval_status?.modon_manager_approved);
+    
+                    const modonManagerStatus  = getStatusBadge(mission.approval_status?.modon_admin_approved);
                     const regionManagerStatus = getStatusBadge(mission.approval_status?.region_manager_approved);
-                    const cityManagerStatus = getStatusBadge(mission.approval_status?.city_manager_approved);
-                
+    
                     const row = `
                         <div class="accordion-item" id="missionRow-${mission.id}" data-pilot-id="${mission.pilot_id}">
                             <h2 class="accordion-header" id="heading-${mission.id}">
@@ -191,133 +245,41 @@ $(document).ready(function () {
                             </h2>
                             <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
                                 <div class="accordion-body px-4 py-2 label-text">
-                                    <strong>Program</strong><br>${inspectionName}<br>
-                                    <strong>Mission Date</strong><br>${mission.mission_date}<br>
-                                    <strong>Locations</strong><br>${locations}<br>
-                                    <strong data-pilot-id="${mission.pilot_info?.id}">Pilot Name</strong><br>${mission.pilot_info?.name || 'N/A'}<br>
+                                    <strong>Program</strong>:${inspectionName}<br>
+                                    <strong>Mission Date</strong>:${mission.mission_date}<br>
+                                    <strong>Locations</strong>:${locations}<br>
+                                    <strong 
+                                        data-latitude="${mission.locations[0]?.geo_location?.latitude}" data-longitude="${mission.locations[0]?.geo_location?.longitude}">
+                                      Geo
+                                    </strong>
+                                      ${mission.locations[0]?.geo_location?.latitude ?? 'N/A'}, ${mission.locations[0]?.geo_location?.longitude ?? 'N/A'}
+
+<br>
+                                    <strong data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>:${mission.pilot_info?.name || 'N/A'}<br>
                                     <strong>Note:</strong><br>${fullNote}<br><br>
                                     <div class="d-flex">
-                                        <div class="row w-100 align-items-center">
-                                            <strong>Mission Approval</strong><br>
-                                            <div class="col-3 label-text"><p>Modon Manager: ${modonManagerStatus}</p></div>
-                                            <div class="col-3 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
-                                            <div class="col-3 label-text"><p>City Manager: ${cityManagerStatus}</p></div>
-                                        </div>
+                                      <div class="row w-100 align-items-center">
+                                        <strong>Mission Approval</strong><br>
+                                        <div class="col-6 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
+                                        <div class="col-6 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                      </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     `;
-                
+    
                     $('#missionsAccordion').append(row);
                 });
-                
-                // $.each(response.missions, function (index, mission) {
-                //     const inspection = mission.inspection_types[0] || {};
-                //     const inspectionName = inspection.name || 'N/A';
-                //     const inspectionId = inspection.id || '';
-    
-                //     const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
-    
-                //     const noteWords = mission.note ? mission.note.split(" ") : [];
-                //     const shortNote = noteWords.slice(0, 2).join(" ");
-                //     const fullNote = mission.note || "No Notes";
-    
-             
-    
-                //     let statusBadge = "";
-                //     switch (mission.status) {
-                //         case "Pending":
-                //             statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
-                //         case "Rejected":
-                //             statusBadge = `<span class="badge p-2 bg-warning">Rejected</span>`; break;
-                //         case "In Progress":
-                //             statusBadge = `<span class="badge p-2 bg-info text-dark">In Progress</span>`; break;
-                //         case "Awaiting Report":
-                //             statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
-                //         case "Completed":
-                //             statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
-                //     }
-    
-                //     const editButton = mission.status === "Pending"
-                //         ? `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`
-                //         : "";
-    
-                //     const deleteButton = mission.status === "Pending"
-                //         ? `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`
-                //         : mission.status === "Completed"
-                //             ? `<img src="./images/view.png" alt="View" class="view-mission-report img-fluid actions" data-id="${mission.id}">`
-                //             : `<img src="./images/delete.png" alt="Delete Disabled" class="view-mission img-fluid actions disabled-delete" style="opacity: 0.5; cursor: not-allowed;" title="Only Pending missions can be deleted">`;
-    
-                //             const getStatusBadge = (value) => {
-                //                 switch (value) {
-                //                     case 1:
-                //                         return `<strong class="text-success">Approved</strong>`;
-                //                     case 2:
-                //                         return `<strong class="text-danger">Rejected</strong>`;
-                //                     default:
-                //                         return `<strong class="text-warning">Pending</strong>`;
-                //                 }
-                //             };
-                            
-                //             const modonManagerStatus = getStatusBadge(mission.approval_status?.modon_manager_approved);
-                //             const regionManagerStatus = getStatusBadge(mission.approval_status?.region_manager_approved);
-                //             const cityManagerStatus = getStatusBadge(mission.approval_status?.city_manager_approved);
-                //     const row = `
-                //         <div class="accordion-item " id="missionRow-${mission.id}"   data-pilot-id="${mission.pilot_id}">
-                //             <h2 class="accordion-header" id="heading-${mission.id}">
-                //                 <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
-                //                     <div class="row w-100 justify-content-between label-text">
-                //                         <div class="col-3 ps-2" data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
-                //                         <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
-                //                         <div class="col-3 text-center">${locations}</div>
-                //                         <div class="col-2 text-center ps-5">${statusBadge}</div>
-                                    
-                //                         <div class="col-2 text-center ps-5">
-                //                         ${editButton}
-                //                         ${deleteButton}
-                //                             <img src="./images/view.png" alt="View" class=" view-mission img-fluid actions toggle-details" data-id="${mission.id}"  data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
-                //                         </div>
-                //                     </div>
-                //                 </button>
-                //             </h2>
-                //             <div id="collapse-${mission.id}" class="accordion-collapse collapse  " aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
-                //                 <div class="accordion-body px-4 py-2 label-text">
-                //                     <strong>Program</strong> <br>   ${inspectionName}<br>
-                                    
-                //                     <strong>Mission Date</strong><br> ${mission.mission_date}<br>
-                //                     <strong>Locations</strong><br> ${locations}<br>
-                //                     <strong data-pilot-id="${mission.pilot_info.id}">Pilot Name</strong><br> ${mission.pilot_info.name}<br>
-
-                //                     <strong>Note:</strong class="mission_note"> ${fullNote}<br><br>
-                //                     <div class="d-flex ">
-                //                        <div class="row w-100   align-items-center">
-                //                             <strong>Mission Approval</strong><br>
-                //                               <div class="col-3 label-text">
-                //                                     <p>Modon Manager: ${modonManagerStatus}</p>
-                //                               </div>
-                //                               <div class="col-3 label-text">
-                //                                     <p>Region Manager: ${regionManagerStatus}</p>
-                //                               </div>
-                //                               <div class="col-3 label-text">
-                //                                     <p>City Manager: ${cityManagerStatus}</p>
-                //                               </div>
-                                             
-                //                        </div>
-                //                     </div>
-                //                 </div>
-                //             </div>
-                //         </div>
-                //     `;
-                //     $('#missionsAccordion').append(row);
-                // });
             },
             error: function (xhr) {
                 console.error("❌ Error fetching missions:", xhr.responseText);
-                alert("Error fetching missions. Please try again.");
+                Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to fetch missions.' });
             }
         });
     }
+    
+  
     
     $(document).on('click', '.toggle-details', function () {
         const currentId = $(this).data('id');
@@ -339,17 +301,18 @@ $(document).ready(function () {
     // Submit Add Mission Form via AJAX
 $('#addMissionForm').on('submit', function (e) {
     e.preventDefault();
-    const checkForPilot = $('input[name="pilot_id"]').val();
-    if (!checkForPilot) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'No pilot assigned to this region. Please contact Modon Authority.',
-            background: '#101625',
-            color: '#ffffff'
-        });
-        return;
-    }
+    // const checkForPilot = $('#pilot_id').val();
+    // alert(checkForPilot)
+    // if (!checkForPilot) {
+    //     Swal.fire({
+    //         icon: 'error',
+    //         title: 'Error!',
+    //         text: 'No pilot assigned to this region. Please contact Modon Authority.',
+    //         background: '#101625',
+    //         color: '#ffffff'
+    //     });
+    //     return;
+    // }
     
     const $form = $(this);
     const $errorDiv = $('#mission-validation-errors').addClass('d-none');
@@ -360,8 +323,11 @@ $('#addMissionForm').on('submit', function (e) {
     // ✅ Collect form data
     const inspectionType = $('input[name="inspection_type"]:checked').val();
     const locationId = $('#location_id').val();
+    const regionId = $('#region_id').val();
     const selectedLocations = locationId ? [locationId] : [];
     const pilotId = $('#pilot_id').val();
+    const latitude = $('#latitude').val();
+    const longitude = $('#longitude').val();
     
     const formData = {
         mission_id: missionId,
@@ -369,7 +335,10 @@ $('#addMissionForm').on('submit', function (e) {
         mission_date: $('#mission_date').val(),
         note: $('#note').val(),
         locations: selectedLocations,
-        pilot_id: pilotId
+        pilot_id: pilotId,
+        latitude: latitude,
+        longitude: longitude,
+        regionId:regionId
     };
     
     // ✅ Validation - collect missing fields
@@ -377,7 +346,10 @@ $('#addMissionForm').on('submit', function (e) {
     
     if (!formData.mission_date) errors.push("Mission date is required.");
     if (!inspectionType) errors.push("Please select an inspection type.");
+    if (!regionId) errors.push("Please select an Region ");
     if (!pilotId) errors.push("Please select a pilot.");
+    if (!latitude) errors.push("Please Enter a latitude.");
+    if (!longitude) errors.push("Please Enter a longitude.");
     if (selectedLocations.length === 0) errors.push("Please select at least one location.");
     
     if (errors.length > 0) {
@@ -676,49 +648,61 @@ $('#addMissionForm').on('submit', function (e) {
             const missionId = $(this).data("id");
             const row = $(`#missionRow-${missionId}`);
         
-            // ✅ Get inspection type info from the header div
-            const inspectionTypeEl = row.find("[data-name][data-inspectiontype-id]");
-            const inspectionTypeId = inspectionTypeEl.data("inspectiontype-id");
+            // ✅ Get inspection type info
+            const inspectionTypeEl   = row.find("[data-name][data-inspectiontype-id]");
+            const inspectionTypeId   = inspectionTypeEl.data("inspectiontype-id");
             const inspectionTypeName = inspectionTypeEl.data("name");
         
-            // ✅ Get mission date, note, and locations
+            // ✅ Get mission date & note
             const missionDate = row.find(".mission_date").text().trim();
+            const fullNote    = row.find(".accordion-body")
+                                   .text()
+                                   .match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
         
-            // Find full note from accordion-body (not the short version shown in header)
-            const fullNote = row.find(".accordion-body").text().match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
+            // ✅ Get locations list (for checkboxes)
+            const locationsText = row.find(".accordion-button .col-3").eq(1).text();
+            const locationNames = locationsText
+                                      .split(',')
+                                      .map(loc => loc.trim().toLowerCase());
         
-            const locationsText = row.find(".accordion-button .col-3").eq(1).text(); // second .col-3 (location)
-            const locationNames = locationsText.split(',').map(loc => loc.trim().toLowerCase());
+            // ✅ Get pilot id
+            const pilotId = row.data('pilot-id');
         
-            // ✅ Get assigned pilot ID (from hidden input or attribute)
-            const pilotId = row.data('pilot-id'); // requires pilot_id to be stored as data attribute
+            // ✅ Get geo coords from attributes on the location cell
+            const latitude  = row.find("[data-latitude]").data("latitude");
+            const longitude = row.find("[data-longitude]").data("longitude");
         
-            // ✅ Fill the form fields
+            // — Fill the form —
             $('#mission_date').val(missionDate);
             $('#note').val(fullNote);
         
-            // ✅ Select the correct inspection type radio button
-            $(`input[name="inspection_type"][value="${inspectionTypeId}"]`).prop("checked", true);
+            // inspection type radio
+            $(`input[name="inspection_type"][value="${inspectionTypeId}"]`)
+                .prop("checked", true);
         
-            // ✅ Select the correct pilot in the dropdown
+            // pilot dropdown
             if (pilotId) {
                 $('#pilot_id').val(pilotId);
             }
         
-            // ✅ Check checkboxes for locations
+            // lat / lng inputs
+            $('#latitude').val(latitude ?? '');
+            $('#longitude').val(longitude ?? '');
+        
+            // location checkboxes
             $(".location-checkbox").each(function () {
                 const labelText = $(this).siblings("label").text().trim().toLowerCase();
                 $(this).prop("checked", locationNames.includes(labelText));
             });
         
-            // ✅ Mark mission ID for update
+            // set form into “edit” mode
             $("#addMissionForm").attr("data-mission-id", missionId);
-        
-            // ✅ Update UI
             $(".form-title").text("Edit Mission");
             $(".mission-btn span").text("Update Mission");
             $(".mission-btn svg").attr({ "width": "30", "height": "30" });
         });
+        
+
         
     
       

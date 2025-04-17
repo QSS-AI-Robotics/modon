@@ -23,8 +23,11 @@ class Location extends Model
         return $this->hasMany(LocationAssignment::class);
     }
     public function users()
-{
-    return $this->belongsToMany(User::class, 'user_location');
-}
-
+    {
+        return $this->belongsToMany(User::class, 'user_location');
+    }
+    public function geoLocation()
+    {
+        return $this->hasOne(GeoLocation::class);
+    }
 }

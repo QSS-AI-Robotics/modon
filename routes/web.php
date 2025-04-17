@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function () {
 // ✅ Protected Routes for Region Manager
 
 
-Route::middleware(['auth', 'checkUserType:city_supervisor,qss_admin,city_manager,region_manager'])->group(function () {
+Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,region_manager'])->group(function () {
 
     
     Route::get('/missions', [RegionManagerController::class, 'index'])->name('missions.index');
@@ -76,7 +76,7 @@ Route::middleware(['auth', 'checkUserType:pilot'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth', 'checkUserType:qss_admin'])->group(function () {
+Route::middleware(['auth', 'checkUserType:qss_admin,modon_admin'])->group(function () {
 
     Route::get('/admin/users', [AdminController::class, 'adminusers'])->name('admin.adminusers');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');

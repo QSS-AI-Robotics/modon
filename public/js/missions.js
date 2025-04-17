@@ -273,6 +273,7 @@ $(document).ready(function () {
     
                     const modonApproved  = mission.approval_status?.modon_admin_approved;
                     const regionApproved = mission.approval_status?.region_manager_approved;
+                    const pilotApproved = mission.approval_status?.pilot_approved;
     
                     const getStatusBadge = value => {
                         switch (value) {
@@ -284,6 +285,7 @@ $(document).ready(function () {
     
                     const modonManagerStatus  = getStatusBadge(modonApproved);
                     const regionManagerStatus = getStatusBadge(regionApproved);
+                    const pilotApprovedStatus = getStatusBadge(pilotApproved);
     
                     // ✅ Conditional edit/delete buttons (modon_admin only)
                     let editButton = '';
@@ -368,8 +370,9 @@ $(document).ready(function () {
                                     <div class="d-flex">
                                         <div class="row w-100 align-items-center">
                                             <strong>Mission Approval</strong><br>
-                                            <div class="col-6 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
-                                            <div class="col-6 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                            <div class="col-4 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
+                                            <div class="col-4 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                            <div class="col-4 label-text"><p>Pilot Manager: ${pilotApprovedStatus}</p></div>
                                         </div>
                                     </div>
                                 </div>

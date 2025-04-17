@@ -27,6 +27,89 @@ class PilotController extends Controller
     /**
      * Fetch missions assigned to the pilot's region.
      */
+
+
+     public function getAllApprovedMissionsByUserType()
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $user = Auth::user();
+    $userType = strtolower(optional($user->userType)->name ?? '');
+
+    $regionIds = $user instanceof \App\Models\User
+        ? $user->regions()->pluck('regions.id')->toArray()
+        : [];
+
+    $locationIds = $user instanceof \App\Models\User
+        ? $user->assignedLocations()->pluck('locations.id')->toArray()
+        : [];
+
+    Log::info("🔍 User: {$user->id}, Type: {$userType}");
+    Log::info("📍 Regions: ", $regionIds);
+    Log::info("📍 Locations: ", $locationIds);
+
+    $missions = Mission::query()
+        ->where('status', 'Approved') // ✅ Only approved missions
+        ->when($userType === 'region_manager', function ($q) use ($regionIds) {
+            $q->whereIn('region_id', $regionIds);
+        })
+        ->when($userType === 'city_manager', function ($q) use ($regionIds, $locationIds) {
+            $q->whereIn('region_id', $regionIds)
+              ->whereHas('locations', fn($lq) => $lq->whereIn('locations.id', $locationIds));
+        })
+        ->with([
+            'inspectionTypes:id,name',
+            'locations:id,name',
+            'locations.geoLocation:location_id,latitude,longitude',
+            'locations.locationAssignments.region:id,name',
+            'pilot:id,name',
+            'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
+            'user:id,name,user_type_id',
+            'user.userType:id,name',
+        ])
+        ->get()
+        ->map(function ($mission) {
+            $mission->approval_status = [
+                'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
+                'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
+            ];
+
+            $mission->pilot_info = [
+                'id'   => $mission->pilot->id   ?? null,
+                'name' => $mission->pilot->name ?? null,
+            ];
+
+            $mission->created_by = [
+                'id'        => $mission->user->id   ?? null,
+                'name'      => $mission->user->name ?? null,
+                'user_type' => $mission->user->userType->name ?? null,
+            ];
+
+            $mission->locations = $mission->locations->map(function ($loc) {
+                $region = $loc->locationAssignments->pluck('region')->filter()->first();
+                return [
+                    'id'          => $loc->id,
+                    'name'        => $loc->name,
+                    'latitude'    => $loc->geoLocation->latitude  ?? null,
+                    'longitude'   => $loc->geoLocation->longitude ?? null,
+                    'region_id'   => $region?->id,
+                    'region_name' => $region?->name,
+                ];
+            })->values();
+
+            unset($mission->approvals, $mission->pilot, $mission->user);
+            return $mission;
+        });
+
+    Log::info("✅ Approved Missions returned: " . $missions->count());
+
+    return response()->json(['missions' => $missions]);
+}
+
+
+
     public function getMissions()
     {
         // ✅ Ensure the user is authenticated
@@ -48,39 +131,7 @@ class PilotController extends Controller
         return response()->json(['missions' => $missions]);
     }
     
-    //this belong to show all missions 
-    // public function getMissions()
-    // {
-    //     if (!Auth::check()) {
-    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-    //     }
-
-    //     $regionId = Auth::user()->region_id;
-
-    //     $missions = Mission::where('region_id', $regionId)
-    //         ->with(['inspectionTypes:id,name', 'locations:id,name'])
-    //         ->get();
-
-    //     return response()->json(['missions' => $missions]);
-    // }
-
-    /**
-     * Fetch pilot reports assigned to missions in the pilot's region.
-     */
-    // public function getReports()
-    // {
-    //     if (!Auth::check()) {
-    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-    //     }
-    
-    //     $regionId = Auth::user()->region_id;
-    
-    //     $reports = PilotReport::whereHas('mission', function ($query) use ($regionId) {
-    //         $query->where('region_id', $regionId);
-    //     })->with('mission', 'images')->get();
-    
-    //     return response()->json(['reports' => $reports]);
-    // }
+   
     public function getReports(Request $request)
     {
         if (!Auth::check()) {

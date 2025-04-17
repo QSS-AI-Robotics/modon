@@ -22,127 +22,289 @@ $(document).ready(function () {
                 });
             }
         });
-
+        getRegionManagerMissions()
+        function getRegionManagerMissions() {
+            $(".mission-btn svg").attr({ "width": "16", "height": "16" });
+            $("#addMissionForm").removeAttr("data-mission-id");
+            $(".cancel-btn").addClass("d-none");
         
-    fetchMissions();
-
-    function fetchMissions() {
-        $.ajax({
-            url: "/pilot/missions",
-            type: "GET",
-            success: function (response) {
-                $('#pilotTableBody').empty();
-                $('#inspection_id').empty().append('<option value="">Select an Inspection</option>');
+            $.ajax({
+                url: "/pilot/missions",
+                type: "GET",
+                success: function (response) {
+                    console.log("mission detail", response);
+                    $('#pilotTableBody').empty();
+        
+                    const userType = $('#mifu').text().trim();
+        
+                    if (!response.missions.length) {
+                        $('#pilotTableBody').append(`
+                            <div class="col-12 text-center my-4">No Missions Found !!!</div>
+                        `);
+                        return;
+                    }
+        
+                    $.each(response.missions, function (index, mission) {
+                        const inspection = mission.inspection_types[0] || {};
+                        const inspectionName = inspection.name || 'N/A';
+                        const inspectionId = inspection.id || '';
+                        const locations = mission.locations.map(loc => loc.name).join(', ') || 'N/A';
+        
+                        const firstLocation = mission.locations[0] || {};
+                        const firstAssignment = firstLocation.location_assignments?.[0];
+                        const regionId = firstAssignment?.region?.id ?? '';
+                        const regionName = firstAssignment?.region?.name ?? '';
     
-                if (response.missions.length === 0) {
-                    $('#pilotTableBody').append(`
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">
-                                No new missions available.
-                            </td>
-                        </tr>
-                    `);
-                    $("#addReportBtn").prop("disabled", true);
-                    return;
+                        const latitude = firstLocation.geo_location?.latitude || 'N/A';
+                        const longitude = firstLocation.geo_location?.longitude || 'N/A';
+    
+                        const fullNote = mission.note || "No Notes";
+        
+                        let statusBadge = "";
+                        switch (mission.status) {
+                            case "Approved":        statusBadge = `<span class="badge p-2 bg-success">Approved</span>`; break;
+                            case "Pending":         statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
+                            case "Rejected":        statusBadge = `<span class="badge p-2 bg-warning">Rejected</span>`; break;
+                            case "In Progress":     statusBadge = `<span class="badge p-2 bg-info text-dark">In Progress</span>`; break;
+                            case "Awaiting Report":statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
+                            case "Completed":       statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
+                        }
+        
+                        const modonApproved  = mission.approval_status?.modon_admin_approved;
+                        const regionApproved = mission.approval_status?.region_manager_approved;
+        
+                        const getStatusBadge = value => {
+                            switch (value) {
+                                case 1: return `<strong class="text-success">Approved</strong>`;
+                                case 2: return `<strong class="text-danger">Rejected</strong>`;
+                                default: return `<strong class="text-warning">Pending</strong>`;
+                            }
+                        };
+        
+                        const modonManagerStatus  = getStatusBadge(modonApproved);
+                        const regionManagerStatus = getStatusBadge(regionApproved);
+        
+                        // ✅ Conditional edit/delete buttons (modon_admin only)
+                        let editButton = '';
+                        let deleteButton = '';
+        
+                        if (userType === 'modon_admin') {
+                            if (mission.status === "Approved" || mission.status === "Rejected") {
+                                editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot edit">`;
+                                deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot delete">`;
+                            } else {
+                                editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
+                                deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
+                            }
+                        }
+        
+                        // ✅ Conditional Approve/Reject buttons
+                        let approvalButtons = '';
+                        if (
+                            mission.status === "Pending" &&
+                            (
+                                (userType === 'modon_admin' && modonApproved === 0) ||
+                                (userType === 'region_manager' && regionApproved === 0)
+                            )
+                        ) {
+                            approvalButtons = `
+                                <strong class="text-end">
+                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMission"
+                                        data-mission-decision="approve" data-mission-id="${mission.id}">
+                                        Approve
+                                    </span>
+                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMission"
+                                        data-mission-decision="reject" data-mission-id="${mission.id}">
+                                        Reject
+                                    </span>
+                                </strong>
+                            `;
+                        }
+        
+                        // ✅ Final row HTML
+                        const row = `
+                            <div class="accordion-item" id="missionRow-${mission.id}" data-pilot-id="${mission.pilot_id}">
+                                <h2 class="accordion-header" id="heading-${mission.id}">
+                                    <button class="accordion-button collapsed d-flex px-3 py-2" type="button">
+                                        <div class="row w-100 justify-content-between label-text">
+                                            <div class="col-3 ps-2" data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                            <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
+                                            <div class="col-3 text-center">${locations}</div>
+                                            <div class="col-2 text-center ps-5">${statusBadge}</div>
+                                            <div class="col-2 text-center ps-5">
+                                                ${editButton}
+                                                ${deleteButton}
+                                                <img src="./images/view.png" alt="View" class="view-mission img-fluid actions toggle-details" data-id="${mission.id}" data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                                            </div>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#pilotTableBody">
+                                    <div class="accordion-body px-4 py-2 label-text">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong class="py-1">Program: ${inspectionName}</strong> 
+                                            ${approvalButtons}
+                                        </div>
+                                        <strong class="py-3">Mission Date</strong>: ${mission.mission_date}<br>
+        
+                                        <strong class="py-3" 
+                                            data-location-id="${firstLocation.id}" 
+                                            data-region-id="${regionId}" 
+                                            data-region-name="${regionName}">
+                                            Locations
+                                        </strong>: ${locations} ( ${regionName} )<br>
+        
+                                        <strong class="py-3"
+                                            data-latitude="${latitude}" 
+                                            data-longitude="${longitude}">
+                                            Geo
+                                        </strong>
+                                        ${latitude}, ${longitude}<br>
+        
+                                        <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: ${mission.pilot_info?.name || 'N/A'}<br>
+                                        <strong class="py-3">Mission Created By:</strong> <span class="text-capitalize">${mission.created_by.name}</span> (${mission.created_by.user_type})<br>
+                                        <strong class="py-3">Note:</strong> ${fullNote}<br><br>
+                                        <div class="d-flex">
+                                            <div class="row w-100 align-items-center">
+                                                <strong>Mission Approval</strong><br>
+                                                <div class="col-6 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
+                                                <div class="col-6 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+        
+                        $('#pilotTableBody').append(row);
+                    });
+                },
+                error: function (xhr) {
+                    console.error("❌ Error fetching missions:", xhr.responseText);
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to fetch missions.' });
                 }
-    
-                // console.log(response.missions);
-    
-                $.each(response.missions, function (index, mission) {
-                    // let inspectionTypes = mission.inspection_types.map(type => type.name).join("<br>");
-                    // let locations = mission.locations.map(loc => loc.name).join("<br>");
-                    let inspectionTypesData = mission.inspection_types.map(type => type.name);
-                    let locationsData = mission.locations.map(loc => loc.name);
-                    // INSPECTION TYPES
-                    let inspectionTypesHTMLData = '';
-                    if (inspectionTypesData.length > 1) {
-                        inspectionTypesHTMLData = `
-                            <div class="dropdown d-flex align-items-center justify-content-center">
-                                <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-                                    ${inspectionTypesData[0]}...
-                                </span>
-                                <ul class="dropdown-menu text-center">
-                                    ${inspectionTypesData.map(type => `<li class="dropdown-item">${type}</li>`).join("")}
-                                </ul>
-                            </div>
-                        `;
-                    } else {
-                        inspectionTypesHTMLData = `
-                            <span class="text-white">${inspectionTypesData[0] || 'N/A'}</span>
-                        `;
-                    }
+            });
+        }
+        
+    // fetchMissions();
 
-                    // LOCATIONS
-                    let locationsHTMLData = '';
-                    if (locationsData.length > 1) {
-                        locationsHTMLData = `
-                            <div class="dropdown d-flex align-items-center justify-content-center">
-                                <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
-                                    ${locationsData[0]}...
-                                </span>
-                                <ul class="dropdown-menu text-center">
-                                    ${locationsData.map(loc => `<li class="dropdown-item">${loc}</li>`).join("")}
-                                </ul>
-                            </div>
-                        `;
-                    } else {
-                        locationsHTMLData = `
-                            <span class="text-white">${locationsData[0] || 'N/A'}</span>
-                        `;
-                    }
+    // function fetchMissions() {
+    //     $.ajax({
+    //         url: "/pilot/missions",
+    //         type: "GET",
+    //         success: function (response) {
+    //             $('#pilotTableBody').empty();
+    //             $('#inspection_id').empty().append('<option value="">Select an Inspection</option>');
+    
+    //             if (response.missions.length === 0) {
+    //                 $('#pilotTableBody').append(`
+    //                     <tr>
+    //                         <td colspan="6" class="text-center text-muted">
+    //                             No new missions available.
+    //                         </td>
+    //                     </tr>
+    //                 `);
+    //                 $("#addReportBtn").prop("disabled", true);
+    //                 return;
+    //             }
+    
+    //             // console.log(response.missions);
+    
+    //             $.each(response.missions, function (index, mission) {
+    //                 // let inspectionTypes = mission.inspection_types.map(type => type.name).join("<br>");
+    //                 // let locations = mission.locations.map(loc => loc.name).join("<br>");
+    //                 let inspectionTypesData = mission.inspection_types.map(type => type.name);
+    //                 let locationsData = mission.locations.map(loc => loc.name);
+    //                 // INSPECTION TYPES
+    //                 let inspectionTypesHTMLData = '';
+    //                 if (inspectionTypesData.length > 1) {
+    //                     inspectionTypesHTMLData = `
+    //                         <div class="dropdown d-flex align-items-center justify-content-center">
+    //                             <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+    //                                 ${inspectionTypesData[0]}...
+    //                             </span>
+    //                             <ul class="dropdown-menu text-center">
+    //                                 ${inspectionTypesData.map(type => `<li class="dropdown-item">${type}</li>`).join("")}
+    //                             </ul>
+    //                         </div>
+    //                     `;
+    //                 } else {
+    //                     inspectionTypesHTMLData = `
+    //                         <span class="text-white">${inspectionTypesData[0] || 'N/A'}</span>
+    //                     `;
+    //                 }
+
+    //                 // LOCATIONS
+    //                 let locationsHTMLData = '';
+    //                 if (locationsData.length > 1) {
+    //                     locationsHTMLData = `
+    //                         <div class="dropdown d-flex align-items-center justify-content-center">
+    //                             <span class="dropdown-toggle text-white" data-bs-toggle="dropdown" aria-expanded="false">
+    //                                 ${locationsData[0]}...
+    //                             </span>
+    //                             <ul class="dropdown-menu text-center">
+    //                                 ${locationsData.map(loc => `<li class="dropdown-item">${loc}</li>`).join("")}
+    //                             </ul>
+    //                         </div>
+    //                     `;
+    //                 } else {
+    //                     locationsHTMLData = `
+    //                         <span class="text-white">${locationsData[0] || 'N/A'}</span>
+    //                     `;
+    //                 }
 
 
                 
-                    // Determine button text and image source based on mission status
-                    let buttonText = "";
-                    let buttonClass = "btn-danger";
-                    let ImgClass = "bg-danger";
-                    let imageSrc = "/images/start.png"; // Default
+    //                 // Determine button text and image source based on mission status
+    //                 let buttonText = "";
+    //                 let buttonClass = "btn-danger";
+    //                 let ImgClass = "bg-danger";
+    //                 let imageSrc = "/images/start.png"; // Default
                 
-                    if (mission.status === "Pending") {
-                        buttonText = "Start";
-                        buttonClass = "btn-danger";
-                        ImgClass = "bg-danger";
-                        imageSrc = "/images/start.png";
-                    } else if (mission.status === "In Progress") {
-                        buttonText = "Finish";
-                        buttonClass = "btn-warning";
-                        ImgClass = "bg-warning";
-                        imageSrc = "/images/finish.png";
-                    } else if (mission.status === "Awaiting Report") {
-                        buttonText = "Add Report";
-                        buttonClass = "btn-primary";
-                        ImgClass = "bg-primary";
-                        imageSrc = "/images/uploadreport.png";
-                    } else if (mission.status === "Completed") {
-                        buttonText = "Done";
-                        buttonClass = "btn-success";
-                        ImgClass= "bg-success";
-                        imageSrc = "/images/view.png";
-                    }
-                 // <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypes}</td>
-                    // <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locations}</td>
+    //                 if (mission.status === "Pending") {
+    //                     buttonText = "Start";
+    //                     buttonClass = "btn-danger";
+    //                     ImgClass = "bg-danger";
+    //                     imageSrc = "/images/start.png";
+    //                 } else if (mission.status === "In Progress") {
+    //                     buttonText = "Finish";
+    //                     buttonClass = "btn-warning";
+    //                     ImgClass = "bg-warning";
+    //                     imageSrc = "/images/finish.png";
+    //                 } else if (mission.status === "Awaiting Report") {
+    //                     buttonText = "Add Report";
+    //                     buttonClass = "btn-primary";
+    //                     ImgClass = "bg-primary";
+    //                     imageSrc = "/images/uploadreport.png";
+    //                 } else if (mission.status === "Completed") {
+    //                     buttonText = "Done";
+    //                     buttonClass = "btn-success";
+    //                     ImgClass= "bg-success";
+    //                     imageSrc = "/images/view.png";
+    //                 }
+    //              // <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypes}</td>
+    //                 // <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locations}</td>
                    
-                    let row = `
-                        <tr>
-                            <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypesHTMLData}</td>
-                            <td>${mission.start_datetime}</td>
-                            <td>${mission.end_datetime}</td>
-                            <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locationsHTMLData}</td>
-                            <td>${mission.status}</td>
-                            <td>
+    //                 let row = `
+    //                     <tr>
+    //                         <td class="inspection_list" data-inspections='${JSON.stringify(mission.inspection_types)}'>${inspectionTypesHTMLData}</td>
+    //                         <td>${mission.start_datetime}</td>
+    //                         <td>${mission.end_datetime}</td>
+    //                         <td class="locations_list" data-locations='${JSON.stringify(mission.locations)}'>${locationsHTMLData}</td>
+    //                         <td>${mission.status}</td>
+    //                         <td>
                           
-                                <img src="${imageSrc}" data-id="${mission.id}" class="img-fluid actions pilotEvents mission_status ${ImgClass}" >
-                            </td>
-                        </tr>
-                    `;
+    //                             <img src="${imageSrc}" data-id="${mission.id}" class="img-fluid actions pilotEvents mission_status ${ImgClass}" >
+    //                         </td>
+    //                     </tr>
+    //                 `;
                 
-                    $('#pilotTableBody').append(row);
-                });
+    //                 $('#pilotTableBody').append(row);
+    //             });
                 
-            }
-        });
-    }
+    //         }
+    //     });
+    // }
     
 
 

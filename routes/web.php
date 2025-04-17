@@ -64,7 +64,8 @@ Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,reg
 // Pilot Routes
 Route::middleware(['auth', 'checkUserType:pilot'])->group(function () {
     Route::get('/pilot', [PilotController::class, 'index'])->name('pilot.index');
-    Route::get('/pilot/missions', [PilotController::class, 'getMissions'])->name('pilot.missions');
+    Route::get('/pilot/missions', [PilotController::class, 'getAllApprovedMissionsByUserType'])->name('pilot.getAllApprovedMissionsByUserType');
+    // Route::get('/pilot/missions', [PilotController::class, 'getMissions'])->name('pilot.missions');
     Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
     Route::post('/pilot/reports/store', [PilotController::class, 'storeReport'])->name('pilot.reports.store');
 

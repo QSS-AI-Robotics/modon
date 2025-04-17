@@ -246,7 +246,13 @@ $(document).ready(function () {
                             </h2>
                             <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
                                 <div class="accordion-body px-4 py-2 label-text">
-                                    <strong>Program</strong>:${inspectionName}<br>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>Program: ${inspectionName}</strong>
+                                        <strong class="text-end" >
+                                            <span class="badge   p-2 px-3 me-2 hoverbtn bg-success" data-mission-id="{mission.id}">Approve</span>
+                                            <span class="badge    p-2 px-3 hoverbtn bg-danger" data-mission-id="{mission.id}"> Reject</span>
+                                        </strong>
+                                    </div>
                                     <strong>Mission Date</strong>:${mission.mission_date}<br>
                                     <strong data-location-id=${locationID}>Locations</strong>:${locations}<br>
                                     <strong 

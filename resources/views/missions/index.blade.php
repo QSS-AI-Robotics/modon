@@ -25,7 +25,7 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Mission List</h5>
+                                    <h5>Mission List <span id="mifu" class="d-none">{{ $userType }}</span></h5>
                                 </div>
                                 <div class="col-lg-4 text-end ">
                                     {{-- <img src="./images/search.png" alt="Search" class="img-fluid search-icon">

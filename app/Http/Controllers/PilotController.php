@@ -43,9 +43,10 @@ class PilotController extends Controller
 
     Log::info("🛩️ Pilot (ID: {$pilot->id}) submitted decision for Mission #{$mission->id}: " . ($decision === 1 ? 'Approved' : 'Rejected'));
 
-    // ✅ Prepare approval data
+    // ✅ Build approval data update
     $approvalData = [
         'is_fully_approved' => $decision,
+        'pilot_approved'    => $decision,
     ];
 
     if ($decision === 2) {
@@ -53,20 +54,21 @@ class PilotController extends Controller
         $approvalData['rejection_note'] = $request->rejection_note ?? 'Rejected by pilot';
     }
 
-    // ✅ Update/Create approval first
+    // ✅ Update or create the mission approval record
     $approval = \App\Models\MissionApproval::updateOrCreate(
         ['mission_id' => $mission->id],
         $approvalData
     );
 
     Log::info("✅ MissionApproval updated", [
-        'mission_id'         => $approval->mission_id,
-        'is_fully_approved'  => $approval->is_fully_approved,
-        'rejected_by'        => $approval->rejected_by,
-        'rejection_note'     => $approval->rejection_note,
+        'mission_id'        => $approval->mission_id,
+        'pilot_approved'    => $approval->pilot_approved,
+        'is_fully_approved' => $approval->is_fully_approved,
+        'rejected_by'       => $approval->rejected_by,
+        'rejection_note'    => $approval->rejection_note,
     ]);
 
-    // ✅ Now update mission status based on decision
+    // ✅ Update mission status accordingly
     $mission->status = $decision === 1 ? 'Approved' : 'Rejected';
     $mission->save();
 

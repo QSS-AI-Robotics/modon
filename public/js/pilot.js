@@ -101,20 +101,23 @@ $(document).ready(function () {
                         }
         
                         // ✅ Conditional Approve/Reject buttons
-                        if(pilotApprovedStatus){
-                            approvalButtons = `
-                                <strong class="text-end">
-                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMissionbyPilot"
-                                        data-mission-decision="approve" data-mission-id="${mission.id}">
-                                        Approve
-                                    </span>
-                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMissionbyPilot"
-                                        data-mission-decision="reject" data-mission-id="${mission.id}">
-                                        Reject
-                                    </span>
-                                </strong>
-                            `;
-                        }
+// ✅ Conditional Approve/Reject buttons for Pilot
+let approvalButtons = '';
+if (pilotApproved === 0) {
+    approvalButtons = `
+        <strong class="text-end">
+            <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMissionbyPilot"
+                data-mission-decision="approve" data-mission-id="${mission.id}">
+                Approve
+            </span>
+            <span class="badge p-2 px-3 hoverbtn bg-danger approvalMissionbyPilot"
+                data-mission-decision="reject" data-mission-id="${mission.id}">
+                Reject
+            </span>
+        </strong>
+    `;
+}
+
 
                         
         

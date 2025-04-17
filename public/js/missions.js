@@ -127,28 +127,62 @@ $(document).ready(function () {
             cancelButtonColor: '#6c757d',
             confirmButtonText: `Yes, ${actionText}`,
         }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: `/missions/${missionId}/decision`,
-                    method: 'POST',
-                    data: {
-                        mission_id: missionId,
-                        decision: decision,
+            if (!result.isConfirmed) return;
+    
+            // ✅ If approving, go straight to AJAX
+            if (isApproval) {
+                submitApproval(missionId, decision);
+            } else {
+                // ❌ If rejecting, ask for reason
+                Swal.fire({
+                    title: 'Rejection Reason',
+                    input: 'textarea',
+                    inputLabel: 'Please explain why you’re rejecting this mission',
+                    inputPlaceholder: 'Enter reason here...',
+                    inputAttributes: {
+                        'aria-label': 'Rejection reason'
                     },
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Rejection reason is required!';
+                        }
                     },
-                    success: function (response) {
-                        Swal.fire('Success', response.message || 'Decision updated!', 'success');
-                        getRegionManagerMissions();
-                    },
-                    error: function (xhr) {
-                        Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit Rejection',
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                }).then((rejectResult) => {
+                    if (rejectResult.isConfirmed) {
+                        submitApproval(missionId, decision, rejectResult.value);
                     }
                 });
             }
         });
     });
+    
+    // ✅ Function to submit approval or rejection with optional note
+    function submitApproval(missionId, decision, rejectionNote = null) {
+        $.ajax({
+            url: `/missions/${missionId}/decision`,
+            method: 'POST',
+            data: {
+                mission_id: missionId,
+                decision: decision,
+                rejection_note: rejectionNote,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                Swal.fire('Success', response.message || 'Decision updated!', 'success');
+                getRegionManagerMissions();
+            },
+            error: function (xhr) {
+                Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+            }
+        });
+    }
+    
     
     
 

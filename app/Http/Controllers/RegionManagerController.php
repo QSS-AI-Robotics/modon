@@ -91,88 +91,174 @@ class RegionManagerController extends Controller
     
 
 
+    public function approve(Request $request)
+    {
+        $request->validate([
+            'mission_id'      => 'required',
+            'decision'        => 'required|in:approve,reject',
+            'rejection_note'  => 'nullable|string',
+        ]);
+    
+        $user = Auth::user();
+        $userType = strtolower(optional($user->userType)->name);
+        $missionId = $request->mission_id;
+        $decision  = $request->decision === 'approve' ? 1 : 2;
+    
+        // ✅ Get mission (even soft-deleted)
+        $mission = Mission::withTrashed()->find($missionId);
+        if (! $mission) {
+            Log::warning("❌ Mission not found for ID: $missionId");
+            return response()->json(['message' => 'Mission not found.'], 404);
+        }
+    
+        // ✅ Region access check for region_manager
+        if ($userType === 'region_manager') {
+            $regionIds = optional($user)->regions()->pluck('regions.id');
+            if (! $regionIds->contains($mission->region_id)) {
+                Log::warning("🚫 Unauthorized region_manager (User ID: $user->id) tried to approve mission in region {$mission->region_id}");
+                return response()->json(['message' => 'You are not authorized to approve this mission.'], 403);
+            }
+        }
+    
+        // ✅ Determine approval column
+        $approvalColumn = match ($userType) {
+            'region_manager' => 'region_manager_approved',
+            'modon_admin'    => 'modon_admin_approved',
+            default => null,
+        };
+    
+        if (! $approvalColumn) {
+            Log::warning("❌ User type $userType is not allowed to approve.");
+            return response()->json(['message' => 'User type not allowed to approve.'], 403);
+        }
+    
+        // ✅ Update or create the mission approval record
+        $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
+        $approval->{$approvalColumn} = $decision;
+    
+        // ✅ If rejected, also record who & why
+        if ($decision === 2) {
+            $approval->rejected_by    = $user->id;
+            $approval->rejection_note = $request->rejection_note ?? null;
+        }
+    
+        $approval->save();
+    
+        // ✅ Refresh and evaluate approval status
+        $approval->refresh();
+    
+        $isFullyApproved   = 0;
+        $newMissionStatus  = 'Pending'; // default
+    
+        if (
+            $approval->region_manager_approved == 2 ||
+            $approval->modon_admin_approved == 2
+        ) {
+            $isFullyApproved  = 2;
+            $newMissionStatus = 'Rejected';
+        } elseif (
+            $approval->region_manager_approved == 1 &&
+            $approval->modon_admin_approved == 1
+        ) {
+            $isFullyApproved  = 1;
+            $newMissionStatus = 'Approved';
+        }
+    
+        // ✅ Log approval decision
+        Log::info("📋 Mission #$missionId approval update by $userType (User ID: $user->id):");
+        Log::info("➡️ $approvalColumn = $decision");
+        Log::info("✅ is_fully_approved = $isFullyApproved");
+        Log::info("📌 Mission status will be updated to: $newMissionStatus");
+    
+        // ✅ Save final statuses
+        $approval->update(['is_fully_approved' => $isFullyApproved]);
+        $mission->status = $newMissionStatus;
+        $mission->save();
+    
+        return response()->json(['message' => 'Mission approval updated successfully.']);
+    }
 
 
     
  
-public function approve(Request $request)
-{
-    $request->validate([
-        'mission_id' => 'required',
-        'decision'   => 'required|in:approve,reject',
-    ]);
+// public function approve(Request $request)
+// {
+//     $request->validate([
+//         'mission_id' => 'required',
+//         'decision'   => 'required|in:approve,reject',
+//     ]);
 
-    $user = Auth::user();
-    $userType = strtolower(optional($user->userType)->name);
-    $missionId = $request->mission_id;
-    $decision  = $request->decision === 'approve' ? 1 : 2;
+//     $user = Auth::user();
+//     $userType = strtolower(optional($user->userType)->name);
+//     $missionId = $request->mission_id;
+//     $decision  = $request->decision === 'approve' ? 1 : 2;
 
-    // ✅ Get mission (even soft-deleted)
-    $mission = Mission::withTrashed()->find($missionId);
-    if (! $mission) {
-        Log::warning("❌ Mission not found for ID: $missionId");
-        return response()->json(['message' => 'Mission not found.'], 404);
-    }
+//     // ✅ Get mission (even soft-deleted)
+//     $mission = Mission::withTrashed()->find($missionId);
+//     if (! $mission) {
+//         Log::warning("❌ Mission not found for ID: $missionId");
+//         return response()->json(['message' => 'Mission not found.'], 404);
+//     }
 
-    // ✅ Region access check for region_manager
-    if ($userType === 'region_manager') {
-        $regionIds = optional($user)->regions()->pluck('regions.id');
-        if (! $regionIds->contains($mission->region_id)) {
-            Log::warning("🚫 Unauthorized region_manager (User ID: $user->id) tried to approve mission in region {$mission->region_id}");
-            return response()->json(['message' => 'You are not authorized to approve this mission.'], 403);
-        }
-    }
+//     // ✅ Region access check for region_manager
+//     if ($userType === 'region_manager') {
+//         $regionIds = optional($user)->regions()->pluck('regions.id');
+//         if (! $regionIds->contains($mission->region_id)) {
+//             Log::warning("🚫 Unauthorized region_manager (User ID: $user->id) tried to approve mission in region {$mission->region_id}");
+//             return response()->json(['message' => 'You are not authorized to approve this mission.'], 403);
+//         }
+//     }
 
-    // ✅ Determine approval column
-    $approvalColumn = match ($userType) {
-        'region_manager' => 'region_manager_approved',
-        'modon_admin'    => 'modon_admin_approved',
-        default => null,
-    };
+//     // ✅ Determine approval column
+//     $approvalColumn = match ($userType) {
+//         'region_manager' => 'region_manager_approved',
+//         'modon_admin'    => 'modon_admin_approved',
+//         default => null,
+//     };
 
-    if (! $approvalColumn) {
-        Log::warning("❌ User type $userType is not allowed to approve.");
-        return response()->json(['message' => 'User type not allowed to approve.'], 403);
-    }
+//     if (! $approvalColumn) {
+//         Log::warning("❌ User type $userType is not allowed to approve.");
+//         return response()->json(['message' => 'User type not allowed to approve.'], 403);
+//     }
 
-    // ✅ Update or create the mission approval record
-    $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
-    $approval->{$approvalColumn} = $decision;
-    $approval->save();
+//     // ✅ Update or create the mission approval record
+//     $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
+//     $approval->{$approvalColumn} = $decision;
+//     $approval->save();
 
-    // ✅ Refresh and evaluate approval status
-    $approval->refresh();
+//     // ✅ Refresh and evaluate approval status
+//     $approval->refresh();
 
-    $isFullyApproved = 0;
-    $newMissionStatus = 'Pending'; // default
+//     $isFullyApproved = 0;
+//     $newMissionStatus = 'Pending'; // default
 
-    if (
-        $approval->region_manager_approved == 2 ||
-        $approval->modon_admin_approved == 2
-    ) {
-        $isFullyApproved = 2;
-        $newMissionStatus = 'Rejected';
-    } elseif (
-        $approval->region_manager_approved == 1 &&
-        $approval->modon_admin_approved == 1
-    ) {
-        $isFullyApproved = 1;
-        $newMissionStatus = 'Approved';
-    }
+//     if (
+//         $approval->region_manager_approved == 2 ||
+//         $approval->modon_admin_approved == 2
+//     ) {
+//         $isFullyApproved = 2;
+//         $newMissionStatus = 'Rejected';
+//     } elseif (
+//         $approval->region_manager_approved == 1 &&
+//         $approval->modon_admin_approved == 1
+//     ) {
+//         $isFullyApproved = 1;
+//         $newMissionStatus = 'Approved';
+//     }
 
-    // ✅ Log approval decision
-    Log::info("📋 Mission #$missionId approval update by $userType (User ID: $user->id):");
-    Log::info("➡️ $approvalColumn = $decision");
-    Log::info("✅ is_fully_approved = $isFullyApproved");
-    Log::info("📌 Mission status will be updated to: $newMissionStatus");
+//     // ✅ Log approval decision
+//     Log::info("📋 Mission #$missionId approval update by $userType (User ID: $user->id):");
+//     Log::info("➡️ $approvalColumn = $decision");
+//     Log::info("✅ is_fully_approved = $isFullyApproved");
+//     Log::info("📌 Mission status will be updated to: $newMissionStatus");
 
-    // ✅ Save final states
-    $approval->update(['is_fully_approved' => $isFullyApproved]);
-    $mission->status = $newMissionStatus;
-    $mission->save();
+//     // ✅ Save final states
+//     $approval->update(['is_fully_approved' => $isFullyApproved]);
+//     $mission->status = $newMissionStatus;
+//     $mission->save();
 
-    return response()->json(['message' => 'Mission approval updated successfully.']);
-}
+//     return response()->json(['message' => 'Mission approval updated successfully.']);
+// }
     
 
     

@@ -14,6 +14,8 @@ class MissionApproval extends Model
         'region_manager_approved',
         'modon_admin_approved',
         'is_fully_approved',
+        'rejected_by',      
+        'rejection_note',
     ];
 
     public function mission()

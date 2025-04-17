@@ -69,8 +69,8 @@
                 </div>
 
             </div> <!-- End Left Column -->
-
-            <!-- Right Column (Mission Analytics & Create New Mission) -->
+ 
+            <!-- Right Column (Mission Analytics & Create New Mission sd) -->
             <div class="col-lg-3 d-flex p-0 flex-column">
                 
                 <!-- Mission Analytics -->

@@ -22,8 +22,8 @@ $(document).ready(function () {
                 });
             }
         });
-        getRegionManagerMissions()
-        function getRegionManagerMissions() {
+        getPilotMissions()
+        function getPilotMissions() {
             $(".mission-btn svg").attr({ "width": "16", "height": "16" });
             $("#addMissionForm").removeAttr("data-mission-id");
             $(".cancel-btn").addClass("d-none");
@@ -101,39 +101,41 @@ $(document).ready(function () {
                         }
         
                         // ✅ Conditional Approve/Reject buttons
-// ✅ Conditional Approve/Reject buttons for Pilot
-let approvalButtons = '';
-if (pilotApproved === 0) {
-    approvalButtons = `
-        <strong class="text-end">
-            <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMissionbyPilot"
-                data-mission-decision="approve" data-mission-id="${mission.id}">
-                Approve
-            </span>
-            <span class="badge p-2 px-3 hoverbtn bg-danger approvalMissionbyPilot"
-                data-mission-decision="reject" data-mission-id="${mission.id}">
-                Reject
-            </span>
-        </strong>
-    `;
-}
+                        // ✅ Conditional Approve/Reject buttons for Pilot
+                        let approvalButtons = '';
+                        if (pilotApproved === 0) {
+                            approvalButtons = `
+                                <strong class="text-end">
+                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMissionbyPilot"
+                                        data-mission-decision="approve" data-mission-id="${mission.id}">
+                                        Approve
+                                    </span>
+                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMissionbyPilot"
+                                        data-mission-decision="reject" data-mission-id="${mission.id}">
+                                        Reject
+                                    </span>
+                                </strong>
+                            `;
+                        }
 
 
                         
         
                         // ✅ Final row HTML
                         const row = `
-                            <div class="accordion-item" id="missionRow-${mission.id}" data-pilot-id="${mission.pilot_id}">
+                            <div class="accordion-item" id="missionRow-${mission.id}" data-mission-id=${mission.id} data-pilot-id="${mission.pilot_id}">
                                 <h2 class="accordion-header" id="heading-${mission.id}">
                                     <button class="accordion-button collapsed d-flex px-3 py-2" type="button">
                                         <div class="row w-100 justify-content-between label-text">
-                                            <div class="col-3 ps-2" data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                            <div class="col-3 ps-2" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
                                             <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
-                                            <div class="col-3 text-center">${locations}</div>
+                                            <div class="col-3 text-center" data-location-name="${locations}">${locations}</div>
                                             <div class="col-2 text-center ps-5">${statusBadge}</div>
                                             <div class="col-2 text-center ps-5">
                                              
                                                 <img src="./images/view.png" alt="View" class="view-mission img-fluid actions toggle-details" data-id="${mission.id}" data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                                                <img src="./images/add-report.png" alt="View" class="addReportIcon img-fluid actions toggle-details">
+                                                <img src="./images/view-report.png" alt="View" class="viewReportIcon img-fluid actions toggle-details">
                                             </div>
                                         </div>
                                     </button>
@@ -251,7 +253,7 @@ if (pilotApproved === 0) {
                 },
                 success: function (response) {
                     Swal.fire('Success', response.message || 'Decision updated!', 'success');
-                    getRegionManagerMissions();
+                    getPilotMissions();
                 },
                 error: function (xhr) {
                     Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
@@ -378,10 +380,176 @@ if (pilotApproved === 0) {
     //     });
     // }
     
+    // $(document).on('click', '.viewReportIcon', function () {
+    //     const missionRow = $(this).closest(".accordion-item");
+    //     const missionId = missionRow.attr("id").split("-")[1]; // Extract from id="missionRow-123"
 
+    //     const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
+    //     const regionName = missionRow.find("[data-region-name]").data("region-name");
+    //     const locationName = missionRow.find("[data-location-name]").data("location-name");
 
+    //     // Update display areas
+    //     $("#viewprogramInfo").text(inspectionName);
+    //     $("#viewregionInfo").text(regionName);
+    //     $("#viewlocationInfo").text(locationName);
+     
+    //     $('#viewReportModal').modal('show');
+    // });
+    $(document).on('click', '.viewReportIcon', function () {
+        const missionRow = $(this).closest(".accordion-item");
+        const missionId = missionRow.attr("id").split("-")[1]; // Extract from id="missionRow-123"
+    
+        const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
+        const regionName = missionRow.find("[data-region-name]").data("region-name");
+        const locationName = missionRow.find("[data-location-name]").data("location-name");
+    
+        // Update display areas
+        $("#viewprogramInfo").text(inspectionName);
+        $("#viewregionInfo").text(regionName);
+        $("#viewlocationInfo").text(locationName);
+    
+        // Clear existing data
+        $('#description').html('');
+        $('#missionReportImages').empty();
+        $('#pilotVideo').attr("src", "");
+    
+        // Call backend to get report by mission ID
+        $.ajax({
+            url: '/pilot/reports',
+            type: 'GET',
+            data: { mission_id: missionId },
+            success: function (response) {
+                if (!response.reports.length) {
+                    $('#description').html('No report found for this mission.');
+                    return;
+                }
+    
+                const report = response.reports[0]; // Assuming only one report per mission
+                $('#description').html(report.description || 'N/A');
+    
+                
+                const videoId = extractYouTubeID(response.reports[0].video_url);
+                if (videoId) {
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+                    $('#pilotVideo').attr('src', embedUrl);
+                }
+                
 
+    
+                if (report.images && report.images.length) {
+                    report.images.forEach(img => {
+                        const imgEl = `<img src="/${img.image_path}" alt="Report Image" class="img-thumbnail m-1" style="max-width: 150px;">`;
+                        $('#missionReportImages').append(imgEl);
+                    });
+                } else {
+                    $('#missionReportImages').html('<p class="text-muted">No images uploaded.</p>');
+                }
+            },
+            error: function (xhr) {
+                console.error('Error fetching report:', xhr);
+                $('#description').html('⚠ Error fetching report.');
+            }
+        });
+    
+        $('#viewReportModal').modal('show');
+    });
+    $(document).on('click', '#missionReportImages img', function () {
+        const imageSrc = $(this).attr('src');
+        $('#fullscreenImage').attr('src', imageSrc);
+        $('#fullscreenImageModal').removeClass('d-none');
+    });
+    
+    // Close fullscreen modal
+    $(document).on('click', '.fullscreen-image-modal .close-btn', function () {
+        $('#fullscreenImageModal').addClass('d-none');
+    });
 
+    $(document).on('click', '.addReportIcon', function () {
+        const missionRow = $(this).closest(".accordion-item");
+        const missionId = missionRow.attr("id").split("-")[1]; // Extract from id="missionRow-123"
+
+        const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
+        const regionName = missionRow.find("[data-region-name]").data("region-name");
+        const locationName = missionRow.find("[data-location-name]").data("location-name");
+
+        // Update display areas
+        $("#programInfo").text(inspectionName);
+        $("#regionInfo").text(regionName);
+        $("#locationInfo").text(locationName);
+
+        // Update hidden mission ID input
+        $('#addReportModal #mission_id').val(missionId);
+        $('#addReportModal').modal('show');
+    });
+
+    // Updated JS handler for submitting pilot report
+    $(document).on('submit', '#addReportForm', function (e) {
+
+        e.preventDefault();
+    
+        const $errorDiv = $('#report-validation-errors');
+        $errorDiv.addClass('d-none').text('');
+    
+        const missionId   = $('#addReportModal #mission_id').val();
+        const videoUrl    = $('#addReportModal #video_url').val();
+        const description = $('#addReportModal #description').val();
+        const imageInput  = $('.images')[0];
+        const images      = imageInput?.files;
+      
+        let isValid = true;
+        if (!missionId || !videoUrl || !description) {
+            isValid = false;
+            $errorDiv.removeClass('d-none').text('All fields  are required.');
+            return;
+        }
+       
+        const formData = new FormData();
+        formData.append('_token', $('input[name="_token"]').val());
+        formData.append('mission_id', missionId);
+        formData.append('video_url', videoUrl);
+        formData.append('description', description);
+    
+        // ✅ Append images under 'images_0[]' key (as expected by backend)
+        for (let i = 0; i < images.length; i++) {
+            formData.append('images_0[]', images[i]);
+        }
+    
+        // ✅ Log the data
+        console.log("📦 Form Data Submission");
+        for (let pair of formData.entries()) {
+            console.log(`${pair[0]}:`, pair[1]);
+        }
+
+        $.ajax({
+            url: '/pilot/reports/store',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Report Submitted!',
+                    text: response.message || 'The report has been successfully submitted.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#101625',
+                    color: '#ffffff'
+                });
+    
+                $('#addReportModal').modal('hide');
+                $('#addReportForm')[0].reset();
+                $('.image-preview').empty();
+                getPilotMissions();
+            },
+            error: function (xhr) {
+                const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
+                $errorDiv.removeClass('d-none').text(errorMessage);
+            }
+        });
+    });
+    
+    
 
     // Handle mission status button click
     $(document).on('click', '.mission_status', function () {
@@ -822,94 +990,96 @@ if (pilotApproved === 0) {
         });
     });
     // Reset form fields when modal is opened
-    $('#addReportModal').on('shown.bs.modal', function () {
-        $('#addReportForm')[0].reset(); 
-        $('#imagePreview').empty(); 
-    });
+    // $('#addReportModal').on('shown.bs.modal', function () {
+    //     $('#addReportForm')[0].reset(); 
+    //     $('#imagePreview').empty(); 
+    // });
     // ✅ Add Report
 // ✅ Enhanced JavaScript: Submit Report with Full Validation
-$('#addReportForm').on('submit', function (e) {
-    e.preventDefault();
 
-    const $errorDiv = $('#report-validation-errors');
-    $errorDiv.addClass('d-none').text('');
 
-    let formData = new FormData();
-    let isValid = true;
+// $('#addReportForm').on('submit', function (e) {
+//     e.preventDefault();
 
-    // ✅ Required fields
-    const missionId = $('#mission_id').val();
-    const start = $('#start_datetime').val();
-    const end = $('#end_datetime').val();
-    const videoUrl = $('#video_url').val();
-    const description = $('#description').val();
+//     const $errorDiv = $('#report-validation-errors');
+//     $errorDiv.addClass('d-none').text('');
 
-    if (!start || !end || !videoUrl || !description) {
-        isValid = false;
-        $errorDiv.removeClass('d-none').text('Start/End time, Video link, and Notes are required.');
-        return;
-    }
+//     let formData = new FormData();
+//     let isValid = true;
 
-    formData.append('_token', $('input[name="_token"]').val());
-    formData.append('mission_id', missionId);
-    formData.append('start_datetime', start);
-    formData.append('end_datetime', end);
-    formData.append('video_url', videoUrl);
-    formData.append('description', description);
+//     // ✅ Required fields
+//     const missionId = $('#mission_id').val();
+//     const start = $('#start_datetime').val();
+//     const end = $('#end_datetime').val();
+//     const videoUrl = $('#video_url').val();
+//     const description = $('#description').val();
 
-    // ✅ Dynamic incident validation
-    $('.inspection-location-item').each(function (index) {
-        const inspectionId = $(this).find(".inspection_id").val();
-        const locationId = $(this).find(".location_id").val();
-        const incidentDesc = $(this).find(".inspectiondescrption").val();
-        const fileInput = $(this).find("input[type='file']")[0];
-        const images = fileInput?.files;
+//     if (!start || !end || !videoUrl || !description) {
+//         isValid = false;
+//         $errorDiv.removeClass('d-none').text('Start/End time, Video link, and Notes are required.');
+//         return;
+//     }
 
-        if (!inspectionId || !locationId || !incidentDesc || !images || images.length === 0) {
-            isValid = false;
-            $errorDiv.removeClass('d-none').text(`Incident #${index + 1} is missing required fields.`);
-            return false;
-        }
+//     formData.append('_token', $('input[name="_token"]').val());
+//     formData.append('mission_id', missionId);
+//     formData.append('start_datetime', start);
+//     formData.append('end_datetime', end);
+//     formData.append('video_url', videoUrl);
+//     formData.append('description', description);
 
-        formData.append(`inspection_id[${index}]`, inspectionId);
-        formData.append(`location_id[${index}]`, locationId);
-        formData.append(`inspectiondescrption[${index}]`, incidentDesc);
+//     // ✅ Dynamic incident validation
+//     $('.inspection-location-item').each(function (index) {
+//         const inspectionId = $(this).find(".inspection_id").val();
+//         const locationId = $(this).find(".location_id").val();
+//         const incidentDesc = $(this).find(".inspectiondescrption").val();
+//         const fileInput = $(this).find("input[type='file']")[0];
+//         const images = fileInput?.files;
 
-        for (let i = 0; i < images.length; i++) {
-            formData.append(`images_${index}[]`, images[i]);
-        }
-    });
+//         if (!inspectionId || !locationId || !incidentDesc || !images || images.length === 0) {
+//             isValid = false;
+//             $errorDiv.removeClass('d-none').text(`Incident #${index + 1} is missing required fields.`);
+//             return false;
+//         }
 
-    if (!isValid) return;
+//         formData.append(`inspection_id[${index}]`, inspectionId);
+//         formData.append(`location_id[${index}]`, locationId);
+//         formData.append(`inspectiondescrption[${index}]`, incidentDesc);
 
-    // ✅ Submit via AJAX
-    $.ajax({
-        url: '/pilot/reports/store',
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Report Submitted!',
-                text: response.message || 'The report has been successfully submitted.',
-                timer: 2000,
-                showConfirmButton: false,
-                background: '#101625',
-                color: '#ffffff'
-            });
+//         for (let i = 0; i < images.length; i++) {
+//             formData.append(`images_${index}[]`, images[i]);
+//         }
+//     });
 
-            $('#addReportModal').modal('hide');
-            $('#addReportForm')[0].reset();
-            fetchMissions();
-        },
-        error: function (xhr) {
-            const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
-            $errorDiv.removeClass('d-none').text(errorMessage);
-        }
-    });
-});
+//     if (!isValid) return;
+
+//     // ✅ Submit via AJAX
+//     $.ajax({
+//         url: '/pilot/reports/store',
+//         type: 'POST',
+//         data: formData,
+//         processData: false,
+//         contentType: false,
+//         success: function (response) {
+//             Swal.fire({
+//                 icon: 'success',
+//                 title: 'Report Submitted!',
+//                 text: response.message || 'The report has been successfully submitted.',
+//                 timer: 2000,
+//                 showConfirmButton: false,
+//                 background: '#101625',
+//                 color: '#ffffff'
+//             });
+
+//             $('#addReportModal').modal('hide');
+//             $('#addReportForm')[0].reset();
+//             fetchMissions();
+//         },
+//         error: function (xhr) {
+//             const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
+//             $errorDiv.removeClass('d-none').text(errorMessage);
+//         }
+//     });
+// });
 
 
     

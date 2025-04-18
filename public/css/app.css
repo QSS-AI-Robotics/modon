@@ -313,6 +313,7 @@ a:hover {
     color: white;
 }
 .image-preview {
+  
     min-height: 200px;
     max-height: 200px;
     overflow-y: auto;
@@ -336,7 +337,7 @@ a:hover {
 .image-upload-box {
     min-height:200px;
     cursor: pointer;
-     background: #242C45;
+    background:#0A415B;
 }
 .formDropdown{
     background: transparent;
@@ -349,7 +350,7 @@ a:hover {
     padding-bottom: 10px; 
 }
 iframe {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* subtle shadow */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     border-radius: 8px; /* optional rounded corners */
 }
 
@@ -378,7 +379,7 @@ iframe {
 
     .video-section iframe {
         flex: 3;
-        min-height: 200px;
+        min-height: 290px;
     }
 
     .video-section textarea {
@@ -675,4 +676,84 @@ iframe {
 input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1); /* Inverts color to white */
     cursor: pointer;
+}
+.whiteText{
+    color:#bac4c8;
+    font-size:12px;
+}
+.submitReportbtn{
+    background-color: #0A415B;
+    border:0px solid transparent;
+    color:white;
+
+}
+.submitReportbtn:hover{
+    background-color: #092B3B;
+    border:0px solid transparent;
+    
+}
+#missionReportImages {
+    max-height: 250px;
+    min-height: 250px;
+    overflow-y: auto;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+#missionReportImages::-webkit-scrollbar {
+    width: 6px;
+}
+#missionReportImages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+#missionReportImages::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+#missionReportImages img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain; /* ← Ensures full image is visible */
+    background-color: #0A415B; /* Optional: helps contrast transparent images */
+    padding: 2px;
+   
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+#missionReportImages img:hover {
+    transform: scale(1.03);
+}
+/* Fullscreen Image Modal */
+.fullscreen-image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.9);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.fullscreen-image-modal img {
+    max-width: 95%;
+    max-height: 95%;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.fullscreen-image-modal .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
 }

@@ -299,6 +299,11 @@ $(document).ready(function () {
                             editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
                             deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                         }
+
+                        if(mission.report_submitted === 1){
+                            viewReportButton = `<img src="./images/view-report.png" alt="Delete" class="viewMissionReport img-fluid actions" data-id="${mission.id}">`;
+                          
+                        }
                     }
     
                     // ✅ Conditional Approve/Reject buttons
@@ -330,14 +335,15 @@ $(document).ready(function () {
                             <h2 class="accordion-header" id="heading-${mission.id}">
                                 <button class="accordion-button collapsed d-flex px-3 py-2" type="button">
                                     <div class="row w-100 justify-content-between label-text">
-                                        <div class="col-3 ps-2" data-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                        <div class="col-3 ps-2" data-name="${inspectionName}" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
                                         <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
-                                        <div class="col-3 text-center">${locations}</div>
+                                        <div class="col-3 text-center" data-location-name="${locations}">${locations}</div>
                                         <div class="col-2 text-center ps-5">${statusBadge}</div>
                                         <div class="col-2 text-center ps-5">
                                             ${editButton}
                                             ${deleteButton}
                                             <img src="./images/view.png" alt="View" class="view-mission img-fluid actions toggle-details" data-id="${mission.id}" data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
+                                            ${viewReportButton}
                                         </div>
                                     </div>
                                 </button>
@@ -391,7 +397,64 @@ $(document).ready(function () {
     }
     
 
-   
+    $(document).on('click', '.viewMissionReport', function () {
+        const missionRow = $(this).closest(".accordion-item");     
+        let missionId = $(this).data('id');
+
+        const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
+        const regionName = missionRow.find("[data-region-name]").data("region-name");
+        const locationName = missionRow.find("[data-location-name]").data("location-name");
+    
+        // Update display areas
+        $("#viewprogramInfo").text(inspectionName);
+        $("#viewregionInfo").text(regionName);
+        $("#viewlocationInfo").text(locationName);
+    
+        // Clear existing data
+        $('#description').html('');
+        $('#missionReportImages').empty();
+        $('#pilotVideo').attr("src", "");
+        $('#viewMissionReportModal').modal('show');
+        // Call backend to get report by mission ID
+        // $.ajax({
+        //     url: '/pilot/reports',
+        //     type: 'GET',
+        //     data: { mission_id: missionId },
+        //     success: function (response) {
+        //         if (!response.reports.length) {
+        //             $('#description').html('No report found for this mission.');
+        //             return;
+        //         }
+    
+        //         const report = response.reports[0]; // Assuming only one report per mission
+        //         $('#description').html(report.description || 'N/A');
+    
+                
+        //         const videoId = extractYouTubeID(response.reports[0].video_url);
+        //         if (videoId) {
+        //             const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+        //             $('#pilotVideo').attr('src', embedUrl);
+        //         }
+                
+
+    
+        //         if (report.images && report.images.length) {
+        //             report.images.forEach(img => {
+        //                 const imgEl = `<img src="/${img.image_path}" alt="Report Image" class="img-thumbnail m-1" style="max-width: 150px;">`;
+        //                 $('#missionReportImages').append(imgEl);
+        //             });
+        //         } else {
+        //             $('#missionReportImages').html('<p class="text-muted">No images uploaded.</p>');
+        //         }
+        //     },
+        //     error: function (xhr) {
+        //         console.error('Error fetching report:', xhr);
+        //         $('#description').html('⚠ Error fetching report.');
+        //     }
+        // });
+    
+        // $('#viewMissionReportModal').modal('show');
+    });
   
     
     $(document).on('click', '.toggle-details', function () {

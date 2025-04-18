@@ -309,7 +309,95 @@
             
         </div> 
         <!-- End Main Panel -->
-
+        <div class="modal fade" id="viewMissionReportModal" tabindex="-1" aria-labelledby="addReportModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content bg-modal">
+                    <div class="modal-header border-0">
+                        <h6 class="modal-title" id="addReportModalLabel">Report Detail</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="vireReportForm">
+                            @csrf
+                            <input type="hidden" class="form-control" id="mission_id" name="mission_id" required>
+        
+        
+                            <div>
+                                <div class="row">
+                                   
+                                    <div class="col-lg-6">
+                                        <div class="col-md-12">
+                                            <div class="mb-3">
+                                                <label for="start_datetime" class="form-label ">Program</label>
+                                                <p id="viewprogramInfo" class="whiteText text-capitlaize"></p>
+                                                <label for="start_datetime" class="form-label ">Region</label>
+                                                <p id="viewregionInfo" class="whiteText text-capitalize"></p>
+                                                <label for="start_datetime" class="form-label ">Location</label>
+                                                <p id="viewlocationInfo" class="whiteText text-capitalize"></p>
+        
+                                            </div>
+                                        </div>
+        
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="description" class="form-label">Description</label>
+                                            <div  class="form-control  " id="description" name="description" rows="8" style="background: none;border:1px solid #FFFFFF33;min-height:150px"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Grouped Select Fields -->
+                            <div class="col-lg-12 col-md-12" style="border: 1px solid #FFFFFF33; padding: 10px;border-radius: 10px;">
+                                <div class="row">
+        
+                                   
+                                    <div class="col-lg-6  h-100 video-section">
+                
+                                            
+                                        <iframe id="pilotVideo" width="100%" frameborder="0"></iframe>
+                
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="description" class="form-label">Images</label>
+                                            <div id="missionReportImages" class="d-flex flex-wrap gap-2"></div>
+        
+                                            <!-- Fullscreen Modal -->
+                                            <div id="fullscreenImageModal" class="fullscreen-image-modal d-none">
+                                                <span class="close-btn">&times;</span>
+                                                <img id="fullscreenImage" src="" alt="Full Image">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                          
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-lg-8">
+                                            <button  class="btn btn-danger deleteReportbtn mt-2"><img src="../images/delete.png" alt=""></button>
+                                            <button  class="btn btn-warning editReportbtn mt-2"><img src="../images/edit.png" alt=""></button>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class=" my-1 d-none text-danger " id="report-validation-errors" >
+                                                All fields are required.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                                
+                           
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal fade" id="missionReportModal" tabindex="-1" aria-labelledby="missionReportModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content bg-modal">

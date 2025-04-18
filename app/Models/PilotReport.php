@@ -12,12 +12,9 @@ class PilotReport extends Model
     protected $fillable = [
         'report_reference',
         'mission_id',
-        'start_datetime',
-        'end_datetime',
         'video_url',
         'description'
     ];
-
     /**
      * A report belongs to a mission.
      */

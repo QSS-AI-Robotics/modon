@@ -272,31 +272,51 @@ class PilotController extends Controller
         return response()->json(['missions' => $missions]);
     }
     
-   
     public function getReports(Request $request)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
-    
-        $regionId = Auth::user()->region_id;
-        $missionId = $request->input('mission_id');
-    
-        $reports = PilotReport::whereHas('mission', function ($query) use ($regionId, $missionId) {
-            $query->where('region_id', $regionId);
-            if ($missionId) {
-                $query->where('id', $missionId);
-            }
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    }
+
+    $missionId = $request->input('mission_id');
+
+    $reports = PilotReport::when($missionId, function ($query) use ($missionId) {
+            $query->where('mission_id', $missionId);
         })
         ->with([
             'mission',
-            'images.inspectionType', // 👈 eager load inspection type
-            'images.location'        // 👈 eager load location
+            'images'
         ])
         ->get();
+
+    return response()->json(['reports' => $reports]);
+}
+
+   
+    // public function getReports(Request $request)
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
     
-        return response()->json(['reports' => $reports]);
-    }
+    //     $regionId = Auth::user()->region_id;
+    //     $missionId = $request->input('mission_id');
+    
+    //     $reports = PilotReport::whereHas('mission', function ($query) use ($regionId, $missionId) {
+    //         $query->where('region_id', $regionId);
+    //         if ($missionId) {
+    //             $query->where('id', $missionId);
+    //         }
+    //     })
+    //     ->with([
+    //         'mission',
+    //         'images.inspectionType', // 👈 eager load inspection type
+    //         'images.location'        // 👈 eager load location
+    //     ])
+    //     ->get();
+    
+    //     return response()->json(['reports' => $reports]);
+    // }
     
 
 
@@ -304,99 +324,152 @@ class PilotController extends Controller
      * Store a new pilot report.
      */
     
+  
+     
+     public function storeReport(Request $request)
+     {
+         Log::info("🚀 Incoming Report Submission");
+         Log::info("📥 Request Data:", $request->except(['images_0']));
+         Log::info("🖼 Uploaded Files:", $request->file('images_0') ?? []);
+     
+         $request->validate([
+             'mission_id'   => 'required|exists:missions,id',
+             'video_url'    => 'nullable|url',
+             'description'  => 'nullable|string',
+             'images_0.*'   => 'required|image|mimes:jpeg,png,jpg,gif|max:102048',
+         ]);
+     
+         // ✅ Prevent double submission
+         $mission = Mission::findOrFail($request->mission_id);
+         if ($mission->report_submitted == 1) {
+             Log::warning("⚠️ Report already submitted for Mission ID: {$mission->id}");
+             return response()->json([
+                 'message' => 'A report has already been submitted for this mission.'
+             ], 409);
+         }
+     
+         $reportReference = 'REP-' . Str::random(8);
+         $report = PilotReport::create([
+             'report_reference' => $reportReference,
+             'mission_id'       => $mission->id,
+             'video_url'        => $request->video_url,
+             'description'      => $request->description,
+         ]);
+     
+         Log::info("✅ Report Created", ['report_id' => $report->id]);
+     
+         if ($request->hasFile('images_0')) {
+             $images = $request->file('images_0');
+             Log::info("📸 Total images received: " . count($images));
+     
+             foreach ($images as $index => $image) {
+                 $path = $image->store('reports', 'public');
+     
+                 $imageModel = PilotReportImage::create([
+                     'pilot_report_id' => $report->id,
+                     'image_path'      => "storage/$path",
+                 ]);
+     
+                 Log::info("✅ Image Saved", [
+                     'image_id'   => $imageModel->id,
+                     'image_path' => $imageModel->image_path,
+                 ]);
+             }
+         } else {
+             Log::warning("⚠ No images uploaded with report.");
+         }
+     
+         // ✅ Properly update mission status
+         $mission->report_submitted = 1;
+         $mission->status = 'Completed';
+         $mission->save();
+     
+         Log::info("✅ Mission marked as completed", [
+             'mission_id'         => $mission->id,
+             'report_submitted'   => $mission->report_submitted,
+             'status'             => $mission->status,
+         ]);
+     
+         return response()->json([
+             'message' => '✅ Report created successfully!',
+             'report'  => $report
+         ]);
+     }
+     
 
- 
+    //  public function storeReport(Request $request)
+    //  {
+    //      Log::info("🚀 Incoming Report Submission");
+    //      Log::info("📥 Request Data:", $request->except(['images_0']));
+    //      Log::info("🖼 Uploaded Files:", $request->file('images_0') ?? []);
+     
+    //      // ✅ Validate the request
+    //      $request->validate([
+    //          'mission_id'   => 'required|exists:missions,id',
+    //          'video_url'    => 'nullable|url',
+    //          'description'  => 'nullable|string',
+    //          'images_0.*'   => 'required|image|mimes:jpeg,png,jpg,gif|max:102048',
+    //      ]);
+     
+    //      // ✅ Generate a unique report reference
+    //      $reportReference = 'REP-' . Str::random(8);
+     
+    //      // ✅ Create the pilot report
+    //      $report = PilotReport::create([
+    //          'report_reference' => $reportReference,
+    //          'mission_id'       => $request->mission_id,
+    //          'video_url'        => $request->video_url,
+    //          'description'      => $request->description,
+    //      ]);
+     
+    //      Log::info("✅ Report Created", ['report_id' => $report->id]);
+     
+    //      // ✅ Handle general report image upload
+    //      if ($request->hasFile('images_0')) {
+    //          $images = $request->file('images_0');
+    //          Log::info("📸 Total images received: " . count($images));
+     
+    //          foreach ($images as $index => $image) {
+    //              $originalName = $image->getClientOriginalName();
+    //              $mimeType     = $image->getMimeType();
+    //              $size         = $image->getSize();
+     
+    //              Log::info("📁 Uploading Image #$index", [
+    //                  'name' => $originalName,
+    //                  'type' => $mimeType,
+    //                  'size' => $size,
+    //              ]);
+     
+    //              $path = $image->store('reports', 'public');
+     
+    //              $imageModel = PilotReportImage::create([
+    //                  'pilot_report_id' => $report->id,
+    //                  'image_path'      => "storage/$path",
+    //              ]);
+     
+    //              Log::info("✅ Image Saved", [
+    //                  'image_id' => $imageModel->id,
+    //                  'image_path' => $imageModel->image_path,
+    //              ]);
+    //          }
+    //      } else {
+    //          Log::warning("⚠ No images uploaded with report.");
+    //      }
+     
+    //      // ✅ Mark mission as completed
+    //      Mission::where('id', $request->mission_id)->update([
+    //          'report_submitted' => 1,
+    //          'status'           => 'Completed'
+    //      ]);
+     
+    //      Log::info("✅ Mission marked as completed", ['mission_id' => $request->mission_id]);
+     
+    //      return response()->json([
+    //          'message' => '✅ Report created successfully!',
+    //          'report'  => $report
+    //      ]);
+    //  }
 
-public function storeReport(Request $request)
-{
-    Log::info("🚀 Incoming Report Submission:", $request->all());
-
-    // ✅ Validate the request
-    $request->validate([
-        'mission_id' => 'required|exists:missions,id',
-        'start_datetime' => 'required|date',
-        'end_datetime' => 'required|date|after:start_datetime',
-        'video_url' => 'nullable|url',
-        'description' => 'nullable|string',
-
-        'inspection_id' => 'required|array',
-        'inspection_id.*' => 'required|exists:inspection_types,id',
-
-        'location_id' => 'required|array',
-        'location_id.*' => 'required|exists:locations,id',
-
-        'inspectiondescrption.*' => 'nullable|string',
-
-        'images_*.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:102048',
-    ]);
-
-    // ✅ Generate a unique report reference
-    $reportReference = 'REP-' . Str::random(8);
-
-    // ✅ Create the report
-    $report = PilotReport::create([
-        'report_reference' => $reportReference,
-        'mission_id' => $request->mission_id,
-        'start_datetime' => $request->start_datetime,
-        'end_datetime' => $request->end_datetime,
-        'video_url' => $request->video_url,
-        'description' => $request->description,
-    ]);
-
-    Log::info("✅ Report Created Successfully", ['report_id' => $report->id]);
-
-    // ✅ Process each incident (inspection, location, description)
-    foreach ($request->inspection_id as $index => $inspectionId) {
-        $locationId = $request->location_id[$index] ?? null;
-        $inspectionDescription = $request->inspectiondescrption[$index] ?? '';
-
-        Log::info("📌 Processing Incident #$index", [
-            'inspection_id' => $inspectionId,
-            'location_id' => $locationId,
-            'description' => $inspectionDescription
-        ]);
-
-        // ✅ Process images for this inspection-location pair
-        $imageField = "images_{$index}";
-        if ($request->hasFile($imageField)) {
-            foreach ($request->file($imageField) as $image) {
-                $path = $image->store('reports', 'public');
-
-                // ✅ Ensure the correct values are logged
-                Log::info("📸 Saving Image for Incident #$index", [
-                    'inspection_id' => $inspectionId,
-                    'location_id' => $locationId,
-                    'description' => $inspectionDescription,
-                    'image_path' => "storage/$path"
-                ]);
-
-                // ✅ Insert into database
-                PilotReportImage::create([
-                    'pilot_report_id' => $report->id,
-                    'inspection_type_id' => $inspectionId, // ✅ Ensure this is set
-                    'location_id' => $locationId, // ✅ Ensure this is set
-                    'description' => $inspectionDescription, // ✅ Ensure this is set
-                    'image_path' => "storage/$path",
-                ]);
-            }
-        } else {
-            Log::warning("⚠ No images found for Incident #$index");
-        }
-    }
-
-    // ✅ Update the mission's status and report submission
-    Mission::where('id', $request->mission_id)->update([
-        'report_submitted' => 1,
-        'status' => 'Completed'
-    ]);
-
-    Log::info("✅ Mission Updated as Completed", ['mission_id' => $request->mission_id]);
-
-    return response()->json([
-        'message' => '✅ Report created successfully!',
-        'report' => $report
-    ]);
-}
 
     
 

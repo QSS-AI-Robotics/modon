@@ -275,7 +275,7 @@
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-check-label label-text py-2">Notes</label>
-                                <textarea id="note" name="note" class="form-control notes-textarea flex-grow-1 mx-1" rows="3" >dasdasd</textarea>
+                                <textarea id="note" name="note" class="form-control notes-textarea flex-grow-1 mx-1" rows="3" ></textarea>
 
                             </div>
 

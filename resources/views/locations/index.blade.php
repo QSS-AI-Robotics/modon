@@ -34,10 +34,11 @@
                         </div>
 
                         <!-- Reports Table -->
-                        <div class="table-responsive flex-grow-1 overflow-auto">
+                        <div class="table-responsive flex-grow-1 overflow-auto" style="max-height: 58vh;">
                             <table class="table table-text">
                                 <thead>
                                     <tr>
+                                        <th>No.</th>
                                         <th>Locations</th>
                                         <th>Latitude</th>
                                         <th>Longitude</th>

@@ -33,6 +33,7 @@ $(document).ready(function () {
     
                     let row = `
                         <tr data-id="${location.id}">
+                            <td>${index + 1}</td>
                             <td>${location.name}</td>
                             <td>${location.latitude}</td>
                             <td>${location.longitude}</td>

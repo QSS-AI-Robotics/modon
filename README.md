@@ -64,3 +64,48 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+
+
+
+
+
+
+<!-- 353-387 -->
+                            <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
+                                <div class="accordion-body px-4 py-2 label-text">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong class="py-1">Program<br><span class="grayishytext">${inspectionName}</span></strong> 
+                                        ${approvalButtons}
+                                    </div>
+                                    <strong class="py-3">Mission Date</strong><br><span  class="grayishytext">${mission.mission_date}</span><br>
+    
+                                    <strong class="py-3" 
+                                        data-location-id="${firstLocation.id}" 
+                                        data-region-id="${regionId}" 
+                                        data-region-name="${regionName}">
+                                        Locations
+                                    </strong>:<br>
+                                    <span class="grayishytext"> ${locations} ( ${regionName} )</span><br>
+                                    <strong class="py-3"
+                                        data-latitude="${latitude}" 
+                                        data-longitude="${longitude}">
+                                        Geo Coordinates
+                                    </strong><br>
+                                    <span class="grayishytext">${latitude}, ${longitude}</span><br>
+    
+                                    <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong><br> <span class="grayishytext">${mission.pilot_info?.name || 'N/A'}</span><br>
+                                    <strong class="py-3">Mission Created By<br></strong> <span class="text-capitalize grayishytext">${mission.created_by.name}</span>(${mission.created_by.user_type})<br>
+                                    <strong class="py-3">Note</strong><br><span class="grayishtext"> ${fullNote}</span><br><br>
+                                    <div class="d-flex">
+                                        <div class="row w-100 align-items-center">
+                                            <strong>Mission Approval</strong><br>
+                                            <div class="col-4 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
+                                            <div class="col-4 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                            <div class="col-4 label-text"><p>Pilot: ${pilotApprovedStatus}</p></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>

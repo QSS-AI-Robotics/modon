@@ -291,18 +291,32 @@ $(document).ready(function () {
                     let editButton = '';
                     let deleteButton = '';
                     let viewReportButton = '';
-    
                     if (userType === 'modon_admin') {
-                        if (mission.status === "Approved" || mission.status === "Rejected") {
-                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot edit">`;
-                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot delete">`;
+                        const reportSubmitted = mission.report_submitted;
+                        const pilotApproved = mission.approval_status?.pilot_approved;
+                    
+                        const shouldDisable = reportSubmitted === 1 || reportSubmitted === 2 || pilotApproved === 1 || pilotApproved === 2;
+                    
+                        if (shouldDisable) {
+                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be edited">`;
+                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be deleted">`;
                         } else {
                             editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
                             deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                         }
+                    }
+                    
+                    // if (userType === 'modon_admin') {
+                    //     if (mission.status === "Approved" || mission.status === "Rejected") {
+                    //         editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot edit">`;
+                    //         deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot delete">`;
+                    //     } else {
+                    //         editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
+                    //         deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
+                    //     }
 
  
-                    }
+                    // }
                     if(mission.report_submitted === 1){
                         viewReportButton = `<img src="./images/view-report.png" alt="Delete" class="viewMissionReport img-fluid actions" data-id="${mission.id}">`;
                       
@@ -351,39 +365,45 @@ $(document).ready(function () {
                                 </button>
                             </h2>
                             <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#missionsAccordion">
-                                <div class="accordion-body px-4 py-2 label-text">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <strong class="py-1">Program: ${inspectionName}</strong> 
-                                        ${approvalButtons}
-                                    </div>
-                                    <strong class="py-3">Mission Date</strong>: ${mission.mission_date}<br>
-    
-                                    <strong class="py-3" 
-                                        data-location-id="${firstLocation.id}" 
-                                        data-region-id="${regionId}" 
-                                        data-region-name="${regionName}">
-                                        Locations
-                                    </strong>: ${locations} ( ${regionName} )<br>
-    
-                                    <strong class="py-3"
-                                        data-latitude="${latitude}" 
-                                        data-longitude="${longitude}">
-                                        Geo
-                                    </strong>
-                                    ${latitude}, ${longitude}<br>
-    
-                                    <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: ${mission.pilot_info?.name || 'N/A'}<br>
-                                    <strong class="py-3">Mission Created By:</strong> <span class="text-capitalize">${mission.created_by.name}</span> (${mission.created_by.user_type})<br>
-                                    <strong class="py-3">Note:</strong> ${fullNote}<br><br>
-                                    <div class="d-flex">
-                                        <div class="row w-100 align-items-center">
-                                            <strong>Mission Approval</strong><br>
-                                            <div class="col-4 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
-                                            <div class="col-4 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
-                                            <div class="col-4 label-text"><p>Pilot Manager: ${pilotApprovedStatus}</p></div>
+                                <div class="accordion-body  px-4 py-2 label-text">
+                                    <div class="row ">
+                                        <div class="col-lg-6">
+                                             <strong class="py-1">Program<br></strong> 
+                                             <span class="grayishytext">${inspectionName}</span>
                                         </div>
-                                    </div>
-                                </div>
+                                        <div class="col-lg-6 text-end">
+                                             ${approvalButtons}
+                                        </div>
+                                        <div class="col-lg-4 ">
+                                            <strong class="py-3" data-location-id="${firstLocation.id}" data-region-id="${regionId}" data-region-name="${regionName}"> Locations </strong><br>
+                                            <span class="grayishytext"> ${locations} ( ${regionName} )</span>       
+                                        </div>                                        
+                                        <div class="col-lg-4 ">
+                                         <strong class="py-3">Mission Date</strong><br><span  class="grayishytext">${mission.mission_date}</span>
+                                        </div>                                        
+                                        <div class="col-lg-4 ">
+                                            <strong class="py-3" data-latitude="${latitude}" data-longitude="${longitude}">Geo Coordinates </strong><br>
+                                            <span class="grayishytext">${latitude}, ${longitude}</span>
+                                        </div>                                        
+                                        <div class="col-lg-4 ">
+                                            <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong><br> <span class="grayishytext">${mission.pilot_info?.name || 'N/A'}</span>
+                                        </div> 
+                                        <div class="col-lg-4 "> 
+                                            <strong class="py-3">Mission Created By<br></strong> <span class="text-capitalize grayishytext">${mission.created_by.name}</span>(${mission.created_by.user_type}) 
+                                        </div>
+                                        <div class="col-lg-12 border-bottom"> 
+                                            <strong class="py-3">Note</strong><br><span class="grayishtext" data-mission-note="${fullNote}"> ${fullNote}
+                                        </div> 
+                                        <div class="col-lg-12">
+                                            <div class="row w-100 align-items-center">
+                                                <strong>Mission Approval</strong><br>
+                                                <div class="col-4 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
+                                                <div class="col-4 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                                <div class="col-4 label-text"><p>Pilot: ${pilotApprovedStatus}</p></div>
+                                            </div>
+                                        </div>                         
+                                    </div>    
+                              
                             </div>
                         </div>
                     `;
@@ -766,54 +786,7 @@ $('#addMissionForm').on('submit', function (e) {
         });
     });
     
-    //     $(document).on('click', '.delete-mission', function () {
-    //     const missionId = $(this).data('id');
-    //     resetValues();
-    //     Swal.fire({
-    //         title: 'Are you sure?',
-    //         text: "This mission will be permanently deleted.",
-    //         icon: 'warning',
-    //         showCancelButton: true,
-    //         confirmButtonColor: '#d33',
-    //         cancelButtonColor: '#6c757d',
-    //         confirmButtonText: 'Yes, delete it!',
-    //         cancelButtonText: 'Cancel'
-    //     }).then((result) => {
-    //         if (result.isConfirmed) {
-    //             $.ajax({
-    //                 url: `/missions/${missionId}`,
-    //                 type: "DELETE",
-    //                 success: function (response) {
-    //                     Swal.fire({
-    //                         icon: 'success',
-    //                         title: 'Deleted!',
-    //                         text: response.message || 'Mission has been deleted.',
-    //                         timer: 2000,
-    //                         showConfirmButton: false,
-    //                         background: '#101625',
-    //                         color: '#ffffff'
-    //                     });
-    
-    //                     $('#missionRow-' + missionId).remove(); // Remove mission row
-    //                     // getMissionStats();
-    //                 },
-    //                 error: function (xhr) {
-    //                     const errorMessage = xhr.responseJSON?.error || 'Something went wrong.';
-    
-    //                     Swal.fire({
-    //                         icon: 'error',
-    //                         title: 'Error!',
-    //                         text: errorMessage,
-    //                         background: '#101625',
-    //                         color: '#ffffff',
-    //                         confirmButtonColor: '#d33'
-    //                     });
-    //                 }
-    //             });
-    //         }
-    //     });
-    // });
-    
+
     
 
 
@@ -831,7 +804,8 @@ $('#addMissionForm').on('submit', function (e) {
         
             // ✅ Get mission date & note
             const missionDate = row.find(".mission_date").text().trim();
-            const fullNote = row.find(".accordion-body").text().match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
+            const fullNote = row.find('.accordion-body .grayishtext[data-mission-note]').data('mission-note')?.trim() || '';
+
         
             // ✅ Get locations (names & IDs)
             const locationNames = row.find("[data-location-id]").text().split(',').map(loc => loc.trim().toLowerCase());
@@ -889,77 +863,7 @@ $('#addMissionForm').on('submit', function (e) {
             $(".mission-btn svg").attr({ "width": "30", "height": "30" });
         });
         
-        // $(document).on("click", ".edit-mission", function () {
-        //     $(".cancel-btn").removeClass("d-none");
-        
-        //     const missionId = $(this).data("id");
-        //     const row = $(`#missionRow-${missionId}`);
-        
-        //     // ✅ Get inspection type info
-        //     const inspectionTypeEl   = row.find("[data-name][data-inspectiontype-id]");
-        //     const inspectionTypeId   = inspectionTypeEl.data("inspectiontype-id");
-        //     const inspectionTypeName = inspectionTypeEl.data("name");
-        
-        //     // ✅ Get mission date & note
-        //     const missionDate = row.find(".mission_date").text().trim();
-        //     const fullNote    = row.find(".accordion-body").text().match(/Note:\s*(.*)/i)?.[1]?.trim() || '';
-        
-        //     // ✅ Get locations (names & IDs)
-        //     const locationNames = row.find("[data-location-id]").text().split(',').map(loc => loc.trim().toLowerCase());
-        //     const locationIds   = row.find("[data-location-id]").data("location-id").toString().split(',');
-        
-        //     // ✅ Get pilot id
-        //     const pilotId = row.data('pilot-id');
-        
-        //     // ✅ Get geo coords
-        //     const latitude  = row.find("[data-latitude]").data("latitude");
-        //     const longitude = row.find("[data-longitude]").data("longitude");
-        
-        //     // ✅ Get region from the first location option
-        //     const regionId = $('#location_id option[value="' + locationIds[0] + '"]').data('region-id');
-        //     alert(regionId)
-        //     // — Fill the form —
-        //     $('#mission_date').val(missionDate);
-        //     $('#note').val(fullNote);
-        
-        //     // inspection type radio
-        //     $(`input[name="inspection_type"][value="${inspectionTypeId}"]`).prop("checked", true);
-        
-        //     // pilot dropdown
-        //     if (pilotId) {
-        //         $('#pilot_id').val(pilotId);
-        //     }
-        
-        //     // lat / lng inputs
-        //     $('#latitude').val(latitude ?? '');
-        //     $('#longitude').val(longitude ?? '');
-        
-        //     // ✅ Set region and trigger filtering
-        //     if (regionId) {
-        //         $('#region_id').val(regionId).trigger('change');
-        
-        //         // Small delay to ensure filtering is done before selecting location
-        //         setTimeout(() => {
-        //             $('#location_id option').each(function () {
-        //                 const locId = $(this).val();
-        //                 $(this).prop("selected", locationIds.includes(locId));
-        //             });
-        //         }, 100);
-        //     }
-        
-        //     // ✅ Checkboxes (if used anywhere else)
-        //     $(".location-checkbox").each(function () {
-        //         const labelText = $(this).siblings("label").text().trim().toLowerCase();
-        //         $(this).prop("checked", locationNames.includes(labelText));
-        //     });
-        
-        //     // — Set form into “edit” mode —
-        //     $("#addMissionForm").attr("data-mission-id", missionId);
-        //     $(".form-title").text("Edit Mission");
-        //     $(".mission-btn span").text("Update Mission");
-        //     $(".mission-btn svg").attr({ "width": "30", "height": "30" });
-        // });
-        
+      
      
 
         

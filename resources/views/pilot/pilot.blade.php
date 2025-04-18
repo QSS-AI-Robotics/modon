@@ -13,7 +13,7 @@
                         <!-- Mission Control Header -->
                         <div class="row">
                             <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                                <p class="gray-text">Control Panel</p>
+                                <p class="gray-text">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
                                 <h3 class="fw-bold">Pilot Missions</h3>
                             </div>
                         </div>
@@ -30,31 +30,12 @@
                                         </div>
                                         <div class="col-lg-4 text-end search-container">
                                             <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                            <input type="search" placeholder="Search Reports Here" class="search-input">
+                                            <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
                                         </div>
                                     </div>
                                 </div>
         
-                                <!-- Missions Table -->
-                                {{-- <div class="table-responsive flex-grow-1 overflow-auto">
-                                    <table class="table table-text">
-                                        <thead>
-                                            <tr>
-                                                <th>Inspection Types</th>
-                                                <th>Start Date</th>
-                                                <th>End Date</th>
-                                                <th>Locations</th>
-                                                <th>Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="pilotTableBody">
-                                            <tr>
-                                                <td colspan="6" class="text-center text-muted">Loading missions...</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div> --}}
+
                                 <div class="flex-grow 1">
                                     <div class="row fw-bold custom-bborder  label-text w-100  px-3 py-2 justify-content-between">
                                         <div class="col-3 ">Inspection Type</div>
@@ -63,7 +44,8 @@
                                         <div class="col-2 text-center">Status</div>
                                         <div class="col-2 text-center">Actions</div>
                                     </div>
-                                    <div class="accordion " id="pilotTableBody">
+                         
+                                    <div class="accordion flex-grow-1 overflow-auto" id="pilotTableBody" style="max-height: 58vh;">
                                         <!-- Dynamic rows will go here -->
                                     </div>
                                     

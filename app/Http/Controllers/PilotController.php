@@ -20,8 +20,11 @@ class PilotController extends Controller
      * Display the pilot's mission page.
      */
     public function index()
-    {
-        return view('pilot.pilot'); // ✅ Loads `pilot.blade.php`
+    {   
+        $user     = Auth::user();
+        $userType = strtolower(optional($user->userType)->name ?? 'control');
+
+        return view('pilot.pilot', compact('userType','userType')); // ✅ Loads `pilot.blade.php`
     }
 
 
@@ -86,89 +89,167 @@ class PilotController extends Controller
     /**
      * Fetch missions assigned to the pilot's region.
      */
+    public function getAllApprovedMissionsByUserType()
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        $user = Auth::user();
+        $userType = strtolower(optional($user->userType)->name ?? '');
+    
+        if ($userType !== 'pilot') {
+            return response()->json(['error' => 'Forbidden. Only accessible for pilots.'], 403);
+        }
+        
+        $regionIds = $user instanceof \App\Models\User
+                 ? $user->regions()->pluck('regions.id')->toArray()
+                 : [];
 
-     public function getAllApprovedMissionsByUserType()
-     {
-         if (!Auth::check()) {
-             return response()->json(['error' => 'Unauthorized'], 401);
-         }
      
-         $user = Auth::user();
-         $userType = strtolower(optional($user->userType)->name ?? '');
+    
+        Log::info("🔍 Pilot: {$user->id}");
+        Log::info("📍 Regions: ", $regionIds);
+    
+        $missions = Mission::query()
+            ->where('pilot_id', $user->id)
+            ->whereIn('region_id', $regionIds)
+            ->whereHas('approvals', function ($q) {
+                $q->where('region_manager_approved', 1)
+                  ->where('modon_admin_approved', 1);
+            })
+            ->with([
+                'inspectionTypes:id,name',
+                'locations:id,name',
+                'locations.geoLocation:location_id,latitude,longitude',
+                'locations.locationAssignments.region:id,name',
+                'pilot:id,name',
+                'approvals:id,mission_id,region_manager_approved,modon_admin_approved,pilot_approved',
+                'user:id,name,user_type_id',
+                'user.userType:id,name',
+            ])
+            ->get()
+            ->map(function ($mission) {
+                $mission->approval_status = [
+                    'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
+                    'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
+                    'pilot_approved'          => $mission->approvals?->pilot_approved          ?? 0,
+                ];
+    
+                $mission->pilot_info = [
+                    'id'   => $mission->pilot->id   ?? null,
+                    'name' => $mission->pilot->name ?? null,
+                ];
+    
+                $mission->created_by = [
+                    'id'        => $mission->user->id   ?? null,
+                    'name'      => $mission->user->name ?? null,
+                    'user_type' => $mission->user->userType->name ?? null,
+                ];
+    
+                $mission->locations = $mission->locations->map(function ($loc) {
+                    $region = $loc->locationAssignments->pluck('region')->filter()->first();
+                    return [
+                        'id'          => $loc->id,
+                        'name'        => $loc->name,
+                        'latitude'    => $loc->geoLocation->latitude  ?? null,
+                        'longitude'   => $loc->geoLocation->longitude ?? null,
+                        'region_id'   => $region?->id,
+                        'region_name' => $region?->name,
+                    ];
+                })->values();
+    
+                unset($mission->approvals, $mission->pilot, $mission->user);
+                return $mission;
+            });
+    
+        Log::info("✅ Pilot Missions returned: " . $missions->count());
+    
+        return response()->json(['missions' => $missions]);
+    }
+    
+    //  public function getAllApprovedMissionsByUserType()
+    //  {
+    //      if (!Auth::check()) {
+    //          return response()->json(['error' => 'Unauthorized'], 401);
+    //      }
      
-         $regionIds = $user instanceof \App\Models\User
-             ? $user->regions()->pluck('regions.id')->toArray()
-             : [];
+    //      $user = Auth::user();
+    //      $userType = strtolower(optional($user->userType)->name ?? '');
      
-         $locationIds = $user instanceof \App\Models\User
-             ? $user->assignedLocations()->pluck('locations.id')->toArray()
-             : [];
+    //      $regionIds = $user instanceof \App\Models\User
+    //          ? $user->regions()->pluck('regions.id')->toArray()
+    //          : [];
      
-         Log::info("🔍 User: {$user->id}, Type: {$userType}");
-         Log::info("📍 Regions: ", $regionIds);
-         Log::info("📍 Locations: ", $locationIds);
+    //      $locationIds = $user instanceof \App\Models\User
+    //          ? $user->assignedLocations()->pluck('locations.id')->toArray()
+    //          : [];
      
-         $missions = Mission::query()
-             ->whereHas('approvals', function ($q) {
-                 $q->where('region_manager_approved', 1)
-                   ->where('modon_admin_approved', 1);
-             }) // ✅ Only fetch missions with both approvals
-             ->when($userType === 'region_manager', function ($q) use ($regionIds) {
-                 $q->whereIn('region_id', $regionIds);
-             })
-             ->when($userType === 'city_manager', function ($q) use ($regionIds, $locationIds) {
-                 $q->whereIn('region_id', $regionIds)
-                   ->whereHas('locations', fn($lq) => $lq->whereIn('locations.id', $locationIds));
-             })
-             ->with([
-                 'inspectionTypes:id,name',
-                 'locations:id,name',
-                 'locations.geoLocation:location_id,latitude,longitude',
-                 'locations.locationAssignments.region:id,name',
-                 'pilot:id,name',
-                 'approvals:id,mission_id,region_manager_approved,modon_admin_approved,pilot_approved',
-                 'user:id,name,user_type_id',
-                 'user.userType:id,name',
-             ])
-             ->get()
-             ->map(function ($mission) {
-                 $mission->approval_status = [
-                     'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
-                     'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
-                     'pilot_approved'    => $mission->approvals?->pilot_approved    ?? 0,
-                 ];
+    //      Log::info("🔍 User: {$user->id}, Type: {$userType}");
+    //      Log::info("📍 Regions: ", $regionIds);
+    //      Log::info("📍 Locations: ", $locationIds);
      
-                 $mission->pilot_info = [
-                     'id'   => $mission->pilot->id   ?? null,
-                     'name' => $mission->pilot->name ?? null,
-                 ];
+    //      $missions = Mission::query()
+    //          ->whereHas('approvals', function ($q) {
+    //              $q->where('region_manager_approved', 1)
+    //                ->where('modon_admin_approved', 1);
+    //          }) // ✅ Only fetch missions with both approvals
+    //          ->when($userType === 'region_manager', function ($q) use ($regionIds) {
+    //              $q->whereIn('region_id', $regionIds);
+    //          })
+    //          ->when($userType === 'city_manager', function ($q) use ($regionIds, $locationIds) {
+    //              $q->whereIn('region_id', $regionIds)
+    //                ->whereHas('locations', fn($lq) => $lq->whereIn('locations.id', $locationIds));
+    //          })
+    //          ->with([
+    //              'inspectionTypes:id,name',
+    //              'locations:id,name',
+    //              'locations.geoLocation:location_id,latitude,longitude',
+    //              'locations.locationAssignments.region:id,name',
+    //              'pilot:id,name',
+    //              'approvals:id,mission_id,region_manager_approved,modon_admin_approved,pilot_approved',
+    //              'user:id,name,user_type_id',
+    //              'user.userType:id,name',
+    //          ])
+    //          ->get()
+    //          ->map(function ($mission) {
+    //              $mission->approval_status = [
+    //                  'region_manager_approved' => $mission->approvals?->region_manager_approved ?? 0,
+    //                  'modon_admin_approved'    => $mission->approvals?->modon_admin_approved    ?? 0,
+    //                  'pilot_approved'    => $mission->approvals?->pilot_approved    ?? 0,
+    //              ];
      
-                 $mission->created_by = [
-                     'id'        => $mission->user->id   ?? null,
-                     'name'      => $mission->user->name ?? null,
-                     'user_type' => $mission->user->userType->name ?? null,
-                 ];
+    //              $mission->pilot_info = [
+    //                  'id'   => $mission->pilot->id   ?? null,
+    //                  'name' => $mission->pilot->name ?? null,
+    //              ];
      
-                 $mission->locations = $mission->locations->map(function ($loc) {
-                     $region = $loc->locationAssignments->pluck('region')->filter()->first();
-                     return [
-                         'id'          => $loc->id,
-                         'name'        => $loc->name,
-                         'latitude'    => $loc->geoLocation->latitude  ?? null,
-                         'longitude'   => $loc->geoLocation->longitude ?? null,
-                         'region_id'   => $region?->id,
-                         'region_name' => $region?->name,
-                     ];
-                 })->values();
+    //              $mission->created_by = [
+    //                  'id'        => $mission->user->id   ?? null,
+    //                  'name'      => $mission->user->name ?? null,
+    //                  'user_type' => $mission->user->userType->name ?? null,
+    //              ];
      
-                 unset($mission->approvals, $mission->pilot, $mission->user);
-                 return $mission;
-             });
+    //              $mission->locations = $mission->locations->map(function ($loc) {
+    //                  $region = $loc->locationAssignments->pluck('region')->filter()->first();
+    //                  return [
+    //                      'id'          => $loc->id,
+    //                      'name'        => $loc->name,
+    //                      'latitude'    => $loc->geoLocation->latitude  ?? null,
+    //                      'longitude'   => $loc->geoLocation->longitude ?? null,
+    //                      'region_id'   => $region?->id,
+    //                      'region_name' => $region?->name,
+    //                  ];
+    //              })->values();
      
-         Log::info("✅ Approved Missions returned: " . $missions->count());
+    //              unset($mission->approvals, $mission->pilot, $mission->user);
+    //              return $mission;
+    //          });
      
-         return response()->json(['missions' => $missions]);
-     }
+    //      Log::info("✅ Approved Missions returned: " . $missions->count());
+     
+    //      return response()->json(['missions' => $missions]);
+    //  }
      
 
 

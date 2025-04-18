@@ -1219,4 +1219,17 @@ $(document).ready(function () {
     // Ensure dropdowns are populated on page load
     updateDropdowns();
 
+    $('.search-input').on('keyup', function () {
+        let query = $(this).val().toLowerCase();
+
+        $('#pilotTableBody .accordion-item').each(function () {
+            const itemText = $(this).text().toLowerCase();
+
+            if (itemText.includes(query)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
 });

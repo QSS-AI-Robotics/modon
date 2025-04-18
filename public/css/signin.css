@@ -1,4 +1,3 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Manrope:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap'); */
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Manrope:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 *{
@@ -7,136 +6,65 @@
   box-sizing: border-box;
    font-family: "Poppins", sans-serif;
 }
-body{
-  background: rgba(9, 43, 59, 1);
-  /* background: #101625; */
-  /* background-image: url('../images/qssbkgrnd.png'); */
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+body, html {
+  height: 100%;
+  margin: 0;
+  background-color: #092B3B;
+  color: white;
+}
+.form-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.form-container {
+  background-color: #105A7E;
+  border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
 }
-::selection{
-  background: 1C2234;
+.form-container img {
+  max-width: 100%;
+  height: auto;
 }
-.container{
-  max-width: 440px;
-  padding: 0 10px;
-  margin: 3rem auto;
+
+.signInbtn {
+  background-color: #81FF76;
+  color: rgb(30, 29, 29);
+  border: none;
+  border-radius: 12px;
+}
+.signInbtn:hover {
+  background-color: #0b3f58;
+  color:white;
+}
+.logo-below {
+  margin-top: 2rem;
+}
+.bluishtext{
+    color: rgba(255, 255, 255, 0.25);
+
 }
 .input-dark-blue {
-  background-color: #0A415B;
-  color: #ffffff;
-  border: 1px solid #75797c1e;
+  background-color: #0A415B !important;
+  color: #ffffff !important;
+  border: 1px solid #0A415B;
 }
 
-.wrapper{
-  color:white;
-  width: 100%;
-  background:#105A7E;
-  /* background-image: url('../images/login.jpg'); */
-
-  height: 85%;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px 1px rgba(0,0,0,0.1);
-}
-.wrapper .title{
-  height: 90px;
-  background: #1C2234;
-  border-radius: 5px 5px 0 0;
-  color: #fff;
-  font-size: 30px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.input-dark-blue::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.wrapper form{
-  padding: 30px 25px 25px 25px;
-}
-.wrapper form .row{
-  height: 45px;
-  margin-bottom: 15px;
-  position: relative;
-}
-.wrapper form .row input{
-  height: 100%;
-  width: 100%;
-  outline: none;
-  padding-left: 60px;
-  border-radius: 5px;
-  border: 1px solid lightgrey;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-form .row input:focus{
-  border-color: #1C2234;
-  box-shadow: inset 0px 0px 2px 2px rgba(26,188,156,0.25);
-}
-form .row input::placeholder{
-  color: #999;
-}
-.wrapper form .row i{
-  position: absolute;
-  width: 47px;
-  height: 100%;
-  color: #fff;
-  font-size: 18px;
-  background: #1C2234;
-  border: 1px solid #1C2234;
-  border-radius: 5px 0 0 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.wrapper form .pass{
-  margin: -8px 0 20px 0;
-}
-.wrapper form .pass a{
-  color: #1C2234;
-  font-size: 17px;
-  text-decoration: none;
-}
-.wrapper form .pass a:hover{
-  text-decoration: underline;
-}
-.wrapper form .button input{
-  color: #fff;
-  font-size: 20px;
-  font-weight: 500;
-  padding-left: 0px;
-  background: #1C2234;
-  border: 1px solid #1C2234;
-  cursor: pointer;
-}
-form .button input:hover{
-  background: #1C2234;
-}
-.wrapper form .signup-link{
-  text-align: center;
-  margin-top: 20px;
-  font-size: 17px;
-}
-.wrapper form .signup-link a{
-  color: #1C2234;
-  text-decoration: none;
-}
-form .signup-link a:hover{
-  text-decoration: underline;
-}
-.signInbtn{
-    background:#81FF76; 
-    color:#1E6F7D;
-     border:2px solid transparent;
-     border-radius:12px;
-
-}
-.signInbtn:hover{
-
-    background: #0A415B !important;
-    border:2px solid #81FF76;
-    color: white;
-    cursor: pointer;
-    border-radius:12px;
-}
+.input-dark-blue:focus,
+.input-dark-blue:active,
+.input-dark-blue:hover,
+.input-dark-blue:focus-visible,
+.input-dark-blue:focus-within {
+  background-color: #0A415B !important;
+  color: #ffffff !important;
+  border-color: #092B3B;
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+  }

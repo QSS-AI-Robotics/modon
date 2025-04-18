@@ -29,13 +29,17 @@
 
                 <div class="profile-wrapper">
                     <div class="profile-toggle" id="profileToggle">
-                        
                         <div class="profile-info">
                             <div class="fw-bold text-capitalize">{{ Auth::user()->name ?? 'Admin' }}</div>
                             <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div>
                         </div>
-                        <img src="{{ asset('images/user.png') }}" alt="Profile" class="profile-img">
+                        <img 
+                            src="{{ asset('storage/users/' . (Auth::user()->image ?? 'user.png')) }}" 
+                            alt="Profile" 
+                            class="profile-img"
+                        >
                     </div>
+                    
                 
                     <div class="profile-dropdown" id="profileDropdown">
                        

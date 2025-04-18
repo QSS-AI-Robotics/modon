@@ -103,9 +103,9 @@ Route::middleware(['auth', 'checkUserType:qss_admin,modon_admin'])->group(functi
     Route::get('/locations', [AdminController::class, 'locations'])->name('locations.locations');
     Route::get('/get-locations', [AdminController::class, 'fetchLocations'])->name('locations.get');
     Route::post('/locations/store', [AdminController::class, 'store'])->name('locations.store');
-    Route::get('/locations/{id}/edit', [AdminController::class, 'edit'])->name('locations.edit');
-    Route::post('/locations/{id}/update', [AdminController::class, 'update'])->name('locations.update');
-    Route::delete('/locations/{id}', [AdminController::class, 'destroy'])->name('locations.destroy');
+    Route::get('/locations/{id}/edit', [AdminController::class, 'editLocation'])->name('locations.editLocation');
+    Route::post('/locations/{id}/update', [AdminController::class, 'updateLocation'])->name('locations.updateLocation');
+    Route::delete('/locations/{id}', [AdminController::class, 'destroyLocation'])->name('locations.destroyLocation');
     
     
     Route::get('/drones', [DroneController::class, 'index'])->name('drones.index');
@@ -118,6 +118,9 @@ Route::middleware(['auth', 'checkUserType:qss_admin,modon_admin'])->group(functi
 });
 Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(function () {
 
-    
     Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
 });  
+Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(function () {
+
+
+}); 

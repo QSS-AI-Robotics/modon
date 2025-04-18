@@ -12,7 +12,7 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                        <p class="gray-text">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
+                        <p class="bluishtext">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
                         <h3 class="fw-bold">Mission Control</h3>
                     </div>
                 </div>

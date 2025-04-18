@@ -20,8 +20,8 @@
 
           <!-- Right side form -->
           <div class="col-md-6 p-4">
-            <h1>System Login</h1>
-            <p class="bluishtext">Kindly Login Using Previously Provided Email & Password</p>
+            <h2>Modon Login</h2>
+            <p class="bluishtext">Kindly Login Using Previously Provided <br> Email & Password</p>
             <form id="signinForm" class="pt-2">
               @csrf
               <div class="mb-3">
@@ -32,16 +32,18 @@
                 <label for="password" class="form-label">Password</label>
                 <input type="password" name="password" class="form-control input-dark-blue" id="password" value="admin1234" placeholder="**********" required />
               </div>
-              <div class="d-grid p-2">
+              <div class="d-grid p-2  d-flex">
                 <button type="submit" class="p-2 signInbtn w-25 fw-semibold d-flex align-items-center justify-content-center" id="signInBtn">
-                    <span id="signInText">Sign In</span>
+                    <span id="signInText">SignIn</span>
                     <div id="spinner" class="spinner-border spinner-border-sm text-dark ms-2 d-none p-2" role="status">
                       <span class="visually-hidden">Loading...</span>
                     </div>
                   </button>
-                  
+                  <div class="text-danger text-center  ps-2 pt-2" id="response-message">
+                   
+                  </div>
               </div>
-              <div class="text-danger text-center" id="response-message"></div>
+             
             </form>
           </div>
         </div>

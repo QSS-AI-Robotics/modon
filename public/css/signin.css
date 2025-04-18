@@ -35,7 +35,8 @@ body, html {
   background-color: #81FF76;
   color: rgb(30, 29, 29);
   border: none;
-  border-radius: 12px;
+  border-radius: 6px;
+  font-size:16px;
 }
 .signInbtn:hover {
   background-color: #0b3f58;
@@ -46,7 +47,6 @@ body, html {
 }
 .bluishtext{
     color: rgba(255, 255, 255, 0.25);
-
 }
 .input-dark-blue {
   background-color: #0A415B !important;

@@ -743,11 +743,13 @@ public function updateUser(Request $request, $id)
         if (!Auth::check()) {
             return redirect()->route('signin.form')->with('error', 'Please log in first.');
         }
+        $user     = Auth::user();
+        $userType = strtolower(optional($user->userType)->name ?? 'control');
 
         // ✅ Get all regions to pass to view (for filters, selects, etc.)
         $regions = \App\Models\Region::select('id', 'name')->get();
 
-        return view('region_manager.locations', compact('regions'));
+        return view('locations.index', compact('userType','regions'));
     }
 
 
@@ -761,7 +763,7 @@ public function updateUser(Request $request, $id)
         $user = Auth::user();
         $userType = strtolower($user->userType->name ?? '');
     
-        if ($userType === 'qss_admin') {
+        if ($userType === 'qss_admin' || $userType === 'modon_admin' ) {
             // ✅ Load each location along with its assignment's region
             $locations = Location::with(['locationAssignments.region'])->get();
     
@@ -837,11 +839,18 @@ public function updateUser(Request $request, $id)
     /**
      * Fetch a location for editing.
      */
-    public function edit($id)
+    public function editLocation($id)
     {
         // ✅ Ensure the user is authenticated
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+
+        $user = Auth::user();
+
+        // ✅ Allow only modon_admin or qss_admin
+        if (!in_array($user->type, ['modon_admin', 'qss_admin'])) {
+            return response()->json(['error' => 'Access denied. You are not authorized to edit locations.'], 403);
         }
 
         $location = Location::find($id);
@@ -851,26 +860,30 @@ public function updateUser(Request $request, $id)
             return response()->json(['error' => 'Location not found'], 404);
         }
 
-        // ✅ Ensure the user can only edit locations from their region
-        if ($location->region_id !== Auth::user()->region_id) {
-            return response()->json(['error' => 'You are not authorized to edit this location.'], 403);
-        }
-
         return response()->json($location);
     }
+
+
 
     /**
      * Update an existing location.
      */
-    public function update(Request $request, $id)
+    public function updateLocation(Request $request, $id)
     {
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
-
+    
         $user = Auth::user();
+        $userType = strtolower($user->userType->name ?? '');
+    
+        // ✅ Only qss_admin or modon_admin can update
+        if (!in_array($userType, ['qss_admin', 'modon_admin'])) {
+            return response()->json(['error' => 'You are not authorized to update this location.'], 403);
+        }
+    
         $location = Location::findOrFail($id);
-
+    
         $request->validate([
             'name' => 'required|string|max:255',
             'latitude' => 'required|numeric',
@@ -879,16 +892,7 @@ public function updateUser(Request $request, $id)
             'description' => 'nullable|string',
             'region_id' => 'required|exists:regions,id',
         ]);
-
-        // ✅ Get existing assignment record (user + location combo)
-        $assignment = LocationAssignment::where('location_id', $location->id)->first();
-
-        // ✅ Optional: check if user is allowed to edit based on assignment (unless admin)
-        $isAdmin = strtolower($user->userType->name ?? '') === 'qss_admin';
-        if (!$isAdmin && (!$assignment || $assignment->user_id !== $user->id)) {
-            return response()->json(['error' => 'You are not authorized to update this location.'], 403);
-        }
-
+    
         // ✅ Update the location basic fields
         $location->update([
             'name' => $request->name,
@@ -897,40 +901,39 @@ public function updateUser(Request $request, $id)
             'map_url' => $request->map_url,
             'description' => $request->description,
         ]);
-
-        // ✅ Update region assignment if changed
+    
+        // ✅ Update region assignment if it exists and changed
+        $assignment = LocationAssignment::where('location_id', $location->id)->first();
         if ($assignment && $assignment->region_id !== (int) $request->region_id) {
             $assignment->update(['region_id' => $request->region_id]);
         }
-
+    
         return response()->json(['message' => '✅ Location updated successfully!']);
     }
-
+    
 
 
     /**
      * Delete a location.
      */
-    public function destroy($id)
+    public function destroyLocation($id)
     {
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
     
         $user = Auth::user();
-        $isAdmin = strtolower($user->userType->name ?? '') === 'qss_admin';
+        $userType = strtolower($user->userType->name ?? '');
     
-        $location = Location::findOrFail($id);
-    
-        // ✅ Get the location assignment (region + creator info)
-        $assignment = \App\Models\LocationAssignment::where('location_id', $location->id)->first();
-    
-        // ✅ Ensure the user can delete (admins OR the user who created it)
-        if (!$isAdmin && (!$assignment || $assignment->user_id !== $user->id)) {
+        // ✅ Only allow qss_admin or modon_admin
+        if (!in_array($userType, ['qss_admin', 'modon_admin'])) {
             return response()->json(['error' => 'You are not authorized to delete this location.'], 403);
         }
     
-        // ✅ Delete assignment first (foreign key constraints)
+        $location = Location::findOrFail($id);
+    
+        // ✅ Delete related assignment first
+        $assignment = \App\Models\LocationAssignment::where('location_id', $location->id)->first();
         if ($assignment) {
             $assignment->delete();
         }
@@ -939,6 +942,7 @@ public function updateUser(Request $request, $id)
     
         return response()->json(['message' => '✅ Location deleted successfully!']);
     }
+    
     
     
 

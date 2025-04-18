@@ -757,3 +757,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
     font-weight: bold;
 }
+.bluishtext{
+    color: rgba(255, 255, 255, 0.25);
+}

@@ -58,11 +58,13 @@ Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,reg
     Route::post('/missions/{mission}/decision', [RegionManagerController::class, 'approve'])->name('missions.approve');
 
 
+    Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
+
 
 });
 
 // Pilot Routes
-Route::middleware(['auth', 'checkUserType:pilot'])->group(function () {
+    Route::middleware(['auth', 'checkUserType:pilot'])->group(function () {
     Route::get('/pilot', [PilotController::class, 'index'])->name('pilot.index');
     Route::get('/pilot/missions', [PilotController::class, 'getAllApprovedMissionsByUserType'])->name('pilot.getAllApprovedMissionsByUserType');
     // Route::get('/pilot/missions', [PilotController::class, 'getMissions'])->name('pilot.missions');
@@ -110,9 +112,12 @@ Route::middleware(['auth', 'checkUserType:qss_admin,modon_admin'])->group(functi
     Route::post('/drones', [DroneController::class, 'store'])->name('drones.store');
     Route::put('/update-drone/{id}/update', [DroneController::class, 'updatedrone'])->name('drone.updatedrone');
     Route::post('/delete-drone/{id}', [DroneController::class, 'destroy'])->name('drone.delete');
+    
+    Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
 
 });
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(function () {
 
-
+    
+    Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
 });  

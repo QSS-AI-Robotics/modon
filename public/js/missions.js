@@ -290,6 +290,7 @@ $(document).ready(function () {
                     // ✅ Conditional edit/delete buttons (modon_admin only)
                     let editButton = '';
                     let deleteButton = '';
+                    let viewReportButton = '';
     
                     if (userType === 'modon_admin') {
                         if (mission.status === "Approved" || mission.status === "Rejected") {
@@ -300,10 +301,11 @@ $(document).ready(function () {
                             deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                         }
 
-                        if(mission.report_submitted === 1){
-                            viewReportButton = `<img src="./images/view-report.png" alt="Delete" class="viewMissionReport img-fluid actions" data-id="${mission.id}">`;
-                          
-                        }
+ 
+                    }
+                    if(mission.report_submitted === 1){
+                        viewReportButton = `<img src="./images/view-report.png" alt="Delete" class="viewMissionReport img-fluid actions" data-id="${mission.id}">`;
+                      
                     }
     
                     // ✅ Conditional Approve/Reject buttons
@@ -414,49 +416,58 @@ $(document).ready(function () {
         $('#description').html('');
         $('#missionReportImages').empty();
         $('#pilotVideo').attr("src", "");
-        $('#viewMissionReportModal').modal('show');
+   
         // Call backend to get report by mission ID
-        // $.ajax({
-        //     url: '/pilot/reports',
-        //     type: 'GET',
-        //     data: { mission_id: missionId },
-        //     success: function (response) {
-        //         if (!response.reports.length) {
-        //             $('#description').html('No report found for this mission.');
-        //             return;
-        //         }
+        $.ajax({
+            url: '/pilot/reports',
+            type: 'GET',
+            data: { mission_id: missionId },
+            success: function (response) {
+                if (!response.reports.length) {
+                    $('#description').html('No report found for this mission.');
+                    return;
+                }
     
-        //         const report = response.reports[0]; // Assuming only one report per mission
-        //         $('#description').html(report.description || 'N/A');
+                const report = response.reports[0]; // Assuming only one report per mission
+                $('#description').html(report.description || 'N/A');
     
                 
-        //         const videoId = extractYouTubeID(response.reports[0].video_url);
-        //         if (videoId) {
-        //             const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-        //             $('#pilotVideo').attr('src', embedUrl);
-        //         }
+                const videoId = extractYouTubeID(response.reports[0].video_url);
+                if (videoId) {
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+                    $('#pilotVideo').attr('src', embedUrl);
+                }
                 
 
     
-        //         if (report.images && report.images.length) {
-        //             report.images.forEach(img => {
-        //                 const imgEl = `<img src="/${img.image_path}" alt="Report Image" class="img-thumbnail m-1" style="max-width: 150px;">`;
-        //                 $('#missionReportImages').append(imgEl);
-        //             });
-        //         } else {
-        //             $('#missionReportImages').html('<p class="text-muted">No images uploaded.</p>');
-        //         }
-        //     },
-        //     error: function (xhr) {
-        //         console.error('Error fetching report:', xhr);
-        //         $('#description').html('⚠ Error fetching report.');
-        //     }
-        // });
+                if (report.images && report.images.length) {
+                    report.images.forEach(img => {
+                        const imgEl = `<img src="/${img.image_path}" alt="Report Image" class="img-thumbnail m-1" style="max-width: 150px;">`;
+                        $('#missionReportImages').append(imgEl);
+                    });
+                } else {
+                    $('#missionReportImages').html('<p class="text-muted">No images uploaded.</p>');
+                }
+            },
+            error: function (xhr) {
+                console.error('Error fetching report:', xhr);
+                $('#description').html('⚠ Error fetching report.');
+            }
+        });
     
-        // $('#viewMissionReportModal').modal('show');
+        $('#viewMissionReportModal').modal('show');
     });
   
+    $(document).on('click', '#missionReportImages img', function () {
+        const imageSrc = $(this).attr('src');
+        $('#fullscreenImage').attr('src', imageSrc);
+        $('#fullscreenImageModal').removeClass('d-none');
+    });
     
+    // Close fullscreen modal
+    $(document).on('click', '.fullscreen-image-modal .close-btn', function () {
+        $('#fullscreenImageModal').addClass('d-none');
+    });
     $(document).on('click', '.toggle-details', function () {
         const currentId = $(this).data('id');
         const $current = $(`.detail-row[data-id="${currentId}"] .detail-container`);

@@ -272,11 +272,21 @@ class PilotController extends Controller
         return response()->json(['missions' => $missions]);
     }
     
+
     public function getReports(Request $request)
 {
     if (!Auth::check()) {
         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
     }
+
+    $user = Auth::user();
+    $userType = optional($user->userType)->name ?? 'unknown';
+
+    Log::info("📥 Reports Requested by User", [
+        'user_id'   => $user->id,
+        'user_type' => $userType,
+        'mission_id' => $request->input('mission_id')
+    ]);
 
     $missionId = $request->input('mission_id');
 
@@ -292,33 +302,28 @@ class PilotController extends Controller
     return response()->json(['reports' => $reports]);
 }
 
-   
     // public function getReports(Request $request)
     // {
     //     if (!Auth::check()) {
     //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
     //     }
-    
-    //     $regionId = Auth::user()->region_id;
+
     //     $missionId = $request->input('mission_id');
-    
-    //     $reports = PilotReport::whereHas('mission', function ($query) use ($regionId, $missionId) {
-    //         $query->where('region_id', $regionId);
-    //         if ($missionId) {
-    //             $query->where('id', $missionId);
-    //         }
-    //     })
-    //     ->with([
-    //         'mission',
-    //         'images.inspectionType', // 👈 eager load inspection type
-    //         'images.location'        // 👈 eager load location
-    //     ])
-    //     ->get();
-    
+
+    //     $reports = PilotReport::when($missionId, function ($query) use ($missionId) {
+    //             $query->where('mission_id', $missionId);
+    //         })
+    //         ->with([
+    //             'mission',
+    //             'images'
+    //         ])
+    //         ->get();
+
     //     return response()->json(['reports' => $reports]);
     // }
-    
 
+   
+  
 
     /**
      * Store a new pilot report.

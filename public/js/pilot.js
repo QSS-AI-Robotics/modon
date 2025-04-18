@@ -89,6 +89,8 @@ $(document).ready(function () {
                         // ✅ Conditional edit/delete buttons (modon_admin only)
                         let editButton = '';
                         let deleteButton = '';
+                        let uploadReportButton = '';
+                        let viewReportButton = '';
         
                         if (userType === 'modon_admin') {
                             if (mission.status === "Approved" || mission.status === "Rejected") {
@@ -118,8 +120,15 @@ $(document).ready(function () {
                             `;
                         }
 
-
-                        
+                        if(mission.report_submitted === 1){
+                            viewReportButton = `<img src="./images/view-report.png"  class="viewReportIcon img-fluid actions" data-id="${mission.id}">`;
+                          
+                        }
+                        if(modonApproved === 1 && regionApproved === 1 && pilotApproved ===1 && mission.report_submitted === 0){
+                            uploadReportButton = `<img src="./images/add-report.png" alt="View" class="addReportIcon img-fluid actions toggle-details" data-id="${mission.id}">`;
+                            
+                          
+                        }
         
                         // ✅ Final row HTML
                         const row = `
@@ -134,8 +143,9 @@ $(document).ready(function () {
                                             <div class="col-2 text-center ps-5">
                                              
                                                 <img src="./images/view.png" alt="View" class="view-mission img-fluid actions toggle-details" data-id="${mission.id}" data-bs-toggle="collapse" data-bs-target="#collapse-${mission.id}" aria-expanded="false" aria-controls="collapse-${mission.id}">
-                                                <img src="./images/add-report.png" alt="View" class="addReportIcon img-fluid actions toggle-details">
-                                                <img src="./images/view-report.png" alt="View" class="viewReportIcon img-fluid actions toggle-details">
+                                                ${uploadReportButton}
+                                               
+                                                ${viewReportButton}
                                             </div>
                                         </div>
                                     </button>

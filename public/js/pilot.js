@@ -299,6 +299,7 @@ $(document).ready(function () {
                     $('#viewReportModal #description').html(report.description || 'N/A');
                     $('#viewReportModal .editReportbtn').attr('data-report-id', report.id);
                     $('#viewReportModal .deleteReportbtn').attr('data-report-id', report.id);
+                    $('#viewReportModal .deleteReportbtn').attr('data-mission-id', missionId);
         
                     if (report.video_url) {
                         const videoId = extractYouTubeID(report.video_url);
@@ -327,68 +328,6 @@ $(document).ready(function () {
             const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|embed\/)([^&?/]+)/);
             return match ? match[1] : null;
         }
-    // $(document).on('click', '.viewReportIcon', function () {
-    //     const missionRow = $(this).closest(".accordion-item");
-    //     const missionId = missionRow.attr("id").split("-")[1]; // Extract from id="missionRow-123"
-    //    $("#viewReportForm #mission_id").val(missionId);
-    //     const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
-    //     const regionName = missionRow.find("[data-region-name]").data("region-name");
-    //     const locationName = missionRow.find("[data-location-name]").data("location-name");
-    
-    //     // Update display areas
-    //     $("#viewprogramInfo").text(inspectionName);
-    //     $("#viewregionInfo").text(regionName);
-    //     $("#viewlocationInfo").text(locationName);
-    
-    //     // Clear existing data
-    //     $('#description').html('');
-    //     $('#missionReportImages').empty();
-    //     $('#pilotVideo').attr("src", "");
-      
-    //     // Call backend to get report by mission ID
-    //     $.ajax({
-    //         url: '/pilot/reports',
-    //         type: 'GET',
-    //         data: { mission_id: missionId },
-    //         success: function (response) {
-    //             console.log("report info",response)
-    //             if (!response.reports.length) {
-    //                 $('#description').html('No report found for this mission.');
-    //                 return;
-    //             }
-    
-    //             const report = response.reports[0]; // Assuming only one report per mission
-    //             $('#description').html(report.description || 'N/A');
-    //             $('.editReportbtn').attr('data-report-id', report.id);
-    //             $('.deleteReportbtn').attr('data-report-id', report.id);            
-                
-                
-    //             const videoId = extractYouTubeID(response.reports[0].video_url);
-    //             if (videoId) {
-    //                 const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-    //                 $('#viewReportModal #pilotVideo').attr('src', embedUrl);
-                   
-    //             }
-           
-
-    
-    //             if (report.images && report.images.length) {
-    //                 report.images.forEach(img => {
-    //                     const imgEl = `<img src="/${img.image_path}" alt="Report Image" data-image-id="${img.id}" class="img-thumbnail m-1" style="max-width: 150px;">`;
-    //                     $('#missionReportImages').append(imgEl);
-    //                 });
-    //             } else {
-    //                 $('#missionReportImages').html('<p class="text-muted">No images uploaded.</p>');
-    //             }
-    //         },
-    //         error: function (xhr) {
-    //             console.error('Error fetching report:', xhr);
-    //             $('#description').html('⚠ Error fetching report.');
-    //         }
-    //     });
-    
-    //     $('#viewReportModal').modal('show');
-    // });
 
     
     $(document).on('click', '#missionReportImages img', function () {
@@ -1191,5 +1130,47 @@ $(document).ready(function () {
         });
         
     });
+
+    $(document).on('click', '.deleteReportbtn', function (e) {
+        e.preventDefault();
+        const reportId = $(this).data('report-id');
+        const missionId = $(this).data('mission-id');
+    
+        if (!reportId || !missionId) {
+            Swal.fire('Error', 'Missing report or mission ID.', 'error');
+            return;
+        }
+    
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This report and its images will be permanently deleted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/pilot/delMissionReport',
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        report_id: reportId,
+                        mission_id: missionId
+                    },
+                    success: function (response) {
+                        Swal.fire('Deleted!', response.message, 'success');
+                        $('#viewReportModal').modal('hide');
+                        // You can also refresh the mission list or update UI here
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Error', xhr.responseJSON?.message || 'Failed to delete report.', 'error');
+                    }
+                });
+            }
+        });
+    });
+    
     
 });

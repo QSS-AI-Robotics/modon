@@ -84,6 +84,7 @@ Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,reg
     Route::post('/pilot/missions/update-status', [PilotController::class, 'updateMissionStatus']);
 
     Route::post('/pilot/{mission}/pilot-decision', [PilotController::class, 'pilotDecision']);
+    Route::post('/pilot/delMissionReport', [PilotController::class, 'deleteMissionReport']);
 
 });
 

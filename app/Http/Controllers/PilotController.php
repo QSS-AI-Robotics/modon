@@ -29,59 +29,60 @@ class PilotController extends Controller
 
 
     public function pilotDecision(Request $request, Mission $mission)
-{
-    $request->validate([
-        'decision'       => 'required|in:approve,reject',
-        'rejection_note' => 'nullable|string',
-    ]);
+    {
+        $request->validate([
+            'decision'       => 'required|in:approve,reject',
+            'rejection_note' => 'nullable|string',
+        ]);
 
-    $pilot = Auth::user();
+        $pilot = Auth::user();
 
-    if ($mission->pilot_id !== $pilot->id) {
-        Log::warning("🚫 Unauthorized pilot (User ID: $pilot->id) tried to decide on mission #{$mission->id}");
-        return response()->json(['message' => 'You are not authorized to respond to this mission.'], 403);
+        if ($mission->pilot_id !== $pilot->id) {
+            Log::warning("🚫 Unauthorized pilot (User ID: $pilot->id) tried to decide on mission #{$mission->id}");
+            return response()->json(['message' => 'You are not authorized to respond to this mission.'], 403);
+        }
+
+        $decision = $request->decision === 'approve' ? 1 : 2;
+
+        Log::info("🛩️ Pilot (ID: {$pilot->id}) submitted decision for Mission #{$mission->id}: " . ($decision === 1 ? 'Approved' : 'Rejected'));
+
+        // ✅ Build approval data update
+        $approvalData = [
+            'is_fully_approved' => $decision,
+            'pilot_approved'    => $decision,
+        ];
+
+        if ($decision === 2) {
+            $approvalData['rejected_by']    = $pilot->id;
+            $approvalData['rejection_note'] = $request->rejection_note ?? 'Rejected by pilot';
+        }
+
+        // ✅ Update or create the mission approval record
+        $approval = \App\Models\MissionApproval::updateOrCreate(
+            ['mission_id' => $mission->id],
+            $approvalData
+        );
+
+        Log::info("✅ MissionApproval updated", [
+            'mission_id'        => $approval->mission_id,
+            'pilot_approved'    => $approval->pilot_approved,
+            'is_fully_approved' => $approval->is_fully_approved,
+            'rejected_by'       => $approval->rejected_by,
+            'rejection_note'    => $approval->rejection_note,
+        ]);
+
+        // ✅ Update mission status accordingly
+        // $mission->status = $decision === 1 ? 'Awaiting' : 'Rejected';
+        $mission->status = $decision === 1 ? 'Awaiting Report' : 'Rejected';
+        $mission->save();
+
+        Log::info("✅ Mission status updated", [
+            'mission_id' => $mission->id,
+            'status'     => $mission->status,
+        ]);
+
+        return response()->json(['message' => 'Pilot decision recorded successfully.']);
     }
-
-    $decision = $request->decision === 'approve' ? 1 : 2;
-
-    Log::info("🛩️ Pilot (ID: {$pilot->id}) submitted decision for Mission #{$mission->id}: " . ($decision === 1 ? 'Approved' : 'Rejected'));
-
-    // ✅ Build approval data update
-    $approvalData = [
-        'is_fully_approved' => $decision,
-        'pilot_approved'    => $decision,
-    ];
-
-    if ($decision === 2) {
-        $approvalData['rejected_by']    = $pilot->id;
-        $approvalData['rejection_note'] = $request->rejection_note ?? 'Rejected by pilot';
-    }
-
-    // ✅ Update or create the mission approval record
-    $approval = \App\Models\MissionApproval::updateOrCreate(
-        ['mission_id' => $mission->id],
-        $approvalData
-    );
-
-    Log::info("✅ MissionApproval updated", [
-        'mission_id'        => $approval->mission_id,
-        'pilot_approved'    => $approval->pilot_approved,
-        'is_fully_approved' => $approval->is_fully_approved,
-        'rejected_by'       => $approval->rejected_by,
-        'rejection_note'    => $approval->rejection_note,
-    ]);
-
-    // ✅ Update mission status accordingly
-    $mission->status = $decision === 1 ? 'Approved' : 'Rejected';
-    $mission->save();
-
-    Log::info("✅ Mission status updated", [
-        'mission_id' => $mission->id,
-        'status'     => $mission->status,
-    ]);
-
-    return response()->json(['message' => 'Pilot decision recorded successfully.']);
-}
 
 
 
@@ -424,7 +425,47 @@ class PilotController extends Controller
      
 
 
+     public function deleteMissionReport(Request $request)
+     {
+         $request->validate([
+             'report_id' => 'required|exists:pilot_reports,id',
+             'mission_id' => 'required|exists:missions,id',
+         ]);
+     
+         $report = PilotReport::with('images')->find($request->report_id);
+     
+         if (!$report) {
+             return response()->json(['message' => 'Report not found.'], 404);
+         }
+     
+         // Delete associated images
+         foreach ($report->images as $image) {
+             Storage::delete($image->image_path);
+             $image->delete();
+         }
+     
+         // Delete the report
+         $report->delete();
+     
+         // Update mission status
+         $mission = Mission::find($request->mission_id);
 
+         if ($mission) {
+             $mission->status = 'Awaiting Report';
+             $mission->report_submitted = 0;
+             $mission->save();
+         }
+     
+         Log::info('✅ Report deleted', [
+             'report_id' => $request->report_id,
+             'mission_id' => $request->mission_id
+         ]);
+     
+         return response()->json([
+             'message' => 'Pilot report and images deleted successfully.'
+         ]);
+     }
+     
 
     
 

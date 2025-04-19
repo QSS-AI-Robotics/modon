@@ -70,6 +70,8 @@ Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,reg
     // Route::get('/pilot/missions', [PilotController::class, 'getMissions'])->name('pilot.missions');
     Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
     Route::post('/pilot/reports/store', [PilotController::class, 'storeReport'])->name('pilot.reports.store');
+    Route::post('/report/updatemissionreport', [PilotController::class, 'updateMissionReport']);
+    Route::get('/pilot/fetchReportByMission', [PilotController::class, 'fetchReportByMission']);
 
     // Edit & Update Report
     Route::get('/pilot/reports/{id}/edit', [PilotController::class, 'editReport'])->name('pilot.reports.edit');

@@ -220,9 +220,7 @@ table tr {
     box-shadow: 0px 4px 10px rgba(10, 10, 10, 0.3); /* Adds shadow effect */
     border-radius: 12px;
 }
-textarea:focus{
-    background-color: #171f33 !important;
-}
+
 .custom-bborder{
     border-bottom: 1px solid rgba(255, 255, 255, 0.4);
     margin-left: 1px;

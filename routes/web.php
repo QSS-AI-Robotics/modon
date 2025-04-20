@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegionManagerController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\PilotController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DroneController;
@@ -31,6 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{id}/edit', [UserController::class, 'edit']);
     Route::post('/users/{id}/update', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
+  
+    //password reset
+    Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('reset.password');
 
 
 });
@@ -122,8 +126,9 @@ Route::middleware(['auth', 'checkUserType:qss_admin,modon_admin'])->group(functi
 Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(function () {
 
     Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
-});  
-Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(function () {
+    //Email Routes
+    Route::post('/send-email', [EmailController::class, 'sendEmail'])->name('send.email');
+});
 
-
-}); 
+//forget password
+Route::post('/forget-password', [AuthController::class, 'forgetPassword'])->name('forget.password');

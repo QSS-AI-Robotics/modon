@@ -377,7 +377,7 @@
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="row">
-                                        <div class="col-lg-8">
+                                        <div class="col-lg-8  report-buttons" >
                                             <button  class="btn btn-danger deleteReportbtn mt-2"><img src="../images/delete.png" alt=""></button>
                                             <button  class="btn btn-warning editReportbtn mt-2"><img src="../images/edit.png" alt=""></button>
                                         </div>

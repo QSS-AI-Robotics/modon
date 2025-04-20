@@ -67,7 +67,7 @@
                                             <p class="ps-2 mb-0">Regions</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
-                                            <h1 id="totalRegions">{{ $regions }}</h1>
+                                            <h1 id="totalRegions">{{ $regions-1 }}</h1>
                                         </div>
                                     </div>
                                 </div>
@@ -124,7 +124,41 @@
                     </div>
                     <div class="col-12 bg-section mt-3 " style="height:62%;">
                         <p class="mb-0 pt-3"  style="height:10%">Latest Incidents</p>
-                        <div class="IncidentPanel" style="overflow-y:auto;height:85%;overflow-x:hidden">
+                        {{-- change to incidentPanel --}}
+                        <div class="IncidentPanels" style="overflow-y:auto;height:85%;overflow-x:hidden">
+                            <div class="incidentDiv p-2 my-2">
+                                <div class="row align-items-center">
+                                    <div class="col-2 d-flex justify-content-center align-items-center">
+                                        <img src="http://192.168.100.134:8000/storage/users/1744470261_ai-generated-8665850_1920.jpg" class="img-fluid rounded-circle" style="height: 30px; width:30px">
+                                    </div>
+                                    <div class="col-10 d-flex flex-column justify-content-center">
+                                        <h6 class="mb-0">Gas Emission Analysis</h6>
+                                        <p class="mb-0">Location: <span class="text-capitalize">Dammam First Industrial City</span> <br> Region: <span class="text-capitalize">Eastern</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="incidentDiv p-2 my-2">
+                                <div class="row align-items-center">
+                                    <div class="col-2 d-flex justify-content-center align-items-center">
+                                        <img src="http://192.168.100.134:8000/storage/users/1744781594_character-9210436_1920.jpg" class="img-fluid rounded-circle" style="height: 30px; width:30px">
+                                    </div>
+                                    <div class="col-10 d-flex flex-column justify-content-center">
+                                        <h6 class="mb-0">Yard Violations Detections</h6>
+                                        <p class="mb-0">Location: <span class="text-capitalize">Dammam First Industrial City</span> <br> Region: <span class="text-capitalize">Eastern</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="incidentDiv p-2 my-2">
+                                <div class="row align-items-center">
+                                    <div class="col-2 d-flex justify-content-center align-items-center">
+                                        <img src="http://192.168.100.134:8000/storage/users/1744470261_ai-generated-8665850_1920.jpg" class="img-fluid rounded-circle" style="height: 30px; width:30px">
+                                    </div>
+                                    <div class="col-10 d-flex flex-column justify-content-center">
+                                        <h6 class="mb-0">City Updates & Event Coverages</h6>
+                                        <p class="mb-0">Location: <span class="text-capitalize">Dammam First Industrial City</span> <br> Region: <span class="text-capitalize">Eastern</span></p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -219,31 +253,12 @@
                     </div>
             
                     <!-- === Second Half: Incident Chart === -->
-                    {{-- <div class="flex-grow-1 mt-2">
-                        <div class="bg-section d-flex flex-column h-100">
-                            <!-- Header -->
-                            <div class="py-3 px-3 d-flex justify-content-between">
-                                <p class="mb-0">Incident Chart</p>
-                                
-                            </div>
-            
-                            <!-- Chart -->
-                            <div class="flex-grow-1 px-3 pb-3 d-none">
-                                <canvas id="regionBarChart" class="w-100" style="height: 30vh"></canvas>
-                                <div id="noregionDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
-                                    No data found
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 px-3">
-                                <img src="{{ asset('images/headmap.png') }}" class="img-fluid  object-fit-cover" >
-                            </div>
-                        </div>
-                    </div> --}}
-                    <div class="flex-grow-1  pb-1">
+
+                    <div class="flex-grow-1 pt-2 pb-1">
                         <div class="bg-section d-flex flex-column h-100">
                             <!-- Header Row -->
                             <div class="d-flex justify-content-between px-2">
-                                <p class="mb-0 py-2">Incident Chart</p>
+                                
                                 <p class="mb-0 py-2">Heat Map</p>
                             </div>
                     
@@ -256,17 +271,18 @@
                                          class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
                                         No data found
                                     </div>
-                                </div>
+                                </div> 
                     
                                 <!-- Image Column -->
-                                <div class="flex-grow-1 w-50 h-100 d-flex p-2">
-                                    <img src="{{ asset('images/headmap.png') }}"
-                                         class="w-100 h-100 object-fit-cover rounded"
+                                <div class="flex-grow-1 w-100 h-100 d-flex p-2">
+                                    <img src="{{ asset('images/map/1heat map.png') }}"
+                                         class="img-fluid object-fit-cover rounded"
                                          alt="Heatmap">
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     
             
                 </div>

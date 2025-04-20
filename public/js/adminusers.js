@@ -53,7 +53,8 @@ $(document).ready(function () {
     });
     
     
-    // const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
+
+      // const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
     // const regionChart = new Chart(regionChartMissions, {
     //     type: 'line',
     //     data: {
@@ -110,52 +111,6 @@ $(document).ready(function () {
     //         }
     //     }
     // });
-    const regionBarChartInstance = document.getElementById('regionBarChart').getContext('2d');
-
-    const regionBarChart = new Chart(regionBarChartInstance, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                data: [],
-                backgroundColor: [],
-                borderRadius: 5,
-                barThickness: 30,
-                maxBarThickness: 50
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    display: false,
-                    grid: {
-                        display: false
-                    }
-                },
-                x: {
-                    ticks: { color: 'white' },
-                    grid: { color: 'rgba(255,255,255,0.05)' }
-                }
-            },
-            plugins: {
-                legend: { display: false },
-                datalabels: {
-                    color: 'white',
-                    anchor: 'end',
-                    align: 'start',
-                    offset: -3,
-                    font: {
-                        weight: 'bold',
-                        size: 12
-                    },
-                    formatter: value => value
-                }
-            }
-        },
-        plugins: [ChartDataLabels]
-    });
 
     $('.datePanel-input').on('change', function () {
         const startDate = $('#start-date').val();
@@ -268,7 +223,7 @@ $(document).ready(function () {
     
     
 
-    fetchInspectionsByRegion(regionBarChart);
+    // fetchInspectionsByRegion(regionBarChart);
 
 
     function fetchInspectionsByRegion(chartInstance) {
@@ -280,15 +235,7 @@ $(document).ready(function () {
             alert("Start date cannot be after end date.");
             return;
         }
-        // if (startDate && endDate) {
-        //     console.log(`📅 Fetching missions from ${startDate} to ${endDate}`);
-        // } else if (startDate) {
-        //     console.log(`📅 Fetching missions from ${startDate} onwards`);
-        // } else if (endDate) {
-        //     console.log(`📅 Fetching missions until ${endDate}`);
-        // } else {
-        //     console.log("📊 Fetching missions without date filter");
-        // }
+
         $.ajax({
             url: '/inspections-by-region',
             type: 'GET',
@@ -400,10 +347,20 @@ function updateInspectionChart(chart, response) {
                                
                                 <div class="d-flex align-items-end mb-2">
                                     <img src="./storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
-                                    <div>
-                                        <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
-                                        <small class="cont-btn px-2 mb-0 lh-1  text-capitalize">${pilot.region}</small>
-                                    </div>
+                                   <div>
+                                    <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
+
+                                    <small 
+                                        class="cont-btn px-2 mb-0 lh-1 text-capitalize text-truncate"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        data-bs-custom-class="custom-tooltip"
+                                        data-title="${pilot.region}"
+                                    >
+                                        ${pilot.region.split(',')[0]}${pilot.region.split(',').length > 1 ? ', ...' : ''}
+                                    </small>
+                                </div>
+
                                 </div>    
                                 <div class="p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
@@ -446,73 +403,8 @@ function updateInspectionChart(chart, response) {
             }
         });
     }
-    // function fetchPilotMissionSummary() {
-    //     $.ajax({
-    //         url: '/pilot-mission-summary',
-    //         method: 'GET',
-    //         dataType: 'json',
-    //         success: function (data) {
-    //             // console.log("Pilot Mission Summary:");
-    //             $('#missionsPanel').empty(); // Clear any existing cards
-    
-    //             data.forEach(pilot => {
-    //                 // console.log(`${pilot.name} → Total: ${pilot.total_missions}, Completed: ${pilot.completed_missions}, Pending: ${pilot.pending_missions}`);
-    
-    //                 const total = pilot.total_missions || 0;
-    //                 const completed = pilot.completed_missions || 0;
-    //                 const pending = pilot.pending_missions || 0;
-    
-    //                 // % calculations
-    //                 const pendingPercent = total ? Math.round((pending / total) * 100) : 0;
-    //                 const completedPercent = total ? Math.round((completed / total) * 100) : 0;
-    
-    //                 const card = `
-    //                     <div class="col-lg-4 h-100  rounded">
-    //                         <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
-    //                             <p class="pt-2  text-capitalize px-2 fw-bold">${pilot.name}</p>
-    
-    //                             <div class="p-2">
-    //                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
-    //                                     <label class="form-check-label mb-0">Pending </label>
-    //                                     <p class="mb-0 fw-bold">${pending}</p>
-    //                                 </div>
-    //                                 <div class="progress">
-    //                                     <div class="progress-bar bg-danger" style="width: ${pendingPercent}%"></div>
-    //                                 </div>
-    //                             </div>
-    
-    //                             <div class="p-2">
-    //                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
-    //                                     <label class="form-check-label mb-0">Finished </label>
-    //                                     <p class="mb-0 fw-bold">${completed}</p>
-    //                                 </div>
-    //                                 <div class="progress">
-    //                                     <div class="progress-bar bg-success" style="width: ${completedPercent}%"></div>
-    //                                 </div>
-    //                             </div>
-    
-    //                             <div class="p-2 mb-2">
-    //                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
-    //                                     <label class="form-check-label mb-0">Total Missions</label>
-    //                                     <p class="mb-0 fw-bold">${total}</p>
-    //                                 </div>
-    //                                 <div class="progress">
-    //                                     <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
-    //                                 </div>
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                 `;
-    
-    //                 $('#missionsPanel').append(card);
-    //             });
-    //         },
-    //         error: function (xhr, status, error) {
-    //             console.error('Failed to load pilot mission summary:', error);
-    //         }
-    //     });
-    // }
-    fetchLatestInspections();
+ 
+    // fetchLatestInspections();
     function fetchLatestInspections() {
         $.ajax({
             url: '/latest-inspections',

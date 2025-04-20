@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserType;
 use App\Models\Region;
+use App\Mail\GenericMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -132,23 +134,7 @@ class AuthController extends Controller
      }
 
      
-    // public function loginUser(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|email',
-    //         'password' => 'required',
-    //     ]);
-    
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 422);
-    //     }
-    
-    //     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-    //         return response()->json(['message' => 'Login successful', 'redirect' => route('admin.index')], 200);
-    //     } else {
-    //         return response()->json(['error' => 'Invalid email or password'], 401);
-    //     }
-    // }
+
 
     /**
      * Show the dashboard.
@@ -169,4 +155,46 @@ class AuthController extends Controller
             'redirect' => route('signin.form') . '/'
         ]);
     }
+
+    public function forgetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email', // Validate email exists in the users table
+        ]);
+    
+        // Generate a random 8-character password
+        $newPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+        Log::info('Generated new password: ' . $newPassword);
+        // Hash the password
+        $hashedPassword = Hash::make($newPassword);
+    
+        // Update the user's password and set force_password_reset to 1
+        $user = User::where('email', $request->email)->first();
+        $user->password = $hashedPassword;
+        $user->force_password_reset = 1;
+        $user->save();
+    
+        // Send the email with the new password
+        $subject = "Password Reset Request";
+        $content = "
+            Dear {$user->name},
+    
+            Your password has been reset. Below are your new login details:
+    
+            Email: {$user->email}
+            Password: {$newPassword}
+    
+            Please log in and update your password as soon as possible.
+    
+            Best regards,
+            Admin Team
+        ";
+    
+        // Use the existing email-sending logic
+        Mail::to($user->email)->send(new GenericMail($subject, $content));
+    
+        return response()->json(['message' => 'A new password has been sent to your email.']);
+    }
+
+
 }

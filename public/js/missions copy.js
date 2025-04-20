@@ -601,13 +601,7 @@ $('#addMissionForm').on('submit', function (e) {
             $form.removeAttr("data-mission-id");
             $("h6").text("Create New Mission");
             $(".mission-btn span").text("New Mission");
-            console.log("Mission Response Data",response)
-            if (Array.isArray(response.mission.allmails)) {
-                const recipients = response.mission.allmails;
-                sendEmailsToMembers(response, recipients);
-            } else {
-                console.error("Expected an array for 'allmails', got:", response.allmails);
-            }
+
             getRegionManagerMissions();
             // getMissionStats();
         },
@@ -622,67 +616,6 @@ $('#addMissionForm').on('submit', function (e) {
         }
     });
 });
-
-function sendEmailsToMembers(response, recipients) {
-    // ✅ Log recipients
-    console.log("Real email recipients:", recipients);
-
-    // ✅ Add dummy recipients for testing
-    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-
-    // ✅ Email content
-    const subject = "New Mission Created";
-    const content = `
-        A new mission has been created in the dashboard. 
-        Please log in to your account to view the latest details.
-
-        Mission Details:
-        - Inspection Type: ${response.mission.inspection_type.name}
-        - Mission Date: ${response.mission_date}
-        - Locations: ${response.mission.locations.map(loc => loc.name).join(', ')}
-
-        Best regards,
-        Admin Team
-    `;
-
-    // ✅ Show loading alert
-    Swal.fire({
-        title: 'Mission Created Successfully...',
-        html: 'Please wait while emails are being sent..',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    // ✅ Send request
-    fetch('/send-email', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        body: JSON.stringify({ recipients: dummyRecipients, subject, content })
-    })
-    .then(response => response.json())
-    .then(data => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Email Sent!',
-            text: data.message || 'Notification email sent successfully.',
-            timer: 2000,
-            showConfirmButton: false
-        });
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Email Error!',
-            text: 'An error occurred while sending the email.',
-        });
-    });
-}
 
   
 

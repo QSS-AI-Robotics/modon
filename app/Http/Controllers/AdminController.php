@@ -205,48 +205,7 @@ class AdminController extends Controller
         ]);
     }
     
-    // public function deleteUser($id)
-    // {
-    //     $authUser = Auth::user();
-    
-    //     // Optional: Allow only qss_admins to delete
-    //     if ($authUser->userType->name !== 'qss_admin') {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Unauthorized action.'
-    //         ], 403);
-    //     }
-    
-    //     $user = User::find($id);
-    
-    //     if (!$user) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'User not found.'
-    //         ], 404);
-    //     }
-    
-    //     // Detach regions from pivot table before deleting
-    //     $user->regions()->detach();
-    
-    //     // Optional: delete pilot license info if exists
-    //     if (strtolower($user->userType->name) === 'pilot') {
-    //         $user->pilot()?->delete();
-    //     }
-    
-    //     // Optional: delete image from storage
-    //     if ($user->image && Storage::disk('public')->exists('users/' . $user->image)) {
-    //         Storage::disk('public')->delete('users/' . $user->image);
-    //     }
-    
-    //     // Delete user
-    //     $user->delete();
-    
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'message' => '✅ User deleted successfully.'
-    //     ]);
-    // }
+   
     
 
 

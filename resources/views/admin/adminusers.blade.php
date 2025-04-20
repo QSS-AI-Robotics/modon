@@ -194,6 +194,14 @@
                                         Create User
                                     </button>
                                 </div>
+                {{-- <div class="col-lg-12 d-flex  align-items-end text-center mt-4">
+                                    <div id="emailLoader" class="d-none text-center mt-3">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Sending...</span>
+                                        </div>
+                                        <p>Sending email, please wait...</p>
+                                    </div>
+                                </div> --}}
 
                            
                         </div>

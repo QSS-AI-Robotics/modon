@@ -360,7 +360,10 @@ $(document).ready(function () {
                     timer: 2000,
                     showConfirmButton: false
                 });
-    
+                const isUpdate = $('#userId').val().trim() !== ''; // If userId is set, it's an edit
+                if (!isUpdate) {
+                    sendMail();
+                }
                 $(".cancel-btn").addClass("d-none");
                 resetForm();
                 getAllusers();
@@ -396,6 +399,126 @@ $(document).ready(function () {
             }
         });
     });
+
+    function sendMail() {
+        // ✅ Show SweetAlert loading indicator
+        Swal.fire({
+            title: 'Sending Email...',
+            html: 'Please wait while we Send the Email with Credentials.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    
+        const email = $('#email').val().trim();
+        const name = $('#name').val().trim();
+        const password = $('#password').val().trim();
+        const subject = "Your Account Has Been Created";
+        const content = `
+            Dear ${name},
+    
+            Your account has been created by the admin. Below are your login details:
+    
+            Username: ${email}
+            Password: ${password}
+    
+            Please log in and update your password as soon as possible.
+    
+            Best regards,
+            Admin Team
+        `;
+    
+        fetch('/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            body: JSON.stringify({ recipients: [email], subject, content })
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Email Sent!',
+                text: data.message || 'Welcome email sent successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Email Error!',
+                text: 'An error occurred while sending the email.',
+            });
+        });
+    }
+    
+//                 function sendMail(){
+
+//                     // ✅ Show the loader before sending the email
+//                     const emailLoader = $('#emailLoader');
+//                     emailLoader.removeClass('d-none');
+                
+//                     // ✅ Send email after user is saved
+//                     const email = $('#email').val().trim();
+//                     const name = $('#name').val().trim();
+//                     const password = $('#password').val().trim();
+//                     const subject = "Your Account Has Been Created";
+//                     const content = `
+//                         Dear ${name},
+                
+//                         Your account has been created by the admin. Below are your login details:
+                
+//                         Username: ${email}
+//                         Password: ${password}
+                
+//                         Please log in and update your password as soon as possible.
+                
+//                         Best regards,
+//                         Admin Team
+//                     `;
+                
+//                     // ✅ Add multiple recipients (hardcoded for testing)
+//                     //const recipients = [email, "nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+                
+//                     fetch('/send-email', {
+//                         method: 'POST',
+//                         headers: {
+//                             'Content-Type': 'application/json',
+//                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//                         },
+//                         body: JSON.stringify({ recipients: [email], subject, content }) // Use only the email from the form
+//                     })
+//                     .then(response => response.json())
+//                     .then(data => {
+//                         Swal.fire({
+//                             icon: 'success',
+//                             title: 'Email Sent!',
+//                             text: data.message || 'Welcome email sent successfully.',
+//                             timer: 2000,
+//                             showConfirmButton: false
+//                         });
+//                     })
+//                     .catch(error => {
+//                         console.error('Error:', error);
+//                         Swal.fire({
+//                             icon: 'error',
+//                             title: 'Email Error!',
+//                             text: 'An error occurred while sending the email.',
+//                         });
+//                     })
+//                     .finally(() => {
+//                         // ✅ Hide the loader after email is sent
+//                         emailLoader.addClass('d-none');
+//                     });
+//                     // formData.append('force_password_reset', true); 
+                
+//              
+//         }
     
     $(document).on('click', '.edit-user', function () {
         $(".cancel-btn").removeClass("d-none");

@@ -773,3 +773,138 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .grayishytext{
     color:#cfcaca;
 }
+
+.badge {
+    min-width: 120px;
+    display: inline-block;
+  }
+
+
+
+
+
+  .map-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+  
+    aspect-ratio: 16 / 9; /* 👈 lock aspect ratio for responsiveness */
+    overflow: hidden;
+    border-radius: 12px;
+    margin: auto;
+  }
+
+  .map-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  /* .heat-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.9;
+    filter: blur(30px);
+    transform: translate(-50%, -50%);
+    animation: pulse 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.2;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.4);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.8;
+    }
+  } */
+
+  .heat-shape {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: heatFade 3s ease-in-out infinite;
+    background: radial-gradient(circle, transparent 0%, transparent 100%);
+  }
+  
+  /* High Intensity - Red */
+  .heat-high {
+
+    background: radial-gradient(
+      circle,
+      rgba(255, 0, 0, 0.2) 0%,
+      rgba(255, 0, 0, 0.4) 70%,
+      rgba(255, 0, 0, 0.7) 80%,
+      transparent 100%
+    );
+ 
+  }
+  
+  /* Moderate Intensity - Orange */
+  .heat-moderate {
+    background: radial-gradient(
+      circle,
+      rgba(255, 165, 0, 0.2) 0%,
+      rgba(255, 165, 0, 0.4) 70%,
+      rgba(255, 165, 0, 0.7) 80%,
+      transparent 100%
+    );
+
+  }
+  
+  /* Normal Intensity - Yellow */
+  .heat-normal {
+    background: radial-gradient(
+      circle,
+      rgba(32, 192, 32, 0.2) 0%,
+      rgba(32, 192, 32, 0.4) 70%,
+      rgba(32, 192, 32, 0.7) 80%,
+      transparent 100%
+    );
+  }
+  
+  @keyframes heatFade {
+    0% {
+      transform: translate(-50%, -50%) scale(0.1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.3);
+      opacity: 0.9;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(0.6);
+      opacity: 0.5;
+    }
+  }
+  
+  /* Nabeel's Css */
+#emailLoader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+/* .input-dark-blue {
+    background-color: #0A415B !important;
+    color: #ffffff !important;
+    border: 1px solid #0A415B;
+  } */
+  /* .passbtn {
+    background-color: #81FF76;
+    color: rgb(30, 29, 29);
+    border: none;
+    border-radius: 6px;
+    font-size:16px;
+} */

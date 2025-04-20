@@ -19,6 +19,7 @@ class User extends Authenticatable
         'password',
         'image',          // ✅ added here
         'user_type_id',
+        'force_password_reset',
      
     ];
 
@@ -32,6 +33,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'force_password_reset' => 'boolean', 
         ];
     }
 

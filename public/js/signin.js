@@ -47,4 +47,44 @@ $(document).ready(function(){
             }
         });
     });
+
+
+    // Show the Forget Password Modal
+    $('#forgetPasswordLink').on('click', function (e) {
+        e.preventDefault();
+        $('#forgetPasswordModal').modal('show');
+        });
+
+    // Handle Forget Password Form Submission
+    $('#forgetPasswordForm').on('submit', function (e) {
+        e.preventDefault();
+    
+        const email = $('#forgetEmail').val().trim();
+        const errorDiv = $('#forgetPasswordError');
+        const successDiv = $('#forgetPasswordSuccess');
+    
+        errorDiv.text('');
+        successDiv.text('');
+    
+        $.ajax({
+            url: '/forget-password',
+            type: 'POST',
+            data: { email },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), // Ensure CSRF token is included
+            },
+            success: function (response) {
+                successDiv.text(response.message);
+                $('#forgetEmail').val('');
+            },
+            error: function (xhr) {
+                const errors = xhr.responseJSON.errors;
+                if (errors && errors.email) {
+                    errorDiv.text(errors.email[0]);
+                } else {
+                    errorDiv.text('An error occurred. Please try again.');
+                }
+            },
+        });
+     });
 });

@@ -500,5 +500,73 @@ function updateInspectionChart(chart, response) {
             }
         });
     }
-    
+
+    // function updateRegionMap(region, color) {
+    //     const regionImages = ['center', 'east', 'west','reset'];
+
+    //     // Hide all images
+    //     regionImages.forEach(r => $(`#${r}`).hide());
+
+    //     if (regionImages.includes(region)) {
+    //         // Show selected image
+    //         $(`#${region}`).show();
+
+    //         if(regionImages.includes('reset')){
+    //             $('#mainBgmap').attr('src',`./images/map/map.jpg`)
+    //         }else{
+    //             $('#mainBgmap').attr('src',`./images/map/${region}map.jpg`)
+    //         }
+           
+    //         const newSrc = `./images/map/heatmap/${region}${color}.png`;
+    //         $(`#${region}`).attr('src', newSrc);
+    //     } else {
+    //         // Reset: show all
+    //         regionImages.forEach(r => $(`#${r}`).show());
+    //     }
+    // }
+    const valuesdas = ['centerred','westgreen','eastorange'];
+    updateRegionMapFromValues(valuesdas);
+
+    function updateRegionMapFromValues(values) {
+        const regionImages = ['center', 'east', 'west'];
+
+        // Hide all images first
+        regionImages.forEach(r => $(`#${r}`).hide());
+
+        // Loop over the provided values (like "centergreen")
+        values.forEach(val => {
+            const match = val.match(/(center|east|west)(green|red|orange)/);
+            if (match) {
+                const region = match[1];
+                const color = match[2];
+
+                // Show the matched region image
+                $(`#${region}`).show();
+
+                // Update the src for that region's image
+                const newSrc = `./images/map/heatmap/${region}${color}.png`;
+                $(`#${region}`).attr('src', newSrc);
+            }
+        });
+
+        // If it's a reset (3 values), we assume full map view
+        if (values.length > 1) {
+            $('#mainBgmap').attr('src', './images/map/map.jpg');
+        } else if (values.length === 1) {
+            const match = values[0].match(/(center|east|west)/);
+            if (match) {
+                const region = match[1];
+                $('#mainBgmap').attr('src', `./images/map/${region}map.jpg`);
+            }
+        }
+    }
+
+    $('.selectRegion').on('click', function () {
+     
+        const region = $(this).data('region'); 
+        const color = 'centerred'; 
+        console.log(region)
+
+        updateRegionMapFromValues(region, color);
+    });
 });

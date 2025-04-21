@@ -69,7 +69,7 @@ class RegionManagerController extends Controller
                 'locations:id,name',
                 'locations.geoLocation:location_id,latitude,longitude',
                 'locations.locationAssignments.region:id,name',
-                'pilot:id,name',
+                'pilot:id,name,email',
                 'approvals:id,mission_id,region_manager_approved,modon_admin_approved,pilot_approved',
                 'user:id,name,user_type_id',
                 'user.userType:id,name',
@@ -85,6 +85,7 @@ class RegionManagerController extends Controller
                 $mission->pilot_info = [
                     'id'   => $mission->pilot->id   ?? null,
                     'name' => $mission->pilot->name ?? null,
+                    'email' => $mission->pilot->email ?? null,
                 ];
     
                 $mission->created_by = [

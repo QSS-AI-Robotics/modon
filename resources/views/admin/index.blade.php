@@ -275,10 +275,10 @@
                                         <option value="71">Heat Map</option>
                                                                                   
                                     </select>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="center">Central Region </span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="east">Eastern Region</span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="west">Western Region</span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="reset">Reset View</span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="center" data-centercolorcode="">Central Region </span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="east" data-eastcolorcode="">Eastern Region</span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="west" data-westcolorcode="">Western Region</span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="all" data-allcolorcode="">Reset View</span>
                                 
                                 </div>
 

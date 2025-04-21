@@ -47,7 +47,7 @@ Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,reg
 
     
     Route::get('/missions', [RegionManagerController::class, 'index'])->name('missions.index');
-    // Route::get('/getmanagermissions', [RegionManagerController::class, 'getmanagermissions'])->name('missions.getmanagermissions');
+
     Route::get('/getmanagermissions', [RegionManagerController::class, 'getAllMissionsByUserType'])->name('missions.getAllMissionsByUserType');
     Route::post('/missions/store', [RegionManagerController::class, 'storeMission'])->name('missions.store'); 
     Route::post('/missions/{id}', [RegionManagerController::class, 'destroyMission'])->name('missions.destroy');

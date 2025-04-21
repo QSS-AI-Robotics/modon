@@ -1,5 +1,13 @@
 $(document).ready(function () {
     // CSRF Token Setup for AJAX
+
+
+    getRegionManagerMissions();
+    
+    $(".refreshIcon").on('click', function(){
+
+        window.location.reload();
+    })
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -198,7 +206,7 @@ $(document).ready(function () {
 
 
 
-    getRegionManagerMissions();
+
     // getMissionStats();
     // function getMissionStats() {
     //     $.ajax({
@@ -227,15 +235,35 @@ $(document).ready(function () {
     //         }
     //     });
     // }
+    // Trigger when a span is clicked
+    $(".mstatus").on("click", function () {
+        $(".mstatus").removeClass("activeStatus");
+        $(this).addClass("activeStatus");
 
-    function getRegionManagerMissions() {
+        const status = $(this).text().trim().toLowerCase(); // get text like "pending"
+        const date = $("#filterMission").val(); // get date if selected
+
+        getRegionManagerMissions({ status, date });
+    });
+    $("#filterMission").on("change", function () {
+        const date = $(this).val();
+        const status = $(".mstatus.activeStatus").text().trim().toLowerCase();
+  
+        getRegionManagerMissions({ status, date });
+    });
+
+    function getRegionManagerMissions({ status = null, date = null } = {}) {
+
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
         $(".cancel-btn").addClass("d-none");
-    
+        const data = {};
+        if (status) data.status = status;
+        if (date) data.date = date;
         $.ajax({
             url: "/getmanagermissions",
             type: "GET",
+            data: data,
             success: function (response) {
                 console.log("mission detail", response);
                 $('#missionsAccordion').empty();
@@ -302,22 +330,15 @@ $(document).ready(function () {
                         const shouldDisable = reportSubmitted === 1 || reportSubmitted === 2 || pilotApproved === 1 || pilotApproved === 2;
                     
                         if (shouldDisable) {
-                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be edited">`;
-                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be deleted">`;
+                            // editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be edited">`;
+                            // deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be deleted">`;
                         } else {
                             editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
                             deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                         }
                     }
                     
-                    // if (userType === 'modon_admin') {
-                    //     if (mission.status === "Approved" || mission.status === "Rejected") {
-                    //         editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot edit">`;
-                    //         deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot delete">`;
-                    //     } else {
-                    //         editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
-                    //         deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
-                    //     }
+
 
  
                     // }
@@ -572,7 +593,7 @@ $('#addMissionForm').on('submit', function (e) {
     $(".mission-btn svg").attr({ "width": "20", "height": "20" });
     
     // ✅ Debug log
-    console.table(formData);
+    // console.table(formData);
     
     // 👉 Continue with your AJAX submission below
     
@@ -603,8 +624,15 @@ $('#addMissionForm').on('submit', function (e) {
             $(".mission-btn span").text("New Mission");
             console.log("Mission Response Data",response)
             if (Array.isArray(response.mission.allmails)) {
-                const recipients = response.mission.allmails;
-                sendEmailsToMembers(response, recipients);
+          
+                const actionType = missionId ? 'Updated':'Created'
+                sendMissionNotification({
+                    mission: response.mission,
+                    recipients: response.mission.allmails,
+                    action: actionType
+                });
+
+
             } else {
                 console.error("Expected an array for 'allmails', got:", response.allmails);
             }
@@ -623,66 +651,6 @@ $('#addMissionForm').on('submit', function (e) {
     });
 });
 
-function sendEmailsToMembers(response, recipients) {
-    // ✅ Log recipients
-    console.log("Real email recipients:", recipients);
-
-    // ✅ Add dummy recipients for testing
-    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-
-    // ✅ Email content
-    const subject = "New Mission Created";
-    const content = `
-        A new mission has been created in the dashboard. 
-        Please log in to your account to view the latest details.
-
-        Mission Details:
-        - Inspection Type: ${response.mission.inspection_type.name}
-        - Mission Date: ${response.mission_date}
-        - Locations: ${response.mission.locations.map(loc => loc.name).join(', ')}
-
-        Best regards,
-        Admin Team
-    `;
-
-    // ✅ Show loading alert
-    Swal.fire({
-        title: 'Mission Created Successfully...',
-        html: 'Please wait while emails are being sent..',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    // ✅ Send request
-    fetch('/send-email', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        body: JSON.stringify({ recipients: dummyRecipients, subject, content })
-    })
-    .then(response => response.json())
-    .then(data => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Email Sent!',
-            text: data.message || 'Notification email sent successfully.',
-            timer: 2000,
-            showConfirmButton: false
-        });
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Email Error!',
-            text: 'An error occurred while sending the email.',
-        });
-    });
-}
 
   
 
@@ -827,15 +795,21 @@ function sendEmailsToMembers(response, recipients) {
                         delete_reason: deleteReason
                     },
                     success: function (response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: response.message || 'Mission has been deleted.',
-                            timer: 2000,
-                            showConfirmButton: false,
-                            background: '#101625',
-                            color: '#ffffff'
+                        console.log(response)
+                        sendMissionNotification({
+                            mission: response.mission,
+                            recipients: response.mission.allmails,
+                            action: 'deleted'
                         });
+                        // Swal.fire({
+                        //     icon: 'success',
+                        //     title: 'Deleted!',
+                        //     text: response.message || 'Mission has been deleted.',
+                        //     timer: 2000,
+                        //     showConfirmButton: false,
+                        //     background: '#101625',
+                        //     color: '#ffffff'
+                        // });
     
                         $('#missionRow-' + missionId).remove(); // Remove mission row
                         // getMissionStats();
@@ -983,7 +957,17 @@ function sendEmailsToMembers(response, recipients) {
             type: "POST",
             data: formData,
             success: function (response) {
-                alert(response.message);
+                console.log("Edit Mission Detail",response);
+                if (!Array.isArray(response.allmails)) {
+                    console.warn("Expected recipients to be an array but got:", recipients);
+                }else{
+                    console.log("array",response.allmails)
+                }
+                // sendMissionNotification({
+                //     mission: response.mission,
+                //     recipients: response.allmails,
+                //     action: 'Updated'
+                // });
                 $("#editMissionModal").modal("hide");
                 getRegionManagerMissions();
                 // getMissionStats();
@@ -993,5 +977,119 @@ function sendEmailsToMembers(response, recipients) {
             }
         });
     });
+    function sendMissionNotification({ mission, recipients, action = 'created' }) {
+        const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+        const content = `
+        A mission has been ${action} in the dashboard. 
+        Please log in to your account to view the latest details.
+    
+        Mission Details:
+        - Inspection Type: ${action === 'deleted' ? mission.inspection_type || 'N/A' : mission.inspection_type?.name || 'N/A'}
+        - Mission Date: ${mission.mission_date || 'N/A'}
+        - Locations: ${mission.locations?.map(loc => loc.name).join(', ') || 'N/A'}
+        ${action === 'deleted' ? `- Deleted By: ${mission.deleted_by || 'N/A'}\n- Deletion Reason: ${mission.deleted_reason || 'N/A'}` : ''}
+    
+        Best regards,
+        Admin Team
+    `;
+    
+        // ✅ Show loading modal
+        Swal.fire({
+            title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+            html: 'Please wait while emails are being sent...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+        const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+        // ✅ Send email request
+        fetch('/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+        })
+        .then(res => res.json())
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Email Sent!',
+                text: data.message || `Mission ${action} notification sent successfully.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        })
+        .catch(error => {
+            console.error('Email send error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Email Error!',
+                text: 'An error occurred while sending the email.'
+            });
+        });
+    }
+    
+    // function sendMissionNotification(response, recipients) {
+    //     // ✅ Log recipients
+    //     console.log("Real email recipients:", recipients);
+    
+    //     // ✅ Add dummy recipients for testing
+    //     // const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+    
+    //     // ✅ Email content
+    //     const subject = "New Mission Created";
+    //     const content = `
+    //         A new mission has been created in the dashboard. 
+    //         Please log in to your account to view the latest details.
+    
+    //         Mission Details:
+    //         - Inspection Type: ${response.mission.inspection_type.name}
+    //         - Mission Date: ${response.mission_date}
+    //         - Locations: ${response.mission.locations.map(loc => loc.name).join(', ')}
+    
+    //         Best regards,
+    //         Admin Team
+    //     `;
+    
+    //     // ✅ Show loading alert
+    //     Swal.fire({
+    //         title: 'Mission Created Successfully...',
+    //         html: 'Please wait while emails are being sent..',
+    //         allowOutsideClick: false,
+    //         didOpen: () => {
+    //             Swal.showLoading();
+    //         }
+    //     });
+    
+    //     // ✅ Send request
+    //     fetch('/send-email', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //         },
+    //         body: JSON.stringify({ recipients: recipients, subject, content })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         Swal.fire({
+    //             icon: 'success',
+    //             title: 'Email Sent!',
+    //             text: data.message || 'Notification email sent successfully.',
+    //             timer: 2000,
+    //             showConfirmButton: false
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.error('Error:', error);
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Email Error!',
+    //             text: 'An error occurred while sending the email.',
+    //         });
+    //     });
+    // }
+    
 
 });

@@ -30,7 +30,8 @@
                                 <div class="col-lg-4 text-end ">
                                     {{-- <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
                                     <input type="search" placeholder="Search Reports Here" class="search-input"> --}}
-                                    <input type="date" placeholder="" class="dateInput">
+                                    <input type="date" placeholder="" class="dateInput" id="filterMission">
+                                    <img src="http://192.168.100.134:8000/images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg refreshIcon">
                                 </div>
                                 <div class="col-lg-5">
                                     <div class="row py-2 gap-2">
@@ -52,7 +53,7 @@
                         </div>
 
 
-                        <div class="flex-grow 1">
+                        <div class="flex-grow 1  overflow-y-auto" style="max-height: 58vh;overflow-x:hidden;">
                             <div class="row fw-bold custom-bborder  label-text w-100  px-3 py-2 justify-content-between">
                                 <div class="col-3 ">Inspection Type</div>
                                 <div class="col-2 ">Mission Date</div>

@@ -57,6 +57,17 @@ $(document).ready(function () {
         //         $(this).addClass('selected');
         //     }
         // });
-
+        setTimeout(function () {
+            const getuserValue = $("#passwordResetEnable").val();
+            
+            if (getuserValue == 1) {
+                const modalElement = $("#passwordResetModal");
+                modalElement.modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modalElement.modal('show');
+            }
+        }, 2000);
 
 });

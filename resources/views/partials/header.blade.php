@@ -34,6 +34,7 @@
                             <div class="fw-bold text-capitalize">{{ Auth::user()->name ?? 'Admin' }}</div>
                             <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div>
                             <input type="hidden" id="passwordResetEnable" value="{{ Auth::user()->force_password_reset }}"/>
+                            
                         </div>
                         <img 
                             src="{{ asset('storage/users/' . (Auth::user()->image ?? 'user.png')) }}" 

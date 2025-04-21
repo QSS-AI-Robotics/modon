@@ -28,6 +28,10 @@
             
             <div class="col-3 d-flex justify-content-end">
 
+                  
+
+                  
+           
                 <div class="profile-wrapper">
                     <div class="profile-toggle" id="profileToggle">
                         <div class="profile-info">

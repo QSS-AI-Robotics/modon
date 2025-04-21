@@ -564,9 +564,15 @@ function updateInspectionChart(chart, response) {
     $('.selectRegion').on('click', function () {
      
         const region = $(this).data('region'); 
-        const color = 'centerred'; 
+        const color = 'green'; 
         console.log(region)
+        const value = [`${region}${color}`];
+        if(region === "reset"){
+            $("#mainBgmap").attr('src',`./images/map/map.jpg`)
+        }else{
+            $("#mainBgmap").attr('src',`./images/map/${region}map.jpg`)
+            updateRegionMapFromValues(value);
+        }
 
-        updateRegionMapFromValues(region, color);
     });
 });

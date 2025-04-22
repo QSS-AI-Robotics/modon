@@ -170,6 +170,43 @@ $(document).ready(function () {
             success: function (data) {
                 console.log('✅ Missions by Region:', data);
                 updateChart(chartInstance, data);
+           
+
+                const regionData = data.data.filter(item => item.region !== 'all');
+
+                // Sort by missions count descending
+                const sorted = [...regionData].sort((a, b) => b.missions - a.missions);
+            
+                // Assign color based on rank
+                const colorMap = {};
+            
+                sorted.forEach((item, index) => {
+                    if (index === 0) colorMap[item.region] = 'red';      // Highest
+                    else if (index === 1) colorMap[item.region] = 'orange'; // Mid
+                    else colorMap[item.region] = 'green';                // Lowest
+                });
+            
+                // Build result array like ['centerred', 'eastorange', 'westgreen']
+                const colorValues = regionData.map(item => {
+                    let regionKey = item.region;
+                
+                    // Normalize region to match image IDs
+                    if (regionKey === 'central') regionKey = 'center';
+                    else if (regionKey === 'eastern') regionKey = 'east';
+                    else if (regionKey === 'western') regionKey = 'west';
+                
+                    const color = colorMap[item.region];
+                    return `${regionKey}${color}`;
+                });
+            
+                console.log('🎨 Region Color Values:', colorValues);
+            
+                // Pass to map update function
+                updateRegionMapFromValues(colorValues);
+                $('.selectRegion').attr('data-centercolorcode', colorValues.find(v => v.startsWith('center')) || '');
+                $('.selectRegion').attr('data-eastcolorcode', colorValues.find(v => v.startsWith('east')) || '');
+                $('.selectRegion').attr('data-westcolorcode', colorValues.find(v => v.startsWith('west')) || '');
+                $('.selectRegion').attr('data-allcolorcode', colorValues.join(','));
             },
             error: function (xhr, status, error) {
                 console.error('❌ Error fetching missions by region:', error);
@@ -500,5 +537,62 @@ function updateInspectionChart(chart, response) {
             }
         });
     }
+
+
+
+
+    function updateRegionMapFromValues(values) {
+        const regionImages = ['center', 'east', 'west'];
+
+        // Hide all images first
+        regionImages.forEach(r => $(`#${r}`).hide());
+
+        // Loop over the provided values (like "centergreen")
+        values.forEach(val => {
+            const match = val.match(/(center|east|west)(green|red|orange)/);
+            if (match) {
+                const region = match[1];
+                const color = match[2];
+
+                // Show the matched region image
+                $(`#${region}`).show();
+
+                // Update the src for that region's image
+                const newSrc = `./images/map/heatmap/${region}${color}.png`;
+                $(`#${region}`).attr('src', newSrc);
+            }
+        });
+
+        // If it's a reset (3 values), we assume full map view
+        if (values.length > 1) {
+            $('#mainBgmap').attr('src', './images/map/map.jpg');
+        } else if (values.length === 1) {
+            const match = values[0].match(/(center|east|west)/);
+            if (match) {
+                const region = match[1];
+                $('#mainBgmap').attr('src', `./images/map/${region}map.jpg`);
+            }
+        }
+    }
+
+    $('.selectRegion').on('click', function () {
+        const region = $(this).data('region'); 
+    
+        // Get value from the mapData element
+        const rawValue =  $(this).data(`${region}colorcode`);
+    
+        // Convert to array
+        const values = rawValue ? rawValue.toString().split(',') : [];
+    
+        console.log(values);
+    
+        if (region === "reset") {
+            $("#mainBgmap").attr('src', `./images/map/map.jpg`);
+        } else {
+            $("#mainBgmap").attr('src', `./images/map/${region}map.jpg`);
+        }
+    
+        updateRegionMapFromValues(values);
+    });
     
 });

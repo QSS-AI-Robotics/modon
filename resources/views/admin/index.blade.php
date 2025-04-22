@@ -275,42 +275,26 @@
                                         <option value="71">Heat Map</option>
                                                                                   
                                     </select>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center" id="pending">Central Region</span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center" id="rejected">Eastern Region</span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center" id="completed">Western Region</span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="center" data-centercolorcode="">Central Region </span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="east" data-eastcolorcode="">Eastern Region</span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="west" data-westcolorcode="">Western Region</span>
+                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="all" data-allcolorcode="">Reset View</span>
+                                
                                 </div>
-                                {{-- <div class="flex-grow-1  w-100 h-100 d-flex  ">
-                                    <img src="{{ asset('images/map/west-ern-map-removebg-preview.png') }}"
-                                         class="img-fluid object-fit-cover rounded"
-                                         alt="Heatmap">
-                                </div> --}}
-                                {{-- <div class="position-relative w-100 h-100 overflow-hidden rounded  bg-modon ">
-                                    <div class="map-wrapper">
-                                       
-                                        <img src="{{ asset('images/map/west-ern-map-removebg-preview.png') }}"
-                                             alt="Saudi Arabia Map">
-                                      
-                                        <div class="heat-shape bg-danger" style="top: 62%; left: 32%; width: 140px; height: 140px;"></div>
-                                        <div class="heat-shape bg-success" style="top: 62%; left: 40%; width: 140px; height: 140px;"></div>
-                                         <div class="heat-shape bg-success" style="top: 75%; left: 45%; width: 100px; height: 100px;"></div> 
-                                      </div>
-                                  </div> --}}
-                                  <div class="flex-grow-1  w-100 h-100 d-flex  bg-modon ">
-                                  <div class="map-wrapper ">
-                                    <!-- Map Image -->
-                                    <img src="{{ asset('images/map/west-ern-map-removebg-preview.png') }}"
-                                         alt="Saudi Map">
+
+
                                   
-                                    <!-- Realistic Heatmap Spots -->
-                                    <div class="heat-shape heat-high" style="top: 62%; left: 32%; width: 250px; height: 250px;"></div>
-                                    <div class="heat-shape heat-moderate" style="top: 52%; left: 50%; width: 250px; height: 250px;"></div>
-                                    <div class="heat-shape heat-normal" style="top: 50%; left: 65%; width: 250px; height: 250px;"></div>
-                                    {{-- <div class="heat-shape" style="top: 62%; left: 40%; width: 200px; height: 200px;"></div>
-                                    <div class="heat-shape" style="top: 70%; left: 45%; width: 150px; height: 150px;"></div> --}}
-                                  </div>
+                                <div class="flex-grow-1  w-100 h-100 d-flex  bg-modon ">
+                                    <div class="map-wrapper ">
+                                        <!-- Map Image -->
+                                        <img src="{{ asset('images/map/map.jpg') }}" id="mainBgmap" alt="Saudi Map">
+                                        <img src="" alt="Saudi Map" id="center" >
+                                        <img src="" alt="Saudi Map" id="west">
+                                        <img src="" alt="Saudi Map" id="east">
+
+
+                                    </div>
                                 </div>
-                                  
-                                  
                                 
                             </div>
                         </div>
@@ -324,7 +308,9 @@
             <!-- End  third Column -->            
         </div> 
         <!-- End Main Panel -->
+        <script>
 
+        </script>
 @endsection
 @push('scripts')
 <script src="{{ asset('js/adminusers.js') }}"></script>

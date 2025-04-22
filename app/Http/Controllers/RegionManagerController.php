@@ -17,14 +17,6 @@ class RegionManagerController extends Controller
 {
 
 
-
-
-
-
-
-
-
-
     public function getAllMissionsByUserType(Request $request)
     {
         if (!Auth::check()) {
@@ -69,7 +61,7 @@ class RegionManagerController extends Controller
                 'locations:id,name',
                 'locations.geoLocation:location_id,latitude,longitude',
                 'locations.locationAssignments.region:id,name',
-                'pilot:id,name',
+                'pilot:id,name,email',
                 'approvals:id,mission_id,region_manager_approved,modon_admin_approved,pilot_approved',
                 'user:id,name,user_type_id',
                 'user.userType:id,name',
@@ -85,6 +77,7 @@ class RegionManagerController extends Controller
                 $mission->pilot_info = [
                     'id'   => $mission->pilot->id   ?? null,
                     'name' => $mission->pilot->name ?? null,
+                    'email' => $mission->pilot->email ?? null,
                 ];
     
                 $mission->created_by = [
@@ -334,10 +327,25 @@ class RegionManagerController extends Controller
         }
     
         $approval->save();
+Log::info("📋 $userType approved mission #$missionId with value: $decision");
+
+// ✅ Retrieve all columns of the mission_approvals table for the specific mission
+$approvalDetails = MissionApproval::where('mission_id', $missionId)->first();
+
+// Log the approval details for debugging or auditing purposes
+Log::info("📋 Mission Approval Details:", $approvalDetails->toArray());
+
+// Return the response with the approval details
+return response()->json([
+    'message' => 'Mission decision saved.',
+    'approval_details' => $approvalDetails,
+]);
     
-        Log::info("📋 $userType approved mission #$missionId with value: $decision");
-    
-        return response()->json(['message' => 'Mission decision saved.']);
+        // Return the response with the approval details
+return response()->json([
+    'message' => 'Mission decision saved.',
+    'approval_details' => $approvalDetails,
+]);
     }
     
 

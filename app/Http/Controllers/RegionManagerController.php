@@ -40,7 +40,7 @@ class RegionManagerController extends Controller
         Log::info("🔍 User: {$user->id}, Type: {$userType}");
         Log::info("📍 Regions: ", $regionIds);
         Log::info("📍 Locations: ", $locationIds);
-        Log::info("🔍 Filters => Status: {$statusFilter}, Date: {$dateFilter}");
+        Log::info("🔍 Filters => Status {$statusFilter}, Date: {$dateFilter}");
     
         $missions = Mission::query()
             ->when($userType === 'region_manager', function ($q) use ($regionIds) {

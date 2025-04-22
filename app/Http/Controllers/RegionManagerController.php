@@ -125,7 +125,7 @@ class RegionManagerController extends Controller
     //         : [];
     
     //     Log::info("🔍 User: {$user->id}, Type: {$userType}");
-    //     Log::info("📍 Regions: ", $regionIds);
+    //     Log::info("📍 Regions:: ", $regionIds);
     //     Log::info("📍 Locations: ", $locationIds);
     
     //     $missions = Mission::query()

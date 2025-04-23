@@ -475,7 +475,29 @@ iframe {
     background: rgba(10, 65, 91, 1);
     color: #fff; /* if you want white text */
     padding: 1rem;
-    border-radius: 6px; /* optional: rounded edges */
+    border-radius: 6px; 
+}
+
+.regionsDiv {
+
+    background: rgb(16, 90, 126);
+    color: #fff; /* if you want white text */
+    padding: 1rem;
+    border-radius: 1px;
+    border-left:2px solid #71E875;
+}
+
+.regionsDiv:hover{
+    transform: scale(0.9);
+    cursor: pointer;
+}
+.regionsDiv h6{
+    font-size: 14px;
+}
+.regionsDiv p{
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+
 }
 .incidentDiv h6{
     font-size: 14px;
@@ -528,7 +550,6 @@ iframe {
     position: relative;
     z-index: 999;
 }
-
 .profile-toggle {
     display: flex;
     align-items: center;
@@ -537,7 +558,93 @@ iframe {
     cursor: pointer;
     color: white;
 }
+.notification-wrapper {
+    position: relative;
+    z-index: 999;
+}
+.notification-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: white;
+}
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px); /* Initially hidden & moved up */
+    width: 250px;
+    background: #0A405A;
+    border: 1px solid #444;
+    border-radius: 6px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    overflow-y:auto;
+    pointer-events: none;
+    transition: all 0.3s ease, transform 0.3s ease;
+}
 
+.notification-dropdown.active {
+    opacity: 1;
+    max-height: 300px;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0); /* Slide down to visible */
+}
+.notification-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: rgb(230, 32, 32);
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    line-height: 1;
+}
+
+.notification-item {
+    /* background: linear-gradient(#092B3B,#0A415B); */
+    border-left:3px solid #71E875;
+  
+    
+    padding: 0.5rem;
+    border-radius: 0px;
+    
+    color: #fff;
+    font-size: 13px;
+    transition: background-position 0.5s ease-in-out;
+}
+
+.notification-item:hover {
+    background: linear-gradient(to right, #105A7E, #0A415B);
+    background-size: 200% 100%;
+
+    background-position: right center;
+    cursor: pointer;
+}
+
+
+.notification-item .message {
+    margin: 0;
+    flex: 1;
+}
+
+.notification-item .timestamp {
+    font-size: 11px;
+    color: #bbb;
+    white-space: nowrap;
+    text-align: right !important;
+    align-self: end;
+}
 .profile-img {
     height: 40px;
     width: 40px;
@@ -570,6 +677,7 @@ iframe {
     max-height: 300px;
     pointer-events: auto;
 }
+
 
 .chart-wrapper {
     height: 30vh; /* Adjust as needed */
@@ -908,3 +1016,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-radius: 6px;
     font-size:16px;
 } */
+
+

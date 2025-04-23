@@ -135,7 +135,7 @@ $(document).ready(function () {
     
         // Fetch chart data regardless of date presence
         fetchMissionsByRegion(regionChart);
-        fetchInspectionsByRegion(regionBarChart);
+        // fetchInspectionsByRegion(regionBarChart);
         fetchPilotMissionSummary();
     });
     
@@ -144,6 +144,7 @@ $(document).ready(function () {
 
 
     // ✅ Call after chart is created
+    // fetchMissionsByRegion();
     fetchMissionsByRegion(regionChart);
 
     function fetchMissionsByRegion(chartInstance) {
@@ -170,22 +171,52 @@ $(document).ready(function () {
             success: function (data) {
                 console.log('✅ Missions by Region:', data);
                 updateChart(chartInstance, data);
-           
-
                 const regionData = data.data.filter(item => item.region !== 'all');
 
+                // Set mission values to corresponding elements
+                let totalMissions = 0;
+                
+                regionData.forEach(item => {
+                    let regionKey = item.region;
+                    const missionCount = item.missions;
+                
+                    totalMissions += missionCount;
+                
+                    if (regionKey === 'central') {
+                        $('#centremissionVal').text(missionCount);
+                    } else if (regionKey === 'eastern') {
+                        $('#eastmissionVal').text(missionCount);
+                    } else if (regionKey === 'western') {
+                        $('#westmissionVal').text(missionCount);
+                    }
+                });
+                
+                // Set total
+                $('#totalmissionVal').text(totalMissions);
+                
                 // Sort by missions count descending
                 const sorted = [...regionData].sort((a, b) => b.missions - a.missions);
-            
-                // Assign color based on rank
+                
+                // Check if all mission values are equal
+                const allSame = sorted.every(item => item.missions === sorted[0].missions);
+                
+                // Assign color based on logic
                 const colorMap = {};
-            
-                sorted.forEach((item, index) => {
-                    if (index === 0) colorMap[item.region] = 'red';      // Highest
-                    else if (index === 1) colorMap[item.region] = 'orange'; // Mid
-                    else colorMap[item.region] = 'green';                // Lowest
-                });
-            
+                
+                if (allSame) {
+                    // All values are the same → assign green
+                    regionData.forEach(item => {
+                        colorMap[item.region] = 'green';
+                    });
+                } else {
+                    // Normal ranking: red → orange → green
+                    sorted.forEach((item, index) => {
+                        if (index === 0) colorMap[item.region] = 'red';      // Highest
+                        else if (index === 1) colorMap[item.region] = 'orange'; // Mid
+                        else colorMap[item.region] = 'green';                // Lowest
+                    });
+                }
+                
                 // Build result array like ['centerred', 'eastorange', 'westgreen']
                 const colorValues = regionData.map(item => {
                     let regionKey = item.region;
@@ -198,15 +229,19 @@ $(document).ready(function () {
                     const color = colorMap[item.region];
                     return `${regionKey}${color}`;
                 });
-            
+                
                 console.log('🎨 Region Color Values:', colorValues);
-            
+                
                 // Pass to map update function
                 updateRegionMapFromValues(colorValues);
+                
+                // Store in data attributes for later use
                 $('.selectRegion').attr('data-centercolorcode', colorValues.find(v => v.startsWith('center')) || '');
                 $('.selectRegion').attr('data-eastcolorcode', colorValues.find(v => v.startsWith('east')) || '');
                 $('.selectRegion').attr('data-westcolorcode', colorValues.find(v => v.startsWith('west')) || '');
                 $('.selectRegion').attr('data-allcolorcode', colorValues.join(','));
+                
+                
             },
             error: function (xhr, status, error) {
                 console.error('❌ Error fetching missions by region:', error);
@@ -441,14 +476,14 @@ function updateInspectionChart(chart, response) {
         });
     }
  
-    // fetchLatestInspections();
+    fetchLatestInspections();
     function fetchLatestInspections() {
         $.ajax({
             url: '/latest-inspections',
             type: 'GET',
             dataType: 'json',
             success: function(data) {
-                // console.log("Latest Inspections:", data);
+               console.log("Latest Inspections:", data);
     
                 const container = $('.IncidentPanel');
                 container.empty(); // clear previous data
@@ -466,8 +501,8 @@ function updateInspectionChart(chart, response) {
                                     <img src="${item.image_path}" class="img-fluid rounded-circle" style="height: 30px; width:30px">
                                 </div>
                                 <div class="col-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">${item.description}</h6>
-                                    <p class="mb-0">Region: <span class="text-capitalize">${item.region_name}</span > - <span class="text-capitalize">${item.location}</span></p>
+                                    <h6 class="mb-0">${item.inspection_name}</h6>
+                                    <p class="mb-0">Region: <span class="text-capitalize">${item.region_name}</span > <br> <span class="text-capitalize">${item.location}</span></p>
                                 </div>
                             </div>
                         </div>

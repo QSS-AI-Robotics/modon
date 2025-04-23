@@ -10,7 +10,7 @@
 
             <!-- First Column -->
             <div class="col-lg-3 d-flex p-0 flex-column h-100">
-                <div class="row flex-grow-1 mx-2 my-1 h-100">
+                <div class="row flex-grow-1 mx-1 my-1 h-100">
                     <div class="col-lg-12 d-flex flex-column h-100">
 
                         <!-- Container for the stack -->
@@ -111,66 +111,72 @@
 
 
             <!-- second Column (Mission Analytics & Create New Mission) -->
-            <div class="col-lg-3 d-flex p-0 flex-column h-100 ">
-                <div class="row flex-grow-1 mx-2 my-1 d-flex flex-column  h-100">
-            
 
-                    <div class="col-12 bg-section " style="height:35%;">
-                        <p class="mb-4 pt-2" style="height:10%">Latest Missions</p>
-                        <div class="latestMissionPanel" style="overflow-y:auto;height:80%;overflow-x:hidden">
-                            
-                            
-                        </div>
+            {{-- <div class="col-lg-3 d-flex p-0 flex-column full-height">
+                <div class="row flex-grow-1 mx-2 my-1 d-flex flex-column h-100">
+            
+            
+                    <div class="col-12 bg-section" style="flex: 0 0 10%;">
+                        <p class="mb-4 pt-2">Latest Missions</p>
+                        <div class="latestMissionPanel" style="overflow-y:auto; height:80%; overflow-x:hidden;"></div>
                     </div>
-                    <div class="col-12 bg-section mt-3 " style="height:62%;">
-                        <p class="mb-0 pt-3"  style="height:10%">Latest Incidents</p>
-                        {{-- change to incidentPanel --}}
-                        <div class="IncidentPanels" style="overflow-y:auto;height:85%;overflow-x:hidden">
-                            <div class="incidentDiv p-2 my-2">
-                                <div class="row align-items-center">
-                                    <div class="col-2 d-flex justify-content-center align-items-center">
-                                        <img src="http://192.168.100.134:8000/storage/users/1744470261_ai-generated-8665850_1920.jpg" class="img-fluid rounded-circle" style="height: 30px; width:30px">
-                                    </div>
-                                    <div class="col-10 d-flex flex-column justify-content-center">
-                                        <h6 class="mb-0">Gas Emission Analysis</h6>
-                                        <p class="mb-0">Location: <span class="text-capitalize">Dammam First Industrial City</span> <br> Region: <span class="text-capitalize">Eastern</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="incidentDiv p-2 my-2">
-                                <div class="row align-items-center">
-                                    <div class="col-2 d-flex justify-content-center align-items-center">
-                                        <img src="http://192.168.100.134:8000/storage/users/1744781594_character-9210436_1920.jpg" class="img-fluid rounded-circle" style="height: 30px; width:30px">
-                                    </div>
-                                    <div class="col-10 d-flex flex-column justify-content-center">
-                                        <h6 class="mb-0">Yard Violations Detections</h6>
-                                        <p class="mb-0">Location: <span class="text-capitalize">Dammam First Industrial City</span> <br> Region: <span class="text-capitalize">Eastern</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="incidentDiv p-2 my-2">
-                                <div class="row align-items-center">
-                                    <div class="col-2 d-flex justify-content-center align-items-center">
-                                        <img src="http://192.168.100.134:8000/storage/users/1744470261_ai-generated-8665850_1920.jpg" class="img-fluid rounded-circle" style="height: 30px; width:30px">
-                                    </div>
-                                    <div class="col-10 d-flex flex-column justify-content-center">
-                                        <h6 class="mb-0">City Updates & Event Coverages</h6>
-                                        <p class="mb-0">Location: <span class="text-capitalize">Dammam First Industrial City</span> <br> Region: <span class="text-capitalize">Eastern</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            
+               
+                    <div class="col-12 bg-section mt-3" style="flex: 1 1 auto;">
+                        <p class="mb-0 pt-3">Latest Incidents</p>
+                        <div class="IncidentPanel" style="overflow-y:auto; height:80%; overflow-x:hidden;"></div>
                     </div>
-                    
-                    
+            
                 </div>
-            </div>
+            </div> --}}
+            
+            <div class="col-lg-3 d-flex flex-column p-0" style="height: 100%;">
+                <div class="d-flex flex-column flex-grow-1 mx-2 my-1">
+              
+                  <!-- Fixed-height header (Latest Missions) -->
+                  <div class="bg-section mb-2" style="flex: 0 0 auto;">
+                    <p class="mb-2 pt-2 p-2">Latest Missions</p>
+                    <div class="latestMissionPanel p-2" style="max-height: 150px; overflow-y:auto;">
+
+                        <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d" <div="">
+                            <div class="col-10 d-flex flex-column justify-content-center">
+                                <h6 class="mb-0 text-truncate heartbeat text-capitalize">
+                                   Loading...
+                                </h6>
+                                <p class="mb-0 text-capitalize">Region:  Loading... | Status:  Loading...</p>
+                            </div>
+                        </div>
+                        <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d" <div="">
+                            <div class="col-10 d-flex flex-column justify-content-center">
+                                <h6 class="mb-0 text-truncate heartbeat text-capitalize">
+                                    Loading...
+                                </h6>
+                                <p class="mb-0 text-capitalize">Region:  Loading... | Status:  Loading...</p>
+                            </div>
+                        </div>
+
+                    </div>
+                  </div>
+              
+                  <!-- Flexible and scrollable body -->
+                  <div class="bg-section d-flex flex-column" style="flex: 1 1 auto; overflow: hidden;">
+                    <p class="mb-2 pt-2 p-2">Latest Incidents</p>
+                    <div class="flex-grow-1 IncidentPanel overflow-y-auto px-2" style="min-height: 0;max-height:60vh">
+                      <!-- Incident items -->
+                      
+                      <!-- Repeat more as needed -->
+                    </div>
+                  </div>
+              
+                </div>
+              </div>
+              
             
 
              <!-- End second Column -->
             {{-- third column start --}}
             <div class="col-lg-6 d-flex p-0 flex-column h-100">
-                <div class="d-flex flex-column flex-grow-1 mx-2 my-1">
+                <div class="d-flex flex-column flex-grow-1 mx-1 my-1">
             
                     <!-- === First Half: Pilot Tracking === -->
                     <div class="flex-grow-1 mb-1">
@@ -268,17 +274,37 @@
 
                                 <!-- Image Column -->
                                
-                                <div class="flex-grow-1 bg-modon  w-50 h-100 d-flex flex-column justify-content-evenly pe-4 align-items-center ">
-                                    <select name="pilot_id" id="pilot_id" class="form-select w-75 form-control dateInput mx-1" required="" style="background: #092B3B !important;">
-                                        <option value="">Select Map</option>
-                                        <option value="48">Map</option>
-                                        <option value="71">Heat Map</option>
-                                                                                  
-                                    </select>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="center" data-centercolorcode="">Central Region </span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="east" data-eastcolorcode="">Eastern Region</span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="west" data-westcolorcode="">Western Region</span>
-                                    <span class="badge p-2 px-4 mstatus w-75 text-center selectRegion" data-region="all" data-allcolorcode="">Reset View</span>
+                                <div class="flex-grow-1 bg-modon  w-50 h-100 d-flex flex-column justify-content-evenly px-2  ">
+
+                                  
+                                    <div class="regionsDiv p-2 my-2 selectRegion"  data-region="center" data-centercolorcode="">
+                                        <div class="col-10 d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize ">
+                                                Central Region
+                                            </h6>
+                                            <p class="mb-0 text-capitalize">Missions : <span class="text-white" id="centremissionVal">0</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="regionsDiv p-2 my-2 selectRegion"  data-region="east" data-eastcolorcode="">
+                                        <div class="col-10 d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize ">Eastern Region</h6>
+                                            <p class="mb-0 text-capitalize">Missions : <span class="text-white" id="eastmissionVal">0</span></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="regionsDiv p-2 my-2 selectRegion"  data-region="west" data-westcolorcode="">
+                                        <div class="col-10 d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize ">Western Region</h6>
+                                            <p class="mb-0 text-capitalize">Missions : <span class="text-white" id="westmissionVal">0</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="regionsDiv p-2 my-2  selectRegion" data-region="all" data-allcolorcode="">
+                                        <div class="col-10 d-flex flex-column justify-content-center">
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize">Reset View</h6>
+                                            <p class="mb-0 text-capitalize">Total Missions : <span class="text-white" id="totalmissionVal">0</span></p>
+                                        </div>
+                                    </div>
+                
                                 
                                 </div>
 

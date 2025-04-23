@@ -31,7 +31,7 @@
                                     {{-- <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
                                     <input type="search" placeholder="Search Reports Here" class="search-input"> --}}
                                     <input type="date" placeholder="" class="dateInput" id="filterMission">
-                                    <img src="http://192.168.100.134:8000/images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg refreshIcon">
+                                    <img src="./images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg refreshIcon">
                                 </div>
                                 <div class="col-lg-5">
                                     <div class="row py-2 gap-2">

@@ -34,6 +34,7 @@ $(document).ready(function () {
   
         
         // loadNotifications();
+        // sdlaskd
         // setInterval(loadNotifications, 3000); 
 
     $('#notificationToggle').on('click', function () {

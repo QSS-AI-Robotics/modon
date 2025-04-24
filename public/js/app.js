@@ -69,5 +69,5 @@ $(document).ready(function () {
                 modalElement.modal('show');
             }
         }, 2000);
-
+    
 });

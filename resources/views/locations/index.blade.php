@@ -40,8 +40,7 @@
                                     <tr>
                                         <th>No.</th>
                                         <th>Locations</th>
-                                        <th>Latitude</th>
-                                        <th>Longitude</th>
+
                                         <th>Region</th> 
                                         <th>Map</th>
                                         <th>Description</th>
@@ -106,15 +105,7 @@
                                 <label class="form-label label-text">Location Name</label>
                                 <input type="text" class="form-control dateInput" id="name" name="start_datetime" >
                             </div>
-                            <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Latitude</label>
-                                <input type="Number" class="form-control dateInput" id="latitude" name="latitude" >
-                            </div>
-
-                            <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Longitude</label>
-                                <input type="Number" class="form-control dateInput" id="longitude" name="longitude" >
-                            </div>
+    
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text">Map</label>
                                 <input type="text" class="form-control dateInput" id="map_url" name="map_url" placeholder="google map url" >

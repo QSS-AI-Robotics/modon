@@ -95,4 +95,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function clearErrors() {
         document.querySelectorAll('.error-message').forEach(el => el.remove());
     }
+
+    
 });

@@ -2,12 +2,13 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RegionManagerController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\PilotController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DroneController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\RegionManagerController;
+use Illuminate\Support\Facades\Route;
 // ✅ Public Routes (Accessible Without Authentication)
 Route::get('/', [AuthController::class, 'showSigninForm'])->name('signin.form'); // Sign-in Page
 Route::post('/signin', [AuthController::class, 'loginUser'])->name('signin.store'); // Login
@@ -132,3 +133,5 @@ Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(f
 
 //forget password
 Route::post('/forget-password', [AuthController::class, 'forgetPassword'])->name('forget.password');
+Route::get('/notifications', [NotificationController::class, 'fetchUserNotifications']);
+// Route::get('/notifications/live', [NotificationController::class, 'liveNotifications']);

@@ -78,6 +78,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     
     <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ asset('js/notification.js') }}"></script>
   
 
     @stack('scripts')

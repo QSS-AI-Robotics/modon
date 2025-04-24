@@ -284,10 +284,8 @@ $(document).ready(function () {
         // Show/hide no data message
         if (hasData) {
             $('#noDataMessage').addClass('d-none');
-            $('#regionMissionChart').removeClass('d-none');
         } else {
             $('#noDataMessage').removeClass('d-none');
-            $('#regionMissionChart').addClass('d-none');
         }
     }
     
@@ -404,21 +402,8 @@ function updateInspectionChart(chart, response) {
                 const data = response.data || [];
     
                 console.log("✅ Pilot Mission Summary:", data);
-                
-                if (data.length > 0) {
-                    $('#missionsPanel').empty(); 
-                }else{
-                    $('#missionsPanel').empty(); 
-                    $('#missionsPanel')
-                    .text("No Pilot Data Found...")
-                    .css({
-                        'text-align': 'center',
-                        'display': 'flex',
-                        'justify-content': 'center',
-                        'color': '#999' // optional styling
-                    });
-                }
-               
+    
+                $('#missionsPanel').empty(); // Clear existing cards
     
                 data.forEach(pilot => {
                     const total = pilot.total_missions || 0;
@@ -433,13 +418,16 @@ function updateInspectionChart(chart, response) {
                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
                                
                                 <div class="d-flex align-items-end mb-2">
-                                    <img src="/storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
+                                    <img src="./storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
                                    <div>
                                     <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
 
                                     <small 
                                         class="cont-btn px-2 mb-0 lh-1 text-capitalize text-truncate"
-                     
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        data-bs-custom-class="custom-tooltip"
+                                        data-title="${pilot.region}"
                                     >
                                         ${pilot.region.split(',')[0]}${pilot.region.split(',').length > 1 ? ', ...' : ''}
                                     </small>

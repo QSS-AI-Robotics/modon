@@ -35,8 +35,7 @@ $(document).ready(function () {
                         <tr data-id="${location.id}">
                             <td>${index + 1}</td>
                             <td>${location.name}</td>
-                            <td>${location.latitude}</td>
-                            <td>${location.longitude}</td>
+
                             <td class="text-capitalize">${regionDisplay}</td>
                             <td>${location.map_url ? `<a href="${location.map_url}" target="_blank">View</a>` : 'N/A'}</td>
                             <td>${location.description || 'N/A'}</td>
@@ -61,21 +60,19 @@ $(document).ready(function () {
     $(document).on('click', '.edit-location', function () {
         const row = $(this).closest('tr');
         const locationId = $(this).data('id');
+    
         $(".cancel-btn").removeClass("d-none");
         $(".form-title").text("Update Location");
         $(".mission-btn span").text("Update Location");
-        const name = row.find('td:eq(0)').text().trim();
-        const latitude = row.find('td:eq(1)').text().trim();
-        const longitude = row.find('td:eq(2)').text().trim();
-        const regionName = row.find('td:eq(3)').text().trim();
-        const mapUrl = row.find('td:eq(4)').find('a').attr('href') || '';
-        const description = row.find('td:eq(5)').text().trim();
+    
+        const name = row.find('td:eq(1)').text().trim(); // Makkah
+        const regionName = row.find('td:eq(2)').text().trim(); // Western
+        const mapUrl = row.find('td:eq(3)').find('a').attr('href') || ''; // View URL
+        const description = row.find('td:eq(4)').text().trim(); // dasdas
     
         // Fill form fields
         $('#locationId').val(locationId);
         $('#name').val(name);
-        $('#latitude').val(latitude);
-        $('#longitude').val(longitude);
         $('#map_url').val(mapUrl);
         $('#description').val(description);
     
@@ -87,7 +84,7 @@ $(document).ready(function () {
             }
         });
     
-        // Scroll to form or focus name input (optional UX)
+        // Optional: scroll to form
         $('html, body').animate({
             scrollTop: $('#locationForm').offset().top - 100
         }, 300);
@@ -95,46 +92,8 @@ $(document).ready(function () {
         $('#name').focus();
     });
     
-    // $(document).on('click', '.edit-location', function () {
-    //     let locationId = $(this).data('id');
-      
-    //     $.ajax({
-    //         url: `/locations/${locationId}/edit`,
-    //         type: "GET",
-    //         success: function (data) {
-    //             console.log("Edit Response:", data);
-
-    //             if (data.error) {
-    //                 alert(data.error);
-    //                 return;
-    //             }
-
-             
-
-               
-    //                 $("#locationId").val(data.id);
-    //                 $("#name").val(data.name);
-    //                 $("#latitude").val(data.latitude);
-    //                 $("#longitude").val(data.longitude);
-    //                 $("#map_url").val(data.map_url);
-    //                 $("#description").val(data.description);
-
-    //                 $(".form-title").text("Edit Location");
-    //                 $(".mission-btn span").text("Update Location");
-    //                 $(".mission-btn svg").attr({ "width": "20", "height": "20" }); // Increase SVG size
-                
-    //                 // ✅ Store Location ID in Form (Hidden Input)
-    //                 $("#locationForm").attr("data-location-id", locationId);
-                
-    //                 // ✅ Show Cancel Button
-    //                 $(".cancel-btn").removeClass("d-none");
-                
-    //         },
-    //         error: function (xhr) {
-    //             alert("Error fetching location data: " + xhr.responseText);
-    //         }
-    //     });
-    // });
+    
+  
 
     function resetForm(){
         $('#location-validation-errors').addClass('d-none').text('');
@@ -158,15 +117,14 @@ $(document).ready(function () {
     
         const formData = {
             name: $('#name').val().trim(),
-            latitude: $('#latitude').val().trim(),
-            longitude: $('#longitude').val().trim(),
+
             map_url: $('#map_url').val().trim(),
             description: $('#description').val().trim(),
             region_id: $('#region_id').val() // ✅ Get selected region
         };
     
         // Check if any field is empty (excluding optional map_url & description)
-        const requiredFields = ['name', 'latitude', 'longitude', 'region_id'];
+        const requiredFields = ['name', 'region_id'];
         const hasEmpty = requiredFields.some(field => !formData[field]);
     
         if (hasEmpty) {

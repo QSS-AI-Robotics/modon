@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\LocationAssignment;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\Notification;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 
 
@@ -455,8 +456,6 @@ public function updateUser(Request $request, $id)
    
 
     
-
- 
     public function missionsByRegion(Request $request)
     {
         $start = $request->input('start_date');
@@ -464,10 +463,10 @@ public function updateUser(Request $request, $id)
     
         $regions = Region::with(['missions' => function ($query) use ($start, $end) {
             if ($start) {
-                $query->whereDate('start_datetime', '>=', Carbon::parse($start));
+                $query->whereDate('created_at', '>=', Carbon::parse($start));
             }
             if ($end) {
-                $query->whereDate('start_datetime', '<=', Carbon::parse($end));
+                $query->whereDate('created_at', '<=', Carbon::parse($end));
             }
         }])->get();
     
@@ -485,6 +484,36 @@ public function updateUser(Request $request, $id)
             'data' => $data
         ]);
     }
+    
+ 
+    // public function missionsByRegion(Request $request)
+    // {
+    //     $start = $request->input('start_date');
+    //     $end = $request->input('end_date');
+    
+    //     $regions = Region::with(['missions' => function ($query) use ($start, $end) {
+    //         if ($start) {
+    //             $query->whereDate('created_by', '>=', Carbon::parse($start));
+    //         }
+    //         if ($end) {
+    //             $query->whereDate('created_by', '<=', Carbon::parse($end));
+    //         }
+    //     }])->get();
+    
+    //     $data = $regions->map(function ($region) {
+    //         return [
+    //             'region'   => $region->name,
+    //             'missions' => $region->missions->count(),
+    //         ];
+    //     });
+    
+    //     return response()->json([
+    //         'from' => $start ?? null,
+    //         'to' => $end ?? null,
+    //         'filtered' => (bool)($start || $end),
+    //         'data' => $data
+    //     ]);
+    // }
     
 
     
@@ -632,29 +661,46 @@ public function updateUser(Request $request, $id)
     
     
 
-
     public function latestInspections()
     {
         $images = PilotReportImage::with([
-            'location:id,name',
-            'report.mission.region:id,name'
-        ])->get();
+            'report.mission.locations:id,name',
+            'report.mission.region:id,name',
+            'report.mission.inspectionTypes:id,name'
+        ])->latest()->get(); // Get all, filter later
     
-        $result = $images->map(function ($image) {
+        $seenMissionIds = [];
+        $uniqueResults = [];
+    
+        foreach ($images as $image) {
             $report  = $image->report;
             $mission = $report?->mission;
-            $region  = $mission?->region;
     
-            return [
-                'region_name'  => $region?->name ?? 'N/A',
-                'location'     => $image->location?->name ?? 'N/A',
-                'description'  => $image->description ?? '',
-                'image_path'   => asset($image->image_path),
+            if (!$mission || in_array($mission->id, $seenMissionIds)) {
+                continue; // Skip if no mission or already added
+            }
+    
+            $seenMissionIds[] = $mission->id;
+    
+            $region     = $mission->region;
+            $location   = $mission->locations->first();
+            $inspection = $mission->inspectionTypes->first();
+    
+            $uniqueResults[] = [
+                'region_name'     => $region?->name ?? 'N/A',
+                'location'        => $location?->name ?? 'N/A',
+                'inspection_name' => $inspection?->name ?? 'N/A',
+                'description'     => $image->description ?? '',
+                'image_path'      => asset($image->image_path),
             ];
-        });
     
-        return response()->json($result);
+            if (count($uniqueResults) >= 6) break; // Stop after 6 unique
+        }
+    
+        return response()->json($uniqueResults);
     }
+    
+    
     //drones functions
     public function adddrone(Request $request)
     {
@@ -757,43 +803,72 @@ public function updateUser(Request $request, $id)
      */
 
 
-    public function store(Request $request)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
-    
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'map_url' => 'nullable|url',
-            'description' => 'nullable|string',
-            'region_id' => 'required|exists:regions,id' // ✅ Now passed from frontend
+     public function store(Request $request)
+     {
+         if (!Auth::check()) {
+             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+         }
+     
+         $user = Auth::user();
+        //  $regionId = $user->regions()->pluck('regions.id')->first();
+         $regionId = $user instanceof \App\Models\User
+         ? $user->regions()->pluck('regions.id')->first()
+         : [];
+      
+     
+         if (!$regionId) {
+             return response()->json(['error' => 'No region assigned to this user.'], 403);
+         }
+     
+         $request->validate([
+             'name' => 'required|string|max:255',
+             'map_url' => 'nullable|url',
+             'description' => 'nullable|string',
+         ]);
+     
+         // ✅ Create the location
+         $location = Location::create([
+             'name'        => $request->name,
+             'map_url'     => $request->map_url,
+             'description' => $request->description,
+         ]);
+     
+         // ✅ Assign location to user & region
+         LocationAssignment::create([
+             'user_id'     => $user->id,
+             'location_id' => $location->id,
+             'region_id'   => $regionId,
+         ]);
+     
+         // ✅ Get all users for this region excluding pilots
+         $regionUserIds = User::whereHas('regions', function ($q) use ($regionId) {
+            $q->where('regions.id', $regionId);
+        })
+        ->whereHas('userType', function ($q) {
+            $q->where('name', '!=', 'pilot');
+        })
+        ->pluck('id')
+        ->toArray();
+
+        NotificationService::create([
+            'title'      => 'Location Created',
+            'message'    => "{$location->name} Added by {$user->name}.",
+            'type'       => 'location',
+            'region_ids' => [$regionId],
+            'user_ids'   => [$regionUserIds],   // ✅ INCLUDE THIS
+            'is_global'  => false,
         ]);
+
+         return response()->json([
+             'message'  => '✅ Location added successfully!',
+             'location' => $location
+         ]);
+     }
     
-        // ✅ Create the location (no region_id here anymore)
-        $location = Location::create([
-            'name' => $request->name,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'map_url' => $request->map_url,
-            'description' => $request->description,
-        ]);
-    
-        // ✅ Assign location to user & region
-        LocationAssignment::create([
-            'user_id' => Auth::id(),
-            'location_id' => $location->id,
-            'region_id' => $request->region_id
-        ]);
-    
-        return response()->json([
-            'message' => '✅ Location added successfully!',
-            'location' => $location
-        ]);
-    }
-    
+
+
+
+
 
     /**
      * Fetch a location for editing.
@@ -845,8 +920,7 @@ public function updateUser(Request $request, $id)
     
         $request->validate([
             'name' => 'required|string|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+
             'map_url' => 'nullable|url',
             'description' => 'nullable|string',
             'region_id' => 'required|exists:regions,id',
@@ -855,8 +929,7 @@ public function updateUser(Request $request, $id)
         // ✅ Update the location basic fields
         $location->update([
             'name' => $request->name,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
+
             'map_url' => $request->map_url,
             'description' => $request->description,
         ]);

@@ -204,7 +204,7 @@
             
                             <!-- Pilot Grid -->
                             <div class="px-3 pb-3 flex-grow-1 overflow-auto">
-                                {{-- <div class="row h-100" id="missionsPanel"> --}}
+                                <!-- {{-- <div class="row h-100" id="missionsPanel"> --}} -->
                                     <div class="row flex-nowrap overflow-auto h-100" id="missionsPanel" style="white-space: nowrap;">
 
                                   

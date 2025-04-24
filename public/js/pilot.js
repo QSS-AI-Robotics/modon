@@ -197,59 +197,149 @@ $(document).ready(function () {
             });
         }
         $(document).on('click', '.approvalMissionbyPilot', function () {
-            const missionId = $(this).data('mission-id');
-            const decision  = $(this).data('mission-decision');
-        
+            const missionId = $(this).data("mission-id");
+            const decision = $(this).data("mission-decision");
+
+            const container = $(this).closest(".accordion-item");
+
+            // Program
+            const program = container
+                .find("[data-incident-name]")
+                .data("incident-name");
+
+            // Mission Date
+            const missionDate = container.find(".mission_date").text().trim();
+
+            // Geo
+            const geoElement = container.find("[data-latitude]");
+            const latitude = geoElement.data("latitude");
+            const longitude = geoElement.data("longitude");
+
+            // Location (City and Region)
+            const locationLabel = container.find("[data-location-id]");
+            const locationText = locationLabel[0].nextSibling?.nodeValue?.trim() || "";
+            const city = locationText.split("(")[0]?.trim();
+            const region = locationText.match(/\(([^)]+)\)/)?.[1]?.trim();
+
+            // Mission Created By
+            const createdBySpan = container
+                .find('strong:contains("Mission Created By:")')
+                .next("span");
+            const createdBy = createdBySpan.text().trim();
+            const createdByRole = createdBySpan[0].nextSibling?.nodeValue
+                ?.replace(/[()]/g, "")
+                .trim();
+
+            // Note
+            const noteText = container
+                .find('strong:contains("Note:")')[0]
+                .nextSibling?.nodeValue?.trim();
+            // Construct JSON object
+            const missionDetails = {
+                missionId,
+                decision,
+                program,
+                missionDate,
+                location: {
+                    city,
+                    region,
+                },
+                geolocation: {
+                    latitude,
+                    longitude,
+                },
+                createdBy: {
+                    name: createdBy,
+                    role: createdByRole,
+                },
+                note: noteText,
+            };
+
+            console.log(JSON.stringify(missionDetails, null, 4)); // Pretty print
+
             if (!missionId || !decision) {
-                return Swal.fire('Error', 'Missing mission ID or decision', 'error');
+                return Swal.fire(
+                    "Error",
+                    "Missing mission ID or decision",
+                    "error"
+                );
             }
-        
-            const isApproval = decision === 'approve';
-            const actionText = isApproval ? 'Approve' : 'Reject';
-            const confirmButtonColor = isApproval ? '#28a745' : '#dc3545';
-        
+
+            const isApproval = decision === "approve";
+            const actionText = isApproval ? "Approve" : "Reject";
+            const confirmButtonColor = isApproval ? "#28a745" : "#dc3545";
+
             Swal.fire({
                 title: `${actionText} Mission?`,
                 text: `Are you sure you want to ${actionText.toLowerCase()} this mission?`,
-                icon: isApproval ? 'success' : 'warning',
+                icon: isApproval ? "success" : "warning",
                 showCancelButton: true,
                 confirmButtonColor: confirmButtonColor,
-                cancelButtonColor: '#6c757d',
+                cancelButtonColor: "#6c757d",
                 confirmButtonText: `Yes, ${actionText}`,
             }).then((result) => {
                 if (!result.isConfirmed) return;
-        
+
                 // ✅ If approving, go straight to AJAX
                 if (isApproval) {
-                    submitPilotApproval(missionId, decision);
+                    submitPilotApproval(missionId, decision,null, missionDetails);
                 } else {
                     // ❌ If rejecting, ask for reason
                     Swal.fire({
-                        title: 'Rejection Reason',
-                        input: 'textarea',
-                        inputLabel: 'Please explain why you’re rejecting this mission',
-                        inputPlaceholder: 'Enter reason here...',
+                        title: "Rejection Reason",
+                        input: "textarea",
+                        inputLabel:
+                            "Please explain why you’re rejecting this mission",
+                        inputPlaceholder: "Enter reason here...",
                         inputAttributes: {
-                            'aria-label': 'Rejection reason'
+                            "aria-label": "Rejection reason",
                         },
                         inputValidator: (value) => {
                             if (!value) {
-                                return 'Rejection reason is required!';
+                                return "Rejection reason is required!";
                             }
                         },
                         showCancelButton: true,
-                        confirmButtonText: 'Submit Rejection',
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: "Submit Rejection",
+                        confirmButtonColor: "#dc3545",
+                        cancelButtonColor: "#6c757d",
                     }).then((rejectResult) => {
                         if (rejectResult.isConfirmed) {
-                            submitPilotApproval(missionId, decision, rejectResult.value);
+                            submitPilotApproval(
+                                missionId,
+                                decision,
+                                rejectResult.value,
+                                missionDetails
+                            );
                         }
                     });
                 }
             });
         });
-        function submitPilotApproval(missionId, decision, rejectionNote = null) {
+        // function submitPilotApprovalOld(missionId, decision, rejectionNote = null, missionInfo = null) {
+        //     $.ajax({
+        //         url: `/pilot/${missionId}/pilot-decision`,
+        //         method: 'POST',
+        //         data: {
+        //             mission_id: missionId,
+        //             decision: decision,
+        //             rejection_note: rejectionNote,
+        //         },
+        //         headers: {
+        //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        //         },
+        //         success: function (response) {
+        //             console.log("🚀 Mission Decision Updated:", response);
+        //             Swal.fire('Success', response.message || 'Decision updated!', 'success');
+        //             getPilotMissions();
+        //         },
+        //         error: function (xhr) {
+        //             Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+        //         }
+        //     });
+        // }
+
+        function submitPilotApproval(missionId, decision, rejectionNote = null, missioninfo = null) {
             $.ajax({
                 url: `/pilot/${missionId}/pilot-decision`,
                 method: 'POST',
@@ -262,8 +352,42 @@ $(document).ready(function () {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (response) {
+                    console.log("🚀 Mission Decision Updated:", response);
+                    const { users_associated_with_region, admin_emails, current_user_email,pilot_name } = response;
+                    // Initialize recipients array
+                    let recipients = [];
+                    recipients = users_associated_with_region.map(user => user.email); // Include all if not region_manager
+                    console.log("✅ Recipients without exclusion:", recipients);
+                  
+                   
+
+                    // Always include admin emails
+                    const adminEmails = admin_emails.map(admin => admin.email);
+                    recipients = recipients.concat(adminEmails);
+                    console.log("✅ Admin emails added:", adminEmails);
+
+                    // Remove duplicates from recipients
+                    recipients = [...new Set(recipients)];
+                    console.log("✅ Final Recipients after removing duplicates:", recipients);
+
+                    // Skip sending email to the current user
+                    console.log("✅ Current User Email:", current_user_email);
+                    if (current_user_email) {
+                        recipients = recipients.filter(email => email !== current_user_email);
+                        console.log("✅ Recipients after excluding current user's email:", recipients);
+                    }
+
                     Swal.fire('Success', response.message || 'Decision updated!', 'success');
                     getPilotMissions();
+
+                    // Call the new sendApprovalNotification function
+            sendApprovalNotification({
+                mission: response,
+                recipients: recipients,
+                decision: decision,
+                missioninfo: missioninfo
+            });
+
                 },
                 error: function (xhr) {
                     Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
@@ -1171,6 +1295,87 @@ $(document).ready(function () {
             }
         });
     });
+
+    
+    function sendApprovalNotification({ mission, recipients, decision,missioninfo }) {
+
+    // Determine the action and email content based on the decision
+    const action = decision == "approve" ? 'approved' : 'rejected';
+    const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+    //console.log("🚀 ~ file: missions.js:1 ~ sendApprovalNotification ~ missioninfo:", missioninfo)
+  const content = `
+<p>Hello,</p>
+
+ <p>A mission has been <strong style="color:${action === 'approved' ? 'green' : 'red'}">${action}</strong> by  <strong>${mission.pilot_name}</strong> (Pilot) in the Modon dashboard.
+Please log in to your account to view the latest details.</p>
+
+<hr>
+
+<h3 style="margin-bottom: 5px;">📋 <u>Mission Details:</u></h3>
+<ul style="line-height: 1.6;">
+    <li><strong>Mission Date:</strong> ${missioninfo.missionDate || 'N/A'}</li>
+    <li><strong>Program:</strong> ${missioninfo.program || 'N/A'}</li>
+    <li><strong>Region:</strong> ${missioninfo.location.region || 'N/A'}</li>
+    <li><strong>City:</strong> ${missioninfo.location.city || 'N/A'}</li>
+    <li><strong>Mission was createted by:</strong>
+        <ul>
+            <li><strong>Name:</strong> ${missioninfo.createdBy.name || 'N/A'}</li>
+            <li><strong>Role:</strong> ${missioninfo.createdBy.role || 'N/A'}</li>
+        </ul>
+    </li>
+    <li><strong>Geolocation:</strong>
+        <ul>
+            <li><strong>Longitude:</strong> ${missioninfo.geolocation.longitude || 'N/A'}</li>
+            <li><strong>Latitude:</strong> ${missioninfo.geolocation.latitude || 'N/A'}</li>
+        </ul>
+    </li>
+    ${action === 'rejected' ? `<li><strong>Rejection Reason:</strong> ${mission.rejection_note || 'No reason provided'}</li>` : ''}
+</ul>
+
+<p>For more information, please visit the mission dashboard.</p>
+
+<br>
+
+<p>Best regards,<br>
+<strong>Admin Team</strong></p>
+`;
+
+    // ✅ Show loading modal
+    Swal.fire({
+        title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+        html: 'Please wait while emails are being sent...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+    // ✅ Send email request
+    fetch('/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+    })
+    .then(res => res.json())
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Email Sent!',
+            text: data.message || `Mission ${action} notification sent successfully.`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    })
+    .catch(error => {
+        console.error('Email send error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Email Error!',
+            text: 'An error occurred while sending the email.'
+        });
+    });
+}
     
     
 });

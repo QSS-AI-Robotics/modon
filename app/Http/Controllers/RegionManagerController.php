@@ -190,21 +190,6 @@ class RegionManagerController extends Controller
     
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     public function index()
     {
         if (! Auth::check()) {
@@ -290,8 +275,44 @@ class RegionManagerController extends Controller
         $userType = strtolower(optional($user->userType)->name);
         $missionId = $request->mission_id;
         $decision  = $request->decision === 'approve' ? 1 : 2;
-    
+        $currentUserEmail = $user->email;
         $mission = Mission::withTrashed()->find($missionId);
+    
+        // Fetch users associated with the region, excluding pilots
+        $users = DB::table('user_region')
+            ->join('users', 'user_region.user_id', '=', 'users.id')
+            ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+            ->where('user_region.region_id', $mission->region_id)
+            ->where('user_types.name', '!=', 'pilot') // Exclude users with user_type_name "pilot"
+            ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+            ->get();
+    
+        $formattedUsers = $users->map(function ($user) {
+            return (array) $user; // Cast stdClass to array
+        })->toArray();
+    
+        Log::info('👥 Users associated with the region (excluding pilots):', $formattedUsers);
+    
+        // Fetch the pilot's email
+        $pilotEmail = DB::table('users')
+            ->where('id', $mission->pilot_id)
+            ->value('email');
+    
+        Log::info('✈ Pilot Email:', ['pilot_email' => $pilotEmail]);
+    
+        // Fetch emails of all qss_admin and modon_admin users
+        $adminEmails = DB::table('users')
+            ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+            ->whereIn('user_types.name', ['qss_admin', 'modon_admin']) // Filter by user type names
+            ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+            ->get();
+    
+        Log::info('👤 Admin Emails (qss_admin and modon_admin):', $adminEmails->toArray());
+    
+        // Collect all emails into a single array
+        $allEmails = $users->pluck('email')->merge([$pilotEmail])->merge($adminEmails->pluck('email'))->unique()->values();
+        Log::info('👤 All Emails :', $allEmails->toArray());
+    
         if (! $mission) {
             Log::warning("❌ Mission not found for ID: $missionId");
             return response()->json(['message' => 'Mission not found.'], 404);
@@ -304,7 +325,8 @@ class RegionManagerController extends Controller
                 return response()->json(['message' => 'You are not authorized to approve this mission.'], 403);
             }
         }
-    
+        // ✅ Retrieve all columns of the mission_approvals table for the specific mission
+        $approvalDetails = MissionApproval::where('mission_id', $missionId)->first();
         $approvalColumn = match ($userType) {
             'region_manager' => 'region_manager_approved',
             'modon_admin'    => 'modon_admin_approved',
@@ -315,6 +337,7 @@ class RegionManagerController extends Controller
             Log::warning("❌ User type $userType is not allowed to approve.");
             return response()->json(['message' => 'User type not allowed to approve.'], 403);
         }
+  
     
         // ✅ Update or create the mission approval record
         $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
@@ -325,27 +348,34 @@ class RegionManagerController extends Controller
             $approval->rejected_by    = $user->id;
             $approval->rejection_note = $request->rejection_note ?? null;
         }
+          
+   
     
         $approval->save();
-Log::info("📋 $userType approved mission #$missionId with value: $decision");
-
-// ✅ Retrieve all columns of the mission_approvals table for the specific mission
-$approvalDetails = MissionApproval::where('mission_id', $missionId)->first();
-
-// Log the approval details for debugging or auditing purposes
-Log::info("📋 Mission Approval Details:", $approvalDetails->toArray());
-
-// Return the response with the approval details
-return response()->json([
-    'message' => 'Mission decision saved.',
-    'approval_details' => $approvalDetails,
-]);
+        Log::info("📋 $userType approved mission #$missionId with value: $decision");
+    
+        // ✅ Retrieve all columns of the mission_approvals table for the specific mission
+        $approvalDetails = MissionApproval::where('mission_id', $missionId)->first();
+    
+        // Log the approval details for debugging or auditing purposes
+        Log::info("📋 Mission Approval Details:", $approvalDetails->toArray());
     
         // Return the response with the approval details
-return response()->json([
-    'message' => 'Mission decision saved.',
-    'approval_details' => $approvalDetails,
-]);
+             // Debugging response before saving approval
+             return response()->json([
+                'message' => 'Mission decision saved.',
+                'user_type' => $userType,
+                'current_user_email' => $currentUserEmail,
+                'mission_id' => $missionId,
+                'decision' => $decision,
+                'rejection_note' => $request->rejection_note ?? null,
+                'region_id' => $regionIds ?? null,
+                'approval_details' => $approvalDetails ?? null,
+                'users_associated_with_region' => $formattedUsers,
+                'pilot_email' => $pilotEmail,
+                'admin_emails' => $adminEmails->toArray(),
+                'all_emails' => $allEmails->toArray(),
+            ]);
     }
     
 
@@ -471,14 +501,6 @@ return response()->json([
         ]);
     }    
     
-
-    
-    
-    
-
-
-
-
 
 
        /**
@@ -634,17 +656,6 @@ return response()->json([
 //     return response()->json(['missions' => $missions]);
 // }
 
-
-   
-
-
-    
-
-   
-   
-    
-    
-
     /**
      * Store a new mission.
      */
@@ -776,20 +787,6 @@ return response()->json([
         }
     }
 
-    
-
-   
-    
-
-
-
-
-
-    
-
-    
-    
-
     /**
      * Delete a mission.
      */
@@ -906,12 +903,7 @@ return response()->json([
             ]
         ]);
     }
-        
-    
-
   
-     
-
     // edit a mission
     public function editMission($id)
     {

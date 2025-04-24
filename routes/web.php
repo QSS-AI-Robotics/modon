@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
   
     //password reset
     Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('reset.password');
+    Route::post('/send-email', [EmailController::class, 'sendEmail'])->name('send.email');
 
 
 });
@@ -128,7 +129,7 @@ Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(f
 
     Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
     //Email Routes
-    Route::post('/send-email', [EmailController::class, 'sendEmail'])->name('send.email');
+   
 });
 
 //forget password

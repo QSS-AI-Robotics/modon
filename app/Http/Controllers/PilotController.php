@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use App\Models\Mission;
-use App\Models\PilotReport;
-use App\Models\PilotReportImage;
-use App\Models\InspectionType;
 use App\Models\Location;
-use Illuminate\Support\Facades\Log; // ✅ Import Log Facade
+use App\Models\PilotReport;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\InspectionType;
+use App\Models\PilotReportImage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log; // ✅ Import Log Facade
 
 
 class PilotController extends Controller
@@ -28,7 +29,7 @@ class PilotController extends Controller
     }
 
 
-    public function pilotDecision(Request $request, Mission $mission)
+    public function pilotDecisionOld(Request $request, Mission $mission)
     {
         $request->validate([
             'decision'       => 'required|in:approve,reject',
@@ -84,8 +85,199 @@ class PilotController extends Controller
         return response()->json(['message' => 'Pilot decision recorded successfully.']);
     }
 
+//     public function pilotDecision(Request $request, Mission $mission)
+// {
+//     $request->validate([
+//         'decision'       => 'required|in:approve,reject',
+//         'rejection_note' => 'nullable|string',
+//     ]);
 
+//     $pilot = Auth::user();
+//     $currentUserEmail = $pilot->email;
+//     $pilotName = $pilot->name;
+//     if ($mission->pilot_id !== $pilot->id) {
+//         Log::warning("🚫 Unauthorized pilot (User ID: $pilot->id) tried to decide on mission #{$mission->id}");
+//         return response()->json(['message' => 'You are not authorized to respond to this mission.'], 403);
+//     }
 
+//     $decision = $request->decision === 'approve' ? 1 : 2;
+//     $region_id = $mission->region_id;
+//     Log::info("🛩️ Pilot (ID: {$pilot->id}) submitted decision for Mission #{$mission->id}: " . ($decision === 1 ? 'Approved' : 'Rejected'));
+//     $users = DB::table('user_region')
+//             ->join('users', 'user_region.user_id', '=', 'users.id')
+//             ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+//             ->where('user_region.region_id', $mission->region_id)
+//             ->where('user_types.name', '!=', 'pilot') // Exclude users with user_type_name "pilot"
+//             ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+//             ->get();
+    
+//         $formattedUsers = $users->map(function ($user) {
+//             return (array) $user; // Cast stdClass to array
+//         })->toArray();
+    
+//         Log::info('👥 Users associated with the region (excluding pilots):', $formattedUsers);
+
+//         $adminEmails = DB::table('users')
+//             ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+//             ->whereIn('user_types.name', ['qss_admin', 'modon_admin']) // Filter by user type names
+//             ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+//             ->get();
+
+//     // ✅ Build approval data update
+//     $approvalData = [
+//         'is_fully_approved' => $decision,
+//         'pilot_approved'    => $decision,
+//     ];
+
+//     if ($decision === 2) {
+//         $approvalData['rejected_by']    = $pilot->id;
+//         $approvalData['rejection_note'] = $request->rejection_note ?? 'Rejected by pilot';
+//     }
+
+//     // Simulate the approval record for debugging purposes
+//     $approval = (object) array_merge($approvalData, [
+//         'mission_id' => $mission->id,
+//     ]);
+
+//     Log::info("✅ Simulated MissionApproval", [
+//         'mission_id'        => $approval->mission_id,
+//         'region_id'         => $region_id,
+//         'pilot_approved'    => $approval->pilot_approved,
+//         'is_fully_approved' => $approval->is_fully_approved,
+//         'rejected_by'       => $approval->rejected_by ?? null,
+//         'rejection_note'    => $approval->rejection_note ?? null,
+//     ]);
+
+//     // Simulate mission status update for debugging purposes
+//     $simulatedStatus = $decision === 1 ? 'Awaiting Report' : 'Rejected';
+
+//     Log::info("✅ Simulated Mission status update", [
+//         'mission_id' => $mission->id,
+//         'status'     => $simulatedStatus,
+//     ]);
+
+//     // Uncomment the following lines after debugging to enable actual database updates
+//     /*
+//     // ✅ Update or create the mission approval record
+//     $approval = \App\Models\MissionApproval::updateOrCreate(
+//         ['mission_id' => $mission->id],
+//         $approvalData
+//     );
+
+//     // ✅ Update mission status accordingly
+//     $mission->status = $decision === 1 ? 'Awaiting Report' : 'Rejected';
+//     $mission->save();
+//     */
+
+//     // ✅ Return all computed fields in the JSON response
+//     return response()->json([
+//         'message'           => 'Pilot decision recorded successfully (debug mode).',
+//         'mission_id'        => $mission->id,
+//         'region_id'         => $region_id,
+//         'pilot_name'        => $pilotName,
+//         'current_user_email' => $currentUserEmail,
+//         'admin_emails'      => $adminEmails->toArray(),
+//         'is_fully_approved' => $approval->is_fully_approved,
+//         'users_associated_with_region' => $formattedUsers,
+//         'pilot_approved'    => $approval->pilot_approved,
+//         'rejected_by'       => $approval->rejected_by ?? null,
+//         'rejection_note'    => $approval->rejection_note ?? null,
+//         'status'            => $simulatedStatus
+        
+//     ]);
+// }
+public function pilotDecision(Request $request, Mission $mission)
+{
+    $request->validate([
+        'decision'       => 'required|in:approve,reject',
+        'rejection_note' => 'nullable|string',
+    ]);
+
+    $pilot = Auth::user();
+    $currentUserEmail = $pilot->email;
+    $pilotName = $pilot->name;
+
+    if ($mission->pilot_id !== $pilot->id) {
+        Log::warning("🚫 Unauthorized pilot (User ID: $pilot->id) tried to decide on mission #{$mission->id}");
+        return response()->json(['message' => 'You are not authorized to respond to this mission.'], 403);
+    }
+
+    $decision = $request->decision === 'approve' ? 1 : 2;
+    $region_id = $mission->region_id;
+
+    Log::info("🛩️ Pilot (ID: {$pilot->id}) submitted decision for Mission #{$mission->id}: " . ($decision === 1 ? 'Approved' : 'Rejected'));
+
+    $users = DB::table('user_region')
+        ->join('users', 'user_region.user_id', '=', 'users.id')
+        ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+        ->where('user_region.region_id', $mission->region_id)
+        ->where('user_types.name', '!=', 'pilot') // Exclude users with user_type_name "pilot"
+        ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+        ->get();
+
+    $formattedUsers = $users->map(function ($user) {
+        return (array) $user; // Cast stdClass to array
+    })->toArray();
+
+    Log::info('👥 Users associated with the region (excluding pilots):', $formattedUsers);
+
+    $adminEmails = DB::table('users')
+        ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+        ->whereIn('user_types.name', ['qss_admin', 'modon_admin']) // Filter by user type names
+        ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+        ->get();
+
+    // ✅ Build approval data update
+    $approvalData = [
+        'is_fully_approved' => $decision,
+        'pilot_approved'    => $decision,
+    ];
+
+    if ($decision === 2) {
+        $approvalData['rejected_by']    = $pilot->id;
+        $approvalData['rejection_note'] = $request->rejection_note ?? 'Rejected by pilot';
+    }
+
+    // ✅ Update or create the mission approval record
+    $approval = \App\Models\MissionApproval::updateOrCreate(
+        ['mission_id' => $mission->id],
+        $approvalData
+    );
+
+    Log::info("✅ MissionApproval updated", [
+        'mission_id'        => $approval->mission_id,
+        'region_id'         => $region_id,
+        'pilot_approved'    => $approval->pilot_approved,
+        'is_fully_approved' => $approval->is_fully_approved,
+        'rejected_by'       => $approval->rejected_by ?? null,
+        'rejection_note'    => $approval->rejection_note ?? null,
+    ]);
+
+    // ✅ Update mission status accordingly
+    $mission->status = $decision === 1 ? 'Awaiting Report' : 'Rejected';
+    $mission->save();
+
+    Log::info("✅ Mission status updated", [
+        'mission_id' => $mission->id,
+        'status'     => $mission->status,
+    ]);
+
+    // ✅ Return all computed fields in the JSON response
+    return response()->json([
+        'message'           => 'Pilot decision recorded successfully.',
+        'mission_id'        => $mission->id,
+        'region_id'         => $region_id,
+        'pilot_name'        => $pilotName,
+        'current_user_email' => $currentUserEmail,
+        'admin_emails'      => $adminEmails->toArray(),
+        'is_fully_approved' => $approval->is_fully_approved,
+        'users_associated_with_region' => $formattedUsers,
+        'pilot_approved'    => $approval->pilot_approved,
+        'rejected_by'       => $approval->rejected_by ?? null,
+        'rejection_note'    => $approval->rejection_note ?? null,
+        'status'            => $mission->status,
+    ]);
+}
 
     /**
      * Fetch missions assigned to the pilot's region.

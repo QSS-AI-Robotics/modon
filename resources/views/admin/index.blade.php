@@ -282,26 +282,26 @@
                                             <h6 class="mb-0 text-truncate heartbeat text-capitalize "data-lang-key="centeralRegion">
                                                 Central Region
                                             </h6>
-                                            <p class="mb-0 text-capitalize"data-lang-key="missions:">Missions : <span class="text-white" id="centremissionVal">0</span></p>
+                                            <p class="mb-0 text-capitalize"><span data-lang-key="missions:">Missions</span><span class="text-white" id="centremissionVal">0</span></p>
                                         </div>
                                     </div>
                                     <div class="regionsDiv p-2 my-2 selectRegion"  data-region="east" data-eastcolorcode="">
                                         <div class="col-10 d-flex flex-column justify-content-center">
                                             <h6 class="mb-0 text-truncate heartbeat text-capitalize "data-lang-key="easternRegion">Eastern Region</h6>
-                                            <p class="mb-0 text-capitalize"data-lang-key="missions:">Missions : <span class="text-white" id="eastmissionVal">0</span></p>
+                                            <p class="mb-0 text-capitalize"><span data-lang-key="missions:">Missions</span> <span class="text-white" id="eastmissionVal">0</span></p>
                                         </div>
                                     </div>
 
                                     <div class="regionsDiv p-2 my-2 selectRegion"  data-region="west" data-westcolorcode="">
                                         <div class="col-10 d-flex flex-column justify-content-center">
                                             <h6 class="mb-0 text-truncate heartbeat text-capitalize "data-lang-key="WesternRegion">Western Region</h6>
-                                            <p class="mb-0 text-capitalize"data-lang-key="missions:">Missions : <span class="text-white" id="westmissionVal">0</span></p>
+                                            <p class="mb-0 text-capitalize" ><span data-lang-key="missions:">Missions</span>  <span class="text-white" id="westmissionVal">0</span></p>
                                         </div>
                                     </div>
                                     <div class="regionsDiv p-2 my-2  selectRegion" data-region="all" data-allcolorcode="">
                                         <div class="col-10 d-flex flex-column justify-content-center">
                                             <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="restView">Reset View</h6>
-                                            <p class="mb-0 text-capitalize"data-lang-key="totalMissions:">Total Missions : <span class="text-white" id="totalmissionVal">0</span></p>
+                                            <p class="mb-0 text-capitalize"> <span data-lang-key="missions:">Missions</span><span class="text-white" id="totalmissionVal">0</span></p>
                                         </div>
                                     </div>
                 

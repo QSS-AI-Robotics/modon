@@ -146,7 +146,7 @@ $(document).ready(function () {
 
     // Initialize language texts and direction
     updateLanguageTexts(currentLang);
-    //updateTextDirection(currentLang);
+    // updateTextDirection(currentLang);
 
     // Update language on dropdown click
     $(".lang-option").on("click", function (e) {

@@ -58,7 +58,7 @@
         </style>
         
 </head>
-<body>
+<body >
     <div class="container-fluid vh-100 d-flex flex-column padded-container ">
         @include('partials.header')
 
@@ -80,6 +80,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/lang.js') }}"></script>
     <script src="{{ asset('js/notification.js') }}"></script>
+    <script src="{{ asset('js/lang.js') }}"></script>
   
 
     @stack('scripts')

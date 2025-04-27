@@ -26,15 +26,13 @@
                                 <div class="col-lg-4">
                                     <h5>Locations List</h5>
                                 </div>
-                                <div class="col-lg-4 text-end search-container">
-                                    <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
-                                </div>
+                               
                             </div>
                         </div>
 
                         <!-- Reports Table -->
-                        <div class="table-responsive flex-grow-1 overflow-auto" style="max-height: 58vh;">
+                        <div class="table-responsive flex-grow-1 ">
+                            {{-- <div class="table-responsive flex-grow-1 overflow-auto" style="max-height: 58vh;"> --}}
                             <table class="table table-text">
                                 <thead>
                                     <tr>
@@ -51,7 +49,9 @@
 
                                 </tbody>
                             </table>
+                            
                         </div>
+                        <div id="paginationWrapper" class=""></div>
                     </div>
                 </div>
 

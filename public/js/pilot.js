@@ -23,28 +23,76 @@ $(document).ready(function () {
             }
         });
         getPilotMissions()
-        function getPilotMissions() {
+        function renderMissionPagination(response) {
+            const paginationWrapper = $('#paginationWrapper');
+            paginationWrapper.empty();
+        
+            const currentPage = response.current_page;
+            const lastPage = response.last_page;
+        
+            if (lastPage <= 1) return; // No pagination needed
+        
+            let paginationHTML = `<nav><ul class="pagination justify-content-center">`;
+        
+            // Previous Button
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                </li>`;
+        
+            // Page numbers (optional: simplify with only nearby pages)
+            for (let i = 1; i <= lastPage; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>`;
+            }
+        
+            // Next Button
+            paginationHTML += `
+                <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                    <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                </li>`;
+        
+            paginationHTML += `</ul></nav>`;
+            paginationWrapper.html(paginationHTML);
+        
+            // Attach click event
+            $('.page-link').on('click', function (e) {
+                e.preventDefault();
+                const page = $(this).data('page');
+                if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                    getPilotMissions({ page });
+                }
+            });
+        }
+     
+
+        
+        function getPilotMissions({ status = null, date = null, page = 1 } = {}) {
             $(".mission-btn svg").attr({ "width": "16", "height": "16" });
             $("#addMissionForm").removeAttr("data-mission-id");
             $(".cancel-btn").addClass("d-none");
-        
+            const data = { page }; // ✅ Include page number
+            if (status) data.status = status;
+            if (date) data.date = date
             $.ajax({
                 url: "/pilot/missions",
                 type: "GET",
                 success: function (response) {
-                    console.log("mission detail", response);
+                    console.log("mission detail", response.data);
                     $('#pilotTableBody').empty();
         
                     const userType = $('#mifu').text().trim();
         
-                    if (!response.missions.length) {
+                    if (!response.data.length) {
                         $('#pilotTableBody').append(`
                             <div class="col-12 text-center my-4">No Missions Found !!!</div>
                         `);
                         return;
                     }
         
-                    $.each(response.missions, function (index, mission) {
+                    $.each(response.data, function (index, mission) {
                         const inspection = mission.inspection_types[0] || {};
                         const inspectionName = inspection.name || 'N/A';
                         const inspectionId = inspection.id || '';
@@ -189,6 +237,7 @@ $(document).ready(function () {
         
                         $('#pilotTableBody').append(row);
                     });
+                    renderMissionPagination(response);
                 },
                 error: function (xhr) {
                     console.error("❌ Error fetching missions:", xhr.responseText);

@@ -7,16 +7,17 @@ $(document).ready(function () {
     });
 
     getLocations()
-    function getLocations() {
+    function getLocations({ status = null,  page = 1 } = {}) {
         resetForm();
         $.ajax({
             url: "/get-locations", // Route to fetch locations
             type: "GET",
+            data: { page },
             success: function (response) {
                 console.log(response);
                 $('#locationTableBody').empty(); // Clear previous data
     
-                if (!response.locations || response.locations.length === 0) {
+                if (!response.data || response.data.length === 0) {
                     $('#locationTableBody').append(`
                         <tr>
                             <td colspan="7" class="text-center text-muted">No locations available.</td>
@@ -26,7 +27,7 @@ $(document).ready(function () {
                 }
     
                 // ✅ Loop through locations and append to table
-                $.each(response.locations, function (index, location) {
+                $.each(response.data, function (index, location) {
                     let regionDisplay = location.region 
                         ? location.region.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) 
                         : "N/A";
@@ -47,13 +48,56 @@ $(document).ready(function () {
                     `;
                     $('#locationTableBody').append(row);
                 });
+                renderMissionPagination(response);
             },
             error: function (xhr) {
                 console.error("❌ Error fetching locations:", xhr.responseText);
             }
         });
     }
+    function renderMissionPagination(response) {
+        const paginationWrapper = $('#paginationWrapper');
+        paginationWrapper.empty();
     
+        const currentPage = response.current_page;
+        const lastPage = response.last_page;
+    
+        if (lastPage <= 1) return; // No pagination needed
+    
+        let paginationHTML = `<nav><ul class="pagination justify-content-center">`;
+    
+        // Previous Button
+        paginationHTML += `
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+            </li>`;
+    
+        // Page numbers (optional: simplify with only nearby pages)
+        for (let i = 1; i <= lastPage; i++) {
+            paginationHTML += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>`;
+        }
+    
+        // Next Button
+        paginationHTML += `
+            <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+            </li>`;
+    
+        paginationHTML += `</ul></nav>`;
+        paginationWrapper.html(paginationHTML);
+    
+        // Attach click event
+        $('.page-link').on('click', function (e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                getLocations({ page });
+            }
+        });
+    }
 
 
     // Open Edit Modal

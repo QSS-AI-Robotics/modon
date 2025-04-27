@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Notification;
 use App\Services\NotificationService;
 use Carbon\Carbon;
-
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AdminController extends Controller
 {
@@ -74,12 +74,19 @@ class AdminController extends Controller
         ]);
     }
 
-    public function getAllUsers()
+
+    
+public function getAllUsers(Request $request)
 {
     $authUser = Auth::user();
 
     if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
-        $users = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get()->map(function ($user) {
+        $perPage = $request->query('per_page', 8); // Default 10 users per page
+        $page = $request->query('page', 1);
+
+        $allUsers = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get();
+
+        $formattedUsers = $allUsers->map(function ($user) {
             $userType = strtolower($user->userType?->name);
 
             $region = $userType === 'pilot'
@@ -100,60 +107,75 @@ class AdminController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'region' => $region,
-                'locations' => $locations, // ✅ Includes id + name now
+                'locations' => $locations,
                 'user_type' => $user->userType?->name,
                 'image' => $user->image,
                 'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
                 'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
             ];
         });
-    } else {
-        $users = collect(); // Empty collection for non-admins
+
+        // 🔁 Paginate the collection manually
+        $pagedUsers = new LengthAwarePaginator(
+            $formattedUsers->forPage($page, $perPage),
+            $formattedUsers->count(),
+            $perPage,
+            $page,
+            ['path' => url()->current()]
+        );
+
+        return response()->json($pagedUsers);
     }
 
     return response()->json([
         'status' => 'success',
-        'users' => $users
+        'users' => []
     ]);
 }
+//     public function getAllUsers()
+// {
+//     $authUser = Auth::user();
 
-    // public function getAllUsers()
-    // {
-    //     $authUser = Auth::user();
+//     if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
+//         $users = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get()->map(function ($user) {
+//             $userType = strtolower($user->userType?->name);
+
+//             $region = $userType === 'pilot'
+//                 ? $user->regions->pluck('name')->toArray()
+//                 : optional($user->regions->first())->name;
+
+//             $locations = in_array($userType, ['city_supervisor', 'city_manager'])
+//                 ? $user->assignedLocations->map(function ($loc) {
+//                     return [
+//                         'id' => $loc->id,
+//                         'name' => $loc->name,
+//                     ];
+//                 })->toArray()
+//                 : [];
+
+//             return [
+//                 'id' => $user->id,
+//                 'name' => $user->name,
+//                 'email' => $user->email,
+//                 'region' => $region,
+//                 'locations' => $locations, // ✅ Includes id + name now
+//                 'user_type' => $user->userType?->name,
+//                 'image' => $user->image,
+//                 'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
+//                 'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
+//             ];
+//         });
+//     } else {
+//         $users = collect(); // Empty collection for non-admins
+//     }
+
+//     return response()->json([
+//         'status' => 'success',
+//         'users' => $users
+//     ]);
+// }
+
     
-    //     if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
-    //         $users = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get()->map(function ($user) {
-    //             $userType = strtolower($user->userType?->name);
-    
-    //             $region = $userType === 'pilot'
-    //                 ? $user->regions->pluck('name')->toArray()
-    //                 : optional($user->regions->first())->name;
-    
-    //             $locations = in_array($userType, ['city_supervisor', 'city_manager'])
-    //                 ? $user->assignedLocations->pluck('name')->toArray()
-    //                 : [];
-    
-    //             return [
-    //                 'id' => $user->id,
-    //                 'name' => $user->name,
-    //                 'email' => $user->email,
-    //                 'region' => $region,
-    //                 'locations' => $locations,
-    //                 'user_type' => $user->userType?->name,
-    //                 'image' => $user->image,
-    //                 'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
-    //                 'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
-    //             ];
-    //         });
-    //     } else {
-    //         $users = collect(); // Empty collection for non-admins
-    //     }
-    
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'users' => $users
-    //     ]);
-    // }
     
 
     
@@ -759,42 +781,79 @@ public function updateUser(Request $request, $id)
 
 
     // get all locations
-    public function fetchLocations()
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
-    
-        $user = Auth::user();
-        $userType = strtolower($user->userType->name ?? '');
-    
-        if ($userType === 'qss_admin' || $userType === 'modon_admin' ) {
-            // ✅ Load each location along with its assignment's region
-            $locations = Location::with(['locationAssignments.region'])->get();
-    
-            // Format data
-            $formatted = $locations->map(function ($location) {
-                $assignment = $location->locationAssignments->first(); // assuming one assignment per location
-                return [
-                    'id' => $location->id,
-                    'name' => $location->name,
-                    'latitude' => $location->latitude,
-                    'longitude' => $location->longitude,
-                    'map_url' => $location->map_url,
-                    'description' => $location->description,
-                    'region' => $assignment?->region?->name ?? 'N/A',
-                ];
-            });
-    
-            return response()->json([
-                'locations' => $formatted
-            ]);
-        }
-    
-        return response()->json([
-            'locations' => []
-        ]);
+    public function fetchLocations(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
     }
+
+    $user = Auth::user();
+    $userType = strtolower($user->userType->name ?? '');
+
+    if ($userType === 'qss_admin' || $userType === 'modon_admin') {
+        // ✅ Paginate locations and eager load their region
+        $locations = Location::with(['locationAssignments.region'])
+                            ->orderBy('id', 'desc')
+                            ->paginate(9); // Customize per-page as needed
+
+        // Transform paginated results
+        $locations->getCollection()->transform(function ($location) {
+            $assignment = $location->locationAssignments->first();
+            return [
+                'id' => $location->id,
+                'name' => $location->name,
+                'latitude' => $location->latitude,
+                'longitude' => $location->longitude,
+                'map_url' => $location->map_url,
+                'description' => $location->description,
+                'region' => $assignment?->region?->name ?? 'N/A',
+            ];
+        });
+
+        return response()->json($locations);
+    }
+
+    return response()->json([
+        'locations' => []
+    ]);
+}
+
+    // public function fetchLocations()
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
+    
+    //     $user = Auth::user();
+    //     $userType = strtolower($user->userType->name ?? '');
+    
+    //     if ($userType === 'qss_admin' || $userType === 'modon_admin' ) {
+    //         // ✅ Load each location along with its assignment's region
+    //         $locations = Location::with(['locationAssignments.region'])->get();
+    
+    //         // Format data
+    //         $formatted = $locations->map(function ($location) {
+    //             $assignment = $location->locationAssignments->first(); // assuming one assignment per location
+    //             return [
+    //                 'id' => $location->id,
+    //                 'name' => $location->name,
+    //                 'latitude' => $location->latitude,
+    //                 'longitude' => $location->longitude,
+    //                 'map_url' => $location->map_url,
+    //                 'description' => $location->description,
+    //                 'region' => $assignment?->region?->name ?? 'N/A',
+    //             ];
+    //         });
+    
+    //         return response()->json([
+    //             'locations' => $formatted
+    //         ]);
+    //     }
+    
+    //     return response()->json([
+    //         'locations' => []
+    //     ]);
+    // }
     
     
 

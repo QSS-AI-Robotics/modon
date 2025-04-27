@@ -3,7 +3,7 @@
         $navLinks = Auth::user()?->userType?->navigationLinks()->orderBy('sort_order')->get();
     @endphp
     <!-- Header -->
-    <div class="row header shadows bg-section p-1 mb-2 align-items-center">
+    <div class="row header shadows bg-section p-1 mb-2 align-items-center sticky-top shadow-lg ">
         
         <div class="col-2 d-flex align-items-center">
             <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50">
@@ -26,8 +26,26 @@
         </div>
         
         
-        <div class="col-3 d-flex justify-content-end">
+        <div class="col-3 d-flex justify-content-end ">
 
+              
+
+            {{-- <div class=" d-flex align-items-center px-3">
+
+               
+                <div class="notification-wrapper">
+                    <div class="notification-toggle" id="notificationToggle">
+                        <img src="{{ asset('images/bell.png') }}" alt="">
+                        <span class="notification-count"></span>
+                    </div>
+                    
+                
+                    <div class="notification-dropdown p-2" id="notificationDropdown">
+                        <div id="notificationFeed"></div>
+                    </div>
+                </div>
+            </div> --}}
+       
             <div class="profile-wrapper">
                 <div class="profile-toggle" id="profileToggle">
                     <div class="profile-info">
@@ -54,10 +72,11 @@
                         <span>Logout</span>
                     </button>
                        
-
+                        
                 
                 </div>
             </div>
+            
             
             
             

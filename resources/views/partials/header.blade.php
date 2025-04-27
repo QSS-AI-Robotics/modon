@@ -16,11 +16,11 @@
                             ? request()->is('/')
                             : request()->is(ltrim($link->url, '/') . '*');
                     @endphp
-                    <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ $isActive ? 'selected' : '' }}" data-lang-key={{ $link->name }}>
+                    <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ $isActive ? 'selected' : '' }}" >
                         @if($link->icon)
                             <img src="{{ asset('images/' . $link->icon) }}" alt="{{ $link->name }}" class="" style="width:15px" >
                         @endif
-                        {{ $link->name }}
+                        <span data-lang-key={{ $link->name }}>{{ $link->name }}</span>
                     </a>
                 @endforeach
             </div>
@@ -35,7 +35,7 @@
                    
                     <div class="lang-wrapper">
                         <div class="lang-toggle" id="langToggle">
-                            <img src="{{ asset('images/ar.png') }}" class="" style="width:35px;height:35px">
+                            <img src="{{ asset('images/ar.png') }}" class="selected-flag" style="width:35px;height:35px">
                            
                         </div>
                         
@@ -43,11 +43,11 @@
                         <div class="lang-dropdown p-3" id="langDropdown">
 
 
-                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover" id="" style="border-bottom:2px solid #73AF00;">
+                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover lang-option" data-lang="ar" style="border-bottom:2px solid #73AF00;">
                                 <span>Arabic</span>
                                 <img src="{{ asset('images/ar.png') }}" alt="Profile Icon" class="ms-4" style="width: 30px; height: 30px;">
                             </button>
-                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover" id="" style="border-bottom:2px solid #D90D32;">
+                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover lang-option" data-lang="en" style="border-bottom:2px solid #D90D32;">
                                 <span>English</span>
                                 <img src="{{ asset('images/en.png') }}" alt="Profile Icon" class="ms-4" style="width: 30px; height: 30px;">
                             </button>

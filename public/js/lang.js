@@ -104,6 +104,26 @@ $(document).ready(function () {
             en: "Users",
             ar: "المستخدمين",
         },
+        Dashboard: { // Added this key
+            en: "Dashboard",
+            ar: "لوحة التحكم",
+        },
+        Missions: { // Added this key
+            en: "Missions",
+            ar: "البعثات",
+        },
+        Locations: { // Added this key
+            en: "Locations",
+            ar: "المواقع",
+        },
+        Users: { // Added this key
+            en: "Users",
+            ar: "المستخدمين",
+        },
+        Drones: { // Added this key
+            en: "Drones",
+            ar: "طيار",
+        },
     };
     // Get language from localStorage, fallback to English
     let currentLang = localStorage.getItem("selectedLang") || "en";
@@ -132,19 +152,25 @@ $(document).ready(function () {
     $(".lang-option").on("click", function (e) {
         e.preventDefault();
 
-        const selectedLang = $(this).data("lang");
-        const selectedFlag = $(this).data("flag");
+        // Get the clicked flag image source
+        const selectedFlag = $(this).find('img').attr('src');
 
-        // Save selected language in localStorage
+        // Set the selected flag image
+        $(".selected-flag").attr("src", selectedFlag);
+
+        // Optionally, store in localStorage
+        const selectedLang = $(this).data("lang");
         localStorage.setItem("selectedLang", selectedLang);
 
-        // Update language texts and direction
-        updateLanguageTexts(selectedLang);
-        //updateTextDirection(selectedLang);
 
-        // Update the selected flag
-        $("#selected-flag").attr("src", selectedFlag);
+        updateLanguageTexts(selectedLang);
+   
+        
+        $('#langDropdown').removeClass('active');
+        
     });
+
+    
 
     // Flag map to set correct flag on page load
     const flagMap = {
@@ -154,4 +180,7 @@ $(document).ready(function () {
 
     // Load language and flag on page load
     $("#selected-flag").attr("src", flagMap[currentLang]);
+
+
+    
 });

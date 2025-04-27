@@ -27,7 +27,7 @@
               @csrf
               <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control input-dark-blue" id="email" name="email" value="momin@qltyss.com" placeholder="Email Here...." required />
+                <input type="email" class="form-control input-dark-blue" id="email" name="email" value="adil@qltyss.com" placeholder="Email Here...." required />
               </div>
               <div class="mb-4">
                 <label for="password" class="form-label">Password</label>

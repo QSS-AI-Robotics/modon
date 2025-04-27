@@ -95,4 +95,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function clearErrors() {
         document.querySelectorAll('.error-message').forEach(el => el.remove());
     }
+    const langToggle = document.getElementById('langToggle');
+    const langDropdown = document.getElementById('langDropdown');
+    
+    // Toggle dropdown when clicking the toggle
+    langToggle.addEventListener('click', function (e) {
+        e.stopPropagation(); // prevent event from bubbling to document
+        langDropdown.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking anywhere else
+    document.addEventListener('click', function (e) {
+        if (!langDropdown.contains(e.target) && !langToggle.contains(e.target)) {
+            langDropdown.classList.remove('active');
+        }
+    });
+    
+    
 });

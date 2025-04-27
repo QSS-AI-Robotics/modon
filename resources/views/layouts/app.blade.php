@@ -79,6 +79,7 @@
     
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/lang.js') }}"></script>
+    <script src="{{ asset('js/notification.js') }}"></script>
   
 
     @stack('scripts')

@@ -7,16 +7,17 @@ $(document).ready(function () {
     });
 
     getLocations()
-    function getLocations() {
+    function getLocations({ status = null,  page = 1 } = {}) {
         resetForm();
         $.ajax({
             url: "/get-locations", // Route to fetch locations
             type: "GET",
+            data: { page },
             success: function (response) {
                 console.log(response);
                 $('#locationTableBody').empty(); // Clear previous data
     
-                if (!response.locations || response.locations.length === 0) {
+                if (!response.data || response.data.length === 0) {
                     $('#locationTableBody').append(`
                         <tr>
                             <td colspan="7" class="text-center text-muted">No locations available.</td>
@@ -26,7 +27,7 @@ $(document).ready(function () {
                 }
     
                 // ✅ Loop through locations and append to table
-                $.each(response.locations, function (index, location) {
+                $.each(response.data, function (index, location) {
                     let regionDisplay = location.region 
                         ? location.region.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) 
                         : "N/A";
@@ -35,8 +36,7 @@ $(document).ready(function () {
                         <tr data-id="${location.id}">
                             <td>${index + 1}</td>
                             <td>${location.name}</td>
-                            <td>${location.latitude}</td>
-                            <td>${location.longitude}</td>
+
                             <td class="text-capitalize">${regionDisplay}</td>
                             <td>${location.map_url ? `<a href="${location.map_url}" target="_blank">View</a>` : 'N/A'}</td>
                             <td>${location.description || 'N/A'}</td>
@@ -48,34 +48,75 @@ $(document).ready(function () {
                     `;
                     $('#locationTableBody').append(row);
                 });
+                renderMissionPagination(response);
             },
             error: function (xhr) {
                 console.error("❌ Error fetching locations:", xhr.responseText);
             }
         });
     }
+    function renderMissionPagination(response) {
+        const paginationWrapper = $('#paginationWrapper');
+        paginationWrapper.empty();
     
+        const currentPage = response.current_page;
+        const lastPage = response.last_page;
+    
+        if (lastPage <= 1) return; // No pagination needed
+    
+        let paginationHTML = `<nav><ul class="pagination justify-content-center">`;
+    
+        // Previous Button
+        paginationHTML += `
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+            </li>`;
+    
+        // Page numbers (optional: simplify with only nearby pages)
+        for (let i = 1; i <= lastPage; i++) {
+            paginationHTML += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>`;
+        }
+    
+        // Next Button
+        paginationHTML += `
+            <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+            </li>`;
+    
+        paginationHTML += `</ul></nav>`;
+        paginationWrapper.html(paginationHTML);
+    
+        // Attach click event
+        $('.page-link').on('click', function (e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                getLocations({ page });
+            }
+        });
+    }
 
 
     // Open Edit Modal
     $(document).on('click', '.edit-location', function () {
         const row = $(this).closest('tr');
         const locationId = $(this).data('id');
+    
         $(".cancel-btn").removeClass("d-none");
         $(".form-title").text("Update Location");
         $(".mission-btn span").text("Update Location");
-        const name = row.find('td:eq(0)').text().trim();
-        const latitude = row.find('td:eq(1)').text().trim();
-        const longitude = row.find('td:eq(2)').text().trim();
-        const regionName = row.find('td:eq(3)').text().trim();
-        const mapUrl = row.find('td:eq(4)').find('a').attr('href') || '';
-        const description = row.find('td:eq(5)').text().trim();
+    
+        const name = row.find('td:eq(1)').text().trim(); // Makkah
+        const regionName = row.find('td:eq(2)').text().trim(); // Western
+        const mapUrl = row.find('td:eq(3)').find('a').attr('href') || ''; // View URL
+        const description = row.find('td:eq(4)').text().trim(); // dasdas
     
         // Fill form fields
         $('#locationId').val(locationId);
         $('#name').val(name);
-        $('#latitude').val(latitude);
-        $('#longitude').val(longitude);
         $('#map_url').val(mapUrl);
         $('#description').val(description);
     
@@ -87,7 +128,7 @@ $(document).ready(function () {
             }
         });
     
-        // Scroll to form or focus name input (optional UX)
+        // Optional: scroll to form
         $('html, body').animate({
             scrollTop: $('#locationForm').offset().top - 100
         }, 300);
@@ -95,46 +136,8 @@ $(document).ready(function () {
         $('#name').focus();
     });
     
-    // $(document).on('click', '.edit-location', function () {
-    //     let locationId = $(this).data('id');
-      
-    //     $.ajax({
-    //         url: `/locations/${locationId}/edit`,
-    //         type: "GET",
-    //         success: function (data) {
-    //             console.log("Edit Response:", data);
-
-    //             if (data.error) {
-    //                 alert(data.error);
-    //                 return;
-    //             }
-
-             
-
-               
-    //                 $("#locationId").val(data.id);
-    //                 $("#name").val(data.name);
-    //                 $("#latitude").val(data.latitude);
-    //                 $("#longitude").val(data.longitude);
-    //                 $("#map_url").val(data.map_url);
-    //                 $("#description").val(data.description);
-
-    //                 $(".form-title").text("Edit Location");
-    //                 $(".mission-btn span").text("Update Location");
-    //                 $(".mission-btn svg").attr({ "width": "20", "height": "20" }); // Increase SVG size
-                
-    //                 // ✅ Store Location ID in Form (Hidden Input)
-    //                 $("#locationForm").attr("data-location-id", locationId);
-                
-    //                 // ✅ Show Cancel Button
-    //                 $(".cancel-btn").removeClass("d-none");
-                
-    //         },
-    //         error: function (xhr) {
-    //             alert("Error fetching location data: " + xhr.responseText);
-    //         }
-    //     });
-    // });
+    
+  
 
     function resetForm(){
         $('#location-validation-errors').addClass('d-none').text('');
@@ -158,15 +161,14 @@ $(document).ready(function () {
     
         const formData = {
             name: $('#name').val().trim(),
-            latitude: $('#latitude').val().trim(),
-            longitude: $('#longitude').val().trim(),
+
             map_url: $('#map_url').val().trim(),
             description: $('#description').val().trim(),
             region_id: $('#region_id').val() // ✅ Get selected region
         };
     
         // Check if any field is empty (excluding optional map_url & description)
-        const requiredFields = ['name', 'latitude', 'longitude', 'region_id'];
+        const requiredFields = ['name', 'region_id'];
         const hasEmpty = requiredFields.some(field => !formData[field]);
     
         if (hasEmpty) {

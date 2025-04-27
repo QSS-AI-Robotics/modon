@@ -1,5 +1,13 @@
 $(document).ready(function () {
     // CSRF Token Setup for AJAX
+
+
+    getRegionManagerMissions();
+    
+    $(".refreshIcon").on('click', function(){
+
+        window.location.reload();
+    })
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -111,9 +119,42 @@ $(document).ready(function () {
 
 
     $(document).on('click', '.approvalMission', function () {
-        const missionId = $(this).data('mission-id');
-        const decision  = $(this).data('mission-decision');
+        const $clickedBtn = $(this);
+        const missionId = $clickedBtn.data('mission-id');
+        const decision = $clickedBtn.data('mission-decision');
     
+        // Scope to the container (accordion-body)
+        const $container = $clickedBtn.closest('.accordion-body');
+    
+        // Program
+        const program = $container.find('strong:contains("Program")').next('.grayishytext').text().trim();
+    
+        // Location (region and city)
+        const $locationEl = $container.find('strong[data-location-id]');
+        const regionName = $locationEl.data('region-name');
+        const city = $locationEl.parent().find('.grayishytext').text().replace(/\s*\(.*\)/, '').trim();
+        // Geo Coordinates
+        const $geoEl = $container.find('strong[data-latitude]');
+        const latitude = $geoEl.data('latitude');
+        const longitude = $geoEl.data('longitude');
+    
+      
+    // Construct JSON object
+    const missionData = {
+        missionId: missionId,
+        decision: decision,
+        program: program,
+        location: {
+            region: regionName,
+            city: city
+        },
+        geoCoordinates: {
+            latitude: latitude,
+            longitude: longitude
+        }
+    };
+
+    console.log("🚀 Mission Data:", missionData);
         if (!missionId || !decision) {
             return Swal.fire('Error', 'Missing mission ID or decision', 'error');
         }
@@ -135,7 +176,9 @@ $(document).ready(function () {
     
             // ✅ If approving, go straight to AJAX
             if (isApproval) {
-                submitApproval(missionId, decision);
+                //alert("🚀 Mission Data:");
+                submitApproval(missionId, decision,null, missionData);
+
             } else {
                 // ❌ If rejecting, ask for reason
                 Swal.fire({
@@ -157,15 +200,15 @@ $(document).ready(function () {
                     cancelButtonColor: '#6c757d',
                 }).then((rejectResult) => {
                     if (rejectResult.isConfirmed) {
-                        submitApproval(missionId, decision, rejectResult.value);
+                        submitApproval(missionId, decision, rejectResult.value,missionData);
                     }
                 });
             }
         });
     });
     
-    // ✅ Function to submit approval or rejection with optional note
-    function submitApproval(missionId, decision, rejectionNote = null) {
+    // ✅ Old Function to submit approval or rejection with optional note
+    function submitApprovalOld(missionId, decision, rejectionNote = null,) {
         $.ajax({
             url: `/missions/${missionId}/decision`,
             method: 'POST',
@@ -178,6 +221,7 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function (response) {
+                console.log("🚀 Mission Decision Response:", response);
                 Swal.fire('Success', response.message || 'Decision updated!', 'success');
                 getRegionManagerMissions();
             },
@@ -186,6 +230,84 @@ $(document).ready(function () {
             }
         });
     }
+ // ✅  Function to submit approval or rejection with optional note
+ function submitApproval(missionId, decision, rejectionNote = null, mission_info=null) {
+    $.ajax({
+        url: `/missions/${missionId}/decision`,
+        method: 'POST',
+        data: {
+            mission_id: missionId,
+            decision: decision,
+            rejection_note: rejectionNote,
+        },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (response) {
+            console.log("🚀 Mission Decision Response:", response);
+
+            // Extract necessary values from the response
+            const { approval_details, users_associated_with_region, pilot_email, admin_emails, user_type, current_user_email } = response;
+            const regionManagerApproved = approval_details.region_manager_approved;
+            const modonAdminApproved = approval_details.modon_admin_approved;
+
+            // Initialize recipients array
+            let recipients = [];
+
+            // Log the initial response for debugging
+            console.log("🚀 Initial Response:", response);
+
+            // Fetch emails from "users_associated_with_region" but skip the current user if they are "region_manager"
+            if (user_type === "region_manager") {
+                recipients = users_associated_with_region
+                    .filter(user => user.user_type_name !== "region_manager") // Exclude region_manager
+                    .map(user => user.email); // Extract emails
+                console.log("✅ Recipients after excluding region_manager:", recipients);
+            } else {
+                recipients = users_associated_with_region.map(user => user.email); // Include all if not region_manager
+                console.log("✅ Recipients without exclusion:", recipients);
+            }
+
+            // Add pilot email only if both approvals are 1
+            if (regionManagerApproved === 1 && modonAdminApproved === 1) {
+                recipients.push(pilot_email);
+                console.log("✅ Pilot email added as both approvals are 1:", pilot_email);
+            } else {
+                console.log("❌ Pilot email not added as approvals are not both 1.");
+            }
+
+            // Always include admin emails
+            const adminEmails = admin_emails.map(admin => admin.email);
+            recipients = recipients.concat(adminEmails);
+            console.log("✅ Admin emails added:", adminEmails);
+
+            // Remove duplicates from recipients
+            recipients = [...new Set(recipients)];
+            console.log("✅ Final Recipients after removing duplicates:", recipients);
+
+            // Skip sending email to the current user
+            console.log("✅ Current User Email:", current_user_email);
+            if (current_user_email) {
+                recipients = recipients.filter(email => email !== current_user_email);
+                console.log("✅ Recipients after excluding current user's email:", recipients);
+            }
+
+            // Call the new sendApprovalNotification function
+            sendApprovalNotification({
+                mission: response,
+                recipients: recipients,
+                decision: decision,
+                missioninfo: mission_info
+            });
+
+            Swal.fire('Success', response.message || 'Decision updated!', 'success');
+            getRegionManagerMissions();
+        },
+        error: function (xhr) {
+            Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+        }
+    });
+}
     
     
     
@@ -198,7 +320,7 @@ $(document).ready(function () {
 
 
 
-    getRegionManagerMissions();
+
     // getMissionStats();
     // function getMissionStats() {
     //     $.ajax({
@@ -227,15 +349,35 @@ $(document).ready(function () {
     //         }
     //     });
     // }
+    // Trigger when a span is clicked
+    $(".mstatus").on("click", function () {
+        $(".mstatus").removeClass("activeStatus");
+        $(this).addClass("activeStatus");
 
-    function getRegionManagerMissions() {
+        const status = $(this).text().trim().toLowerCase(); // get text like "pending"
+        const date = $("#filterMission").val(); // get date if selected
+
+        getRegionManagerMissions({ status, date });
+    });
+    $("#filterMission").on("change", function () {
+        const date = $(this).val();
+        const status = $(".mstatus.activeStatus").text().trim().toLowerCase();
+  
+        getRegionManagerMissions({ status, date });
+    });
+
+    function getRegionManagerMissions({ status = null, date = null } = {}) {
+
         $(".mission-btn svg").attr({ "width": "16", "height": "16" });
         $("#addMissionForm").removeAttr("data-mission-id");
         $(".cancel-btn").addClass("d-none");
-    
+        const data = {};
+        if (status) data.status = status;
+        if (date) data.date = date;
         $.ajax({
             url: "/getmanagermissions",
             type: "GET",
+            data: data,
             success: function (response) {
                 console.log("mission detail", response);
                 $('#missionsAccordion').empty();
@@ -302,22 +444,15 @@ $(document).ready(function () {
                         const shouldDisable = reportSubmitted === 1 || reportSubmitted === 2 || pilotApproved === 1 || pilotApproved === 2;
                     
                         if (shouldDisable) {
-                            editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be edited">`;
-                            deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be deleted">`;
+                            // editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be edited">`;
+                            // deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be deleted">`;
                         } else {
                             editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
                             deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                         }
                     }
                     
-                    // if (userType === 'modon_admin') {
-                    //     if (mission.status === "Approved" || mission.status === "Rejected") {
-                    //         editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot edit">`;
-                    //         deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission is approved — cannot delete">`;
-                    //     } else {
-                    //         editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
-                    //         deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
-                    //     }
+
 
  
                     // }
@@ -572,7 +707,7 @@ $('#addMissionForm').on('submit', function (e) {
     $(".mission-btn svg").attr({ "width": "20", "height": "20" });
     
     // ✅ Debug log
-    console.table(formData);
+    // console.table(formData);
     
     // 👉 Continue with your AJAX submission below
     
@@ -601,7 +736,20 @@ $('#addMissionForm').on('submit', function (e) {
             $form.removeAttr("data-mission-id");
             $("h6").text("Create New Mission");
             $(".mission-btn span").text("New Mission");
+            console.log("Mission Response Data",response)
+            if (Array.isArray(response.mission.allmails)) {
+          
+                const actionType = missionId ? 'Updated':'Created'
+                sendMissionNotification({
+                    mission: response.mission,
+                    recipients: response.mission.allmails,
+                    action: actionType
+                });
 
+
+            } else {
+                console.error("Expected an array for 'allmails', got:", response.allmails);
+            }
             getRegionManagerMissions();
             // getMissionStats();
         },
@@ -616,6 +764,7 @@ $('#addMissionForm').on('submit', function (e) {
         }
     });
 });
+
 
   
 
@@ -760,15 +909,21 @@ $('#addMissionForm').on('submit', function (e) {
                         delete_reason: deleteReason
                     },
                     success: function (response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: response.message || 'Mission has been deleted.',
-                            timer: 2000,
-                            showConfirmButton: false,
-                            background: '#101625',
-                            color: '#ffffff'
+                        console.log(response)
+                        sendMissionNotification({
+                            mission: response.mission,
+                            recipients: response.mission.allmails,
+                            action: 'deleted'
                         });
+                        // Swal.fire({
+                        //     icon: 'success',
+                        //     title: 'Deleted!',
+                        //     text: response.message || 'Mission has been deleted.',
+                        //     timer: 2000,
+                        //     showConfirmButton: false,
+                        //     background: '#101625',
+                        //     color: '#ffffff'
+                        // });
     
                         $('#missionRow-' + missionId).remove(); // Remove mission row
                         // getMissionStats();
@@ -916,7 +1071,17 @@ $('#addMissionForm').on('submit', function (e) {
             type: "POST",
             data: formData,
             success: function (response) {
-                alert(response.message);
+                console.log("Edit Mission Detail",response);
+                if (!Array.isArray(response.allmails)) {
+                    console.warn("Expected recipients to be an array but got:", recipients);
+                }else{
+                    console.log("array",response.allmails)
+                }
+                // sendMissionNotification({
+                //     mission: response.mission,
+                //     recipients: response.allmails,
+                //     action: 'Updated'
+                // });
                 $("#editMissionModal").modal("hide");
                 getRegionManagerMissions();
                 // getMissionStats();
@@ -926,5 +1091,219 @@ $('#addMissionForm').on('submit', function (e) {
             }
         });
     });
+            function sendMissionNotification({ mission, recipients, action = 'created' }) {
+                const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+                const content = `
+            <p>Hello,</p>
+
+            <p>A mission has been 
+                <strong style="color:${action === 'deleted' ? 'red' : '#007bff'};">
+                    ${action}
+                </strong> in the dashboard.
+                Please log in to your account to view the latest details.
+            </p>
+
+            <hr>
+
+            <h3 style="margin-bottom: 5px;">📋 <u>Mission Details:</u></h3>
+            <ul style="line-height: 1.6; padding-left: 20px;">
+                <li><strong>Inspection Type:</strong> ${action === 'deleted' ? mission.inspection_type || 'N/A' : mission.inspection_type?.name || 'N/A'}</li>
+                <li><strong>Mission Date:</strong> ${mission.mission_date || 'N/A'}</li>
+                <li><strong>Locations:</strong> ${mission.locations?.map(loc => loc.name).join(', ') || 'N/A'}</li>
+                ${
+                    action === 'deleted'
+                    ? `<li><strong>Deleted By:</strong> ${mission.deleted_by || 'N/A'}</li>
+                    <li><strong>Deletion Reason:</strong> ${mission.deleted_reason || 'N/A'}</li>`
+                    : ''
+                }
+            </ul>
+            <br>
+
+            <p>Best regards,<br>
+            <strong>Admin Team</strong></p>
+        `;
+
+            
+                // ✅ Show loading modal
+                Swal.fire({
+                    title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+                    html: 'Please wait while emails are being sent...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+                const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+                // ✅ Send email request
+                fetch('/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Email Sent!',
+                        text: data.message || `Mission ${action} notification sent successfully.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                })
+                .catch(error => {
+                    console.error('Email send error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Email Error!',
+                        text: 'An error occurred while sending the email.'
+                    });
+                });
+            }
+
+    function sendApprovalNotification({ mission, recipients, decision,missioninfo }) {
+            // Map user types to formatted strings
+    const userTypeMap = {
+        qss_admin: "QSS Admin",
+        modon_admin: "Modon Admin",
+        region_manager: "Region Manager",
+        pilot: "Pilot",
+        city_manager: "City Manager"
+    };
+
+    // Get the formatted user type
+    const formattedUserType = userTypeMap[mission.user_type] || "Unknown User";
+        // Determine the action and email content based on the decision
+        const action = decision == "approve" ? 'approved' : 'rejected';
+        const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+        //console.log("🚀 ~ file: missions.js:1 ~ sendApprovalNotification ~ missioninfo:", missioninfo)
+      const content = `
+    <p>Hello,</p>
+
+     <p>A mission has been <strong style="color:${action === 'approved' ? 'green' : 'red'}">${action}</strong> by <strong>${formattedUserType}</strong> in the dashboard.
+    Please log in to your account to view the latest details.</p>
+
+    <hr>
+
+    <h3 style="margin-bottom: 5px;">📋 <u>Mission Details:</u></h3>
+    <ul style="line-height: 1.6;">
+        <li><strong>Program:</strong> ${missioninfo.program || 'N/A'}</li>
+        <li><strong>Region:</strong> ${missioninfo.location.region || 'N/A'}</li>
+        <li><strong>City:</strong> ${missioninfo.location.city || 'N/A'}</li>
+        <li><strong>Geolocation:</strong>
+            <ul>
+                <li><strong>Longitude:</strong> ${missioninfo.geoCoordinates.longitude || 'N/A'}</li>
+                <li><strong>Latitude:</strong> ${missioninfo.geoCoordinates.latitude || 'N/A'}</li>
+            </ul>
+        </li>
+        ${action === 'rejected' ? `<li><strong>Rejection Reason:</strong> ${mission.rejection_note || 'No reason provided'}</li>` : ''}
+    </ul>
+
+    <p>For more information, please visit the mission dashboard.</p>
+
+    <br>
+
+    <p>Best regards,<br>
+    <strong>Admin Team</strong></p>
+`;
+
+        // ✅ Show loading modal
+        Swal.fire({
+            title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+            html: 'Please wait while emails are being sent...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+        const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+        // ✅ Send email request
+        fetch('/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+        })
+        .then(res => res.json())
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Email Sent!',
+                text: data.message || `Mission ${action} notification sent successfully.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        })
+        .catch(error => {
+            console.error('Email send error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Email Error!',
+                text: 'An error occurred while sending the email.'
+            });
+        });
+    }
+    
+    // function sendMissionNotification(response, recipients) {
+    //     // ✅ Log recipients
+    //     console.log("Real email recipients:", recipients);
+    
+    //     // ✅ Add dummy recipients for testing
+    //     // const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+    
+    //     // ✅ Email content
+    //     const subject = "New Mission Created";
+    //     const content = `
+    //         A new mission has been created in the dashboard. 
+    //         Please log in to your account to view the latest details.
+    
+    //         Mission Details:
+    //         - Inspection Type: ${response.mission.inspection_type.name}
+    //         - Mission Date: ${response.mission_date}
+    //         - Locations: ${response.mission.locations.map(loc => loc.name).join(', ')}
+    
+    //         Best regards,
+    //         Admin Team
+    //     `;
+    
+    //     // ✅ Show loading alert
+    //     Swal.fire({
+    //         title: 'Mission Created Successfully...',
+    //         html: 'Please wait while emails are being sent..',
+    //         allowOutsideClick: false,
+    //         didOpen: () => {
+    //             Swal.showLoading();
+    //         }
+    //     });
+    
+    //     // ✅ Send request
+    //     fetch('/send-email', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //         },
+    //         body: JSON.stringify({ recipients: recipients, subject, content })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         Swal.fire({
+    //             icon: 'success',
+    //             title: 'Email Sent!',
+    //             text: data.message || 'Notification email sent successfully.',
+    //             timer: 2000,
+    //             showConfirmButton: false
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.error('Error:', error);
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Email Error!',
+    //             text: 'An error occurred while sending the email.',
+    //         });
+    //     });
+    // }
+    
 
 });

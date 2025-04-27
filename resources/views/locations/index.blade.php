@@ -26,22 +26,19 @@
                                 <div class="col-lg-4">
                                     <h5>Locations List</h5>
                                 </div>
-                                <div class="col-lg-4 text-end search-container">
-                                    <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
-                                </div>
+                               
                             </div>
                         </div>
 
                         <!-- Reports Table -->
-                        <div class="table-responsive flex-grow-1 overflow-auto" style="max-height: 58vh;">
+                        <div class="table-responsive flex-grow-1 ">
+                            {{-- <div class="table-responsive flex-grow-1 overflow-auto" style="max-height: 58vh;"> --}}
                             <table class="table table-text">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
                                         <th>Locations</th>
-                                        <th>Latitude</th>
-                                        <th>Longitude</th>
+
                                         <th>Region</th> 
                                         <th>Map</th>
                                         <th>Description</th>
@@ -52,7 +49,9 @@
 
                                 </tbody>
                             </table>
+                            
                         </div>
+                        <div id="paginationWrapper" class=""></div>
                     </div>
                 </div>
 
@@ -106,15 +105,7 @@
                                 <label class="form-label label-text">Location Name</label>
                                 <input type="text" class="form-control dateInput" id="name" name="start_datetime" >
                             </div>
-                            <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Latitude</label>
-                                <input type="Number" class="form-control dateInput" id="latitude" name="latitude" >
-                            </div>
-
-                            <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text">Longitude</label>
-                                <input type="Number" class="form-control dateInput" id="longitude" name="longitude" >
-                            </div>
+    
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text">Map</label>
                                 <input type="text" class="form-control dateInput" id="map_url" name="map_url" placeholder="google map url" >

@@ -109,20 +109,66 @@ $(document).ready(function () {
     
     
 
-    
-    // on change region end
-
     getAllusers();
-    function getAllusers() {
+    // on change region end
+    function renderMissionPagination(response) {
+        const paginationWrapper = $('#paginationWrapper');
+        paginationWrapper.empty();
+    
+        const currentPage = response.current_page;
+        const lastPage = response.last_page;
+    
+        if (lastPage <= 1) return; // No pagination needed
+    
+        let paginationHTML = `<nav><ul class="pagination justify-content-center">`;
+    
+        // Previous Button
+        paginationHTML += `
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+            </li>`;
+    
+        // Page numbers (optional: simplify with only nearby pages)
+        for (let i = 1; i <= lastPage; i++) {
+            paginationHTML += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>`;
+        }
+    
+        // Next Button
+        paginationHTML += `
+            <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+            </li>`;
+    
+        paginationHTML += `</ul></nav>`;
+        paginationWrapper.html(paginationHTML);
+    
+        // Attach click event
+        $('.page-link').on('click', function (e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            if (page && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                getAllusers({ page });
+            }
+        });
+    }
+ 
+    function getAllusers({ status = null,  page = 1 } = {}) {
         resetForm();
+        const data = { page }; // ✅ Include page number
+        if (status) data.status = status;
+
         $.ajax({
             url: "/dashboard/users",
             type: "GET",
+            data: data,
             success: function (response) {
                 console.log("Users Response:", response);
                 $('#userTableBody').empty();
     
-                if (!response.users || response.users.length === 0) {
+                if (!response.data || response.data.length === 0) {
                     $('#userTableBody').append(`
                         <tr>
                             <td colspan="6" class="text-center text-muted">No users available.</td>
@@ -131,7 +177,7 @@ $(document).ready(function () {
                     return;
                 }
     
-                $.each(response.users, function (index, user) {
+                $.each(response.data, function (index, user) {
                     let licenseTooltip = '';
                     if (user.user_type?.toLowerCase() === 'pilot' && user.license_no && user.license_expiry) {
                         licenseTooltip = `
@@ -231,6 +277,7 @@ $(document).ready(function () {
                 // ✅ Reinitialize all tooltips
                 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
                 tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+                renderMissionPagination(response);
             },
             error: function (xhr) {
                 console.error("❌ Error fetching users:", xhr.responseText);

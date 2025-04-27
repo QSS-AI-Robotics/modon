@@ -11,7 +11,7 @@
                 
                 <!-- Mission Control Header -->
                 <div class="row">
-                    <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
+                    <div class="col-lg-12 p-2 bg-section d-flex flex-column align-items-start">
                         <p class="bluishtext">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
                         <h3 class="fw-bold">Mission Control</h3>
                     </div>
@@ -28,12 +28,11 @@
                                     <h5>Mission List <span id="mifu" class="d-none">{{ $userType }}</span></h5>
                                 </div>
                                 <div class="col-lg-4 text-end ">
-                                    {{-- <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input"> --}}
+
                                     <input type="date" placeholder="" class="dateInput" id="filterMission">
                                     <img src="./images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg refreshIcon">
                                 </div>
-                                <div class="col-lg-5">
+                                {{-- <div class="col-lg-5">
                                     <div class="row py-2 gap-2">
                                         <div class="col-lg-2 col-2">
                                             <span class="badge p-2  mstatus activeStatus" id="allMissions">All </span>
@@ -48,12 +47,13 @@
                                             <span class="badge p-2  mstatus" id="completed">Completed</span>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
 
-                        <div class="flex-grow 1  overflow-y-auto" style="max-height: 58vh;overflow-x:hidden;">
+                        <div class="flex-grow 1 " style="">
+                            {{-- <div class="flex-grow 1  overflow-y-auto" style="max-height: 50vh;overflow-x:hidden;"> --}}
                             <div class="row fw-bold custom-bborder  label-text w-100  px-3 py-2 justify-content-between">
                                 <div class="col-3 ">Inspection Type</div>
                                 <div class="col-2 ">Mission Date</div>
@@ -61,11 +61,9 @@
                                 <div class="col-2 text-center">Status</div>
                                 <div class="col-2 text-center">Actions</div>
                             </div>
-                            <div class="accordion " id="missionsAccordion">
-                                <!-- Dynamic rows will go here -->
-                            </div>
-                            
+                            <div class="accordion " id="missionsAccordion"></div>
                         </div>
+                        <div id="paginationWrapper" class=""></div>
                     </div>
                 </div>
 

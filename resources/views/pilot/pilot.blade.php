@@ -45,11 +45,12 @@
                                         <div class="col-2 text-center">Actions</div>
                                     </div>
                          
-                                    <div class="accordion flex-grow-1 overflow-auto" id="pilotTableBody" style="max-height: 58vh;">
+                                    <div class="accordion flex-grow-1 " id="pilotTableBody">
                                         <!-- Dynamic rows will go here -->
                                     </div>
                                     
                                 </div>
+                                <div id="paginationWrapper" class=""></div>
 
 
                             </div>

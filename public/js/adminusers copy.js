@@ -1,123 +1,8 @@
 
 $(document).ready(function () {
-    const languageFile = {
-        pilots: {
-            en: "Pilots",
-            ar: "الطيارين",
-        },
-        drones:{
-            en: "Drones",
-            ar: "الطائرات بدون طيار",
-        },
-        missions: {
-            en: "Missions",
-            ar: "المهام",
-        },
-        reigons: {
-            en: "Regions",
-            ar: "المناطق",
-        },
-        locations: {
-            en: "Locations",
-            ar: "المواقع",
-        },
-        missionAnaltyics: {
-            en: "Missions Analytics",
-            ar: "تحليلات المهام",
-        },
-        noDataFound: {
-            en: "No data found",
-            ar: "لا توجد بيانات",
-        },
-        latestMissions: {
-            en: "Latest Missions",
-            ar: "آخر المهام",
-        },
-        "loading...": {
-            en: "Loading...",
-            ar: "...تحميل",
-        },
-        latestIncidents: {
-            en: "Latest Incidents",
-            ar: "آخر الأحداث",
-        },
-        pilotTracking: {
-            en: "Pilot Tracking",
-            ar: "تتبع الطيار",
-        },
-        startDate: {
-            en: "Start Date",
-            ar: "تاريخ البدء",
-        },
-        endDate: {
-            en: "End Date",
-            ar: "تاريخ الانتهاء",
-        },
-        pending: {
-            en: "Pending",
-            ar: "قيد الانتظار",
-        },
-        finished: {
-            en: "Finished",
-            ar: "منتهي",
-        },
-        totalMissions: {
-            en: "Total Missions",
-            ar: "إجمالي المهام",
-        },
-        loading: {
-            en: "Loading",
-            ar: "تحميل",
-        },
-        centeralRegion: {
-            en: "Central Region",
-            ar: "المنطقة الوسطى",
-        },
-        "missions:": {
-            en: "Missions :",
-            ar: ": المهام",
-        },
-        easternRegion: {
-            en: "Eastern Region",
-            ar: "المنطقة الشرقية",
-        },
-        WesternRegion: {
-            en: "Western Region",
-            ar: "المنطقة الغربية",
-        },
-        restView: {
-            en: "Reset View",
-            ar: "إعادة عرض",
-        },
-        "totalMissions:": {
-            en: "Total Missions :",
-            ar: ": إجمالي المهام",
-        },
-        dashboard: {
-            en: "Dashboard",
-            ar: "لوحة التحكم",
-        },
-        locations: { // Added this key
-            en: "Locations",
-            ar: "المواقع",
-        },
-        users: { // Added this key
-            en: "Users",
-            ar: "المستخدمين",
-        },
-    };
-    function updateLanguageTexts(lang) {
-        $("[data-lang-key]").each(function () {
-            const key = $(this).data("lang-key");
-            const translation = languageFile[key]?.[lang];
-            if (translation) {
-                $(this).text(translation);
-            }
-        });
-    }
 
 
-    let currentLang = localStorage.getItem("selectedLang") || "en";
+
     const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
 
     const regionChart = new Chart(regionChartMissions, {
@@ -399,10 +284,8 @@ $(document).ready(function () {
         // Show/hide no data message
         if (hasData) {
             $('#noDataMessage').addClass('d-none');
-            $('#regionMissionChart').removeClass('d-none');
         } else {
             $('#noDataMessage').removeClass('d-none');
-            $('#regionMissionChart').addClass('d-none');
         }
     }
     
@@ -519,21 +402,8 @@ function updateInspectionChart(chart, response) {
                 const data = response.data || [];
     
                 console.log("✅ Pilot Mission Summary:", data);
-                
-                if (data.length > 0) {
-                    $('#missionsPanel').empty(); 
-                }else{
-                    $('#missionsPanel').empty(); 
-                    $('#missionsPanel')
-                    .text("No Pilot Data Found...")
-                    .css({
-                        'text-align': 'center',
-                        'display': 'flex',
-                        'justify-content': 'center',
-                        'color': '#999' // optional styling
-                    });
-                }
-               
+    
+                $('#missionsPanel').empty(); // Clear existing cards
     
                 data.forEach(pilot => {
                     const total = pilot.total_missions || 0;
@@ -548,13 +418,16 @@ function updateInspectionChart(chart, response) {
                             <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
                                
                                 <div class="d-flex align-items-end mb-2">
-                                    <img src="/storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
+                                    <img src="./storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
                                    <div>
                                     <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
 
                                     <small 
                                         class="cont-btn px-2 mb-0 lh-1 text-capitalize text-truncate"
-                     
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        data-bs-custom-class="custom-tooltip"
+                                        data-title="${pilot.region}"
                                     >
                                         ${pilot.region.split(',')[0]}${pilot.region.split(',').length > 1 ? ', ...' : ''}
                                     </small>
@@ -563,7 +436,7 @@ function updateInspectionChart(chart, response) {
                                 </div>    
                                 <div class="p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                        <label class="form-check-label mb-0"data-lang-key="pending">Pending</label>
+                                        <label class="form-check-label mb-0">Pending</label>
                                         <p class="mb-0 fw-bold">${pending}</p>
                                     </div>
                                     <div class="progress">
@@ -573,7 +446,7 @@ function updateInspectionChart(chart, response) {
     
                                 <div class="p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                        <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
+                                        <label class="form-check-label mb-0">Finished</label>
                                         <p class="mb-0 fw-bold">${completed}</p>
                                     </div>
                                     <div class="progress">
@@ -583,7 +456,7 @@ function updateInspectionChart(chart, response) {
     
                                 <div class="p-2 mb-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                        <label class="form-check-label mb-0"data-lang-key="totalMissions">Total Missions</label>
+                                        <label class="form-check-label mb-0">Total Missions</label>
                                         <p class="mb-0 fw-bold">${total}</p>
                                     </div>
                                     <div class="progress">
@@ -593,9 +466,8 @@ function updateInspectionChart(chart, response) {
                             </div>
                         </div>
                     `;
-                   
+    
                     $('#missionsPanel').append(card);
-                    updateLanguageTexts(currentLang);
                 });
             },
             error: function (xhr, status, error) {

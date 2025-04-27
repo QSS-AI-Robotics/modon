@@ -22,7 +22,7 @@
                                     <div class="row bg-section h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
                                             <img src="{{ asset('images/pilot-hat.png') }}" class="img-fluid" style="height: 24px;">
-                                            <p class="ps-2 mb-0">Pilots</p>
+                                            <p class="ps-2 mb-0" data-lang-key="pilots">Pilots</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
                                             <h1 id="totalPilots">{{ $pilot }}</h1>
@@ -33,7 +33,7 @@
                                     <div class="row bg-section h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
                                             <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 20px;">
-                                            <p class="ps-2 mb-0">Drones</p>
+                                            <p class="ps-2 mb-0"data-lang-key="drones">Drones</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
                                             <h1 id="totaldrones">{{ $drones }}</h1>
@@ -49,7 +49,7 @@
                                     <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
                                             <img src="{{ asset('images/missions.png') }}" class="img-fluid" style="height: 24px;">
-                                            <p class="ps-2 mb-0">Missions</p>
+                                            <p class="ps-2 mb-0"data-lang-key="missions">Missions</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
                                             <h1 id="totalMissions">{{ $missions }}</h1>
@@ -64,7 +64,7 @@
                                     <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
                                             <img src="{{ asset('images/regions.png') }}" class="img-fluid" style="height: 20px;">
-                                            <p class="ps-2 mb-0">Regions</p>
+                                            <p class="ps-2 mb-0"data-lang-key="reigons">Reigons</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
                                             <h1 id="totalRegions">{{ $regions-1 }}</h1>
@@ -75,7 +75,7 @@
                                     <div class="row bg-section  h-100 d-flex flex-column justify-content-between">
                                         <div class="col-lg-12 p-2 d-flex align-items-center">
                                             <img src="{{ asset('images/locations.png') }}" class="img-fluid" style="height: 20px;">
-                                            <p class="ps-2 mb-0">Locations</p>
+                                            <p class="ps-2 mb-0"data-lang-key="locations">Locations</p>
                                         </div>
                                         <div class="col-lg-12 text-end">
                                             <h1 id="totalLocations">{{ $locations }}</h1>
@@ -89,13 +89,13 @@
                                 <div class="col-lg-12 d-flex flex-column h-100">
                                     <div class="row bg-section flex-grow-1">
                                         <div class="col-lg-12 py-3 d-flex align-items-center justify-content-between">
-                                            <p class="mb-0">Missions Analytics</p>
+                                            <p class="mb-0"data-lang-key="missionAnaltyics">Missions Analytics</p>
                                             {{-- <small class="mb-0">last 7 days</small> --}}
                                         </div>
                                         
                                         <div class="col-lg-12 flex-grow-1 position-relative d-flex justify-content-center text-center" style="height: 35vh" >
                                             <canvas id="regionMissionChart" class="text-capitalize " ></canvas>
-                                            <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none">
+                                            <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none" data-lang-key="noDataFound">
                                                 No data found
                                             </div>
                                         </div>
@@ -135,7 +135,7 @@
               
                   <!-- Fixed-height header (Latest Missions) -->
                   <div class="bg-section mb-2" style="flex: 0 0 auto;">
-                    <p class="mb-2 pt-2 p-2">Latest Missions</p>
+                    <p class="mb-2 pt-2 p-2"data-lang-key="latestMissions">Latest Missions</p>
                     <div class="latestMissionPanel p-2" style="max-height: 150px; overflow-y:auto;">
 
                         <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d" <div="">
@@ -148,7 +148,7 @@
                         </div>
                         <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d" <div="">
                             <div class="col-10 d-flex flex-column justify-content-center">
-                                <h6 class="mb-0 text-truncate heartbeat text-capitalize">
+                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="loading...">
                                     Loading...
                                 </h6>
                                 <p class="mb-0 text-capitalize">Region:  Loading... | Status:  Loading...</p>
@@ -160,7 +160,7 @@
               
                   <!-- Flexible and scrollable body -->
                   <div class="bg-section d-flex flex-column" style="flex: 1 1 auto; overflow: hidden;">
-                    <p class="mb-2 pt-2 p-2">Latest Incidents</p>
+                    <p class="mb-2 pt-2 p-2"data-lang-key="latestIncidents">Latest Incidents</p>
                     <div class="flex-grow-1 IncidentPanel overflow-y-auto px-2" style="min-height: 0;max-height:60vh">
                       <!-- Incident items -->
                       
@@ -183,15 +183,15 @@
                         <div class="bg-section d-flex flex-column h-100">
                             <!-- Header -->
                             <div class="py-3 px-3 d-flex align-items-center justify-content-between">
-                                <p class="mb-0">Pilot Tracking</p>
+                                <p class="mb-0" data-lang-key="pilotTracking">Pilot Tracking</p>
                                 <div class="col-lg-4 text-end datePanel-container">
                                     <div class="date-fields-wrapper">
                                         <div class="date-wrapper">
-                                            <label for="start-date" class="date-label">Start Date</label>
+                                            <label for="start-date" class="date-label" data-lang-key="startDate">Start Date</label>
                                             <input type="date" id="start-date" class="datePanel-input date start-date">
                                         </div>
                                         <div class="date-wrapper">
-                                            <label for="end-date" class="date-label">End Date</label>
+                                            <label for="end-date" class="date-label"data-lang-key="endDate">End Date</label>
                                             <input type="date" id="end-date" class="datePanel-input end-date">
                                         </div>
                                     </div>
@@ -214,14 +214,14 @@
                                                 <div class="d-flex align-items-end mb-2">
                                                     <img src="./images/default-user.png" alt="Search" class="imghover rounded" style="width:50px; height:50px">
                                                     <div>
-                                                        <p class="px-2 mb-0 lh-1" id="pilotname">Loading...</p>
-                                                        <small class="cont-btn px-2 mb-0 lh-1">Loading</small>
+                                                        <p class="px-2 mb-0 lh-1" id="pilotname"data-lang-key="loading...">Loading...</p>
+                                                        <small class="cont-btn px-2 mb-0 lh-1"data-lang-key="loading">Loading</small>
                                                     </div>
                                                 </div>
                                                 
                                                 <div class="p-2">
                                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                        <label class="form-check-label mb-0">Pending</label>
+                                                        <label class="form-check-label mb-0"data-lang-key="pending">Pending</label>
                                                         
                                                         <p class="mb-0 fw-bold">0</p>
                                                     </div>
@@ -232,7 +232,7 @@
             
                                                 <div class="p-2">
                                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                        <label class="form-check-label mb-0">Finished</label>
+                                                        <label class="form-check-label mb-0"data-lang-key="finished">Finished</label>
                                                         <p class="mb-0 fw-bold">0</p>
                                                     </div>
                                                     <div class="progress">
@@ -242,7 +242,7 @@
             
                                                 <div class="p-2 mb-2">
                                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                        <label class="form-check-label mb-0">Total Missions</label>
+                                                        <label class="form-check-label mb-0"data-lang-key="totalMissions">Total Missions</label>
                                                         <p class="mb-0 fw-bold">0</p>
                                                     </div>
                                                     <div class="progress">
@@ -265,7 +265,7 @@
                             <!-- Header Row -->
                             <div class="d-flex justify-content-between px-2">
                                 
-                                <p class="mb-0 py-2">Map</p>
+                                <p class="mb-0 py-2"data-lang-key="">Map</p>
                             </div>
                     
                             <!-- Content Row: Chart & Image -->
@@ -279,29 +279,29 @@
                                   
                                     <div class="regionsDiv p-2 my-2 selectRegion"  data-region="center" data-centercolorcode="">
                                         <div class="col-10 d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize ">
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize "data-lang-key="centeralRegion">
                                                 Central Region
                                             </h6>
-                                            <p class="mb-0 text-capitalize">Missions : <span class="text-white" id="centremissionVal">0</span></p>
+                                            <p class="mb-0 text-capitalize"data-lang-key="missions:">Missions : <span class="text-white" id="centremissionVal">0</span></p>
                                         </div>
                                     </div>
                                     <div class="regionsDiv p-2 my-2 selectRegion"  data-region="east" data-eastcolorcode="">
                                         <div class="col-10 d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize ">Eastern Region</h6>
-                                            <p class="mb-0 text-capitalize">Missions : <span class="text-white" id="eastmissionVal">0</span></p>
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize "data-lang-key="easternRegion">Eastern Region</h6>
+                                            <p class="mb-0 text-capitalize"data-lang-key="missions:">Missions : <span class="text-white" id="eastmissionVal">0</span></p>
                                         </div>
                                     </div>
 
                                     <div class="regionsDiv p-2 my-2 selectRegion"  data-region="west" data-westcolorcode="">
                                         <div class="col-10 d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize ">Western Region</h6>
-                                            <p class="mb-0 text-capitalize">Missions : <span class="text-white" id="westmissionVal">0</span></p>
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize "data-lang-key="WesternRegion">Western Region</h6>
+                                            <p class="mb-0 text-capitalize"data-lang-key="missions:">Missions : <span class="text-white" id="westmissionVal">0</span></p>
                                         </div>
                                     </div>
                                     <div class="regionsDiv p-2 my-2  selectRegion" data-region="all" data-allcolorcode="">
                                         <div class="col-10 d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize">Reset View</h6>
-                                            <p class="mb-0 text-capitalize">Total Missions : <span class="text-white" id="totalmissionVal">0</span></p>
+                                            <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="restView">Reset View</h6>
+                                            <p class="mb-0 text-capitalize"data-lang-key="totalMissions:">Total Missions : <span class="text-white" id="totalmissionVal">0</span></p>
                                         </div>
                                     </div>
                 
@@ -339,5 +339,8 @@
         </script>
 @endsection
 @push('scripts')
+
 <script src="{{ asset('js/adminusers.js') }}"></script>
+<script src="{{ asset('js/lang.js') }}"></script>
+
 @endpush

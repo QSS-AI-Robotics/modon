@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    localStorage.setItem("selectedLang", "en");
     // Logout AJAX Request
     $('#logoutButton').on('click', function () {
         $.ajax({

@@ -58,7 +58,7 @@
         </style>
         
 </head>
-<body>
+<body >
     <div class="container-fluid vh-100 d-flex flex-column padded-container ">
         @include('partials.header')
 
@@ -80,6 +80,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/lang.js') }}"></script>
     <script src="{{ asset('js/notification.js') }}"></script>
+    <script src="{{ asset('js/lang.js') }}"></script>
   
 
     @stack('scripts')
@@ -88,21 +89,7 @@
    <script>
 
     document.addEventListener("DOMContentLoaded", function () {
-        const toggle = document.getElementById("profileToggle");
-        const dropdown = document.getElementById("profileDropdown");
 
-        if (toggle && dropdown) {
-            toggle.addEventListener("click", function (e) {
-                e.stopPropagation();
-                dropdown.classList.toggle("active");
-            });
-
-            document.addEventListener("click", function (e) {
-                if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
-                    dropdown.classList.remove("active");
-                }
-            });
-        }
     });
     $(document).on('click', '#logoutButton', function (e) {
     e.preventDefault();

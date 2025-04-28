@@ -3,8 +3,8 @@
             $navLinks = Auth::user()?->userType?->navigationLinks()->orderBy('sort_order')->get();
         @endphp
         <!-- Header -->
-        <div class="row header shadows bg-section p-1 mb-2 align-items-center sticky-top shadow-lg ">
-            
+        {{-- <div class="row header shadows bg-section p-1 mb-2 align-items-center sticky-top shadow-lg "> --}}
+         <div class="row header shadows bg-section p-1 mb-2 align-items-center sticky-top shadow-lg">
             <div class="col-2 d-flex align-items-center">
                 <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50">
                 <img src="{{ asset('images/smodon.png') }}" alt="Logo" class="img-fluid px-2 mb-1" style="width:32%">

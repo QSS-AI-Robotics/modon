@@ -50,7 +50,7 @@ $(document).ready(function () {
     });
     
         // const currentUrl = window.location.pathname;
-
+        //hi
         // $('.nav-link-btn').each(function () {
         //     const linkUrl = $(this).attr('href');
 

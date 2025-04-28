@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordResetForm = document.getElementById('passwordResetForm');
     const submitButton = document.querySelector('.passbtn'); // Button for adding loader
 
-    // Show the modal when "Edit Profile" is clicked
+    // Show the modal when "Edit Profile" is clicked ok
     editProfileButton.addEventListener('click', function () {
         console.log('Edit Profile button clicked'); // Log button click
         passwordResetModal.show();

@@ -606,220 +606,265 @@ class RegionManagerController extends Controller
     return response()->json(['missions' => $missions]);
 }
 
-//     public function getmanagermissions()
-// {
-//     if (! Auth::check()) {
-//         return response()->json(['error' => 'Unauthorized access.'], 401);
-//     }
+public function storeMission(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    }
 
-//     $user     = Auth::user();
-//     $userType = optional($user->userType)->name ?? '';
+    $user     = Auth::user();
+    $userType = optional($user->userType)->name;
 
-//     // ✅ Compute region IDs once
-//     $regionIds = $user instanceof User
-//         ? $user->regions()->pluck('regions.id')->toArray()
-//         : [];
+    // ✅ Get the list of regions this user may assign to
+    $allowedRegionIds = $user instanceof User
+        ? $user->regions()->pluck('regions.id')->toArray()
+        : [];
 
-//     // ✅ Build query, only restrict by region_id when NOT admin
-//     $missions = Mission::query()
-//         ->when(
-//             ! in_array($userType, ['qss_admin', 'modon_admin']),
-//             fn($q) => $q->whereIn('region_id', $regionIds)
-//         )
-//         ->with([
-//             'inspectionTypes:id,name',
-//             'locations:id,name',
-//             'locations.geoLocation:location_id,latitude,longitude',
-//             'locations.locationAssignments.region:id,name',
-//             'pilot:id,name',
-//             'approvals:id,mission_id,region_manager_approved,modon_admin_approved',
-//             'user:id,name,user_type_id',
-//             'user.userType:id,name',
-//         ])
-//         ->get()
-//         ->map(function ($mission) {
-//             // ✅ Approval Status
-//             $mission->approval_status = [
-//                 'region_manager_approved' => $mission->approvals->region_manager_approved ?? null,
-//                 'modon_admin_approved'    => $mission->approvals->modon_admin_approved    ?? null,
-//             ];
+    $request->validate([
+        'inspection_type' => 'required|exists:inspection_types,id',
+        'mission_date'    => ['required','date','after_or_equal:today'],
+        'note'            => 'nullable|string',
+        'locations'       => 'required|array',
+        'locations.*'     => 'exists:locations,id',
+        'pilot_id'        => 'required|exists:users,id',
+        'latitude'        => 'required|numeric|between:-90,90',
+        'longitude'       => 'required|numeric|between:-180,180',
+        'region_id'       => 'required|exists:regions,id',
+    ]);
 
-//             // ✅ Pilot Info
-//             $mission->pilot_info = [
-//                 'id'   => $mission->pilot->id   ?? null,
-//                 'name' => $mission->pilot->name ?? null,
-//             ];
+    $regionId = $request->region_id;
 
-//             // ✅ Created By
-//             $mission->created_by = [
-//                 'id'        => $mission->user->id   ?? null,
-//                 'name'      => $mission->user->name ?? null,
-//                 'user_type' => $mission->user->userType->name ?? null,
-//             ];
+    // 🔒 Ensure non‑admins can only assign to their regions
+    if (! in_array($userType, ['modon_admin','qss_admin'])
+        && ! in_array($regionId, $allowedRegionIds)) {
+        return response()->json([
+            'error' => 'You are not allowed to assign a mission to that region.'
+        ], 403);
+    }
 
-//             // ✅ Locations with region name from locationAssignments
-//             $mission->locations = $mission->locations->map(function ($loc) {
-//                 $region = $loc->locationAssignments->pluck('region')->filter()->first();
+    try {
+        // ✅ Create the mission with the supplied region_id
+        $mission = Mission::create([
+            'mission_date' => $request->mission_date,
+            'note'         => $request->note,
+            'region_id'    => $regionId,
+            'user_id'      => $user->id,
+            'pilot_id'     => $request->pilot_id,
+        ]);
 
-//                 return [
-//                     'id'          => $loc->id,
-//                     'name'        => $loc->name,
-//                     'latitude'    => $loc->geoLocation->latitude  ?? null,
-//                     'longitude'   => $loc->geoLocation->longitude ?? null,
-//                     'region_id'   => $region?->id,
-//                     'region_name' => $region?->name,
-//                 ];
-//             })->values();
+        $mission->inspectionTypes()->sync([$request->inspection_type]);
+        $mission->locations()->sync($request->locations);
 
-//             unset($mission->approvals, $mission->pilot, $mission->user);
-//             return $mission;
-//         });
+        $regionApproved = in_array($userType, ['region_manager', 'modon_admin']);
+        $modonApproved  = $userType === 'modon_admin';
+        $pilotApproved  = false; // always false on mission creation
 
-//     return response()->json(['missions' => $missions]);
-// }
+        MissionApproval::create([
+            'mission_id'              => $mission->id,
+            'region_manager_approved' => $regionApproved,
+            'modon_admin_approved'    => $modonApproved,
+            'pilot_approved'          => $pilotApproved,
+            'is_fully_approved'       => false,
+        ]);
+
+        // geo‐location saving…
+        if (isset($request->locations[0])) {
+            GeoLocation::updateOrCreate(
+                ['location_id' => $request->locations[0]],
+                ['latitude'    => $request->latitude,
+                 'longitude'   => $request->longitude]
+            );
+        }
+
+        // 📧 Fetch users with roles qss_admin, modon_admin, manager
+        $adminUsers = DB::table('users')
+            ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+            ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+            ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+            ->get();
+
+        // 📧 Fetch city managers associated with the mission's locations
+        $locationIds = $request->locations;
+
+        $cityManagerUserIds = DB::table('user_location')
+            ->whereIn('location_id', $locationIds)
+            ->pluck('user_id');
+
+        $cityManagers = DB::table('users')
+            ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+            ->whereIn('users.id', $cityManagerUserIds)
+            ->where('user_types.name', '!=', 'pilot')
+            ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+            ->get();
+
+        // Combine admin users and city managers
+        $allUsers = $adminUsers->merge($cityManagers)->unique('email')->values();
+
+        return response()->json([
+            'message' => 'Mission created successfully!',
+            'mission' => [
+                'id'              => $mission->id,
+                'inspection_type' => [
+                    'id'   => $request->inspection_type,
+                    'name' => InspectionType::find($request->inspection_type)?->name,
+                ],
+                'mission_date'    => $mission->mission_date,
+                'locations'       => $mission->locations->map(fn($l)=>['id'=>$l->id,'name'=>$l->name]),
+                'allmails'  => $allUsers,
+            ],
+        ], 201);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error'   => 'Failed to create mission.',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 
     /**
      * Store a new mission.
      */
 
-     public function storeMission(Request $request)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
-        }
+    //  public function storeMission(Request $request)
+    // {
+    //     if (!Auth::check()) {
+    //         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    //     }
 
-        $user     = Auth::user();
-        $userType = optional($user->userType)->name;
+    //     $user     = Auth::user();
+    //     $userType = optional($user->userType)->name;
 
-        // ✅ Get the list of regions this user may assign to
-        $allowedRegionIds = $user instanceof User
-            ? $user->regions()->pluck('regions.id')->toArray()
-            : [];
+    //     // ✅ Get the list of regions this user may assign to
+    //     $allowedRegionIds = $user instanceof User
+    //         ? $user->regions()->pluck('regions.id')->toArray()
+    //         : [];
 
-        $request->validate([
-            'inspection_type' => 'required|exists:inspection_types,id',
-            'mission_date'    => ['required','date','after_or_equal:today'],
-            'note'            => 'nullable|string',
-            'locations'       => 'required|array',
-            'locations.*'     => 'exists:locations,id',
-            'pilot_id'        => 'required|exists:users,id',
-            'latitude'        => 'required|numeric|between:-90,90',
-            'longitude'       => 'required|numeric|between:-180,180',
-            'region_id'       => 'required|exists:regions,id',
-        ]);
+    //     $request->validate([
+    //         'inspection_type' => 'required|exists:inspection_types,id',
+    //         'mission_date'    => ['required','date','after_or_equal:today'],
+    //         'note'            => 'nullable|string',
+    //         'locations'       => 'required|array',
+    //         'locations.*'     => 'exists:locations,id',
+    //         'pilot_id'        => 'required|exists:users,id',
+    //         'latitude'        => 'required|numeric|between:-90,90',
+    //         'longitude'       => 'required|numeric|between:-180,180',
+    //         'region_id'       => 'required|exists:regions,id',
+    //     ]);
 
-        $regionId = $request->region_id;
-
-
-        // 🔒 Ensure non‑admins can only assign to their regions
-        if (! in_array($userType, ['modon_admin','qss_admin'])
-            && ! in_array($regionId, $allowedRegionIds)) {
-            return response()->json([
-                'error' => 'You are not allowed to assign a mission to that region.'
-            ], 403);
-        }
+    //     $regionId = $request->region_id;
 
 
+    //     // 🔒 Ensure non‑admins can only assign to their regions
+    //     if (! in_array($userType, ['modon_admin','qss_admin'])
+    //         && ! in_array($regionId, $allowedRegionIds)) {
+    //         return response()->json([
+    //             'error' => 'You are not allowed to assign a mission to that region.'
+    //         ], 403);
+    //     }
 
-                // to get emails for specific region
-                $users = DB::table('user_region')
-                ->join('users', 'user_region.user_id', '=', 'users.id')
-                ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
-                ->where('user_region.region_id', $regionId)
-                ->where('user_types.name', '!=', 'pilot') // Exclude users with user_type_name "pilot"
-                ->select('users.id', 'users.email', 'user_types.name as user_type_name')
-                ->get();
+
+
+    //             // to get emails for specific region
+    //             $users = DB::table('user_region')
+    //             ->join('users', 'user_region.user_id', '=', 'users.id')
+    //             ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    //             ->where('user_region.region_id', $regionId)
+    //             ->where('user_types.name', '!=', 'pilot') // Exclude users with user_type_name "pilot"
+    //             ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+    //             ->get();
         
-                Log::info('👥 Users associated with the region (excluding pilots):', $users->toArray());
+    //             Log::info('👥 Users associated with the region (excluding pilots):', $users->toArray());
         
         
         
-                // Fetch emails of all qss_admin and modon_admin users
-                $adminEmails = DB::table('users')
-                    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
-                    ->whereIn('user_types.name', ['qss_admin', 'modon_admin']) // Filter by user type names
-                    ->select('users.id', 'users.email', 'user_types.name as user_type_name')
-                    ->get();
+    //             // Fetch emails of all qss_admin and modon_admin users
+    //             $adminEmails = DB::table('users')
+    //                 ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    //                 ->whereIn('user_types.name', ['qss_admin', 'modon_admin']) // Filter by user type names
+    //                 ->select('users.id', 'users.email', 'user_types.name as user_type_name')
+    //                 ->get();
         
-                Log::info('👤 Admin Emails (qss_admin and modon_admin):', $adminEmails->toArray());
+    //             Log::info('👤 Admin Emails (qss_admin and modon_admin):', $adminEmails->toArray());
         
-                // Collect all emails into a single array
-                $allEmails = $users->pluck('email')->merge($adminEmails->pluck('email'))->unique()->values();
-                Log::info('👤 All Emails :', $allEmails->toArray());
+    //             // Collect all emails into a single array
+    //             $allEmails = $users->pluck('email')->merge($adminEmails->pluck('email'))->unique()->values();
+    //             Log::info('👤 All Emails :', $allEmails->toArray());
         
-                // end get emials for specific region
+    //             // end get emials for specific region
 
 
 
 
 
-        try {
-            // ✅ Create the mission with the supplied region_id
-            $mission = Mission::create([
-                'mission_date' => $request->mission_date,
-                'note'         => $request->note,
-                'region_id'    => $regionId,
-                'user_id'      => $user->id,
-                'pilot_id'     => $request->pilot_id,
-            ]);
+    //     try {
+    //         // ✅ Create the mission with the supplied region_id
+    //         $mission = Mission::create([
+    //             'mission_date' => $request->mission_date,
+    //             'note'         => $request->note,
+    //             'region_id'    => $regionId,
+    //             'user_id'      => $user->id,
+    //             'pilot_id'     => $request->pilot_id,
+    //         ]);
 
-            // … rest of your logic unchanged …
-            $mission->inspectionTypes()->sync([$request->inspection_type]);
-            $mission->locations()->sync($request->locations);
+    //         // … rest of your logic unchanged …
+    //         $mission->inspectionTypes()->sync([$request->inspection_type]);
+    //         $mission->locations()->sync($request->locations);
 
-            // $regionApproved = $userType === 'region_manager';           
-            // $modonApproved  = $userType === 'modon_admin';
+    //         // $regionApproved = $userType === 'region_manager';           
+    //         // $modonApproved  = $userType === 'modon_admin';
             
-            // MissionApproval::create([
-            //     'mission_id'              => $mission->id,
-            //     'region_manager_approved' => $regionApproved,
-            //     'modon_admin_approved'    => $modonApproved,
-            //     'is_fully_approved'       => false,
-            // ]);
-            $regionApproved = in_array($userType, ['region_manager', 'modon_admin']);
-            $modonApproved  = $userType === 'modon_admin';
-            $pilotApproved  = false; // always false on mission creation
+    //         // MissionApproval::create([
+    //         //     'mission_id'              => $mission->id,
+    //         //     'region_manager_approved' => $regionApproved,
+    //         //     'modon_admin_approved'    => $modonApproved,
+    //         //     'is_fully_approved'       => false,
+    //         // ]);
+    //         $regionApproved = in_array($userType, ['region_manager', 'modon_admin']);
+    //         $modonApproved  = $userType === 'modon_admin';
+    //         $pilotApproved  = false; // always false on mission creation
 
-            MissionApproval::create([
-                'mission_id'              => $mission->id,
-                'region_manager_approved' => $regionApproved,
-                'modon_admin_approved'    => $modonApproved,
-                'pilot_approved'          => $pilotApproved,
-                'is_fully_approved'       => false,
-            ]);
+    //         MissionApproval::create([
+    //             'mission_id'              => $mission->id,
+    //             'region_manager_approved' => $regionApproved,
+    //             'modon_admin_approved'    => $modonApproved,
+    //             'pilot_approved'          => $pilotApproved,
+    //             'is_fully_approved'       => false,
+    //         ]);
 
 
-            // geo‐location saving…
-            if (isset($request->locations[0])) {
-                GeoLocation::updateOrCreate(
-                    ['location_id' => $request->locations[0]],
-                    ['latitude'    => $request->latitude,
-                    'longitude'   => $request->longitude]
-                );
-            }
+    //         // geo‐location saving…
+    //         if (isset($request->locations[0])) {
+    //             GeoLocation::updateOrCreate(
+    //                 ['location_id' => $request->locations[0]],
+    //                 ['latitude'    => $request->latitude,
+    //                 'longitude'   => $request->longitude]
+    //             );
+    //         }
 
-            // … return response …
-            return response()->json([
-                'message' => 'Mission created successfully!',
-                'mission' => [
-                    'id'              => $mission->id,
-                    'inspection_type' => [
-                        'id'   => $request->inspection_type,
-                        'name' => InspectionType::find($request->inspection_type)?->name,
-                    ],
-                    'mission_date'    => $mission->mission_date,
-                    'locations'       => $mission->locations->map(fn($l)=>['id'=>$l->id,'name'=>$l->name]),
-                    'allmails'        => $allEmails,
-                ],
-            ], 201);
+    //         // … return response …
+    //         return response()->json([
+    //             'message' => 'Mission created successfully!',
+    //             'mission' => [
+    //                 'id'              => $mission->id,
+    //                 'inspection_type' => [
+    //                     'id'   => $request->inspection_type,
+    //                     'name' => InspectionType::find($request->inspection_type)?->name,
+    //                 ],
+    //                 'mission_date'    => $mission->mission_date,
+    //                 'locations'       => $mission->locations->map(fn($l)=>['id'=>$l->id,'name'=>$l->name]),
+    //                 'allmails'        => $allEmails,
+    //             ],
+    //         ], 201);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'error'   => 'Failed to create mission.',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'error'   => 'Failed to create mission.',
+    //             'message' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
     /**
      * Delete a mission.

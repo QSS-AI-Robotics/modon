@@ -19,12 +19,32 @@ $(document).ready(function () {
         $('.report-buttons').addClass('d-none');
     }
     loadInspectionTypes();
+
    
+ 
+    // if (typeof updateLanguageTexts === "function") {
+    //    console.log("now its time to update the language");
+    //     updateLanguageTexts(currentLang);
+    // }
+       // Utility function to generate lang key
+       function toLangKey(str) {
+        return str
+            .trim()
+            .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
+            .replace(/3/g, 'three')          // Replace any 3 with 'three'
+            .replace(/&/g, 'and')            // Replace & with and
+            .replace(/\s+/g, '_');           // Replace spaces with underscores
+    }
+
+
+
     function loadInspectionTypes() {
         $.get('/missions/inspection-data', function (res) {
             const container = $('#inspectionTypesContainer');
             container.empty();
+        
             res.inspectionTypes.forEach(type => {
+                const langKey = toLangKey(type.name);
                 container.append(`
                     <div class="col-md-12 col-sm-12">
                         <div class="form-check"
@@ -33,13 +53,13 @@ $(document).ready(function () {
                             data-bs-custom-class="custom-tooltip"
                             data-title="${type.description || ''}">
                             <input type="radio" class="form-check-input" name="inspection_type" value="${type.id}" id="inspection_${type.id}">
-                            <label class="form-check-label checkbox-text" for="inspection_${type.id}">${type.name}</label>
+                            <label class="form-check-label checkbox-text" data-lang-key="${langKey}" for="inspection_${type.id}">${type.name}</label>
                         </div>
                     </div>
                 `);
             });
-    
-            // Enable tooltips
+        
+            // ✅ Enable tooltips
             const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
             tooltips.forEach(el => {
                 const content = el.getAttribute('data-title');
@@ -50,7 +70,14 @@ $(document).ready(function () {
                     trigger: 'hover focus' 
                 });
             });
+        
+            // ✅ Container is fully ready now, so translate immediately
+            let currentLang = localStorage.getItem("selectedLang") || "ar";
+            //console.log('Calling updateLanguageTexts with:', currentLang);
+            updateLanguageTexts(currentLang);
         });
+        
+
     }
 
     
@@ -537,7 +564,7 @@ $(document).ready(function () {
         // Previous Button
         paginationHTML += `
             <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                <a class="page-link" href="#" data-page="${currentPage - 1}" data-lang-key="previous">Previous</a>
             </li>`;
     
         // Page numbers (optional: simplify with only nearby pages)
@@ -551,7 +578,7 @@ $(document).ready(function () {
         // Next Button
         paginationHTML += `
             <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                <a class="page-link" href="#" data-page="${currentPage + 1}" data-lang-key="next">Next</a>
             </li>`;
     
         paginationHTML += `</ul></nav>`;
@@ -611,12 +638,12 @@ $(document).ready(function () {
     
                     let statusBadge = "";
                     switch (mission.status) {
-                        case "Approved":        statusBadge = `<span class="badge p-2 bg-success">Approved</span>`; break;
-                        case "Pending":         statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
-                        case "Rejected":        statusBadge = `<span class="badge p-2 bg-warning">Rejected</span>`; break;
-                        case "In Progress":     statusBadge = `<span class="badge p-2 bg-info text-dark">In Progress</span>`; break;
-                        case "Awaiting Report":statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
-                        case "Completed":       statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
+                        case "Approved":        statusBadge = `<span class="badge p-2 bg-success" data-lang-key="approved">Approved</span>`; break;
+                        case "Pending":         statusBadge = `<span class="badge p-2 bg-danger" data-lang-key="pending">Pending</span>`; break;
+                        case "Rejected":        statusBadge = `<span class="badge p-2 bg-warning" data-lang-key="rejected">Rejected</span>`; break;
+                        case "In Progress":     statusBadge = `<span class="badge p-2 bg-info text-dark" data-lang-key="inProgress">In Progress</span>`; break;
+                        case "Awaiting Report":statusBadge = `<span class="badge p-2 bg-primary" data-lang-key="awaitingReport">Awaiting Report</span>`; break;
+                        case "Completed":       statusBadge = `<span class="badge p-2 bg-success" data-lang-key="completed">Completed</span>`; break;
                     }
     
                     const modonApproved  = mission.approval_status?.modon_admin_approved;
@@ -711,38 +738,38 @@ $(document).ready(function () {
                                 <div class="accordion-body  px-4 py-2 label-text">
                                     <div class="row ">
                                         <div class="col-lg-6">
-                                             <strong class="py-1">Program<br></strong> 
+                                             <strong class="py-1" data-lang-key="program">Program<br></strong> 
                                              <span class="grayishytext">${inspectionName}</span>
                                         </div>
                                         <div class="col-lg-6 text-end">
                                              ${approvalButtons}
                                         </div>
                                         <div class="col-lg-4 ">
-                                            <strong class="py-3" data-location-id="${firstLocation.id}" data-region-id="${regionId}" data-region-name="${regionName}"> Locations </strong><br>
+                                            <strong class="py-3" data-location-id="${firstLocation.id}" data-region-id="${regionId}" data-region-name="${regionName}" data-lang-key="locations"> Locations </strong><br>
                                             <span class="grayishytext"> ${locations} ( ${regionName} )</span>       
                                         </div>                                        
                                         <div class="col-lg-4 ">
-                                         <strong class="py-3">Mission Date</strong><br><span  class="grayishytext">${mission.mission_date}</span>
+                                         <strong class="py-3" data-lang-key="missionDate">Mission Date</strong><br><span  class="grayishytext">${mission.mission_date}</span>
                                         </div>                                        
                                         <div class="col-lg-4 ">
-                                            <strong class="py-3" data-latitude="${latitude}" data-longitude="${longitude}">Geo Coordinates </strong><br>
+                                            <strong class="py-3" data-latitude="${latitude}" data-longitude="${longitude}"data-lang-key="geoCoordinates">Geo Coordinates </strong><br>
                                             <span class="grayishytext">${latitude}, ${longitude}</span>
                                         </div>                                        
                                         <div class="col-lg-4 ">
-                                            <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong><br> <span class="grayishytext">${mission.pilot_info?.name || 'N/A'}</span>
+                                            <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}" data-lang-key="pilotName"> Pilot Name</strong><br> <span class="grayishytext">${mission.pilot_info?.name || 'N/A'}</span>
                                         </div> 
                                         <div class="col-lg-4 "> 
-                                            <strong class="py-3">Mission Created By<br></strong> <span class="text-capitalize grayishytext">${mission.created_by.name}</span>(${mission.created_by.user_type}) 
+                                            <strong class="py-3"data-lang-key="missionCreatedBy">Mission Created By<br></strong> <span class="text-capitalize grayishytext">${mission.created_by.name}</span>(${mission.created_by.user_type}) 
                                         </div>
                                         <div class="col-lg-12 border-bottom"> 
-                                            <strong class="py-3">Note</strong><br><span class="grayishtext" data-mission-note="${fullNote}"> ${fullNote}
+                                            <strong class="py-3" data-lang-key="note">Note</strong><br><span class="grayishtext" data-mission-note="${fullNote}"> ${fullNote}
                                         </div> 
                                         <div class="col-lg-12">
                                             <div class="row w-100 align-items-center">
-                                                <strong>Mission Approval</strong><br>
-                                                <div class="col-4 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
-                                                <div class="col-4 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
-                                                <div class="col-4 label-text"><p>Pilot: ${pilotApprovedStatus}</p></div>
+                                                <strong data-lang-key="missionApproval">Mission Approval</strong><br>
+                                                <div class="col-4 label-text" ><p data-lang-key="test"><span data-lang-key="modonAdmin">Modon Admin:</span> ${modonManagerStatus}</p></div>
+                                                <div class="col-4 label-text"><p><span data-lang-key="regionManager">Region Manager:</span> ${regionManagerStatus}</p></div>
+                                                <div class="col-4 label-text"><p><span data-lang-key="pilot">Pilot:</span> ${pilotApprovedStatus}</p></div>
                                             </div>
                                         </div>                         
                                     </div>    
@@ -754,6 +781,9 @@ $(document).ready(function () {
                     $('#missionsAccordion').append(row);
                 });
                 renderMissionPagination(response);
+                let currentLang = localStorage.getItem("selectedLang") || "ar";
+            //console.log('Calling updateLanguageTexts with:', currentLang);
+            updateLanguageTexts(currentLang);
             },
             error: function (xhr) {
                 console.error("❌ Error fetching missions:", xhr.responseText);

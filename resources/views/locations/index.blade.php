@@ -11,8 +11,8 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                        <p class="bluishtext">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
-                        <h3 class="fw-bold">Locations Control</h3>
+                        <p class="bluishtext" data-lang-key="{{ $userType }}">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
+                        <h3 class="fw-bold" data-lang-key="locationsControl">Locations Control</h3>
                     </div>
                 </div>
 
@@ -24,7 +24,7 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Locations List</h5>
+                                    <h5 data-lang-key="locationsList">Locations List</h5>
                                 </div>
                                
                             </div>
@@ -36,13 +36,13 @@
                             <table class="table table-text">
                                 <thead>
                                     <tr>
-                                        <th>No.</th>
-                                        <th>Locations</th>
+                                        <th data-lang-key="no">No.</th>
+                                        <th data-lang-key="locations">Locations</th>
 
-                                        <th>Region</th> 
-                                        <th>Map</th>
-                                        <th>Description</th>
-                                        <th>Actions</th>
+                                        <th data-lang-key="region">Region</th> 
+                                        <th data-lang-key="map">Map</th>
+                                        <th data-lang-key="description">Description</th>
+                                        <th data-lang-key="actions">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="locationTableBody" class="align-items-center">
@@ -69,7 +69,7 @@
                     
                     <div class="row">
                         <div class="col-lg-8">
-                            <h6 class="form-title">Create New Location</h6>
+                            <h6 class="form-title" data-lang-key="createNewLocation">Create New Location</h6>
                         </div>
                         <div class="col-lg-4  text-end">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none p-1">
@@ -87,7 +87,7 @@
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text">Region</label>
+                                <label class="form-label label-text" data-lang-key="region">Region</label>
                                 <select class="form-select dateInput" id="region_id">
                                     <option value="">Select Regions</option>
                                     @foreach($regions as $region)
@@ -102,12 +102,12 @@
                                 
                             </div>
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text">Location Name</label>
+                                <label class="form-label label-text" data-lang-key="locationName">Location Name</label>
                                 <input type="text" class="form-control dateInput" id="name" name="start_datetime" >
                             </div>
     
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text">Map</label>
+                                <label class="form-label label-text" data-lang-key="map">Map</label>
                                 <input type="text" class="form-control dateInput" id="map_url" name="map_url" placeholder="google map url" >
                             </div>
 
@@ -115,7 +115,7 @@
 
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-check-label label-text py-2">Description</label>
+                                <label class="form-check-label label-text py-2" data-lang-key="description">Description</label>
                                 <textarea id="description" name="description" class="form-control notes-textarea flex-grow-1" rows="5"></textarea>
 
                             </div>

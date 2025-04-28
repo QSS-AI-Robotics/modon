@@ -1,120 +1,120 @@
 
 $(document).ready(function () {
-    const languageFile = {
-        pilots: {
-            en: "Pilots",
-            ar: "الطيارين",
-        },
-        drones:{
-            en: "Drones",
-            ar: "الطائرات بدون طيار",
-        },
-        missions: {
-            en: "Missions",
-            ar: "المهام",
-        },
-        reigons: {
-            en: "Regions",
-            ar: "المناطق",
-        },
-        locations: {
-            en: "Locations",
-            ar: "المواقع",
-        },
-        missionAnaltyics: {
-            en: "Missions Analytics",
-            ar: "تحليلات المهام",
-        },
-        noDataFound: {
-            en: "No data found",
-            ar: "لا توجد بيانات",
-        },
-        latestMissions: {
-            en: "Latest Missions",
-            ar: "آخر المهام",
-        },
-        "loading...": {
-            en: "Loading...",
-            ar: "...تحميل",
-        },
-        latestIncidents: {
-            en: "Latest Incidents",
-            ar: "آخر الأحداث",
-        },
-        pilotTracking: {
-            en: "Pilot Tracking",
-            ar: "تتبع الطيار",
-        },
-        startDate: {
-            en: "Start Date",
-            ar: "تاريخ البدء",
-        },
-        endDate: {
-            en: "End Date",
-            ar: "تاريخ الانتهاء",
-        },
-        pending: {
-            en: "Pending",
-            ar: "قيد الانتظار",
-        },
-        finished: {
-            en: "Finished",
-            ar: "منتهي",
-        },
-        totalMissions: {
-            en: "Total Missions",
-            ar: "إجمالي المهام",
-        },
-        loading: {
-            en: "Loading",
-            ar: "تحميل",
-        },
-        centeralRegion: {
-            en: "Central Region",
-            ar: "المنطقة الوسطى",
-        },
-        "missions:": {
-            en: "Missions :",
-            ar: ": المهام",
-        },
-        easternRegion: {
-            en: "Eastern Region",
-            ar: "المنطقة الشرقية",
-        },
-        WesternRegion: {
-            en: "Western Region",
-            ar: "المنطقة الغربية",
-        },
-        restView: {
-            en: "Reset View",
-            ar: "إعادة عرض",
-        },
-        "totalMissions:": {
-            en: "Total Missions :",
-            ar: ": إجمالي المهام",
-        },
-        dashboard: {
-            en: "Dashboard",
-            ar: "لوحة التحكم",
-        },
-        locations: { // Added this key
-            en: "Locations",
-            ar: "المواقع",
-        },
-        users: { // Added this key
-            en: "Users",
-            ar: "المستخدمين",
-        },
-    };
-    function updateLanguageTexts(lang) {
-        $("[data-lang-key]").each(function () {
-            const key = $(this).data("lang-key");
-            const translation = languageFile[key]?.[lang];
-            if (translation) {
-                $(this).text(translation);
-            }
-        });
-    }
+    // const languageFile = {
+    //     pilots: {
+    //         en: "Pilots",
+    //         ar: "الطيارين",
+    //     },
+    //     drones:{
+    //         en: "Drones",
+    //         ar: "الطائرات بدون طيار",
+    //     },
+    //     missions: {
+    //         en: "Missions",
+    //         ar: "المهام",
+    //     },
+    //     reigons: {
+    //         en: "Regions",
+    //         ar: "المناطق",
+    //     },
+    //     locations: {
+    //         en: "Locations",
+    //         ar: "المواقع",
+    //     },
+    //     missionAnaltyics: {
+    //         en: "Missions Analytics",
+    //         ar: "تحليلات المهام",
+    //     },
+    //     noDataFound: {
+    //         en: "No data found",
+    //         ar: "لا توجد بيانات",
+    //     },
+    //     latestMissions: {
+    //         en: "Latest Missions",
+    //         ar: "آخر المهام",
+    //     },
+    //     "loading...": {
+    //         en: "Loading...",
+    //         ar: "...تحميل",
+    //     },
+    //     latestIncidents: {
+    //         en: "Latest Incidents",
+    //         ar: "آخر الأحداث",
+    //     },
+    //     pilotTracking: {
+    //         en: "Pilot Tracking",
+    //         ar: "تتبع الطيار",
+    //     },
+    //     startDate: {
+    //         en: "Start Date",
+    //         ar: "تاريخ البدء",
+    //     },
+    //     endDate: {
+    //         en: "End Date",
+    //         ar: "تاريخ الانتهاء",
+    //     },
+    //     pending: {
+    //         en: "Pending",
+    //         ar: "قيد الانتظار",
+    //     },
+    //     finished: {
+    //         en: "Finished",
+    //         ar: "منتهي",
+    //     },
+    //     totalMissions: {
+    //         en: "Total Missions",
+    //         ar: "إجمالي المهام",
+    //     },
+    //     loading: {
+    //         en: "Loading",
+    //         ar: "تحميل",
+    //     },
+    //     centeralRegion: {
+    //         en: "Central Region",
+    //         ar: "المنطقة الوسطى",
+    //     },
+    //     "missions:": {
+    //         en: "Missions :",
+    //         ar: ": المهام",
+    //     },
+    //     easternRegion: {
+    //         en: "Eastern Region",
+    //         ar: "المنطقة الشرقية",
+    //     },
+    //     WesternRegion: {
+    //         en: "Western Region",
+    //         ar: "المنطقة الغربية",
+    //     },
+    //     restView: {
+    //         en: "Reset View",
+    //         ar: "إعادة عرض",
+    //     },
+    //     "totalMissions:": {
+    //         en: "Total Missions :",
+    //         ar: ": إجمالي المهام",
+    //     },
+    //     dashboard: {
+    //         en: "Dashboard",
+    //         ar: "لوحة التحكم",
+    //     },
+    //     locations: { // Added this key
+    //         en: "Locations",
+    //         ar: "المواقع",
+    //     },
+    //     users: { // Added this key
+    //         en: "Users",
+    //         ar: "المستخدمين",
+    //     },
+    // };
+    // function updateLanguageTexts(lang) {
+    //     $("[data-lang-key]").each(function () {
+    //         const key = $(this).data("lang-key");
+    //         const translation = languageFile[key]?.[lang];
+    //         if (translation) {
+    //             $(this).text(translation);
+    //         }
+    //     });
+    // }
 
 
     let currentLang = localStorage.getItem("selectedLang") || "en";
@@ -595,7 +595,7 @@ function updateInspectionChart(chart, response) {
                     `;
                    
                     $('#missionsPanel').append(card);
-                    updateLanguageTexts(currentLang);
+                    // updateLanguageTexts(currentLang);
                 });
             },
             error: function (xhr, status, error) {

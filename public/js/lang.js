@@ -1,143 +1,374 @@
+const languageFile = {
+    pilots: {
+        en: "Pilots",
+        ar: "الطيارين",
+    },
+    drones:{
+        en: "Drones",
+        ar: "الطائرات بدون طيار",
+    },
+    missions: {
+        en: "Missions",
+        ar: "المهام",
+    },
+    reigons: {
+        en: "Regions",
+        ar: "المناطق",
+    },
+    locations: {
+        en: "Locations",
+        ar: "المواقع",
+    },
+    missionAnaltyics: {
+        en: "Missions Analytics",
+        ar: "تحليلات المهام",
+    },
+    noDataFound: {
+        en: "No data found",
+        ar: "لا توجد بيانات",
+    },
+    latestMissions: {
+        en: "Latest Missions",
+        ar: "آخر المهام",
+    },
+    "loading...": {
+        en: "Loading...",
+        ar: "...تحميل",
+    },
+    latestIncidents: {
+        en: "Latest Incidents",
+        ar: "آخر الأحداث",
+    },
+    pilotTracking: {
+        en: "Pilot Tracking",
+        ar: "تتبع الطيار",
+    },
+    startDate: {
+        en: "Start Date",
+        ar: "تاريخ البدء",
+    },
+    endDate: {
+        en: "End Date",
+        ar: "تاريخ الانتهاء",
+    },
+    pending: {
+        en: "Pending",
+        ar: "قيد الانتظار",
+    },
+    finished: {
+        en: "Finished",
+        ar: "منتهي",
+    },
+    totalMissions: {
+        en: "Total Missions",
+        ar: "إجمالي المهام",
+    },
+    loading: {
+        en: "Loading",
+        ar: "تحميل",
+    },
+    centeralRegion: {
+        en: "Central Region",
+        ar: "المنطقة الوسطى",
+    },
+    "missions:": {
+        en: "Missions :",
+        ar: ": المهام",
+    },
+    easternRegion: {
+        en: "Eastern Region",
+        ar: "المنطقة الشرقية",
+    },
+    WesternRegion: {
+        en: "Western Region",
+        ar: "المنطقة الغربية",
+    },
+    restView: {
+        en: "Reset View",
+        ar: "إعادة عرض",
+    },
+    "totalMissions:": {
+        en: "Total Missions :",
+        ar: ": إجمالي المهام",
+    },
+    dashboard: {
+        en: "Dashboard",
+        ar: "لوحة التحكم",
+    },
+    locations: {
+        en: "Locations",
+        ar: "المواقع",
+    },
+    users: {
+        en: "Users",
+        ar: "المستخدمين",
+    },
+    Dashboard: {
+        en: "Dashboard",
+        ar: "لوحة التحكم",
+    },
+    Missions: {
+        en: "Missions",
+        ar: "البعثات",
+    },
+    Locations: {
+        en: "Locations",
+        ar: "المواقع",
+    },
+    Users: {
+        en: "Users",
+        ar: "المستخدمين",
+    },
+    Drones: {
+        en: "Drones",
+        ar: "طيار",
+    },
+    missionControl: {
+        en: "Mission Control",
+        ar: "التحكم في المهمة",
+    },
+    missionList: {
+        en: "Mission List",
+        ar: "قائمة المهام",
+    },
+    inspectionType: {
+        en: "Inspection Type",
+        ar: "نوع الفحص",
+    },
+    missionDate: {
+        en: "Mission Date",
+        ar: "تاريخ المهمة",
+    },
+    location: {
+        en: "Location",
+        ar: "الموقع",
+    },
+    status: {
+        en: "Status",
+        ar: "الحالة",
+    },
+    actions: {
+        en: "Actions",
+        ar: "الإجراءات",
+    },
+qss_admin: {
+        en: "QSS Admin",
+        ar: "مسؤول QSS",
+    },
+modon_admin: {
+        en: "MODON Admin",
+        ar: "مسؤول MODON",
+    },
+region_manager: {
+        en: "Region Manager",
+        ar: "مدير المنطقة",
+    },
+pilot: {
+        en: "Pilot",
+        ar: "طيار",
+    },
+
+    city_manager: {
+        en: "City Manager",
+        ar: "مدير المدينة",
+    },
+    selectProgram: {
+        en: "Select Program",
+        ar: "اختر البرنامج",
+    },
+    threeD_Mappings: {
+        en: "3D Mappings",
+        ar: "خرائط ثلاثية الأبعاد",
+    },
+    Gas_Emission_Analysis: {
+        en: "Gas Emission Analysis",
+        ar: "تحليل انبعاث الغاز",
+    },
+    Road_Damage_Monitoring: {
+        en: "Road Damage Monitoring",
+        ar: "مراقبة تلف الطريق",
+    },
+    Remote_Security_Inspections: {
+        en: "Remote Security Inspections",
+        ar: "عمليات التفتيش الأمني عن بعد",
+    },
+    Emergency_Response_Support: {
+        en: "Emergency Response Support",
+        ar: "دعم الاستجابة للطوارئ",
+    },
+    City_Updates_and_Event_Coverages: {
+        en: "City Updates $ Event Coverages",
+        ar: "تحديثات المدينة وتغطيات الأحداث",
+    },
+    Yard_Violations_Detections: {
+        en: "Yard Violations Detections",
+        ar: "الكشف عن انتهاكات الفناء",
+    },
+    region: {
+        en: "Region",
+        ar: "المنطقة",
+    },
+    location:{
+        en: "Location",
+        ar: "الموقع",
+    },
+    latitude:{
+        en: "Latitude",
+        ar: "خط العرض",
+    },
+    longitude:{
+        en: "Longitude",
+        ar: "خط الطول",
+    },
+    notes:{
+        en: "Notes",
+        ar: "ملاحظات",
+    },
+    createMission:{
+        en: "Create Mission",
+        ar: "إنشاء مهمة",
+    },
+    create_new_Mission: {
+        en: "Create New Mission",
+        ar: "إنشاء مهمة جديدة",
+    },
+    geoCoordinates: {
+        en: "Geo Coordinates",
+        ar: "إحداثيات جغرافية",
+    },
+    pilotName: {
+        en: "Pilot Name",
+        ar: "اسم الطيار",
+    },
+    missionCreatedBy: {
+        en: "Mission Created By",
+        ar: "المهمة التي أنشأها",
+    },
+    note:{
+        en: "Note",
+        ar: "ملاحظة",
+    },
+    program: {
+        en: "Program",
+        ar: "برنامج",
+    },
+    missionApproval: {
+        en: "Mission Approval",
+        ar: "موافقة المهمة",
+    },
+    modonAdmin: {
+        en: "MODON Admin:",
+        ar: "مسؤول MODON",
+    },
+    regionManager: {
+        en: "Region Manager:",
+        ar: "مدير المنطقة",
+    },
+    previous: {
+        en: "Previous",
+        ar: "السابق",
+    },
+    next: {
+        en: "Next",
+        ar: "التالي",
+    },
+    approved: {
+        en: "Approved",
+        ar: "موافق عليه",
+    },
+    rejected: {
+        en: "Rejected",
+        ar: "مرفوض",
+    },
+    pending: {
+        en: "Pending",
+        ar: "قيد الانتظار",
+    },
+    completed: {
+        en: "Completed",
+        ar: "مكتمل",
+    },
+    awaitingReport: {
+        en: "Awaiting Report",
+        ar: "في انتظار التقرير",
+    },
+    inProgress: {
+        en: "In Progress",
+        ar: "قيد التقدم",
+    },
+    reportDetail: {
+        en: "Report Detail",
+        ar: "تفاصيل التقرير",
+    },
+    description: {
+        en: "Description",
+        ar: "الوصف",
+    },
+    images: {
+        en: "Images",
+        ar: "الصور",
+    },
+    //locationspage
+    locationsControl: {
+        en: "Locations Control",
+        ar: "تحكم المواقع",
+    },
+    locationsList: {
+        en: "Locations List",
+        ar: "قائمة المواقع",
+    },
+    no: {
+        en: "No.",
+        ar: ":رقم",
+    },
+    map: {
+        en: "Map",
+        ar: "خريطة",
+    },
+    createNewLocation: {
+        en: "Create New Location",
+        ar: "إنشاء موقع جديد",
+    },
+    locationName: {
+        en: "Location Name",
+        ar: "اسم الموقع",
+    },
+    updateLocation: {
+        en: "Update Location",
+        ar: "تحديث الموقع",
+    },
+    createLocation: {
+        en: "Create Location",
+        ar: "إنشاء موقع",
+    },
+};
+
+function updateLanguageTexts(lang) {
+    //alert("Iam here");
+    $("[data-lang-key]").each(function () {
+        const key = $(this).data("lang-key");
+        //console.log(key);
+        const translation = languageFile[key]?.[lang];
+        if (translation) {
+            $(this).text(translation);
+        }
+    });
+}
 $(document).ready(function () {
-    const languageFile = {
-        pilots: {
-            en: "Pilots",
-            ar: "الطيارين",
-        },
-        drones:{
-            en: "Drones",
-            ar: "الطائرات بدون طيار",
-        },
-        missions: {
-            en: "Missions",
-            ar: "المهام",
-        },
-        reigons: {
-            en: "Regions",
-            ar: "المناطق",
-        },
-        locations: {
-            en: "Locations",
-            ar: "المواقع",
-        },
-        missionAnaltyics: {
-            en: "Missions Analytics",
-            ar: "تحليلات المهام",
-        },
-        noDataFound: {
-            en: "No data found",
-            ar: "لا توجد بيانات",
-        },
-        latestMissions: {
-            en: "Latest Missions",
-            ar: "آخر المهام",
-        },
-        "loading...": {
-            en: "Loading...",
-            ar: "...تحميل",
-        },
-        latestIncidents: {
-            en: "Latest Incidents",
-            ar: "آخر الأحداث",
-        },
-        pilotTracking: {
-            en: "Pilot Tracking",
-            ar: "تتبع الطيار",
-        },
-        startDate: {
-            en: "Start Date",
-            ar: "تاريخ البدء",
-        },
-        endDate: {
-            en: "End Date",
-            ar: "تاريخ الانتهاء",
-        },
-        pending: {
-            en: "Pending",
-            ar: "قيد الانتظار",
-        },
-        finished: {
-            en: "Finished",
-            ar: "منتهي",
-        },
-        totalMissions: {
-            en: "Total Missions",
-            ar: "إجمالي المهام",
-        },
-        loading: {
-            en: "Loading",
-            ar: "تحميل",
-        },
-        centeralRegion: {
-            en: "Central Region",
-            ar: "المنطقة الوسطى",
-        },
-        "missions:": {
-            en: "Missions :",
-            ar: ": المهام",
-        },
-        easternRegion: {
-            en: "Eastern Region",
-            ar: "المنطقة الشرقية",
-        },
-        WesternRegion: {
-            en: "Western Region",
-            ar: "المنطقة الغربية",
-        },
-        restView: {
-            en: "Reset View",
-            ar: "إعادة عرض",
-        },
-        "totalMissions:": {
-            en: "Total Missions :",
-            ar: ": إجمالي المهام",
-        },
-        dashboard: {
-            en: "Dashboard",
-            ar: "لوحة التحكم",
-        },
-        locations: { // Added this key
-            en: "Locations",
-            ar: "المواقع",
-        },
-        users: { // Added this key
-            en: "Users",
-            ar: "المستخدمين",
-        },
-        Dashboard: { // Added this key
-            en: "Dashboard",
-            ar: "لوحة التحكم",
-        },
-        Missions: { // Added this key
-            en: "Missions",
-            ar: "البعثات",
-        },
-        Locations: { // Added this key
-            en: "Locations",
-            ar: "المواقع",
-        },
-        Users: { // Added this key
-            en: "Users",
-            ar: "المستخدمين",
-        },
-        Drones: { // Added this key
-            en: "Drones",
-            ar: "طيار",
-        },
-    };
+   
     // Get language from localStorage, fallback to English
     let currentLang = localStorage.getItem("selectedLang") || "en";
 
     // Function to update language text
-    function updateLanguageTexts(lang) {
-        $("[data-lang-key]").each(function () {
-            const key = $(this).data("lang-key");
-            const translation = languageFile[key]?.[lang];
-            if (translation) {
-                $(this).text(translation);
-            }
-        });
-    }
+    // function updateLanguageTexts(lang) {
+    //     $("[data-lang-key]").each(function () {
+    //         const key = $(this).data("lang-key");
+    //         const translation = languageFile[key]?.[lang];
+    //         if (translation) {
+    //             $(this).text(translation);
+    //         }
+    //     });
+    // }
 
     // Function to update text direction
     function updateTextDirection(lang) {
@@ -164,6 +395,13 @@ $(document).ready(function () {
 
 
         updateLanguageTexts(selectedLang);
+        if ($('#locationId').val()) {
+            $(".form-title").text(languageFile.updateLocation[selectedLang]);
+            $(".mission-btn span").text(languageFile.updateLocation[selectedLang]);
+        } else {
+            $(".form-title").text(languageFile.createNewLocation[selectedLang]);
+            $(".mission-btn span").text(languageFile.createLocation[selectedLang]);
+        }
    
         
         $('#langDropdown').removeClass('active');

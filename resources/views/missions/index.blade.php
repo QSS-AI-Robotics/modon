@@ -12,8 +12,8 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-2 bg-section d-flex flex-column align-items-start">
-                        <p class="bluishtext">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
-                        <h3 class="fw-bold">Mission Control</h3>
+                        <p class="bluishtext" data-lang-key="{{ $userType }}">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
+                        <h3 class="fw-bold" data-lang-key="missionControl">Mission Control</h3>
                     </div>
                 </div>
 
@@ -25,7 +25,7 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Mission List <span id="mifu" class="d-none">{{ $userType }}</span></h5>
+                                    <h5 data-lang-key="missionList">Mission List <span id="mifu" class="d-none">{{ $userType }}</span></h5>
                                 </div>
                                 <div class="col-lg-4 text-end ">
 
@@ -55,11 +55,11 @@
                         <div class="flex-grow 1 " style="">
                             {{-- <div class="flex-grow 1  overflow-y-auto" style="max-height: 50vh;overflow-x:hidden;"> --}}
                             <div class="row fw-bold custom-bborder  label-text w-100  px-3 py-2 justify-content-between">
-                                <div class="col-3 ">Inspection Type</div>
-                                <div class="col-2 ">Mission Date</div>
-                                <div class="col-3 text-center">Location</div>
-                                <div class="col-2 text-center">Status</div>
-                                <div class="col-2 text-center">Actions</div>
+                                <div class="col-3" data-lang-key="inspectionType">Inspection Type</div>
+                                <div class="col-2"data-lang-key="missionDate">Mission Date</div>
+                                <div class="col-3 text-center" data-lang-key="location">Location</div>
+                                <div class="col-2 text-center" data-lang-key="status">Status</div>
+                                <div class="col-2 text-center" data-lang-key="actions">Actions</div>
                             </div>
                             <div class="accordion " id="missionsAccordion"></div>
                         </div>
@@ -117,7 +117,7 @@
                     
                     <div class="row">
                         <div class="col-lg-8">
-                            <h6 class="form-title">Create New Mission</h6>
+                            <h6 class="form-title" data-lang-key="create_new_Mission">Create New Missiocn</h6>
                         </div>
                         <div class="col-lg-4  text-end">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none p-1">
@@ -130,7 +130,7 @@
                         <div class="row">
 
                             <div class="col-md-12">
-                                <label class="form-label label-text">Select Programs</label>
+                                <label class="form-label label-text" data-lang-key="selectProgram">Select Program</label>
                                 <div class="row"   id="inspectionTypesContainer">
 
                                 </div>
@@ -138,12 +138,12 @@
                      
                             <!-- Date Inputs -->
                             <div class="col-md-6 col-sm-6 py-1 pt-3">
-                                <label class="form-label label-text">Mission Date</label>
+                                <label class="form-label label-text" data-lang-key="missionDate">Mission Date</label>
                                 <input type="date" class="form-control dateInput" id="mission_date" name="mission_date" required>
                             </div>
 
                             <div class="col-md-6 col-sm-6 py-1 pt-3">
-                                <label for="region_id" class="form-label label-text">Region</label>
+                                <label for="region_id" class="form-label label-text" data-lang-key="region">Region</label>
                             
                                 @if($regions->isNotEmpty())
                                     @php
@@ -177,7 +177,7 @@
                       
 
                             <div class="col-md-6 col-sm-12 p-2">
-                                <label class="form-check-label label-text py-1">Location</label>
+                                <label class="form-check-label label-text py-1" data-lang-key="location">Location</label>
                             
                                 @if($userType === 'region_manager' || $userType === 'qss_admin' || $userType === 'modon_admin')
                                     @if($locations->isNotEmpty())
@@ -236,7 +236,7 @@
 
 
                             <div class="col-md-5 col-sm-12 p-2">
-                                <label for="pilot_id" class="form-check-label label-text py-1"> Pilot</label>
+                                <label for="pilot_id" class="form-check-label label-text py-1" data-lang-key="pilot"> Pilot</label>
                             
                                 @if($pilots->count() === 1)
                                     <!-- Only one pilot: auto-selected and disabled -->
@@ -264,16 +264,16 @@
                             </div>
                             
                             <div class="col-md-7 col-sm-6">
-                                <label class="form-label label-text">latitude</label>
+                                <label class="form-label label-text" data-lang-key="latitude">Latitude</label>
                                 <input type="text" class="form-control dateInput" id="latitude" name="latitude" value="2" required>
                             </div>
                             <div class="col-md-5 col-sm-6 ">
-                                <label class="form-label label-text">longitude</label>
+                                <label class="form-label label-text" data-lang-key="longitude">Longitude</label>
                                 <input type="text" class="form-control dateInput" id="longitude" name="longitude" value="2" required>
                             </div>
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-check-label label-text py-2">Notes</label>
+                                <label class="form-check-label label-text py-2" data-lang-key="notes">Notes</label>
                                 <textarea id="note" name="note" class="form-control notes-textarea flex-grow-1 mx-1" rows="3" ></textarea>
 
                             </div>
@@ -291,7 +291,7 @@
                                         <div class="col-lg-12">
                                             <button class="btn mission-btn btn-sm d-flex align-items-center gap-1 w-100 " type="submit">
                                                
-                                                <span>Create Mission</span>
+                                                <span data-lang-key="createMission">Create Mission</span>
                                             </button>
                                         </div>    
                                     </div>
@@ -312,7 +312,7 @@
             <div class="modal-dialog modal-xl">
                 <div class="modal-content bg-modal">
                     <div class="modal-header border-0">
-                        <h6 class="modal-title" id="addReportModalLabel">Report Detail</h6>
+                        <h6 class="modal-title" id="addReportModalLabel" data-lang-key="reportDetail">Report Detail</h6>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -327,11 +327,11 @@
                                     <div class="col-lg-6">
                                         <div class="col-md-12">
                                             <div class="mb-3">
-                                                <label for="start_datetime" class="form-label ">Program</label>
+                                                <label for="start_datetime" class="form-label " data-lang-key="program">Program</label>
                                                 <p id="viewprogramInfo" class="whiteText text-capitlaize"></p>
-                                                <label for="start_datetime" class="form-label ">Region</label>
+                                                <label for="start_datetime" class="form-label" data-lang-key="region">Region</label>
                                                 <p id="viewregionInfo" class="whiteText text-capitalize"></p>
-                                                <label for="start_datetime" class="form-label ">Location</label>
+                                                <label for="start_datetime" class="form-label " data-lang-key="location">Location</label>
                                                 <p id="viewlocationInfo" class="whiteText text-capitalize"></p>
         
                                             </div>
@@ -340,7 +340,7 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="mb-3">
-                                            <label for="description" class="form-label">Description</label>
+                                            <label for="description" class="form-label" data-lang-key="description">Description</label>
                                             <div  class="form-control  " id="description" name="description" rows="8" style="background: none;border:1px solid #FFFFFF33;min-height:150px"></div>
                                         </div>
                                     </div>
@@ -360,7 +360,7 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="mb-3">
-                                            <label for="description" class="form-label">Images</label>
+                                            <label for="description" class="form-label"  data-lang-key="images">Images</label>
                                             <div id="missionReportImages" class="d-flex flex-wrap gap-2"></div>
         
                                             <!-- Fullscreen Modal -->
@@ -440,6 +440,7 @@
 
         @endsection
         @push('scripts')
+            {{-- <script src="{{ asset('js/lang.js') }}"></script> --}}
             <script src="{{ asset('js/missions.js') }}"></script>
 
         @endpush

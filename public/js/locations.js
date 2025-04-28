@@ -49,6 +49,10 @@ $(document).ready(function () {
                     $('#locationTableBody').append(row);
                 });
                 renderMissionPagination(response);
+                let currentLang = localStorage.getItem("selectedLang") || "ar";
+            //console.log('Calling updateLanguageTexts with:', currentLang);
+            updateLanguageTexts(currentLang);
+                
             },
             error: function (xhr) {
                 console.error("❌ Error fetching locations:", xhr.responseText);
@@ -69,7 +73,7 @@ $(document).ready(function () {
         // Previous Button
         paginationHTML += `
             <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                <a class="page-link" href="#" data-page="${currentPage - 1}" data-lang-key="previous">Previous</a>
             </li>`;
     
         // Page numbers (optional: simplify with only nearby pages)
@@ -83,7 +87,7 @@ $(document).ready(function () {
         // Next Button
         paginationHTML += `
             <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                <a class="page-link" href="#" data-page="${currentPage + 1}" data-lang-key="next">Next</a>
             </li>`;
     
         paginationHTML += `</ul></nav>`;
@@ -106,13 +110,21 @@ $(document).ready(function () {
         const locationId = $(this).data('id');
     
         $(".cancel-btn").removeClass("d-none");
-        $(".form-title").text("Update Location");
-        $(".mission-btn span").text("Update Location");
     
-        const name = row.find('td:eq(1)').text().trim(); // Makkah
-        const regionName = row.find('td:eq(2)').text().trim(); // Western
-        const mapUrl = row.find('td:eq(3)').find('a').attr('href') || ''; // View URL
-        const description = row.find('td:eq(4)').text().trim(); // dasdas
+        // Get language
+        let currentLang = localStorage.getItem("selectedLang") || "ar";
+        if (currentLang === "ar") {
+            $(".form-title").text("تحديث الموقع");
+            $(".mission-btn span").text("تحديث الموقع");
+        } else {
+            $(".form-title").text("Update Location");
+            $(".mission-btn span").text("Update Location");
+        }
+    
+        const name = row.find('td:eq(1)').text().trim();
+        const regionName = row.find('td:eq(2)').text().trim();
+        const mapUrl = row.find('td:eq(3)').find('a').attr('href') || '';
+        const description = row.find('td:eq(4)').text().trim();
     
         // Fill form fields
         $('#locationId').val(locationId);
@@ -143,8 +155,17 @@ $(document).ready(function () {
         $('#location-validation-errors').addClass('d-none').text('');
         $("#locationForm")[0].reset(); // Reset Form Fields
         $("#locationForm").removeAttr("data-location-id"); // Remove Edit Mode
-        $(".form-title").text("Create New Location");
-        $(".mission-btn span").text("Create Location");
+    
+        // Get language
+        let currentLang = localStorage.getItem("selectedLang") || "ar";
+        if (currentLang === "ar") {
+            $(".form-title").text("إنشاء موقع جديد");
+            $(".mission-btn span").text("إنشاء الموقع");
+        } else {
+            $(".form-title").text("Create New Location");
+            $(".mission-btn span").text("Create Location");
+        }
+    
         $(".cancel-btn").addClass("d-none"); // Hide Cancel Button
     }
     $(document).on("click", ".cancel-btn", function () {

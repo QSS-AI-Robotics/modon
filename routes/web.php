@@ -97,7 +97,7 @@ Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,reg
 // Admin Routes
 Route::middleware(['auth', 'checkUserType:qss_admin,modon_admin'])->group(function () {
 
-    Route::get('/admin/users', [AdminController::class, 'adminusers'])->name('admin.adminusers');
+    Route::get('/modonusers', [AdminController::class, 'adminusers'])->name('admin.adminusers');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/dashboard/users', [AdminController::class, 'getAllUsers'])->name('admin.getUsers');
     Route::post('/dashboard/user/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');

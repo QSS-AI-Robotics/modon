@@ -463,18 +463,28 @@ $(document).ready(function () {
         const password = $('#password').val().trim();
         const subject = "Your Account Has Been Created";
         const content = `
-            Dear ${name},
-    
-            Your account has been created by the admin. Below are your login details:
-    
-            Username: ${email}
-            Password: ${password}
-    
-            Please log in and update your password as soon as possible.
-    
-            Best regards,
-            Admin Team
-        `;
+        <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+            <p>Dear <strong>${name}</strong>,</p>
+
+            <p>Your account has been created by the admin. Below are your login details:</p>
+
+            <table style="margin-top: 10px;">
+                <tr>
+                    <td><strong>Username:</strong></td>
+                    <td>${email}</td>
+                </tr>
+                <tr>
+                    <td><strong>Password:</strong></td>
+                    <td>${password}</td>
+                </tr>
+            </table>
+
+            <p style="margin-top: 20px;">Please log in and update your password as soon as possible for security purposes.</p>
+
+            <p>Best regards,<br>Admin Team</p>
+        </div>
+    `;
+
     
         fetch('/send-email', {
             method: 'POST',

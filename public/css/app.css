@@ -113,14 +113,14 @@ body{
     gap: 10px;
     transform: translateX(100%);
     opacity: 0;
-    pointer-events: none;
+    /* pointer-events: none; */
     transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
 
 .date-fields-wrapper.active {
     transform: translateX(0);
     opacity: 1;
-    pointer-events: auto;
+    /* pointer-events: auto; */
 }
 
 .date-wrapper {
@@ -431,7 +431,7 @@ iframe {
         }
 
         .disabled-delete {
-            pointer-events: none;
+            /* pointer-events: none; */
         }/* Set global SweetAlert2 styles */
 .swal2-popup {
     background: #105A7E !important;
@@ -585,14 +585,14 @@ iframe {
     max-height: 0;
     overflow: hidden;
     overflow-y:auto;
-    pointer-events: none;
+    /* pointer-events: none; */
     transition: all 0.3s ease, transform 0.3s ease;
 }
 
 .lang-dropdown.active {
     opacity: 1;
     max-height: 300px;
-    pointer-events: auto;
+    /* pointer-events: auto; */
     transform: translateX(-50%) translateY(0); /* Slide down to visible */
 }
 .lang-count {
@@ -670,14 +670,14 @@ iframe {
     opacity: 0;
     max-height: 0;
     overflow: hidden;
-    pointer-events: none;
+    /* pointer-events: none; */
     transition: all 0.3s ease;
 }
 
 .profile-dropdown.active {
     opacity: 1;
     max-height: 300px;
-    pointer-events: auto;
+    /* pointer-events: auto; */
 }
 
 
@@ -728,31 +728,7 @@ iframe {
     cursor: pointer;
 }
 
-  /* .accordion-button{
-    background-color: #105A7E;
-    color: white;
-    border:none !important; 
-    border-radius: none !important;
-    border-bottom: 0.5px solid #bfbfc04f !important;
-  }
-  .accordion-button > .row > div {
-    font-weight: normal;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border:none !important; 
-    border-radius: none !important;
-}
-.accordion-body {
-    background-color: #242C45;
-
-    color: white;
-    border-radius: none !important;
-    border:none !important; 
-}
-.accordion-item{
-    border:none !important;
-} */
+  
 .accordion-button {
     background-color: #105A7E;
     color: white;
@@ -914,90 +890,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-radius: 12px;
   }
 
-  /* .heat-shape {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.9;
-    filter: blur(30px);
-    transform: translate(-50%, -50%);
-    animation: pulse 4s ease-in-out infinite;
-    pointer-events: none;
-  }
 
-  @keyframes pulse {
-    0% {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0.2;
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1.4);
-      opacity: 0.5;
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0.8;
-    }
-  } */
 
-  .heat-shape {
-    position: absolute;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    animation: heatFade 3s ease-in-out infinite;
-    background: radial-gradient(circle, transparent 0%, transparent 100%);
-  }
-  
-  /* High Intensity - Red */
-  .heat-high {
 
-    background: radial-gradient(
-      circle,
-      rgba(255, 0, 0, 0.2) 0%,
-      rgba(255, 0, 0, 0.4) 70%,
-      rgba(255, 0, 0, 0.7) 80%,
-      transparent 100%
-    );
- 
-  }
   
-  /* Moderate Intensity - Orange */
-  .heat-moderate {
-    background: radial-gradient(
-      circle,
-      rgba(255, 165, 0, 0.2) 0%,
-      rgba(255, 165, 0, 0.4) 70%,
-      rgba(255, 165, 0, 0.7) 80%,
-      transparent 100%
-    );
 
-  }
-  
-  /* Normal Intensity - Yellow */
-  .heat-normal {
-    background: radial-gradient(
-      circle,
-      rgba(32, 192, 32, 0.2) 0%,
-      rgba(32, 192, 32, 0.4) 70%,
-      rgba(32, 192, 32, 0.7) 80%,
-      transparent 100%
-    );
-  }
-  
-  @keyframes heatFade {
-    0% {
-      transform: translate(-50%, -50%) scale(0.1);
-      opacity: 0.5;
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(0.3);
-      opacity: 0.9;
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(0.6);
-      opacity: 0.5;
-    }
-  }
   
   /* Nabeel's Css */
 #emailLoader {
@@ -1006,18 +903,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     align-items: center;
     justify-content: center;
 }
-/* .input-dark-blue {
-    background-color: #0A415B !important;
-    color: #ffffff !important;
-    border: 1px solid #0A415B;
-  } */
-  /* .passbtn {
-    background-color: #81FF76;
-    color: rgb(30, 29, 29);
-    border: none;
-    border-radius: 6px;
-    font-size:16px;
-} */
+
 
 .pagination {
     justify-content: end !important;

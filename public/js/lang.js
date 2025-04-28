@@ -358,17 +358,15 @@ $(document).ready(function () {
    
     // Get language from localStorage, fallback to English
     let currentLang = localStorage.getItem("selectedLang") || "en";
+    // Flag map to set correct flag on page load
+    const flagMap = {
+        en: "./images/en.png",
+        ar: "./images/ar.png",
+    };
+    
+    // Load language and flag on page load
+    $(".selected-flag").attr("src", flagMap[currentLang]);
 
-    // Function to update language text
-    // function updateLanguageTexts(lang) {
-    //     $("[data-lang-key]").each(function () {
-    //         const key = $(this).data("lang-key");
-    //         const translation = languageFile[key]?.[lang];
-    //         if (translation) {
-    //             $(this).text(translation);
-    //         }
-    //     });
-    // }
 
     // Function to update text direction
     function updateTextDirection(lang) {
@@ -410,14 +408,7 @@ $(document).ready(function () {
 
     
 
-    // Flag map to set correct flag on page load
-    const flagMap = {
-        en: "./images/language-selection/english.png",
-        ar: "./images/language-selection/arabic.png",
-    };
 
-    // Load language and flag on page load
-    $("#selected-flag").attr("src", flagMap[currentLang]);
 
 
     

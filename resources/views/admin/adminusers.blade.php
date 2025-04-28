@@ -91,13 +91,13 @@
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text pt-2">Full Name</label>
-                                <input type="text" class="form-control dateInput" id="name" name="name" value="z" >
+                                <input type="text" class="form-control dateInput" id="name" name="name" value="" >
 
 
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <label class="form-label label-text pt-2">Email</label>
-                                <input type="email" class="form-control dateInput"  id="email" name="email" value="z@gmail.com" >
+                                <input type="email" class="form-control dateInput"  id="email" name="email" value="@qltyss.com" >
                             </div>
 
                             <div class="col-md-6 col-sm-12">

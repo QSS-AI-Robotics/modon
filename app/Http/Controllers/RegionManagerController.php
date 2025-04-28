@@ -366,6 +366,9 @@ class RegionManagerController extends Controller
         if ($decision === 2) {
             $approval->rejected_by    = $user->id;
             $approval->rejection_note = $request->rejection_note ?? null;
+             // ✅ Update mission status to rejected
+            $mission->status = 'Rejected';
+            $mission->save();
         }
           
    
@@ -764,15 +767,27 @@ class RegionManagerController extends Controller
             $mission->inspectionTypes()->sync([$request->inspection_type]);
             $mission->locations()->sync($request->locations);
 
-            $regionApproved = $userType === 'region_manager';
-            $modonApproved  = $userType === 'modon_admin';
+            // $regionApproved = $userType === 'region_manager';           
+            // $modonApproved  = $userType === 'modon_admin';
             
+            // MissionApproval::create([
+            //     'mission_id'              => $mission->id,
+            //     'region_manager_approved' => $regionApproved,
+            //     'modon_admin_approved'    => $modonApproved,
+            //     'is_fully_approved'       => false,
+            // ]);
+            $regionApproved = in_array($userType, ['region_manager', 'modon_admin']);
+            $modonApproved  = $userType === 'modon_admin';
+            $pilotApproved  = false; // always false on mission creation
+
             MissionApproval::create([
                 'mission_id'              => $mission->id,
                 'region_manager_approved' => $regionApproved,
                 'modon_admin_approved'    => $modonApproved,
+                'pilot_approved'          => $pilotApproved,
                 'is_fully_approved'       => false,
             ]);
+
 
             // geo‐location saving…
             if (isset($request->locations[0])) {

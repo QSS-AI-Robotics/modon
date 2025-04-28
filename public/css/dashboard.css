@@ -4,12 +4,12 @@ body {
     padding: 0;
   }
   
-  header {
+  /* header {
     background-color: #105A7E;
     border-radius: 12px;
     padding: 1rem;
     color: white;
-  }
+  } */
   
   .full-height {
     height: 100vh;

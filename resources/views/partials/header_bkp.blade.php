@@ -16,11 +16,11 @@
                         ? request()->is('/')
                         : request()->is(ltrim($link->url, '/') . '*');
                 @endphp
-                <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ $isActive ? 'selected' : '' }}">
+                <a href="{{ $link->url }}" class="btn cont-btn mx-1 {{ $isActive ? 'selected' : '' }}" >
                     @if($link->icon)
-                        <img src="{{ asset('images/' . $link->icon) }}" alt="{{ $link->name }}" class="" style="width:15px">
+                        <img src="{{ asset('images/' . $link->icon) }}" alt="{{ $link->name }}" class="" style="width:15px" >
                     @endif
-                    {{ $link->name }}
+                    <span data-lang-key={{ $link->name }}>{{ $link->name }}</span>
                 </a>
             @endforeach
         </div>
@@ -30,6 +30,30 @@
 
               
 
+            <div class=" d-flex align-items-center px-1">
+
+               
+                <div class="lang-wrapper">
+                    <div class="lang-toggle" id="langToggle">
+                        <img src="{{ asset('images/ar.png') }}" class="selected-flag" style="width:35px;height:35px">
+                       
+                    </div>
+                    
+                
+                    <div class="lang-dropdown p-3" id="langDropdown">
+
+
+                        <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover lang-option" data-lang="ar" style="border-bottom:2px solid #73AF00;">
+                            <span>Arabic</span>
+                            <img src="{{ asset('images/ar.png') }}" alt="Profile Icon" class="ms-4" style="width: 30px; height: 30px;">
+                        </button>
+                        <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover lang-option" data-lang="en" style="border-bottom:2px solid #D90D32;">
+                            <span>English</span>
+                            <img src="{{ asset('images/en.png') }}" alt="Profile Icon" class="ms-4" style="width: 30px; height: 30px;">
+                        </button>
+                    </div>
+                </div>
+            </div>
             {{-- <div class=" d-flex align-items-center px-3">
 
                
@@ -45,12 +69,11 @@
                     </div>
                 </div>
             </div> --}}
-       
-            <div class="profile-wrapper">
+            <div class="profile-wrapper ">
                 <div class="profile-toggle" id="profileToggle">
                     <div class="profile-info">
-                        <div class="fw-bold text-capitalize">{{ Auth::user()->name ?? 'Admin' }}</div>
-                        <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div>
+                        {{-- <div class="fw-bold text-capitalize">{{ Auth::user()->name ?? 'Admin' }}</div>
+                        <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div> --}}
                         <input type="hidden" id="passwordResetEnable" value="{{ Auth::user()->force_password_reset }}"/>
                         
                     </div>
@@ -58,16 +81,27 @@
                         src="{{ asset('storage/users/' . (Auth::user()->image ?? 'user.png')) }}" 
                         alt="Profile" 
                         class="profile-img"
+                        
                     >
                 </div>
                 
             
                 <div class="profile-dropdown" id="profileDropdown">
-                    <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center" id="editProfileButton" style="background: #105A7E">
+                    <button type="button" class="btn btn-sm text-white w-100 mb-2  align-items-center"  style="">
+                        <img 
+                        src="{{ asset('storage/users/' . (Auth::user()->image ?? 'user.png')) }}" 
+                        alt="Profile" 
+                        class=" rounded-circle" style="width:100px;height:100px"
+                    >
+                        <div class="fw-bold text-capitalize">{{ Auth::user()->name ?? 'Admin' }}</div>
+                        <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div>
+                       
+                    </button>
+                    <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover" id="editProfileButton" style="background: #105A7E">
                         <img src="{{ asset('images/people.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
                         <span>Edit Profile</span>
                     </button>
-                    <button type="submit" class="btn btn-sm btn-danger w-100 text-start" id="logoutButton">
+                    <button type="submit" class="btn btn-sm btn-danger w-100 text-start langhover" id="logoutButton">
                         <img src="{{ asset('images/logout.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
                         <span>Logout</span>
                     </button>

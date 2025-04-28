@@ -89,21 +89,7 @@
    <script>
 
     document.addEventListener("DOMContentLoaded", function () {
-        const toggle = document.getElementById("profileToggle");
-        const dropdown = document.getElementById("profileDropdown");
 
-        if (toggle && dropdown) {
-            toggle.addEventListener("click", function (e) {
-                e.stopPropagation();
-                dropdown.classList.toggle("active");
-            });
-
-            document.addEventListener("click", function (e) {
-                if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
-                    dropdown.classList.remove("active");
-                }
-            });
-        }
     });
     $(document).on('click', '#logoutButton', function (e) {
     e.preventDefault();

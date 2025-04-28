@@ -53,9 +53,13 @@
                 background-color: #47D16C !important;
                 color: rgb(250, 250, 246) !important; /* Optional: Change text color */
             }
-            #passwordResetModal {
-    z-index: 1060;
-}
+            .modal-backdrop {
+                z-index: 100 !important; /* Or higher */
+            }
+
+            .modal {
+                z-index: 1051 !important; /* Must be higher than .modal-backdrop */
+            }
 
         </style>
         

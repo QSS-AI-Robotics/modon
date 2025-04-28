@@ -380,6 +380,6 @@
 @push('scripts')
 
 <script src="{{ asset('js/adminusers.js') }}"></script>
-<script src="{{ asset('js/lang.js') }}"></script>
+
 
 @endpush

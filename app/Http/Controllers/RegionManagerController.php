@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth; // ✅ Import Auth facade
 use Illuminate\Support\Facades\Log;
 use App\Models\MissionApproval; 
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf; 
 class RegionManagerController extends Controller
 {
 
@@ -1761,6 +1762,16 @@ $allUsers = $adminUsers
     //         'completed_missions' => $completedMissions
     //     ]);
     // }
+
+        
+    public function downloadMissionPDF(Request $request)
+    {
+        $data = $request->only(['owner', 'pilot', 'region', 'program', 'location', 'geo']);
+
+        $pdf = Pdf::loadView('pdf.mission_report', ['data' => $data]);
+
+        return $pdf->download('mission_report.pdf');
+    }
 }
     
 

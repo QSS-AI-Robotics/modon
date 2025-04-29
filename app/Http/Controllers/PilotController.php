@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log; // ✅ Import Log Facade
-use Barryvdh\DomPDF\Facade\Pdf; 
+
 use Illuminate\Pagination\LengthAwarePaginator;
 class PilotController extends Controller
 {
@@ -954,15 +954,7 @@ public function updateMissionReport(Request $request)
     }
     
     
-    
-    public function downloadMissionPDF(Request $request)
-    {
-        $data = $request->only(['owner', 'pilot', 'region', 'program', 'location', 'geo']);
 
-        $pdf = Pdf::loadView('pdf.mission_report', ['data' => $data]);
-
-        return $pdf->download('mission_report.pdf');
-    }
     
     
 

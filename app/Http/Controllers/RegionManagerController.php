@@ -360,6 +360,7 @@ class RegionManagerController extends Controller
     
         // ✅ Update or create the mission approval record
         $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
+        
         $approval->{$approvalColumn} = $decision;
     
         // ✅ If rejected, record the rejecting user and note
@@ -512,17 +513,16 @@ $allUsers = $adminUsers
             'modon_admin'    => 'modon_admin_approved',
             default => null,
         };
-    
         if (! $approvalColumn) {
             Log::warning("❌ User type $userType is not allowed to approve.");
             return response()->json(['message' => 'User type not allowed to approve.'], 403);
         }
-  
-    
+        //return response()->json(['mission_id' => $missionId]);
         // ✅ Update or create the mission approval record
         $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
+       
         $approval->{$approvalColumn} = $decision;
-    
+        //return response()->json(['approval' => $approval]);
         // ✅ If rejected, record the rejecting user and note
         if ($decision === 2) {
             $approval->rejected_by    = $user->id;
@@ -534,11 +534,12 @@ $allUsers = $adminUsers
           
    
     
-        //$approval->save();
+        $approval->save();
         Log::info("📋 $userType approved mission #$missionId with value: $decision");
     
         // ✅ Retrieve all columns of the mission_approvals table for the specific mission
         $approvalDetails = MissionApproval::where('mission_id', $missionId)->first();
+
     
         // Log the approval details for debugging or auditing purposes
         Log::info("📋 Mission Approval Details:", $approvalDetails->toArray());

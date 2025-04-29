@@ -1396,6 +1396,53 @@ $('#addMissionForm').on('submit', function (e) {
     //         });
     //     });
     // }
+    $(document).ready(function() {
+        $(document).on('click', '.downloadReportbtn', function() {
+            // Fetch the information
+            const missionOwner   = $("#viewOwnerInfo").text().trim();
+            const pilot          = $("#viewpilotInfo").text().trim();
+            const region         = $("#viewregionInfo").text().trim();
+            const program        = $("#viewprogramInfo").text().trim();
+            const location       = $("#viewlocationInfo").text().trim();
+            const geoCoordinates = $("#viewgeoInfo").text().trim();
+    
+            // Prepare data object
+            const missionData = {
+                owner: missionOwner,
+                pilot: pilot,
+                region: region,
+                program: program,
+                location: location,
+                geo: geoCoordinates,
+            };
+    
+            console.log(missionData); // Just to see in console
+    
+            // Now send this to Laravel backend
+            $.ajax({
+                url: '/download-mission-pdf', // your Laravel route
+                method: 'POST',
+                data: missionData,
+                xhrFields: {
+                    responseType: 'blob' // important for file download
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token if needed
+                },
+                success: function(response, status, xhr) {
+                    // Create a link element
+                    const blob = new Blob([response], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'Mission_Report.pdf'; // Name of your PDF
+                    link.click();
+                },
+                error: function(xhr) {
+                    console.error('PDF download failed');
+                }
+            });
+        });
+    });
     
 
 });

@@ -129,7 +129,7 @@ Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(f
 
     Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
     //Email Routes
-   
+    Route::post('/download-mission-pdf', [PilotController::class, 'downloadMissionPDF']);
 });
 
 //forget password

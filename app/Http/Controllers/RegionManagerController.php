@@ -282,7 +282,7 @@ class RegionManagerController extends Controller
     }
 
     
-    public function approve(Request $request)
+    public function approveOld(Request $request)
     {
         $request->validate([
             'mission_id'      => 'required',
@@ -399,7 +399,167 @@ class RegionManagerController extends Controller
                 'all_emails' => $allEmails->toArray(),
             ]);
     }
+    public function approve(Request $request)
+    {
+        $request->validate([
+            'mission_id'      => 'required',
+            'decision'        => 'required|in:approve,reject',
+            'rejection_note'  => 'nullable|string',
+        ]);
     
+        $user = Auth::user();
+        $userType = strtolower(optional($user->userType)->name);
+        $missionId = $request->mission_id;
+        $decision  = $request->decision === 'approve' ? 1 : 2;
+        $currentUserEmail = $user->email;
+        $mission = Mission::with([
+            'approvals',
+            'locations:id,name',
+            'locations.geoLocation:location_id,latitude,longitude',
+            'user:id,name,user_type_id',
+            'user.userType:id,name',
+            'region:id,name',
+            'inspectionTypes:id,name'
+        ])->findOrFail($request->mission_id);
+        $locationIds = $mission->locations->pluck('id')->toArray();
+        //return response()->json(['MissionId' => $request->mission_id]);
+        //return response()->json(['Locationids' => $locationIds]);
+    
+          // 📧 Fetch users with roles qss_admin, modon_admin, manager
+    $adminUsers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch city managers associated with the mission's locations
+
+$cityManagerUserIds = DB::table('user_location')
+    ->whereIn('location_id', $locationIds)
+    ->pluck('user_id');
+    //return response()->json(['cityMangerids' => $cityManagerUserIds]);
+$cityManagers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('users.id', $cityManagerUserIds)
+    ->where('user_types.name', '!=', 'pilot')
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+    
+// 📧 Fetch all users related to the specific region (excluding pilots)
+$regionusers = DB::table('user_region')
+    ->join('users', 'user_region.user_id', '=', 'users.id')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->where('user_region.region_id', $mission->region_id)
+    ->where('user_types.name', 'region_manager') // <-- Only region_manager
+    ->select('users.id','users.name','users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📝 Log the region managers only
+Log::info('👥 Region managers for the region:', $regionusers->toArray());
+foreach ($regionusers as $u) {
+    Log::info('📧 Region manager email:', ['email' => $u->email]);
+}
+// 📝 Log individual region user emails
+foreach ($regionusers as $u) {
+    Log::info('📧 Region user email:', ['email' => $u->email]);
+}
+
+// 📝 Log the city managers
+Log::info('🏙️ City managers for locations:', $cityManagers->toArray());
+// 📝 Log individual city manager emails
+foreach ($cityManagers as $u) {
+    Log::info('📧 City manager email:', ['email' => $u->email]);
+}
+
+// 📝 Log the admin users
+Log::info('👤 Admin users:', $adminUsers->toArray());
+// 📝 Log individual admin user emails
+foreach ($adminUsers as $u) {
+    Log::info('📧 Admin user email:', ['email' => $u->email]);
+}
+
+// Fetch the pilot's email
+$pilotEmail = DB::table('users')
+->where('id', $mission->pilot_id)
+->value('email');
+
+Log::info('✈ Pilot Email:', ['pilot_email' => $pilotEmail]);
+
+// Combine admin users, city managers, and region users, remove duplicates by email
+$allUsers = $adminUsers
+    ->merge($cityManagers)
+    ->merge($regionusers)
+    ->merge([$pilotEmail])
+    ->unique('email')
+    ->values();
+    //return response()->json(['allemails' => $allUsers]);
+        if (! $mission) {
+            Log::warning("❌ Mission not found for ID: $missionId");
+            return response()->json(['message' => 'Mission not found.'], 404);
+        }
+    
+        if ($userType === 'region_manager') {
+            $regionIds = optional($user)->regions()->pluck('regions.id');
+            if (! $regionIds->contains($mission->region_id)) {
+                Log::warning("🚫 Unauthorized region_manager (User ID: $user->id) tried to approve mission in region {$mission->region_id}");
+                return response()->json(['message' => 'You are not authorized to approve this mission.'], 403);
+            }
+        }
+        // ✅ Retrieve all columns of the mission_approvals table for the specific mission
+        $approvalDetails = MissionApproval::where('mission_id', $missionId)->first();
+        $approvalColumn = match ($userType) {
+            'region_manager' => 'region_manager_approved',
+            'modon_admin'    => 'modon_admin_approved',
+            default => null,
+        };
+    
+        if (! $approvalColumn) {
+            Log::warning("❌ User type $userType is not allowed to approve.");
+            return response()->json(['message' => 'User type not allowed to approve.'], 403);
+        }
+  
+    
+        // ✅ Update or create the mission approval record
+        $approval = MissionApproval::firstOrNew(['mission_id' => $missionId]);
+        $approval->{$approvalColumn} = $decision;
+    
+        // ✅ If rejected, record the rejecting user and note
+        if ($decision === 2) {
+            $approval->rejected_by    = $user->id;
+            $approval->rejection_note = $request->rejection_note ?? null;
+             // ✅ Update mission status to rejected
+            $mission->status = 'Rejected';
+            $mission->save();
+        }
+          
+   
+    
+        //$approval->save();
+        Log::info("📋 $userType approved mission #$missionId with value: $decision");
+    
+        // ✅ Retrieve all columns of the mission_approvals table for the specific mission
+        $approvalDetails = MissionApproval::where('mission_id', $missionId)->first();
+    
+        // Log the approval details for debugging or auditing purposes
+        Log::info("📋 Mission Approval Details:", $approvalDetails->toArray());
+    
+        // Return the response with the approval details
+             // Debugging response before saving approval
+             return response()->json([
+                'message' => 'Mission decision saved.',
+                'user_type' => $userType,
+                'current_user_email' => $currentUserEmail,
+                'mission_id' => $missionId,
+                'decision' => $decision,
+                'rejection_note' => $request->rejection_note ?? null,
+                'region_id' => $regionIds ?? null,
+                'approval_details' => $approvalDetails ?? null,
+                'users_associated_with_region' => $regionusers,
+                'pilot_email' => $pilotEmail,
+                'admin_emails' => $adminUsers->toArray(),
+                'all_emails' => $allUsers->toArray(),
+            ]);
+    }
 
     // public function approve(Request $request)
     // {
@@ -606,7 +766,7 @@ class RegionManagerController extends Controller
     return response()->json(['missions' => $missions]);
 }
 
-public function storeMission(Request $request)
+public function storeMissionOldBilal(Request $request)
 {
     if (!Auth::check()) {
         return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
@@ -721,7 +881,158 @@ public function storeMission(Request $request)
         ], 500);
     }
 }
+public function storeMission(Request $request)
+{
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+    }
 
+    $user     = Auth::user();
+    $userType = optional($user->userType)->name;
+
+    // ✅ Get the list of regions this user may assign to
+    $allowedRegionIds = $user instanceof User
+        ? $user->regions()->pluck('regions.id')->toArray()
+        : [];
+
+    $request->validate([
+        'inspection_type' => 'required|exists:inspection_types,id',
+        'mission_date'    => ['required','date','after_or_equal:today'],
+        'note'            => 'nullable|string',
+        'locations'       => 'required|array',
+        'locations.*'     => 'exists:locations,id',
+        'pilot_id'        => 'required|exists:users,id',
+        'latitude'        => 'required|numeric|between:-90,90',
+        'longitude'       => 'required|numeric|between:-180,180',
+        'region_id'       => 'required|exists:regions,id',
+    ]);
+
+    $regionId = $request->region_id;
+
+    // 🔒 Ensure non‑admins can only assign to their regions
+    if (! in_array($userType, ['modon_admin','qss_admin'])
+        && ! in_array($regionId, $allowedRegionIds)) {
+        return response()->json([
+            'error' => 'You are not allowed to assign a mission to that region.'
+        ], 403);
+    }
+
+    try {
+        // ✅ Create the mission with the supplied region_id
+        $mission = Mission::create([
+            'mission_date' => $request->mission_date,
+            'note'         => $request->note,
+            'region_id'    => $regionId,
+            'user_id'      => $user->id,
+            'pilot_id'     => $request->pilot_id,
+        ]);
+
+        $mission->inspectionTypes()->sync([$request->inspection_type]);
+        $mission->locations()->sync($request->locations);
+
+        $regionApproved = in_array($userType, ['region_manager', 'modon_admin']);
+        $modonApproved  = $userType === 'modon_admin';
+        $pilotApproved  = false; // always false on mission creation
+
+        MissionApproval::create([
+            'mission_id'              => $mission->id,
+            'region_manager_approved' => $regionApproved,
+            'modon_admin_approved'    => $modonApproved,
+            'pilot_approved'          => $pilotApproved,
+            'is_fully_approved'       => false,
+        ]);
+
+        // geo‐location saving…
+        if (isset($request->locations[0])) {
+            GeoLocation::updateOrCreate(
+                ['location_id' => $request->locations[0]],
+                ['latitude'    => $request->latitude,
+                 'longitude'   => $request->longitude]
+            );
+        }
+
+       // 📧 Fetch users with roles qss_admin, modon_admin, manager
+    $adminUsers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch city managers associated with the mission's locations
+$locationIds = $request->locations;
+
+$cityManagerUserIds = DB::table('user_location')
+    ->whereIn('location_id', $locationIds)
+    ->pluck('user_id');
+
+$cityManagers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('users.id', $cityManagerUserIds)
+    ->where('user_types.name', '!=', 'pilot')
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch all users related to the specific region (excluding pilots)
+$regionusers = DB::table('user_region')
+    ->join('users', 'user_region.user_id', '=', 'users.id')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->where('user_region.region_id', $mission->region_id)
+    ->where('user_types.name', 'region_manager') // <-- Only region_manager
+    ->select('users.id','users.name','users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📝 Log the region managers only
+Log::info('👥 Region managers for the region:', $regionusers->toArray());
+foreach ($regionusers as $u) {
+    Log::info('📧 Region manager email:', ['email' => $u->email]);
+}
+// 📝 Log individual region user emails
+foreach ($regionusers as $u) {
+    Log::info('📧 Region user email:', ['email' => $u->email]);
+}
+
+// 📝 Log the city managers
+Log::info('🏙️ City managers for locations:', $cityManagers->toArray());
+// 📝 Log individual city manager emails
+foreach ($cityManagers as $u) {
+    Log::info('📧 City manager email:', ['email' => $u->email]);
+}
+
+// 📝 Log the admin users
+Log::info('👤 Admin users:', $adminUsers->toArray());
+// 📝 Log individual admin user emails
+foreach ($adminUsers as $u) {
+    Log::info('📧 Admin user email:', ['email' => $u->email]);
+}
+
+// Combine admin users, city managers, and region users, remove duplicates by email
+$allUsers = $adminUsers
+    ->merge($cityManagers)
+    ->merge($regionusers)
+    ->unique('email')
+    ->values();
+
+return response()->json([
+    'message' => 'Mission created successfully!',
+    'mission' => [
+        'id'              => $mission->id,
+        'inspection_type' => [
+            'id'   => $request->inspection_type,
+            'name' => InspectionType::find($request->inspection_type)?->name,
+        ],
+        'mission_date'    => $mission->mission_date,
+        'locations'       => $mission->locations->map(fn($l)=>['id'=>$l->id,'name'=>$l->name]),
+        'allmails'        => $allUsers, // 📨 All unique emails (admins, city managers, region users)
+    ],
+], 201);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error'   => 'Failed to create mission.',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
 
     /**
      * Store a new mission.
@@ -869,7 +1180,7 @@ public function storeMission(Request $request)
     /**
      * Delete a mission.
      */
-    public function destroyMission(Request $request, $id)
+    public function destroyMissionOld(Request $request, $id)
     {
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
@@ -982,7 +1293,165 @@ public function storeMission(Request $request)
             ]
         ]);
     }
-  
+    public function destroyMission(Request $request, $id)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
+        }
+    
+        $user = Auth::user();
+        $userType = strtolower(optional($user->userType)->name ?? '');
+        $regionIds = $user instanceof User
+            ? $user->regions()->pluck('regions.id')->toArray()
+            : [];
+    
+        $mission = Mission::with([
+            'approvals',
+            'locations:id,name',
+            'locations.geoLocation:location_id,latitude,longitude',
+            'user:id,name,user_type_id',
+            'user.userType:id,name',
+            'region:id,name',
+            'inspectionTypes:id,name'
+        ])->findOrFail($id);
+    
+        // ✅ Extract mission details
+        $regionName = $mission->region?->name;
+        $createdBy = $mission->user?->name . ' (' . $mission->user?->userType?->name . ')';
+        $locationIds = $mission->locations->pluck('id')->toArray();
+
+        $locations = $mission->locations->map(function ($loc) {
+            return [
+                'name'      => $loc->name,
+                'latitude'  => $loc->geoLocation->latitude ?? null,
+                'longitude' => $loc->geoLocation->longitude ?? null,
+            ];
+        });
+    
+        $inspectionType = $mission->inspectionTypes->first()?->name ?? 'N/A';
+    
+        // ✅ Log mission details before deletion
+        Log::info('🗺️ Mission Details Before Deletion', [
+            'mission_id' => $mission->id,
+            'region'     => $regionName,
+            'created_by' => $createdBy,
+            'locations'  => $locations,
+        ]);
+    
+        // ✅ Allow modon_admin to bypass region check
+        if ($userType !== 'modon_admin' && !in_array($mission->region_id, $regionIds)) {
+            return response()->json(['error' => 'You are not authorized to delete this mission.'], 403);
+        }
+    
+        $approval = $mission->approvals;
+    
+        $hasBeenApproved = $approval && (
+            $approval->city_manager_approved ||
+            $approval->region_manager_approved ||
+            $approval->modon_admin_approved
+        );
+    
+        Log::info('🧑‍💼 User attempting to delete mission', [
+            'user_id'   => $user->id,
+            'user_type' => $userType,
+            'approved'  => $hasBeenApproved,
+        ]);
+    
+        if ($hasBeenApproved && $userType !== 'modon_admin' && $userType !== 'region_manager') {
+            return response()->json([
+                'error' => '❌ This mission has already been approved. Only the region manager or modon admin can delete it.'
+            ], 403);
+        }
+    
+        if (!$request->delete_reason) {
+            return response()->json([
+                'error' => 'Please provide a reason for deleting this mission.'
+            ], 422);
+        }
+    
+        // 📧 Fetch users with roles qss_admin, modon_admin, manager
+    $adminUsers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch city managers associated with the mission's locations
+
+$cityManagerUserIds = DB::table('user_location')
+    ->whereIn('location_id', $locationIds)
+    ->pluck('user_id');
+
+$cityManagers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('users.id', $cityManagerUserIds)
+    ->where('user_types.name', '!=', 'pilot')
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch all users related to the specific region (excluding pilots)
+$regionusers = DB::table('user_region')
+    ->join('users', 'user_region.user_id', '=', 'users.id')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->where('user_region.region_id', $mission->region_id)
+    ->where('user_types.name', 'region_manager') // <-- Only region_manager
+    ->select('users.id','users.name','users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📝 Log the region managers only
+Log::info('👥 Region managers for the region:', $regionusers->toArray());
+foreach ($regionusers as $u) {
+    Log::info('📧 Region manager email:', ['email' => $u->email]);
+}
+// 📝 Log individual region user emails
+foreach ($regionusers as $u) {
+    Log::info('📧 Region user email:', ['email' => $u->email]);
+}
+
+// 📝 Log the city managers
+Log::info('🏙️ City managers for locations:', $cityManagers->toArray());
+// 📝 Log individual city manager emails
+foreach ($cityManagers as $u) {
+    Log::info('📧 City manager email:', ['email' => $u->email]);
+}
+
+// 📝 Log the admin users
+Log::info('👤 Admin users:', $adminUsers->toArray());
+// 📝 Log individual admin user emails
+foreach ($adminUsers as $u) {
+    Log::info('📧 Admin user email:', ['email' => $u->email]);
+}
+
+// Combine admin users, city managers, and region users, remove duplicates by email
+$allUsers = $adminUsers
+    ->merge($cityManagers)
+    ->merge($regionusers)
+    ->unique('email')
+    ->values();
+    
+        // ✅ Store delete metadata
+        $mission->delete_reason = $request->delete_reason;
+        $mission->deleted_by = $user->id;
+        $mission->save();
+    
+        $mission->delete(); // Uncomment this if you're doing soft deletes
+    
+        return response()->json([
+            'message' => '✅ Mission deleted successfully!',
+            'mission' => [
+                'id'              => $mission->id,
+                'mission_date'    => $mission->mission_date,
+                'region'          => $regionName,
+                'created_by'      => $createdBy,
+                'deleted_by'      => $user->name . ' (' . $userType . ')',
+                'deleted_reason'  => $request->delete_reason,
+                'inspection_type' => $inspectionType,
+                'locations'       => $locations,
+                'allmails'        => $allUsers,
+            ]
+        ]);
+    }
+    // Delete a mission
     // edit a mission
     public function editMission($id)
     {
@@ -1002,7 +1471,7 @@ public function storeMission(Request $request)
         ]);
     }
     // update a mission
-    public function updateMission(Request $request)
+    public function updateMissionOld(Request $request)
     {
         Log::info("🔍 Incoming Mission Update Request", ['data' => $request->all()]);
 
@@ -1093,6 +1562,132 @@ public function storeMission(Request $request)
                 
             ]);
     }
+    public function updateMission(Request $request)
+    {
+        Log::info("🔍 Incoming Mission Update Request", ['data' => $request->all()]);
+
+        // ✅ Validate input (including geo coords)
+        $request->validate([
+            'mission_id'       => 'required|exists:missions,id',
+            'region_id' => 'required|exists:regions,id',
+            'inspection_type'  => 'required|exists:inspection_types,id',
+            'mission_date'     => 'required|date',
+            'note'             => 'nullable|string',
+            'locations'        => 'required|array',
+            'locations.*'      => 'exists:locations,id',
+            'pilot_id'         => 'required|exists:users,id',
+            'latitude'         => 'required|numeric|between:-90,90',
+            'longitude'        => 'required|numeric|between:-180,180',
+        ]);
+
+        // ✅ Find and update mission fields
+        $mission = Mission::findOrFail($request->mission_id);
+        $mission->mission_date = $request->mission_date;
+        $mission->note         = $request->note ?? "";
+        $mission->pilot_id     = $request->pilot_id;
+        $mission->region_id    = $request->region_id;
+        $mission->save();
+
+        // ✅ Sync inspection type & locations
+        $mission->inspectionTypes()->sync([$request->inspection_type]);
+        $mission->locations()->sync($request->locations);
+
+        // ✅ Update geo_location for the first selected location
+        if (isset($request->locations[0])) {
+            $geo = GeoLocation::updateOrCreate(
+                ['location_id' => $request->locations[0]],
+                [
+                    'latitude'  => $request->latitude,
+                    'longitude' => $request->longitude,
+                ]
+            );
+            Log::info('📍 Geo Location updated:', [
+                'location_id' => $geo->location_id,
+                'latitude'    => $geo->latitude,
+                'longitude'   => $geo->longitude,
+            ]);
+        }
+
+        // 📧 Fetch users with roles qss_admin, modon_admin, manager
+    $adminUsers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch city managers associated with the mission's locations
+$locationIds = $request->locations;
+
+$cityManagerUserIds = DB::table('user_location')
+    ->whereIn('location_id', $locationIds)
+    ->pluck('user_id');
+
+$cityManagers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('users.id', $cityManagerUserIds)
+    ->where('user_types.name', '!=', 'pilot')
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch all users related to the specific region (excluding pilots)
+$regionusers = DB::table('user_region')
+    ->join('users', 'user_region.user_id', '=', 'users.id')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->where('user_region.region_id', $mission->region_id)
+    ->where('user_types.name', 'region_manager') // <-- Only region_manager
+    ->select('users.id','users.name','users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📝 Log the region managers only
+Log::info('👥 Region managers for the region:', $regionusers->toArray());
+foreach ($regionusers as $u) {
+    Log::info('📧 Region manager email:', ['email' => $u->email]);
+}
+// 📝 Log individual region user emails
+foreach ($regionusers as $u) {
+    Log::info('📧 Region user email:', ['email' => $u->email]);
+}
+
+// 📝 Log the city managers
+Log::info('🏙️ City managers for locations:', $cityManagers->toArray());
+// 📝 Log individual city manager emails
+foreach ($cityManagers as $u) {
+    Log::info('📧 City manager email:', ['email' => $u->email]);
+}
+
+// 📝 Log the admin users
+Log::info('👤 Admin users:', $adminUsers->toArray());
+// 📝 Log individual admin user emails
+foreach ($adminUsers as $u) {
+    Log::info('📧 Admin user email:', ['email' => $u->email]);
+}
+
+// Combine admin users, city managers, and region users, remove duplicates by email
+$allUsers = $adminUsers
+    ->merge($cityManagers)
+    ->merge($regionusers)
+    ->unique('email')
+    ->values();
+            // ✅ Return response with mission details and additional data
+            return response()->json([
+                'message' => '✅ Mission updated successfully!',
+                'mission' => [
+                    'id'              => $mission->id,
+                    'inspection_type' => [
+                        'id'   => $request->inspection_type,
+                        'name' => InspectionType::find($request->inspection_type)?->name,
+                    ],
+                    'mission_date'    => $mission->mission_date,
+                    'locations'       => $mission->locations->map(fn($l) => ['id' => $l->id, 'name' => $l->name]),
+                    'allmails'                     => $allUsers, 
+                ],
+                'users_associated_with_region' => $regionusers,
+
+                'admin_emails'                 => $adminUsers,
+                
+            ]);
+    }
+    
     // public function updateMission(Request $request)
     // {
     //     Log::info("🔍 Incoming Mission Update Request", ['data' => $request->all()]);

@@ -601,13 +601,13 @@ $(document).ready(function () {
                                         </div>                                        
                                         <div class="col-lg-4 ">
                                             <strong class="py-3" data-latitude="${latitude}" data-longitude="${longitude}"data-lang-key="geoCoordinates">Geo Coordinates </strong><br>
-                                            <span class="grayishytext">${latitude}, ${longitude}</span>
+                                            <span class="grayishytext" data-geolocationinfo="${latitude}-${longitude}">${latitude}, ${longitude}</span>
                                         </div>                                        
                                         <div class="col-lg-4 ">
-                                            <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}" data-lang-key="pilotName"> Pilot Name</strong><br> <span class="grayishytext">${mission.pilot_info?.name || 'N/A'}</span>
+                                            <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}" data-lang-key="pilotName"> Pilot Name</strong><br> <span class="grayishytext" data-pilot-name="${mission.pilot_info?.name}">${mission.pilot_info?.name || 'N/A'}</span>
                                         </div> 
                                         <div class="col-lg-4 "> 
-                                            <strong class="py-3"data-lang-key="missionCreatedBy">Mission Created By<br></strong> <span class="text-capitalize grayishytext">${mission.created_by.name}</span>(${mission.created_by.user_type}) 
+                                            <strong class="py-3"data-lang-key="missionCreatedBy">Mission Created By<br></strong> <span class="text-capitalize grayishytext" data-mission-created-by-name="${mission.created_by.name}">${mission.created_by.name}</span>(${mission.created_by.user_type}) 
                                         </div>
                                         <div class="col-lg-12 border-bottom"> 
                                             <strong class="py-3" data-lang-key="note">Note</strong><br><span class="grayishtext" data-mission-note="${fullNote}"> ${fullNote}
@@ -644,15 +644,23 @@ $(document).ready(function () {
     $(document).on('click', '.viewMissionReport', function () {
         const missionRow = $(this).closest(".accordion-item");     
         let missionId = $(this).data('id');
-
+       console.log(missionId)
         const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
         const regionName = missionRow.find("[data-region-name]").data("region-name");
         const locationName = missionRow.find("[data-location-name]").data("location-name");
+        const pilotname = missionRow.find("[data-pilot-name]").data("pilot-name");
+        const missionCreatedName = missionRow.find("[data-mission-created-by-name]").data("mission-created-by-name");
+
+        console.log(missionCreatedName)
+        const geolocationinfo = missionRow.find("[data-geolocationinfo]").data("geolocationinfo");
     
         // Update display areas
         $("#viewprogramInfo").text(inspectionName);
         $("#viewregionInfo").text(regionName);
         $("#viewlocationInfo").text(locationName);
+        $("#viewOwnerInfo").text(missionCreatedName);
+        $("#viewgeoInfo").text(geolocationinfo);
+        $("#viewpilotInfo").text(pilotname);
     
         // Clear existing data
         $('#description').html('');
@@ -665,6 +673,7 @@ $(document).ready(function () {
             type: 'GET',
             data: { mission_id: missionId },
             success: function (response) {
+                console.log("misison Reported",response)
                 if (!response.reports.length) {
                     $('#description').html('No report found for this mission.');
                     return;

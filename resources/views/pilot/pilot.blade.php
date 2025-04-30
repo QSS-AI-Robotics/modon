@@ -139,7 +139,7 @@
                             <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="description" class="form-label">Description</label>
-                                    <div  class="form-control  " id="description" name="description" style="background: none;border:1px solid #FFFFFF33;min-height:220px;overflow-y:auto;max-height:220px;"></div>
+                                    <div  class="form-control  text-white" id="description" name="description" style="background: none;border:1px solid #FFFFFF33;min-height:220px;overflow-y:auto;max-height:220px;"></div>
                                 </div>
                             </div>
                             <div class="col-lg-6">

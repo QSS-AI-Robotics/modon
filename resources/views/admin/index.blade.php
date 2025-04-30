@@ -242,8 +242,8 @@
                                         <!-- Pilot Grid -->
                                         <div class="px-2 pb-2">
                                             <div class="row flex-nowrap overflow-auto" id="missionsPanel" style="white-space: nowrap; min-height: 0;">
-                                                <div class="col-lg-4 pb-1">
-                                                    <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100">
+                                                <div class="col-lg-6 pb-1">
+                                                    {{-- <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100">
                                                         <div class="d-flex align-items-end mb-2">
                                                             <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
                                                             <div>
@@ -281,7 +281,64 @@
                                                                 <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
                                                             </div>
                                                         </div>
+                                                    </div> --}}
+                                                    <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100">
+                                                        <div class="d-flex align-items-end mb-2">
+                                                            <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
+                                                            <div>
+                                                                <p class="px-2 mb-0 lh-1" id="pilotname" data-lang-key="loading...">Loading...</p>
+                                                                <small class="cont-btn px-2 mb-0 lh-1" data-lang-key="loading">Loading</small>
+                                                            </div>
+                                                        </div>
+                                                    
+                                                        <!-- Row: Pending, Finished, Rejected -->
+                                                        <div class="d-flex justify-content-between gap-2">
+                                                            <!-- Pending -->
+                                                            <div class="flex-fill p-2">
+                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                    <label class="form-check-label mb-0" data-lang-key="pending">Pending</label>
+                                                                    <p class="mb-0 fw-bold" id="pendingCount">0</p>
+                                                                </div>
+                                                                <div class="progress">
+                                                                    <div class="progress-bar bg-danger" style="width: 0%" id="pendingProgress"></div>
+                                                                </div>
+                                                            </div>
+                                                    
+                                                            <!-- Finished -->
+                                                            <div class="flex-fill p-2">
+                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                    <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
+                                                                    <p class="mb-0 fw-bold" id="finishedCount">0</p>
+                                                                </div>
+                                                                <div class="progress">
+                                                                    <div class="progress-bar bg-success" style="width: 0%" id="finishedProgress"></div>
+                                                                </div>
+                                                            </div>
+                                                    
+                                                            <!-- Rejected -->
+                                                            <div class="flex-fill p-2">
+                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                    <label class="form-check-label mb-0" data-lang-key="rejected">Rejected</label>
+                                                                    <p class="mb-0 fw-bold" id="rejectedCount">0</p>
+                                                                </div>
+                                                                <div class="progress">
+                                                                    <div class="progress-bar bg-secondary" style="width: 0%" id="rejectedProgress"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    
+                                                        <!-- Row: Total Missions -->
+                                                        <div class="p-2 mt-2">
+                                                            <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
+                                                                <p class="mb-0 fw-bold" id="totalCount">0</p>
+                                                            </div>
+                                                            <div class="progress">
+                                                                <div class="progress-bar bg-warning text-white" style="width: 100%" id="totalProgress"></div>
+                                                            </div>
+                                                        </div>
                                                     </div>
+                                                    
                                                 </div>
                                                 <!-- More pilot cards can dynamically load here -->
                                             </div>

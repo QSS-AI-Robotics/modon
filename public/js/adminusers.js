@@ -425,39 +425,42 @@ function updateInspectionChart(chart, response) {
                     const total = pilot.total_missions || 0;
                     const completed = pilot.completed_missions || 0;
                     const pending = pilot.pending_missions || 0;
+                    const rejected = pilot.rejected_missions || 0;
     
                     const pendingPercent = total ? Math.round((pending / total) * 100) : 0;
                     const completedPercent = total ? Math.round((completed / total) * 100) : 0;
-    
+                    const rejectedPercent  = total ? Math.round((rejected / total) * 100) : 0;
                     const card = `
-                        <div class="col-lg-4  h-100 rounded">
-                            <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
-                               
-                                <div class="d-flex align-items-end mb-2">
-                                    <img src="/storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
-                                   <div>
+                    <div class="col-lg-6 h-100 rounded">
+                        <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
+                            <div class="d-flex align-items-end mb-2">
+                                <img src="/storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
+                                <div>
                                     <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
-
                                     <small 
                                         class="cont-btn px-2 mb-0 lh-1 text-capitalize text-truncate"
-                     
+      
                                     >
-                                        ${pilot.region.split(',')[0]}${pilot.region.split(',').length > 1 ? ', ...' : ''}
+                                        ${pilot.region.split(',')}
                                     </small>
                                 </div>
-
-                                </div>    
-                                <div class="p-2">
+                            </div>
+                
+                            <!-- Row: Pending, Finished, Rejected -->
+                            <div class="d-flex justify-content-between gap-2">
+                                <!-- Pending -->
+                                <div class="flex-fill p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                        <label class="form-check-label mb-0"data-lang-key="pending">Pending</label>
+                                        <label class="form-check-label mb-0" data-lang-key="pending">Pending</label>
                                         <p class="mb-0 fw-bold">${pending}</p>
                                     </div>
                                     <div class="progress">
-                                        <div class="progress-bar bg-danger" style="width: ${pendingPercent}%"></div>
+                                        <div class="progress-bar bg-warning" style="width: ${pendingPercent}%"></div>
                                     </div>
                                 </div>
-    
-                                <div class="p-2">
+                
+                                <!-- Finished -->
+                                <div class="flex-fill p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
                                         <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
                                         <p class="mb-0 fw-bold">${completed}</p>
@@ -466,19 +469,33 @@ function updateInspectionChart(chart, response) {
                                         <div class="progress-bar bg-success" style="width: ${completedPercent}%"></div>
                                     </div>
                                 </div>
-    
-                                <div class="p-2 mb-2">
+                
+                                <!-- Rejected -->
+                                <div class="flex-fill p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                        <label class="form-check-label mb-0"data-lang-key="totalMissions">Total Missions</label>
-                                        <p class="mb-0 fw-bold">${total}</p>
+                                        <label class="form-check-label mb-0" data-lang-key="rejected">Rejected</label>
+                                        <p class="mb-0 fw-bold">${rejected}</p>
                                     </div>
                                     <div class="progress">
-                                        <div class="progress-bar bg-warning text-white" style="width: ${total ? '100%' : '0%'}"></div>
+                                        <div class="progress-bar bg-danger" style="width: ${rejectedPercent}%"></div>
                                     </div>
                                 </div>
                             </div>
+                
+                            <!-- Row: Total Missions -->
+                            <div class="p-2 mt-2">
+                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                    <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
+                                    <p class="mb-0 fw-bold">${total}</p>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info text-white" style="width: ${total ? '100%' : '0%'}"></div>
+                                </div>
+                            </div>
                         </div>
-                    `;
+                    </div>
+                `;
+                
                    
                     $('#missionsPanel').append(card);
                     // updateLanguageTexts(currentLang);

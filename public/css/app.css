@@ -680,7 +680,6 @@ iframe {
     /* pointer-events: auto; */
 }
 
-
 .chart-wrapper {
     height: 30vh; /* Adjust as needed */
     min-height: 300px; /* Optional fallback for very small screens */

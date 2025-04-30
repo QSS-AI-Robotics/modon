@@ -611,8 +611,6 @@ public function updateUser(Request $request, $id)
     //     ]);
     // }
 
-
-
     public function pilotMissionSummary(Request $request)
     {
         $start = $request->input('start_date');
@@ -621,43 +619,105 @@ public function updateUser(Request $request, $id)
         $pilots = User::whereHas('userType', function ($query) {
                 $query->where('name', 'pilot');
             })
-            ->with('regions') // if you still want region info
+            ->with('regions')
             ->select('id', 'name', 'image')
             ->get()
             ->map(function ($pilot) use ($start, $end) {
-                $missionsQuery = DB::table('missions')
-                    ->where('pilot_id', $pilot->id)
-                    ->whereNull('deleted_at'); // Exclude soft-deleted
+                // Get missions approved by modon and region (i.e., assigned to pilot)
+                $assignedMissions = DB::table('missions')
+                    ->join('mission_approvals', 'missions.id', '=', 'mission_approvals.mission_id')
+                    ->where('missions.pilot_id', $pilot->id)
+                    ->whereNull('missions.deleted_at')
+                    ->where('mission_approvals.modon_admin_approved', true)
+                    ->where('mission_approvals.region_manager_approved', true);
     
                 if ($start) {
-                    $missionsQuery->whereDate('mission_date', '>=', Carbon::parse($start));
+                    $assignedMissions->whereDate('missions.mission_date', '>=', Carbon::parse($start));
                 }
     
                 if ($end) {
-                    $missionsQuery->whereDate('mission_date', '<=', Carbon::parse($end));
+                    $assignedMissions->whereDate('missions.mission_date', '<=', Carbon::parse($end));
                 }
     
-                $total = (clone $missionsQuery)->count();
-                $completed = (clone $missionsQuery)->where('status', 'Completed')->count();
-                $pending = (clone $missionsQuery)->where('status', 'Pending')->count();
+                // Clone and filter by pilot approval state
+                $total     = (clone $assignedMissions)->count();
+                $completed = (clone $assignedMissions)->where('missions.status', 'Completed')->count();
+                $pending   = (clone $assignedMissions)->where('mission_approvals.pilot_approved', 0)->count();
+                $rejected  = (clone $assignedMissions)->where('mission_approvals.pilot_approved', 2)->count();
     
                 return [
-                    'name' => $pilot->name,
-                    'region' => $pilot->regions->pluck('name')->implode(', ') ?: 'N/A',
-                    'image' => $pilot->image ?? asset('images/default-user.png'),
-                    'total_missions' => $total,
+                    'name'               => $pilot->name,
+                    'region'             => $pilot->regions->pluck('name')->implode(', ') ?: 'N/A',
+                    'image'              => $pilot->image ?? asset('images/default-user.png'),
+                    'total_missions'     => $total,
                     'completed_missions' => $completed,
-                    'pending_missions' => $pending,
+                    'pending_missions'   => $pending,
+                    'rejected_missions'  => $rejected,
                 ];
             });
     
         return response()->json([
-            'from' => $start,
-            'to' => $end,
+            'from'     => $start,
+            'to'       => $end,
             'filtered' => (bool)($start || $end),
-            'data' => $pilots
+            'data'     => $pilots
         ]);
     }
+    
+    
+    
+    // public function pilotMissionSummary(Request $request)
+    // {
+    //     $start = $request->input('start_date');
+    //     $end = $request->input('end_date');
+    
+    //     $pilots = User::whereHas('userType', function ($query) {
+    //             $query->where('name', 'pilot');
+    //         })
+    //         ->with('regions')
+    //         ->select('id', 'name', 'image')
+    //         ->get()
+    //         ->map(function ($pilot) use ($start, $end) {
+    //             // Build base mission query
+    //             $missionsQuery = DB::table('missions')
+    //                 ->join('mission_approvals', 'missions.id', '=', 'mission_approvals.mission_id')
+    //                 ->where('missions.pilot_id', $pilot->id)
+    //                 ->whereNull('missions.deleted_at')
+    //                 ->where('mission_approvals.modon_admin_approved', true)
+    //                 ->where('mission_approvals.region_manager_approved', true);
+    
+    //             if ($start) {
+    //                 $missionsQuery->whereDate('missions.mission_date', '>=', Carbon::parse($start));
+    //             }
+    
+    //             if ($end) {
+    //                 $missionsQuery->whereDate('missions.mission_date', '<=', Carbon::parse($end));
+    //             }
+    
+    //             $total = (clone $missionsQuery)->count();
+    //             $completed = (clone $missionsQuery)->where('missions.status', 'Completed')->count();
+    //             $pending = (clone $missionsQuery)->where('missions.status', 'Pending')->count();
+    
+    //             return [
+    //                 'name' => $pilot->name,
+    //                 'region' => $pilot->regions->pluck('name')->implode(', ') ?: 'N/A',
+    //                 'image' => $pilot->image ?? asset('images/default-user.png'),
+    //                 'total_missions' => $total,
+    //                 'completed_missions' => $completed,
+    //                 'pending_missions' => $pending,
+    //             ];
+    //         });
+    
+    //     return response()->json([
+    //         'from' => $start,
+    //         'to' => $end,
+    //         'filtered' => (bool)($start || $end),
+    //         'data' => $pilots
+    //     ]);
+    // }
+    
+
+
     
     
     public function latestMissions()

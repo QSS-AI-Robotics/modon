@@ -84,20 +84,7 @@
                     <div>
                         <div class="row">
                            
-                            {{-- <div class="col-lg-6">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="start_datetime" class="form-label ">Program</label>
-                                        <p id="viewprogramInfo" class="whiteText text-capitlaize"></p>
-                                        <label for="start_datetime" class="form-label ">Region</label>
-                                        <p id="viewregionInfo" class="whiteText text-capitalize"></p>
-                                        <label for="start_datetime" class="form-label ">Location</label>
-                                        <p id="viewlocationInfo" class="whiteText text-capitalize"></p>
 
-                                    </div>
-                                </div>
-
-                            </div> --}}
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="start_datetime" class="form-label " data-lang-key="missioncreated">Mission Created By</label>
@@ -107,7 +94,8 @@
                                     
                                     <label for="start_datetime" class="form-label" data-lang-key="region">Region</label>
                                     <p id="viewregionInfo" class="whiteText text-capitalize"></p>
-
+                                    <label for="start_datetime" class="form-label" data-lang-key="videolink">Video Link</label>
+                                    <p id="viewvideolinkInfo" class="whiteText text-capitalize"></p>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -118,7 +106,8 @@
                                     <p id="viewlocationInfo" class="whiteText text-capitalize"></p>
                                     <label for="start_datetime" class="form-label " data-lang-key="geo">Geo Coordinated</label>
                                     <p id="viewgeoInfo" class="whiteText text-capitalize"></p>
-                                    <p id="viewmissionDateInfo" class="whiteText text-capitalize d-none"></p>
+                                    <label for="start_datetime" class="form-label " data-lang-key="geo">Mission Date</label>
+                                    <p id="viewmissionDateInfo" class="whiteText text-capitalize"></p>
 
                                 </div>
                             </div>

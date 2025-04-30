@@ -80,7 +80,7 @@ $(document).ready(function () {
                 url: "/pilot/missions",
                 type: "GET",
                 success: function (response) {
-                    console.log("mission detail", response.data);
+                    console.log("mission details", response.data);
                     $('#pilotTableBody').empty();
         
                     const userType = $('#mifu').text().trim();
@@ -473,7 +473,7 @@ $(document).ready(function () {
             // Clear previous content
             $('#viewReportModal #description').html('');
             $('#viewReportModal #missionReportImages').empty();
-            $('#viewReportModal #pilotVideo').attr('src', '');
+            // $('#viewReportModal #pilotVideo').attr('src', '');
         
             $.ajax({
                 url: '/pilot/fetchReportByMission',
@@ -486,12 +486,13 @@ $(document).ready(function () {
                     $('#viewReportModal .editReportbtn').attr('data-report-id', report.id);
                     $('#viewReportModal .deleteReportbtn').attr('data-report-id', report.id);
                     $('#viewReportModal .deleteReportbtn').attr('data-mission-id', missionId);
-        
-                    if (report.video_url) {
-                        const videoId = extractYouTubeID(report.video_url);
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-                        $('#viewReportModal #pilotVideo').attr('src', embedUrl);
-                    }
+                    $('#viewReportModal #viewvideolinkInfo').attr('data-video-url', report.video_url);
+                    $('#viewvideolinkInfo').text(report.video_url);
+                    // if (report.video_url) {
+                    //     const videoId = extractYouTubeID(report.video_url);
+                    //     const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+                    //     $('#viewReportModal #pilotVideo').attr('src', embedUrl);
+                    // }
         
                     if (report.images && report.images.length) {
                         report.images.forEach(img => {
@@ -790,12 +791,12 @@ $(document).ready(function () {
                     return;
                 }
                 // console.log(response.reports[0].video_url); 
-                const videoId = extractYouTubeID(response.reports[0].video_url);
-                if (videoId) {
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-                    $('#pilotVideo').attr('src', embedUrl);
-                }
-   
+                // const videoId = extractYouTubeID(response.reports[0].video_url);
+                // if (videoId) {
+                //     const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+                //     $('#pilotVideo').attr('src', embedUrl);
+                // }
+                $('#viewvideolinkInfo').text(response.reports[0].video_url);
                 $(".pilot_note").text(response.reports[0].description);                
 
                 $.each(response.reports, function (index, report) {
@@ -1280,9 +1281,9 @@ $(document).ready(function () {
         $('#editRegionInfo').text($('#viewregionInfo').text());
         $('#editLocationInfo').text($('#viewlocationInfo').text());
     
-        $('#edit_video_url').val($('#pilotVideo').attr('src') || '');
-        console.log("videoUrl", $('#pilotVideo').attr('src'));
-
+        
+        $('#edit_video_url').val($('#viewvideolinkInfo').text());
+        
 
 
         const description = $('#description').html();

@@ -12,18 +12,21 @@
 
   <div class="container form-wrapper">
     <div class="row justify-content-center">
-      <div class="col-xl-8 col-lg-10 col-md-12">
+      <div class="col-xl-8 col-lg-10 col-md-12 ">
         <div class="form-container d-flex">
           <!-- Left side image -->
           <div class="col-md-6 d-flex align-items-center justify-content-center p-3">
+          
             <img src="./images/modon.png" alt="Company Logo" class="img-fluid">
+           
           </div>
 
           <!-- Right side form -->
-          <div class="col-md-6 p-4">
+          <div class="col-md-6 p-4 ">
+           
             <h2>Modon Login</h2>
             <p class="bluishtext">Kindly Login Using Previously Provided <br> Email & Password</p>
-            <form id="signinForm" class="pt-2">
+            <form id="signinForm" class="pt-2 ">
               @csrf
               <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>

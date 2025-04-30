@@ -206,14 +206,19 @@
             {{ $data['pilot'] }}
         </div>
     </div>
-    
     <div class="info">
-        <strong>7. Additional Notes Related to the Mission:</strong><br>
+        <strong>7. Mission Date:</strong><br>
+        <div class="dotted-underline">
+            {{ $data['missiondate'] }}
+        </div>
+    </div>
+    <div class="info">
+        <strong>8. Additional Notes Related to the Mission:</strong><br>
         <div class="dotted-underline">
             {{ $data['description'] }}
         </div>
     </div>
-    
+
 
     <!-- Image Existence Checkboxes -->
     <div class="info">

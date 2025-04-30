@@ -346,7 +346,7 @@
                                                     <p id="viewlocationInfo" class="whiteText text-capitalize"></p>
                                                     <label for="start_datetime" class="form-label " data-lang-key="geo">Geo Coordinated</label>
                                                     <p id="viewgeoInfo" class="whiteText text-capitalize"></p>
-            
+                                                    <p id="viewmissionDateInfo" class="whiteText text-capitalize d-none"></p>
                                                 </div>
                                             </div>
                                         </div>

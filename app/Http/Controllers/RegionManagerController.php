@@ -1769,7 +1769,7 @@ $allUsers = $adminUsers
 
     public function downloadMissionPDF(Request $request)
     {
-        $data = $request->only(['owner', 'pilot', 'region', 'program', 'location', 'geo', 'description', 'images']);
+        $data = $request->only(['owner', 'pilot', 'region', 'program', 'location', 'geo', 'description', 'images','missiondate']);
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',

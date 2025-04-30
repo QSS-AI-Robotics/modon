@@ -220,7 +220,7 @@ $(document).ready(function () {
                                         </strong>
                                         <span data-geo-locations="${latitude}-${longitude}">${latitude}, ${longitude}</span><br>
         
-                                        <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: <span data-pilot-name="${mission.pilot_info?.name}"></span>${mission.pilot_info?.name || 'N/A'}<br>
+                                        <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}" data-pilot-name="${mission.pilot_info?.name}"> Pilot Name</strong>: <span data-pilot-name="${mission.pilot_info?.name}"></span>${mission.pilot_info?.name || 'N/A'}<br>
                                         <strong class="py-3">Mission Created By:</strong> <span class="text-capitalize" data-misison-created-by-name="${mission.created_by.name}">${mission.created_by.name}</span> (${mission.created_by.user_type})<br>
                                         <strong class="py-3">Note:</strong> ${fullNote}<br><br>
                                         <div class="d-flex">
@@ -453,10 +453,20 @@ $(document).ready(function () {
             console.log("missionDate", missionDate);
             const regionName = missionRow.find("[data-region-name]").data("region-name");
             const locationName = missionRow.find("[data-location-name]").data("location-name");
+
+            const MissionCreatedName = missionRow.find("[data-misison-created-by-name]").data("misison-created-by-name");
+            const GeoLocation = missionRow.find("[data-geo-locations]").data("geo-locations");
+            const PilotName = missionRow.find("[data-pilot-name]").data("pilot-name");
+  
         
+            $("#viewOwnerInfo").text(MissionCreatedName);
+            $("#viewpilotInfo").text(PilotName);
+ 
             $("#viewprogramInfo").text(inspectionName);
             $("#viewregionInfo").text(regionName);
             $("#viewlocationInfo").text(locationName);
+            $("#viewgeoInfo").text(GeoLocation);
+            
             $("#viewmissionDateInfo").text(missionDate);
             $("#viewReportForm #mission_id").val(missionId);
         
@@ -485,7 +495,7 @@ $(document).ready(function () {
         
                     if (report.images && report.images.length) {
                         report.images.forEach(img => {
-                            const imgEl = `<img src="/${img.image_path}" alt="Report Image" data-image-id="${img.id}" class="img-thumbnail m-1" style="max-width: 150px;">`;
+                            const imgEl = `<img src="/${img.image_path}" alt="Report Image" data-image-id="${img.id}" class="img-thumbnail m-1 report-image" style="max-width: 150px;">`;
                             $('#viewReportModal #missionReportImages').append(imgEl);
                         });
                     } else {
@@ -1690,5 +1700,82 @@ function sendReportNotification({ action, missionData, recipients, report, callb
     });
 }
     
-    
+        $(document).on('click', '.downloadReportPilot', function(e) {
+            e.preventDefault();
+
+            // Fetch the information
+            const missionOwner   = $("#viewOwnerInfo").text().trim();
+            const pilot          = $("#viewpilotInfo").text().trim();
+            const region         = $("#viewregionInfo").text().trim();
+            const program        = $("#viewprogramInfo").text().trim();
+            const location       = $("#viewlocationInfo").text().trim();
+            const geoCoordinates = $("#viewgeoInfo").text().trim();
+            const description    = $("#description").text().trim();
+            const missiondate    = $("#viewmissionDateInfo").text().trim();
+         
+ 
+
+            // 📸 Fetch all image URLs inside #missionReportImages
+            const images = [];
+            $("#missionReportImages img.report-image").each(function() {
+                const imgSrc = $(this).attr('src');
+                if (imgSrc) {
+                    images.push(imgSrc);
+                }
+            });
+
+            // Prepare data object
+            const missionData = {
+                owner: missionOwner,
+                pilot: pilot,
+                region: region,
+                program: program,
+                location: location,
+                geo: geoCoordinates,
+                description: description,
+                missiondate:missiondate,
+                images: images,
+            };
+
+            console.log(missionData);
+
+            // 🚨 Show SweetAlert loading
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Please wait while your report is being created.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Send data to backend
+            $.ajax({
+                url: '/download-mission-pdf',
+                method: 'POST',
+                data: JSON.stringify(missionData),
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response, status, xhr) {
+                    Swal.close(); 
+
+                    const blob = new Blob([response], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'Mission_Report.pdf';
+                    link.click();
+                },
+                error: function(xhr) {
+                    Swal.close();
+                    Swal.fire('Failed!', 'PDF download failed. Please try again.', 'error');
+                    console.error('PDF download failed');
+                }
+            });
+        });
 });

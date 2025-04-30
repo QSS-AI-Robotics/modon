@@ -84,7 +84,7 @@
                     <div>
                         <div class="row">
                            
-                            <div class="col-lg-6">
+                            {{-- <div class="col-lg-6">
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="start_datetime" class="form-label ">Program</label>
@@ -97,11 +97,29 @@
                                     </div>
                                 </div>
 
-                            </div>
-                            <div class="col-lg-6">
+                            </div> --}}
+                            <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="description" class="form-label">Description</label>
-                                    <div  class="form-control  " id="description" name="description" rows="8" style="background: none;border:1px solid #FFFFFF33;min-height:150px"></div>
+                                    <label for="start_datetime" class="form-label " data-lang-key="missioncreated">Mission Created By</label>
+                                    <p id="viewOwnerInfo" class="whiteText text-capitlaize"></p>
+                                    <label for="start_datetime" class="form-label" data-lang-key="pilot">Pilot</label>
+                                    <p id="viewpilotInfo" class="whiteText text-capitalize"></p>
+                                    
+                                    <label for="start_datetime" class="form-label" data-lang-key="region">Region</label>
+                                    <p id="viewregionInfo" class="whiteText text-capitalize"></p>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="start_datetime" class="form-label " data-lang-key="program">Program</label>
+                                    <p id="viewprogramInfo" class="whiteText text-capitlaize"></p>
+                                    <label for="start_datetime" class="form-label " data-lang-key="location">Location</label>
+                                    <p id="viewlocationInfo" class="whiteText text-capitalize"></p>
+                                    <label for="start_datetime" class="form-label " data-lang-key="geo">Geo Coordinated</label>
+                                    <p id="viewgeoInfo" class="whiteText text-capitalize"></p>
+                                    <p id="viewmissionDateInfo" class="whiteText text-capitalize d-none"></p>
+
                                 </div>
                             </div>
                         </div>
@@ -118,7 +136,13 @@
                                 <iframe id="pilotVideo" width="100%" frameborder="0"></iframe>
         
                             </div>
-                            <div class="col-lg-12">
+                            <div class="col-lg-6">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <div  class="form-control  " id="description" name="description" style="background: none;border:1px solid #FFFFFF33;min-height:220px;overflow-y:auto;max-height:220px;"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
                                 <div class="mb-3">
                                     <label for="description" class="form-label">Images</label>
                                     <div id="missionReportImages" class="d-flex flex-wrap gap-2 missionReportImages"></div>
@@ -134,24 +158,18 @@
                             
                   
                         </div>
-                        <div class="col-lg-12">
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <button  class="btn btn-danger deleteReportbtn mt-2" data-report-id=""><img src="../images/delete.png" alt=""></button>
-                                    <button  class="btn btn-warning editReportbtn mt-2" data-report-id=""><img src="../images/edit.png" alt=""></button>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class=" my-1 d-none text-danger " id="report-validation-errors" >
-                                        All fields are required.
-                                    </div>
-                                </div>
+
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <button  class="btn btn-danger deleteReportbtn mt-2" data-report-id=""><img src="../images/delete.png" alt=""></button>
+                                <button  class="btn btn-warning editReportbtn mt-2" data-report-id=""><img src="../images/edit.png" alt=""></button>
+                                <button  class="btn btn-info downloadReportPilot mt-2"><img src="../images/downloads.png" alt=""></button>
                             </div>
+                           
                         </div>
                     </div>
-                   
-                        
-                   
-                    
                 </form>
             </div>
         </div>

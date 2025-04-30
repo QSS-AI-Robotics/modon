@@ -597,7 +597,7 @@ $(document).ready(function () {
                                             <span class="grayishytext"> ${locations} ( ${regionName} )</span>       
                                         </div>                                        
                                         <div class="col-lg-4 ">
-                                         <strong class="py-3" data-lang-key="missionDate">Mission Date</strong><br><span  class="grayishytext">${mission.mission_date}</span>
+                                         <strong class="py-3" data-lang-key="missionDate">Mission Date</strong><br><span  class="grayishytext" data-mission-date="${mission.mission_date}">${mission.mission_date}</span>
                                         </div>                                        
                                         <div class="col-lg-4 ">
                                             <strong class="py-3" data-latitude="${latitude}" data-longitude="${longitude}"data-lang-key="geoCoordinates">Geo Coordinates </strong><br>
@@ -650,6 +650,7 @@ $(document).ready(function () {
         const locationName = missionRow.find("[data-location-name]").data("location-name");
         const pilotname = missionRow.find("[data-pilot-name]").data("pilot-name");
         const missionCreatedName = missionRow.find("[data-mission-created-by-name]").data("mission-created-by-name");
+        const missionDate = missionRow.find("[data-mission-date]").data("mission-date");
 
         console.log(missionCreatedName)
         const geolocationinfo = missionRow.find("[data-geolocationinfo]").data("geolocationinfo");
@@ -661,6 +662,7 @@ $(document).ready(function () {
         $("#viewOwnerInfo").text(missionCreatedName);
         $("#viewgeoInfo").text(geolocationinfo);
         $("#viewpilotInfo").text(pilotname);
+        $("#viewmissionDateInfo").text(missionDate);
     
         // Clear existing data
         $('#description').html('');
@@ -1397,6 +1399,66 @@ $('#addMissionForm').on('submit', function (e) {
     //     });
     // }
  
+    // $(document).on('click', '.downloadReportbtn', function(e) {
+    //     e.preventDefault();
+    
+    //     // Fetch the information
+    //     const missionOwner   = $("#viewOwnerInfo").text().trim();
+    //     const pilot          = $("#viewpilotInfo").text().trim();
+    //     const region         = $("#viewregionInfo").text().trim();
+    //     const program        = $("#viewprogramInfo").text().trim();
+    //     const location       = $("#viewlocationInfo").text().trim();
+    //     const geoCoordinates = $("#viewgeoInfo").text().trim();
+    //     const description    = $("#description").text().trim();
+    
+    //     // 📸 Fetch all image URLs inside #missionReportImages
+    //     const images = [];
+    //     $("#missionReportImages img.report-image").each(function() {
+    //         const imgSrc = $(this).attr('src');
+    //         if (imgSrc) {
+    //             images.push(imgSrc);
+    //         }
+    //     });
+    
+    //     // Prepare data object
+    //     const missionData = {
+    //         owner: missionOwner,
+    //         pilot: pilot,
+    //         region: region,
+    //         program: program,
+    //         location: location,
+    //         geo: geoCoordinates,
+    //         description: description,
+    //         images: images, // send images array too
+    //     };
+    
+    //     console.log(missionData); // Just to see in console
+    
+    //     // Now send this to Laravel backend
+    //     $.ajax({
+    //         url: '/download-mission-pdf', // your Laravel route
+    //         method: 'POST',
+    //         data: JSON.stringify(missionData),
+    //         xhrFields: {
+    //             responseType: 'blob' // important for file download
+    //         },
+    //         contentType: 'application/json', // important for JSON sending
+    //         headers: {
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token
+    //         },
+    //         success: function(response, status, xhr) {
+    //             const blob = new Blob([response], { type: 'application/pdf' });
+    //             const link = document.createElement('a');
+    //             link.href = window.URL.createObjectURL(blob);
+    //             link.download = 'Mission_Report.pdf';
+    //             link.click();
+    //         },
+    //         error: function(xhr) {
+    //             console.error('PDF download failed');
+    //         }
+    //     });
+    // });
+    
     $(document).on('click', '.downloadReportbtn', function(e) {
         e.preventDefault();
     
@@ -1407,6 +1469,7 @@ $('#addMissionForm').on('submit', function (e) {
         const program        = $("#viewprogramInfo").text().trim();
         const location       = $("#viewlocationInfo").text().trim();
         const geoCoordinates = $("#viewgeoInfo").text().trim();
+        const missiondate    = $("#viewmissionDateInfo").text().trim();
         const description    = $("#description").text().trim();
     
         // 📸 Fetch all image URLs inside #missionReportImages
@@ -1427,24 +1490,38 @@ $('#addMissionForm').on('submit', function (e) {
             location: location,
             geo: geoCoordinates,
             description: description,
-            images: images, // send images array too
+            images: images,
+            missiondate:missiondate,
         };
     
-        console.log(missionData); // Just to see in console
+        console.log(missionData);
     
-        // Now send this to Laravel backend
+        // 🚨 Show SweetAlert loading
+        Swal.fire({
+            title: 'Generating PDF...',
+            text: 'Please wait while your report is being created.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    
+        // Send data to backend
         $.ajax({
-            url: '/download-mission-pdf', // your Laravel route
+            url: '/download-mission-pdf',
             method: 'POST',
             data: JSON.stringify(missionData),
             xhrFields: {
-                responseType: 'blob' // important for file download
+                responseType: 'blob'
             },
-            contentType: 'application/json', // important for JSON sending
+            contentType: 'application/json',
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response, status, xhr) {
+                Swal.close(); // ✅ Close the loader on success
+    
                 const blob = new Blob([response], { type: 'application/pdf' });
                 const link = document.createElement('a');
                 link.href = window.URL.createObjectURL(blob);
@@ -1452,12 +1529,13 @@ $('#addMissionForm').on('submit', function (e) {
                 link.click();
             },
             error: function(xhr) {
+                Swal.close(); // Close loading
+                Swal.fire('Failed!', 'PDF download failed. Please try again.', 'error');
                 console.error('PDF download failed');
             }
         });
     });
     
- 
     
 
 });

@@ -893,7 +893,7 @@ public function storeMission(Request $request)
 
     $user     = Auth::user();
     $userType = optional($user->userType)->name;
-
+    //return response()->json(['userType' => $userType,'username' => $user->name]);
     // ✅ Get the list of regions this user may assign to
     $allowedRegionIds = $user instanceof User
         ? $user->regions()->pluck('regions.id')->toArray()
@@ -910,8 +910,18 @@ public function storeMission(Request $request)
         'longitude'       => 'required|numeric|between:-180,180',
         'region_id'       => 'required|exists:regions,id',
     ]);
-
+    $latitude = $request->latitude;
+    $longitude = $request->longitude;
     $regionId = $request->region_id;
+
+            // Fetch pilot info (name, email, user_type_name)
+        $pilotInfo = DB::table('users')
+        ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+        ->where('users.id', $request->pilot_id)
+        ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+        ->first();
+
+    //return response()->json(['pilotEmail' => $pilotInfo->email]);
 
     // 🔒 Ensure non‑admins can only assign to their regions
     if (! in_array($userType, ['modon_admin','qss_admin'])
@@ -954,7 +964,8 @@ public function storeMission(Request $request)
                  'longitude'   => $request->longitude]
             );
         }
-
+        // Get the region name using the region_id
+        $regionName = Region::where('id', $regionId)->value('name');
        // 📧 Fetch users with roles qss_admin, modon_admin, manager
     $adminUsers = DB::table('users')
     ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
@@ -1012,20 +1023,39 @@ foreach ($adminUsers as $u) {
 // Combine admin users, city managers, and region users, remove duplicates by email
 $allUsers = $adminUsers
     ->merge($cityManagers)
-    ->merge($regionusers)
-    ->unique('email')
-    ->values();
+    ->merge($regionusers);
+
+if ($userType === 'modon_admin' && $pilotInfo) {
+    // Convert pilotInfo (stdClass) to collection for merge compatibility
+    $allUsers = $allUsers->push($pilotInfo);
+}
+
+$allUsers = $allUsers->unique('email')->values();
+
+// // Combine admin users, city managers, and region users, remove duplicates by email
+// $allUsers = $adminUsers
+//     ->merge($cityManagers)
+//     ->merge($regionusers)
+//     ->unique('email')
+//     ->values();
 
 return response()->json([
     'message' => 'Mission created successfully!',
     'mission' => [
         'id'              => $mission->id,
+        'created_by' => [
+            'name' => $user->name,
+            'type'   => $userType,
+        ],
         'inspection_type' => [
             'id'   => $request->inspection_type,
             'name' => InspectionType::find($request->inspection_type)?->name,
         ],
+        'region_name'     => $regionName,
         'mission_date'    => $mission->mission_date,
         'locations'       => $mission->locations->map(fn($l)=>['id'=>$l->id,'name'=>$l->name]),
+        'latitude'        => $latitude,
+        'longitude'       => $longitude,
         'allmails'        => $allUsers, // 📨 All unique emails (admins, city managers, region users)
     ],
 ], 201);
@@ -1216,7 +1246,7 @@ return response()->json([
                 'longitude' => $loc->geoLocation->longitude ?? null,
             ];
         });
-    
+        
         $inspectionType = $mission->inspectionTypes->first()?->name ?? 'N/A';
     
         // ✅ Log mission details before deletion
@@ -1323,7 +1353,6 @@ return response()->json([
         $regionName = $mission->region?->name;
         $createdBy = $mission->user?->name . ' (' . $mission->user?->userType?->name . ')';
         $locationIds = $mission->locations->pluck('id')->toArray();
-
         $locations = $mission->locations->map(function ($loc) {
             return [
                 'name'      => $loc->name,
@@ -1331,7 +1360,8 @@ return response()->json([
                 'longitude' => $loc->geoLocation->longitude ?? null,
             ];
         });
-    
+        $latitudes = $locations->pluck('latitude')->all();
+        $longitudes = $locations->pluck('longitude')->all();
         $inspectionType = $mission->inspectionTypes->first()?->name ?? 'N/A';
     
         // ✅ Log mission details before deletion
@@ -1444,13 +1474,19 @@ $allUsers = $adminUsers
             'message' => '✅ Mission deleted successfully!',
             'mission' => [
                 'id'              => $mission->id,
+            'created_by' => [
+                    'name' => $user->name,
+                    'type'   => $userType,
+                ],
                 'mission_date'    => $mission->mission_date,
-                'region'          => $regionName,
-                'created_by'      => $createdBy,
+                'region_name'     => $regionName,
+                // 'created_by'      => $createdBy,
                 'deleted_by'      => $user->name . ' (' . $userType . ')',
                 'deleted_reason'  => $request->delete_reason,
                 'inspection_type' => $inspectionType,
                 'locations'       => $locations,
+                'latitude'        => $latitudes,
+                'longitude'       => $longitudes,
                 'allmails'        => $allUsers,
             ]
         ]);
@@ -1569,7 +1605,8 @@ $allUsers = $adminUsers
     public function updateMission(Request $request)
     {
         Log::info("🔍 Incoming Mission Update Request", ['data' => $request->all()]);
-
+        $user     = Auth::user();
+        $userType = optional($user->userType)->name;
         // ✅ Validate input (including geo coords)
         $request->validate([
             'mission_id'       => 'required|exists:missions,id',
@@ -1611,7 +1648,11 @@ $allUsers = $adminUsers
                 'longitude'   => $geo->longitude,
             ]);
         }
-
+    $latitude = $request->latitude;
+    $longitude = $request->longitude;
+    $regionId = $request->region_id;
+    // Get the region name using the region_id
+    $regionName = Region::where('id', $regionId)->value('name');
         // 📧 Fetch users with roles qss_admin, modon_admin, manager
     $adminUsers = DB::table('users')
     ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
@@ -1677,17 +1718,24 @@ $allUsers = $adminUsers
                 'message' => '✅ Mission updated successfully!',
                 'mission' => [
                     'id'              => $mission->id,
+                    'region_name'     => $regionName,
+                    'latitude'        => $latitude,
+                   'longitude'       => $longitude,
+                    'created_by' => [
+                        'name' => $user->name,
+                        'type'   => $userType,
+                    ],
                     'inspection_type' => [
                         'id'   => $request->inspection_type,
                         'name' => InspectionType::find($request->inspection_type)?->name,
                     ],
                     'mission_date'    => $mission->mission_date,
                     'locations'       => $mission->locations->map(fn($l) => ['id' => $l->id, 'name' => $l->name]),
-                    'allmails'                     => $allUsers, 
+                    'allmails'        => $allUsers, 
                 ],
                 'users_associated_with_region' => $regionusers,
-
                 'admin_emails'                 => $adminUsers,
+                'mission_date'                 => $mission->mission_date,
                 
             ]);
     }

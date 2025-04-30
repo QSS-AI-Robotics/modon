@@ -35,7 +35,7 @@
                    
                     <div class="lang-wrapper">
                         <div class="lang-toggle" id="langToggle">
-                            <img src="{{ asset('images/ar.png') }}" class="selected-flag" style="width:35px;height:35px">
+                            <img src="{{ asset('images/ar.png') }}" class="selected-flag" style="width: 30px;height: 30px;margin-top: 0.4rem;">
                            
                         </div>
                         

@@ -204,17 +204,43 @@ $(document).ready(function () {
                 // Assign color based on logic
                 const colorMap = {};
                 
+                // if (allSame) {
+                //     // All values are the same → assign green
+                //     regionData.forEach(item => {
+                //         colorMap[item.region] = 'green';
+                //     });
+                // } else {
+                //     // Normal ranking: red → orange → green
+                //     sorted.forEach((item, index) => {
+                //         if (index === 0) colorMap[item.region] = 'red';      // Highest
+                //         else if (index === 1) colorMap[item.region] = 'orange'; // Mid
+                //         else colorMap[item.region] = 'green';                // Lowest
+                //     });
+                // }
                 if (allSame) {
-                    // All values are the same → assign green
                     regionData.forEach(item => {
                         colorMap[item.region] = 'green';
                     });
                 } else {
-                    // Normal ranking: red → orange → green
-                    sorted.forEach((item, index) => {
-                        if (index === 0) colorMap[item.region] = 'red';      // Highest
-                        else if (index === 1) colorMap[item.region] = 'orange'; // Mid
-                        else colorMap[item.region] = 'green';                // Lowest
+                    const values = sorted.map(item => item.missions);
+                    const [first, second, third] = values;
+                
+                    sorted.forEach(item => {
+                        const count = item.missions;
+                
+                        if (count === first && count === second && count === third) {
+                            colorMap[item.region] = 'green'; // all equal
+                        } else if (count === first && first !== second) {
+                            colorMap[item.region] = 'red'; // only one highest
+                        } else if (count === first && first === second && second !== third) {
+                            colorMap[item.region] = 'red'; // two tied for highest
+                        } else if (count === second && second === third && first !== second) {
+                            colorMap[item.region] = 'green'; // two tied for lowest
+                        } else if (count === second && first !== second && second !== third) {
+                            colorMap[item.region] = 'orange'; // true middle
+                        } else {
+                            colorMap[item.region] = 'green';
+                        }
                     });
                 }
                 

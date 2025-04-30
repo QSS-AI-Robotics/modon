@@ -408,30 +408,6 @@ $regionandcityusers = $cityManagers
         'rejected_by'       => $approval->rejected_by ?? null,
         'rejection_note'    => $approval->rejection_note ?? null,
     ]);
-    return response()->json([
-        'message'           => 'Pilot decision recorded successfully.',
-        'mission_id'        => $mission->id,
-        'region_id'         => $region_id,
-        'pilot_name'        => $pilotName,
-        'current_user_email' => $currentUserEmail,
-        'admin_emails'      => $adminUsers,
-        'is_fully_approved' => $approval->is_fully_approved,
-        'users_associated_with_region' => $regionandcityusers,
-        'pilot_approved'    => $approval->pilot_approved,
-        'rejected_by'       => $approval->rejected_by ?? null,
-        'rejection_note'    => $approval->rejection_note ?? null,
-        'status'            => $mission->status,
-    ]);
-    // ✅ Update mission status accordingly
-    $mission->status = $decision === 1 ? 'Awaiting Report' : 'Rejected';
-    $mission->save();
-
-    Log::info("✅ Mission status updated", [
-        'mission_id' => $mission->id,
-        'status'     => $mission->status,
-    ]);
-
-    // ✅ Return all computed fields in the JSON response
     // return response()->json([
     //     'message'           => 'Pilot decision recorded successfully.',
     //     'mission_id'        => $mission->id,
@@ -446,6 +422,30 @@ $regionandcityusers = $cityManagers
     //     'rejection_note'    => $approval->rejection_note ?? null,
     //     'status'            => $mission->status,
     // ]);
+    // ✅ Update mission status accordingly
+    $mission->status = $decision === 1 ? 'Awaiting Report' : 'Rejected';
+    $mission->save();
+
+    Log::info("✅ Mission status updated", [
+        'mission_id' => $mission->id,
+        'status'     => $mission->status,
+    ]);
+
+   // ✅ Return all computed fields in the JSON response
+    return response()->json([
+        'message'           => 'Pilot decision recorded successfully.',
+        'mission_id'        => $mission->id,
+        'region_id'         => $region_id,
+        'pilot_name'        => $pilotName,
+        'current_user_email' => $currentUserEmail,
+        'admin_emails'      => $adminUsers,
+        'is_fully_approved' => $approval->is_fully_approved,
+        'users_associated_with_region' => $regionandcityusers,
+        'pilot_approved'    => $approval->pilot_approved,
+        'rejected_by'       => $approval->rejected_by ?? null,
+        'rejection_note'    => $approval->rejection_note ?? null,
+        'status'            => $mission->status,
+    ]);
 }
     /**
      * Fetch missions assigned to the pilot's region.
@@ -706,10 +706,7 @@ $regionandcityusers = $cityManagers
     /**
      * Store a new pilot report.
      */
-    
-  
-     
-     public function storeReport(Request $request)
+    public function storeReportOld(Request $request)
      {
          Log::info("🚀 Incoming Report Submission");
          Log::info("📥 Request Data:", $request->except(['images_0']));
@@ -778,6 +775,160 @@ $regionandcityusers = $cityManagers
              'report'  => $report
          ]);
      }
+  
+     
+     public function storeReport(Request $request)
+     {
+         Log::info("🚀 Incoming Report Submission");
+         Log::info("📥 Request Data:", $request->except(['images_0']));
+         Log::info("🖼 Uploaded Files:", $request->file('images_0') ?? []);
+     
+         $request->validate([
+             'mission_id'   => 'required|exists:missions,id',
+             'video_url'    => 'nullable|url',
+             'description'  => 'nullable|string',
+             'images_0.*'   => 'required|image|mimes:jpeg,png,jpg,gif|max:102048',
+         ]);
+     
+         // Collect all relevant fields into an object (stdClass or array)
+         $missionData = (object)[
+             'createdBy'    => $request->createdBy,
+             'geoLocations' => $request->geoLocations,
+             'pilotname'    => $request->pilotname,
+             'regionInfo'   => $request->regionInfo,
+             'locationInfo' => $request->locationInfo,
+             'dateInfo'     => $request->dateInfo,
+             'programInfo'  => $request->programInfo,
+         ];
+         $user = Auth::user();
+         $userType = strtolower(optional($user->userType)->name);
+         $missionId = $request->mission_id;
+         $currentUserEmail = $user->email;
+     
+         // 📧 Fetch users with roles qss_admin, modon_admin, manager
+         $adminUsers = DB::table('users')
+             ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+             ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+             ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+             ->get();
+     
+         $mission = Mission::with([
+             'approvals',
+             'locations:id,name',
+             'locations.geoLocation:location_id,latitude,longitude',
+             'user:id,name,user_type_id',
+             'user.userType:id,name',
+             'region:id,name',
+             'inspectionTypes:id,name'
+         ])->findOrFail($request->mission_id);
+     
+         $locationIds = $mission->locations->pluck('id')->toArray();
+     
+         $cityManagerUserIds = DB::table('user_location')
+             ->whereIn('location_id', $locationIds)
+             ->pluck('user_id');
+     
+         $cityManagers = DB::table('users')
+             ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+             ->whereIn('users.id', $cityManagerUserIds)
+             ->where('user_types.name', '!=', 'pilot')
+             ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+             ->get();
+     
+         // 📧 Fetch all users related to the specific region (excluding pilots)
+         $regionusers = DB::table('user_region')
+             ->join('users', 'user_region.user_id', '=', 'users.id')
+             ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+             ->where('user_region.region_id', $mission->region_id)
+             ->where('user_types.name', 'region_manager') // <-- Only region_manager
+             ->select('users.id','users.name','users.email', 'user_types.name as user_type_name')
+             ->get();
+     
+         // Merge currentUserEmail, adminUsers, cityManagers, regionusers into a single array
+         $mergedUsers = collect();
+         //$mergedUsers->push(['email' => $currentUserEmail, 'type' => 'current_user']);
+         foreach ($adminUsers as $admin) {
+             $mergedUsers->push(['email' => $admin->email, 'type' => $admin->user_type_name]);
+         }
+         foreach ($cityManagers as $cityManager) {
+             $mergedUsers->push(['email' => $cityManager->email, 'type' => $cityManager->user_type_name]);
+         }
+         foreach ($regionusers as $regionUser) {
+             $mergedUsers->push(['email' => $regionUser->email, 'type' => $regionUser->user_type_name]);
+         }
+         $mergedUsers = $mergedUsers->unique('email')->values();
+     
+         // Return for debugging BEFORE DB operations
+        //  return response()->json([
+        //      'debug' => [
+        //          'merged_users' => $mergedUsers,
+        //          'mission_data' => $missionData,
+        //      ]
+        //  ]);
+     
+       
+         // --- Uncomment below for actual DB operations and response ---
+     
+         // ✅ Prevent double submission
+         $mission = Mission::findOrFail($request->mission_id);
+         if ($mission->report_submitted == 1) {
+             Log::warning("⚠️ Report already submitted for Mission ID: {$mission->id}");
+             return response()->json([
+                 'message' => 'A report has already been submitted for this mission.'
+             ], 409);
+         }
+     
+         $reportReference = 'REP-' . Str::random(8);
+         $report = PilotReport::create([
+             'report_reference' => $reportReference,
+             'mission_id'       => $mission->id,
+             'video_url'        => $request->video_url,
+             'description'      => $request->description,
+         ]);
+     
+         Log::info("✅ Report Created", ['report_id' => $report->id]);
+     
+         if ($request->hasFile('images_0')) {
+             $images = $request->file('images_0');
+             Log::info("📸 Total images received: " . count($images));
+     
+             foreach ($images as $index => $image) {
+                 $path = $image->store('reports', 'public');
+     
+                 $imageModel = PilotReportImage::create([
+                     'pilot_report_id' => $report->id,
+                     'image_path'      => "storage/$path",
+                 ]);
+     
+                 Log::info("✅ Image Saved", [
+                     'image_id'   => $imageModel->id,
+                     'image_path' => $imageModel->image_path,
+                 ]);
+             }
+         } else {
+             Log::warning("⚠ No images uploaded with report.");
+         }
+     
+         // ✅ Properly update mission status
+         $mission->report_submitted = 1;
+         $mission->status = 'Completed';
+         $mission->save();
+     
+         Log::info("✅ Mission marked as completed", [
+             'mission_id'         => $mission->id,
+             'report_submitted'   => $mission->report_submitted,
+             'status'             => $mission->status,
+         ]);
+     
+         // --- Updated response: include merged_users and mission_data for reference ---
+         return response()->json([
+             'message' => '✅ Report created successfully!',
+             'report'  => $report,
+             'users_emails' => $mergedUsers,
+             'mission_data' => $missionData,
+         ]);
+      
+     }
      
 
 
@@ -787,6 +938,64 @@ $regionandcityusers = $cityManagers
              'report_id' => 'required|exists:pilot_reports,id',
              'mission_id' => 'required|exists:missions,id',
          ]);
+         $missionData = $this->getMissionJoinedData($request->mission_id);
+    $regionId = $missionData['region']['id'];
+    //return response()->json(['regionId'=>$regionId]);
+    // 📧 Fetch users with roles qss_admin, modon_admin, manager
+    $adminUsers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+$mission = Mission::with([
+    'approvals',
+    'locations:id,name',
+    'locations.geoLocation:location_id,latitude,longitude',
+    'user:id,name,user_type_id',
+    'user.userType:id,name',
+    'region:id,name',
+    'inspectionTypes:id,name'
+])->findOrFail($request->mission_id);
+
+$locationIds = $mission->locations->pluck('id')->toArray();
+
+$cityManagerUserIds = DB::table('user_location')
+    ->whereIn('location_id', $locationIds)
+    ->pluck('user_id');
+
+$cityManagers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('users.id', $cityManagerUserIds)
+    ->where('user_types.name', '!=', 'pilot')
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch all users related to the specific region (excluding pilots)
+$regionusers = DB::table('user_region')
+    ->join('users', 'user_region.user_id', '=', 'users.id')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->where('user_region.region_id', $regionId)
+    ->where('user_types.name', 'region_manager') // <-- Only region_manager
+    ->select('users.id','users.name','users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// Merge currentUserEmail, adminUsers, cityManagers, regionusers into a single array
+$mergedUsers = collect();
+//$mergedUsers->push(['email' => $currentUserEmail, 'type' => 'current_user']);
+foreach ($adminUsers as $admin) {
+    $mergedUsers->push(['email' => $admin->email, 'type' => $admin->user_type_name]);
+}
+foreach ($cityManagers as $cityManager) {
+    $mergedUsers->push(['email' => $cityManager->email, 'type' => $cityManager->user_type_name]);
+}
+foreach ($regionusers as $regionUser) {
+    $mergedUsers->push(['email' => $regionUser->email, 'type' => $regionUser->user_type_name]);
+}
+$mergedUsers = $mergedUsers->unique('email')->values();
+    //          return response()->json(["users_emails" => $mergedUsers,
+    //     "mission_data" => $missionData
+    // ]);
      
          $report = PilotReport::with('images')->find($request->report_id);
      
@@ -818,7 +1027,9 @@ $regionandcityusers = $cityManagers
          ]);
      
          return response()->json([
-             'message' => 'Pilot report and images deleted successfully.'
+             'message' => 'Pilot report and images deleted successfully.',
+             "users_emails" => $mergedUsers,
+            "mission_data" => $missionData,
          ]);
      }
      
@@ -885,7 +1096,6 @@ $regionandcityusers = $cityManagers
         'report_id' => $reportId,
         'request_raw' => $request->all()
     ]);
-
     $requestData = json_decode($request->input('data'), true);
 
     if (!$requestData) {
@@ -989,8 +1199,68 @@ public function updateMissionReport(Request $request)
         'removed_images' => 'nullable|string',
         'new_images.*' => 'nullable|image|max:5120',
     ]);
+    // Use the helper function to get all joined data
+    $missionData = $this->getMissionJoinedData($request->mission_id);
+    $regionId = $missionData['region']['id'];
+    //return response()->json(['regionId'=>$regionId]);
+    // 📧 Fetch users with roles qss_admin, modon_admin, manager
+    $adminUsers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('user_types.name', ['qss_admin', 'modon_admin', 'manager'])
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
 
+$mission = Mission::with([
+    'approvals',
+    'locations:id,name',
+    'locations.geoLocation:location_id,latitude,longitude',
+    'user:id,name,user_type_id',
+    'user.userType:id,name',
+    'region:id,name',
+    'inspectionTypes:id,name'
+])->findOrFail($request->mission_id);
+
+$locationIds = $mission->locations->pluck('id')->toArray();
+
+$cityManagerUserIds = DB::table('user_location')
+    ->whereIn('location_id', $locationIds)
+    ->pluck('user_id');
+
+$cityManagers = DB::table('users')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->whereIn('users.id', $cityManagerUserIds)
+    ->where('user_types.name', '!=', 'pilot')
+    ->select('users.name', 'users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// 📧 Fetch all users related to the specific region (excluding pilots)
+$regionusers = DB::table('user_region')
+    ->join('users', 'user_region.user_id', '=', 'users.id')
+    ->join('user_types', 'users.user_type_id', '=', 'user_types.id')
+    ->where('user_region.region_id', $regionId)
+    ->where('user_types.name', 'region_manager') // <-- Only region_manager
+    ->select('users.id','users.name','users.email', 'user_types.name as user_type_name')
+    ->get();
+
+// Merge currentUserEmail, adminUsers, cityManagers, regionusers into a single array
+$mergedUsers = collect();
+//$mergedUsers->push(['email' => $currentUserEmail, 'type' => 'current_user']);
+foreach ($adminUsers as $admin) {
+    $mergedUsers->push(['email' => $admin->email, 'type' => $admin->user_type_name]);
+}
+foreach ($cityManagers as $cityManager) {
+    $mergedUsers->push(['email' => $cityManager->email, 'type' => $cityManager->user_type_name]);
+}
+foreach ($regionusers as $regionUser) {
+    $mergedUsers->push(['email' => $regionUser->email, 'type' => $regionUser->user_type_name]);
+}
+$mergedUsers = $mergedUsers->unique('email')->values();
+    // return response()->json(["users_emails" => $mergedUsers,
+    //     "mission_data" => $missionData
+    // ]);
     $report = PilotReport::findOrFail($request->report_id);
+
+    
 
     $report->description = $request->description;
     $report->video_url = $request->video_url;
@@ -1025,6 +1295,8 @@ public function updateMissionReport(Request $request)
 
     return response()->json([
         'message' => 'Report updated successfully!',
+        "users_emails" => $mergedUsers,
+        "mission_data" => $missionData,
         'report' => $report
     ]);
 }
@@ -1120,10 +1392,75 @@ public function updateMissionReport(Request $request)
             'mission' => $mission
         ]);
     }
-    
-    
+    /**
+ * Helper to fetch all mission-related joined data.
+ */
+protected function getMissionJoinedData($missionId)
+{
+    $mission = \App\Models\Mission::findOrFail($missionId);
 
-    
-    
+    // 1. Missions table
+    $user_id = $mission->user_id;
+    $region_id = $mission->region_id;
+    $mission_date = $mission->mission_date;
+    $pilot_id = $mission->pilot_id;
+    $pilot = Auth::user();
+    $currentUserEmail = $pilot->email;
+    $pilotName = $pilot->name;
+
+    // 2. Regions table
+    $region = \App\Models\Region::find($region_id);
+    $region_name = $region ? $region->name : null;
+
+    // 3. Mission Inspection Types and Inspection Types
+    $inspectionTypeIds = DB::table('mission_inspection_type')
+        ->where('mission_id', $mission->id)
+        ->pluck('inspection_type_id');
+    $inspectionTypes = \App\Models\InspectionType::whereIn('id', $inspectionTypeIds)
+        ->pluck('name', 'id');
+
+    // 4. Mission Locations and Locations
+    $locationIds = DB::table('mission_location')
+        ->where('mission_id', $mission->id)
+        ->pluck('location_id');
+    $locations = \App\Models\Location::whereIn('id', $locationIds)
+        ->pluck('name', 'id');
+
+    // 5. Geo Locations
+    $geoLocations = DB::table('geo_location')
+        ->whereIn('location_id', $locationIds)
+        ->get(['location_id', 'latitude', 'longitude']);
+
+    // 6. Users and User Types
+    $user = \App\Models\User::find($user_id);
+    $user_name = $user ? $user->name : null;
+    $user_type_id = $user ? $user->user_type_id : null;
+    $user_type = $user && $user->userType ? $user->userType->name : null;
+
+    // Prepare response data
+    return [
+        'mission' => [
+            'id' => $mission->id,
+            'pilot_name' => $pilotName,
+            'user_id' => $user_id,
+            'region_id' => $region_id,
+            'mission_date' => $mission_date,
+            'pilot_id' => $pilot_id,
+        ],
+        'region' => [
+            'id' => $region_id,
+            'name' => $region_name,
+        ],
+        'inspection_types' => $inspectionTypes,
+        'locations' => $locations,
+        'geo_locations' => $geoLocations,
+        'user' => [
+            'id' => $user_id,
+            'name' => $user_name,
+            'user_type_id' => $user_type_id,
+            'user_type' => $user_type,
+        ],
+    ];
+}
 
 }

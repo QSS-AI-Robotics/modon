@@ -204,7 +204,7 @@ $(document).ready(function () {
                                             <strong class="py-1">Program: ${inspectionName}</strong> 
                                             ${approvalButtons}
                                         </div>
-                                        <strong class="py-3">Mission Date</strong>: ${mission.mission_date}<br>
+                                        <strong class="py-3" data-mission-date="${mission.mission_date}">Mission Date</strong>: ${mission.mission_date}<br>
         
                                         <strong class="py-3" 
                                             data-location-id="${firstLocation.id}" 
@@ -218,10 +218,10 @@ $(document).ready(function () {
                                             data-longitude="${longitude}">
                                             Geo
                                         </strong>
-                                        ${latitude}, ${longitude}<br>
+                                        <span data-geo-locations="${latitude}-${longitude}">${latitude}, ${longitude}</span><br>
         
-                                        <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: ${mission.pilot_info?.name || 'N/A'}<br>
-                                        <strong class="py-3">Mission Created By:</strong> <span class="text-capitalize">${mission.created_by.name}</span> (${mission.created_by.user_type})<br>
+                                        <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}"> Pilot Name</strong>: <span data-pilot-name="${mission.pilot_info?.name}"></span>${mission.pilot_info?.name || 'N/A'}<br>
+                                        <strong class="py-3">Mission Created By:</strong> <span class="text-capitalize" data-misison-created-by-name="${mission.created_by.name}">${mission.created_by.name}</span> (${mission.created_by.user_type})<br>
                                         <strong class="py-3">Note:</strong> ${fullNote}<br><br>
                                         <div class="d-flex">
                                             <div class="row w-100 align-items-center">
@@ -449,12 +449,15 @@ $(document).ready(function () {
         
             // Prefill program/region/location
             const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
+            const missionDate = missionRow.find("[data-mission-date]").data("mission-date");
+            console.log("missionDate", missionDate);
             const regionName = missionRow.find("[data-region-name]").data("region-name");
             const locationName = missionRow.find("[data-location-name]").data("location-name");
         
             $("#viewprogramInfo").text(inspectionName);
             $("#viewregionInfo").text(regionName);
             $("#viewlocationInfo").text(locationName);
+            $("#viewmissionDateInfo").text(missionDate);
             $("#viewReportForm #mission_id").val(missionId);
         
             // Clear previous content
@@ -521,12 +524,21 @@ $(document).ready(function () {
         const inspectionName = missionRow.find("[data-incident-name]").data("incident-name");
         const regionName = missionRow.find("[data-region-name]").data("region-name");
         const locationName = missionRow.find("[data-location-name]").data("location-name");
-
+        const MissionCreatedName = missionRow.find("[data-misison-created-by-name]").data("misison-created-by-name");
+        const GeoLocation = missionRow.find("[data-geo-locations]").data("geo-locations");
+        const PilotName = missionRow.find("[data-pilot-name]").data("pilot-name");
+        const MissionDate = missionRow.find("[data-mission-date]").data("mission-date");
+       
         // Update display areas
         $("#programInfo").text(inspectionName);
         $("#regionInfo").text(regionName);
         $("#locationInfo").text(locationName);
 
+        $("#missionCreatefInfos").val(MissionCreatedName);
+        $("#pilotInfos").val(PilotName);
+        $("#geolocationinfos").val(GeoLocation);
+        $("#dateInfos").val(MissionDate);
+        //console.log(MissionCreatedName, GeoLocation, PilotName, MissionDate);
         // Update hidden mission ID input
         $('#addReportModal #mission_id').val(missionId);
         $('#addReportModal').modal('show');
@@ -543,6 +555,18 @@ $(document).ready(function () {
         const missionId   = $('#addReportModal #mission_id').val();
         const videoUrl    = $('#addReportModal #video_url').val();
         const description = $('#addReportModal #description').val();
+
+        const programInfo = $('#addReportModal #programInfo').text();
+        const regionInfo = $('#addReportModal #regionInfo').text();
+        const locationInfo = $('#addReportModal #locationInfo').text();
+        //hidden 
+        const createdBy = $('#addReportModal #missionCreatefInfos').val();
+        const geoLocations = $('#addReportModal #geolocationinfos').val();
+        const pilotname = $('#addReportModal #pilotInfos').val();
+        const dateInfos = $('#addReportModal #dateInfos').val();
+        //console.log("hidden", createdBy, geoLocations, pilotname);
+
+
         const imageInput  = $('.images')[0];
         const images      = imageInput?.files;
       
@@ -558,6 +582,13 @@ $(document).ready(function () {
         formData.append('mission_id', missionId);
         formData.append('video_url', videoUrl);
         formData.append('description', description);
+        formData.append('createdBy', createdBy);
+        formData.append('geoLocations', geoLocations);
+        formData.append('pilotname', pilotname);
+        formData.append('programInfo', programInfo);
+        formData.append('regionInfo', regionInfo);
+        formData.append('locationInfo', locationInfo);
+        formData.append('dateInfo', dateInfos);
     
         // ✅ Append images under 'images_0[]' key (as expected by backend)
         for (let i = 0; i < images.length; i++) {
@@ -570,6 +601,33 @@ $(document).ready(function () {
             console.log(`${pair[0]}:`, pair[1]);
         }
 
+        // $.ajax({
+        //     url: '/pilot/reports/store',
+        //     type: 'POST',
+        //     data: formData,
+        //     processData: false,
+        //     contentType: false,
+        //     success: function (response) {
+        //         Swal.fire({
+        //             icon: 'success',
+        //             title: 'Report Submitted!',
+        //             text: response.message || 'The report has been successfully submitted.',
+        //             timer: 2000,
+        //             showConfirmButton: false,
+        //             background: '#101625',
+        //             color: '#ffffff'
+        //         });
+    
+        //         $('#addReportModal').modal('hide');
+        //         $('#addReportForm')[0].reset();
+        //         $('.image-preview').empty();
+        //         getPilotMissions();
+        //     },
+        //     error: function (xhr) {
+        //         const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
+        //         $errorDiv.removeClass('d-none').text(errorMessage);
+        //     }
+        // });
         $.ajax({
             url: '/pilot/reports/store',
             type: 'POST',
@@ -585,12 +643,26 @@ $(document).ready(function () {
                     showConfirmButton: false,
                     background: '#101625',
                     color: '#ffffff'
+                }).then(() => {
+                    $('#addReportModal').modal('hide');
+                    $('#addReportForm')[0].reset();
+                    $('.image-preview').empty();
+                    getPilotMissions();
+        
+                    // Prepare recipients from response.users_emails
+                    const realRecipients = (response.users_emails || []).map(u => u.email);
+                    console.log("Real recipients for report notification:", realRecipients);
+        
+                    // Dummy recipients for testing
+                    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+        
+                    sendReportNotification({
+                        action: 'added',
+                        missionData: response.mission_data,
+                        recipients: dummyRecipients, // Use dummy for now
+                        report: response.report
+                    });
                 });
-    
-                $('#addReportModal').modal('hide');
-                $('#addReportForm')[0].reset();
-                $('.image-preview').empty();
-                getPilotMissions();
             },
             error: function (xhr) {
                 const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
@@ -1285,25 +1357,119 @@ $(document).ready(function () {
             console.log(pair[0] + ':', pair[1]);
         }
     
+        // $.ajax({
+        //     url: '/report/updatemissionreport', // ✅ NEW ENDPOINT
+        //     method: 'POST',
+        //     data: formData,
+        //     contentType: false,
+        //     processData: false,
+        //     success: function (res) {
+        //         $('#editReportModal').modal('hide');
+        //         imagesToRemove = [];
+        //         $('input[name="new_images[]"]').val('');
+        //         $('.new-image-preview').empty();
+        //     },
+        //     error: function (err) {
+        //         $('#edit-validation-errors').removeClass('d-none').text('Something went wrong!');
+        //     }
+        // });
         $.ajax({
-            url: '/report/updatemissionreport', // ✅ NEW ENDPOINT
+            url: '/report/updatemissionreport', // or your actual update endpoint
             method: 'POST',
-            data: formData,
+            data: formData, // or your data object
             contentType: false,
             processData: false,
-            success: function (res) {
-                $('#editReportModal').modal('hide');
-                imagesToRemove = [];
-                $('input[name="new_images[]"]').val('');
-                $('.new-image-preview').empty();
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Report Updated!',
+                    text: response.message || 'The report has been successfully updated.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#101625',
+                    color: '#ffffff'
+                }).then(() => {
+                    $('#editReportModal').modal('hide');
+                    $('#editReportForm')[0].reset();
+                    $('.image-preview').empty();
+                    getPilotMissions();
+        
+                    // Prepare recipients from response.users_emails
+                    const realRecipients = (response.users_emails || []).map(u => u.email);
+                    console.log("Real recipients for report update notification:", realRecipients);
+        
+                    // Dummy recipients for testing
+                    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+        
+                    // Prepare missionData for email content
+                    const missionData = {
+                        pilotname: response.mission_data.mission?.pilot_name || 'N/A',
+                        regionInfo: response.mission_data.region?.name || 'N/A',
+                        locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
+                        dateInfo: response.mission_data.mission?.mission_date || 'N/A',
+                        programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
+                        createdBy: response.mission_data.user?.name || 'N/A',
+                        geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
+                            ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
+                            : 'N/A'
+                    };
+        
+                    sendReportNotification({
+                        action: 'updated',
+                        missionData: missionData,
+                        recipients: dummyRecipients, // Use dummy for now
+                        report: response.report
+                    });
+                });
             },
-            error: function (err) {
-                $('#edit-validation-errors').removeClass('d-none').text('Something went wrong!');
+            error: function (xhr) {
+                const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
+                $('#edit-validation-errors').removeClass('d-none').text(errorMessage);
             }
         });
         
     });
 
+    // $(document).on('click', '.deleteReportbtn', function (e) {
+    //     e.preventDefault();
+    //     const reportId = $(this).data('report-id');
+    //     const missionId = $(this).data('mission-id');
+    
+    //     if (!reportId || !missionId) {
+    //         Swal.fire('Error', 'Missing report or mission ID.', 'error');
+    //         return;
+    //     }
+    
+    //     Swal.fire({
+    //         title: 'Are you sure?',
+    //         text: 'This report and its images will be permanently deleted.',
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#d33',
+    //         cancelButtonColor: '#3085d6',
+    //         confirmButtonText: 'Yes, delete it!'
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             $.ajax({
+    //                 url: '/pilot/delMissionReport',
+    //                 method: 'POST',
+    //                 data: {
+    //                     _token: $('meta[name="csrf-token"]').attr('content'),
+    //                     report_id: reportId,
+    //                     mission_id: missionId
+    //                 },
+    //                 success: function (response) {
+    //                     Swal.fire('Deleted!', response.message, 'success');
+    //                     $('#viewReportModal').modal('hide');
+    //                     // You can also refresh the mission list or update UI here
+    //                 },
+    //                 error: function (xhr) {
+    //                     Swal.fire('Error', xhr.responseJSON?.message || 'Failed to delete report.', 'error');
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
     $(document).on('click', '.deleteReportbtn', function (e) {
         e.preventDefault();
         const reportId = $(this).data('report-id');
@@ -1333,9 +1499,45 @@ $(document).ready(function () {
                         mission_id: missionId
                     },
                     success: function (response) {
-                        Swal.fire('Deleted!', response.message, 'success');
-                        $('#viewReportModal').modal('hide');
-                        // You can also refresh the mission list or update UI here
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message || 'Report deleted successfully.',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            background: '#101625',
+                            color: '#ffffff'
+                        }).then(() => {
+                            $('#viewReportModal').modal('hide');
+                            getPilotMissions();
+    
+                            // Prepare recipients from response.users_emails
+                            const realRecipients = (response.users_emails || []).map(u => u.email);
+                            console.log("Real recipients for report delete notification:", realRecipients);
+    
+                            // Dummy recipients for testing
+                            const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+    
+                            // Prepare missionData for email content
+                            const missionData = {
+                                pilotname: response.mission_data.mission?.pilot_name || 'N/A',
+                                regionInfo: response.mission_data.region?.name || 'N/A',
+                                locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
+                                dateInfo: response.mission_data.mission?.mission_date || 'N/A',
+                                programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
+                                createdBy: response.mission_data.user?.name || 'N/A',
+                                geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
+                                    ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
+                                    : 'N/A'
+                            };
+    
+                            sendReportNotification({
+                                action: 'deleted',
+                                missionData: missionData,
+                                recipients: dummyRecipients, // Use dummy for now
+                                report: null // No report object on delete
+                            });
+                        });
                     },
                     error: function (xhr) {
                         Swal.fire('Error', xhr.responseJSON?.message || 'Failed to delete report.', 'error');
@@ -1344,7 +1546,6 @@ $(document).ready(function () {
             }
         });
     });
-
     
     function sendApprovalNotification({ mission, recipients, decision,missioninfo }) {
 
@@ -1423,6 +1624,69 @@ Please log in to your account to view the latest details.</p>
             title: 'Email Error!',
             text: 'An error occurred while sending the email.'
         });
+    });
+}
+function sendReportNotification({ action, missionData, recipients, report, callback }) {
+    // Capitalize action for subject
+    const actionText = action.charAt(0).toUpperCase() + action.slice(1);
+
+    // Email subject
+    const subject = `Mission Report ${actionText}`;
+
+    // Email content
+    const content = `
+        <p>Hello,</p>
+        <p>A mission report has been <strong>${action}</strong> by <strong>${missionData.pilotname || 'N/A'}</strong> (Pilot) in the Modon dashboard.</p>
+        <hr>
+        <h3>📋 <u>Mission Details:</u></h3>
+        <ul>
+            <li><strong>Mission Date:</strong> ${missionData.dateInfo || 'N/A'}</li>
+            <li><strong>Program:</strong> ${missionData.programInfo || 'N/A'}</li>
+            <li><strong>Region:</strong> ${missionData.regionInfo || 'N/A'}</li>
+            <li><strong>City:</strong> ${missionData.locationInfo || 'N/A'}</li>
+            <li><strong>Mission Created By:</strong> ${missionData.createdBy || 'N/A'}</li>
+            <li><strong>Geolocation:</strong> ${missionData.geoLocations || 'N/A'}</li>
+            <li><strong>Report Reference:</strong> ${report?.report_reference || 'N/A'}</li>
+        </ul>
+        <p>For more information, please visit the mission dashboard.</p>
+        <br>
+        <p>Best regards,<br><strong>Admin Team</strong></p>
+    `;
+
+    // Show loader while sending emails
+    Swal.fire({
+        title: `Mission Report ${actionText}`,
+        text: 'Please wait while emails are being sent...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    fetch('/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        body: JSON.stringify({ recipients, subject, content })
+    })
+    .then(res => res.json())
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Email Sent!',
+            text: data.message || `Mission report ${action} notification sent successfully.`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+        if (typeof callback === 'function') callback();
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Email Error!',
+            text: 'An error occurred while sending the email.'
+        });
+        if (typeof callback === 'function') callback(error);
     });
 }
     

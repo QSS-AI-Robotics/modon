@@ -185,6 +185,11 @@
                                         <p id="regionInfo" class="whiteText text-capitalize"></p>
                                         <label for="start_datetime" class="form-label ">Location</label>
                                         <p id="locationInfo" class="whiteText text-capitalize"></p>
+                                        {{-- hidden --}}
+                                        <input type="hidden" id="missionCreatefInfos" class="whiteText text-capitalize"></input>
+                                        <input type="hidden" id="dateInfos" class="whiteText text-capitalize"></input>
+                                        <input type="hidden" id="pilotInfos" class="whiteText text-capitalize"></input>
+                                        <input type="hidden" id="geolocationinfos" class="whiteText text-capitalize"></input>
 
                                     </div>
                                 </div>

@@ -693,7 +693,7 @@ $(document).ready(function () {
     
                 if (report.images && report.images.length) {
                     report.images.forEach(img => {
-                        const imgEl = `<img src="/${img.image_path}" alt="Report Image" class="img-thumbnail m-1" style="max-width: 150px;">`;
+                        const imgEl = `<img src="/${img.image_path}" alt="Report Image" class="img-thumbnail m-1 report-image" style="max-width: 150px;">`;
                         $('#missionReportImages').append(imgEl);
                     });
                 } else {
@@ -1396,53 +1396,68 @@ $('#addMissionForm').on('submit', function (e) {
     //         });
     //     });
     // }
-    $(document).ready(function() {
-        $(document).on('click', '.downloadReportbtn', function() {
-            // Fetch the information
-            const missionOwner   = $("#viewOwnerInfo").text().trim();
-            const pilot          = $("#viewpilotInfo").text().trim();
-            const region         = $("#viewregionInfo").text().trim();
-            const program        = $("#viewprogramInfo").text().trim();
-            const location       = $("#viewlocationInfo").text().trim();
-            const geoCoordinates = $("#viewgeoInfo").text().trim();
+ 
+    $(document).on('click', '.downloadReportbtn', function(e) {
+        e.preventDefault();
     
-            // Prepare data object
-            const missionData = {
-                owner: missionOwner,
-                pilot: pilot,
-                region: region,
-                program: program,
-                location: location,
-                geo: geoCoordinates,
-            };
+        // Fetch the information
+        const missionOwner   = $("#viewOwnerInfo").text().trim();
+        const pilot          = $("#viewpilotInfo").text().trim();
+        const region         = $("#viewregionInfo").text().trim();
+        const program        = $("#viewprogramInfo").text().trim();
+        const location       = $("#viewlocationInfo").text().trim();
+        const geoCoordinates = $("#viewgeoInfo").text().trim();
+        const description    = $("#description").text().trim();
     
-            console.log(missionData); // Just to see in console
+        // 📸 Fetch all image URLs inside #missionReportImages
+        const images = [];
+        $("#missionReportImages img.report-image").each(function() {
+            const imgSrc = $(this).attr('src');
+            if (imgSrc) {
+                images.push(imgSrc);
+            }
+        });
     
-            // Now send this to Laravel backend
-            $.ajax({
-                url: '/download-mission-pdf', // your Laravel route
-                method: 'POST',
-                data: missionData,
-                xhrFields: {
-                    responseType: 'blob' // important for file download
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token if needed
-                },
-                success: function(response, status, xhr) {
-                    // Create a link element
-                    const blob = new Blob([response], { type: 'application/pdf' });
-                    const link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = 'Mission_Report.pdf'; // Name of your PDF
-                    link.click();
-                },
-                error: function(xhr) {
-                    console.error('PDF download failed');
-                }
-            });
+        // Prepare data object
+        const missionData = {
+            owner: missionOwner,
+            pilot: pilot,
+            region: region,
+            program: program,
+            location: location,
+            geo: geoCoordinates,
+            description: description,
+            images: images, // send images array too
+        };
+    
+        console.log(missionData); // Just to see in console
+    
+        // Now send this to Laravel backend
+        $.ajax({
+            url: '/download-mission-pdf', // your Laravel route
+            method: 'POST',
+            data: JSON.stringify(missionData),
+            xhrFields: {
+                responseType: 'blob' // important for file download
+            },
+            contentType: 'application/json', // important for JSON sending
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token
+            },
+            success: function(response, status, xhr) {
+                const blob = new Blob([response], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'Mission_Report.pdf';
+                link.click();
+            },
+            error: function(xhr) {
+                console.error('PDF download failed');
+            }
         });
     });
+    
+ 
     
 
 });

@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use App\Models\MissionApproval; 
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
+
+use Mpdf\Mpdf;
 class RegionManagerController extends Controller
 {
 
@@ -1764,14 +1766,58 @@ $allUsers = $adminUsers
     // }
 
         
+
     public function downloadMissionPDF(Request $request)
     {
-        $data = $request->only(['owner', 'pilot', 'region', 'program', 'location', 'geo']);
+        $data = $request->only(['owner', 'pilot', 'region', 'program', 'location', 'geo', 'description', 'images']);
 
-        $pdf = Pdf::loadView('pdf.mission_report', ['data' => $data]);
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font' => 'dejavusans', // DejaVu Sans supports Arabic
+        ]);
 
-        return $pdf->download('mission_report.pdf');
+        // Render view to HTML
+        $html = view('pdf.mission_report', compact('data'))->render();
+
+        // Write HTML to PDF
+        $mpdf->WriteHTML($html);
+
+        // Return PDF download
+        return response($mpdf->Output('mission_report.pdf', 'I'))->header('Content-Type', 'application/pdf');
     }
+
+//     public function downloadMissionPDF(Request $request)
+// {
+//     // Arabic test data for full field coverage
+//     $data = [
+//         'owner'       => 'محمد بن سلمان',
+//         'pilot'       => 'مازن العتيبي',
+//         'region'      => 'المنطقة الوسطى',
+//         'program'     => 'مراقبة الأضرار على الطرق',
+//         'location'    => 'الرياض - المدينة الصناعية الأولى',
+//         'geo'         => '24.7136°N, 46.6753°E',
+//         'description' => 'هذا نص تجريبي باللغة العربية للتأكد من دعم اللغة بشكل صحيح في ملف الـ PDF.',
+//         'images'      => $request->images ?? []
+//     ];
+
+//     $mpdf = new Mpdf([
+//         'mode' => 'utf-8',
+//         'format' => 'A4',
+//         'default_font' => 'dejavusans',
+//         'directionality' => 'rtl', // optional, helps with general RTL support
+//     ]);
+
+//     // Render Blade view
+//     $html = view('pdf.mission_report', compact('data'))->render();
+
+//     // Write HTML to PDF
+//     $mpdf->WriteHTML($html);
+
+//     // Output the PDF inline
+//     return response($mpdf->Output('mission_report.pdf', 'I'))
+//         ->header('Content-Type', 'application/pdf');
+// }
 }
     
 

@@ -1185,7 +1185,10 @@ $('#addMissionForm').on('submit', function (e) {
             }
         });
     });
-            function sendMissionNotification({ mission, recipients, action = 'created' }) {
+    function sendMissionNotification({ mission, recipients, action = 'created' }) {
+        // ✅ Log recipients
+        const realRecipients = recipients.map(r => r.email);
+        console.log("Real email recipients:", realRecipients);
                 const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
                 const content = `
             <p>Hello,</p>
@@ -1193,7 +1196,7 @@ $('#addMissionForm').on('submit', function (e) {
             <p>A mission has been 
                 <strong style="color:${action === 'deleted' ? 'red' : '#007bff'};">
                     ${action}
-                </strong> in the dashboard.
+                </strong> by ${mission.created_by.name || 'N/A'} (${formatType(mission.created_by.type)}) in the dashboard.
                 Please log in to your account to view the latest details.
             </p>
 
@@ -1203,7 +1206,15 @@ $('#addMissionForm').on('submit', function (e) {
             <ul style="line-height: 1.6; padding-left: 20px;">
                 <li><strong>Inspection Type:</strong> ${action === 'deleted' ? mission.inspection_type || 'N/A' : mission.inspection_type?.name || 'N/A'}</li>
                 <li><strong>Mission Date:</strong> ${mission.mission_date || 'N/A'}</li>
-                <li><strong>Locations:</strong> ${mission.locations?.map(loc => loc.name).join(', ') || 'N/A'}</li>
+                <li><strong>Region:</strong> ${mission.region_name || 'N/A'}</li>
+                <li><strong>Location:</strong> ${mission.locations?.map(loc => loc.name).join(', ') || 'N/A'}</li>
+                <li>
+                    <strong style="font-size: 1.1em; color: #007bff;">Geo Location:</strong>
+                    <ul style="margin-top: 4px; margin-bottom: 4px; padding-left: 18px;">
+                        <li><span style="font-weight:600;">Latitude:</span> <span style="color:#333;">${mission.latitude || 'N/A'}</span></li>
+                        <li><span style="font-weight:600;">Longitude:</span> <span style="color:#333;">${mission.longitude || 'N/A'}</span></li>
+                    </ul>
+                </li>
                 ${
                     action === 'deleted'
                     ? `<li><strong>Deleted By:</strong> ${mission.deleted_by || 'N/A'}</li>
@@ -1254,6 +1265,13 @@ $('#addMissionForm').on('submit', function (e) {
                     });
                 });
             }
+            function formatType(type) {
+                if (!type) return 'N/A';
+                return type
+                  .split('_')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
+              }
 
     function sendApprovalNotification({ mission, recipients, decision,missioninfo }) {
             // Map user types to formatted strings

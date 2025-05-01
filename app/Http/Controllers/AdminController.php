@@ -37,13 +37,15 @@ class AdminController extends Controller
         $missions = Mission::count();
         $locations = Location::count();
         $regions = Region::count();
+        $regionNames = Region::pluck('name');
     
         return view('admin.index', [
             'pilot' => $pilot,
             'regions' => $regions,
             'locations' => $locations,
             'missions' => $missions,
-            'drones' => $drones
+            'drones' => $drones,
+            'regionNames' => $regionNames
         ]);
     }
 

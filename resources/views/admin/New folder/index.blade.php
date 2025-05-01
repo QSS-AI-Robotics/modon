@@ -4,148 +4,408 @@
 
 @section('content')
         <!-- Main Panel -->
-        <div class="row shadows mainPanel p-0 flex-grow-1">
+        <div class="row shadows mainPanel p-0 flex-grow-1 ">
+            
+            
 
-            <!-- Left Column (Mission Control & Reports) -->
-            <div class="col-lg-9 d-flex flex-column h-100">
-                
-                <!-- Mission Control Header -->
-                <div class="row">
-                    <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                        <p class="gray-text">Control Panel</p>
-                        <h3 class="fw-bold">Admin Control</h3>
-                    </div>
-                </div>
+            <!-- First Column -->
+            <div class="col-lg-3 d-flex p-0 flex-column ">
+                <div class="row flex-grow-1  h-100">
+                    <div class="col-lg-12 d-flex flex-column h-100">
 
-                <!-- Reports List -->
-                <div class="row h-100">
-                    <div class="col-lg-12 col-xl-12 col-md-12 flex-grow-1 d-flex flex-column overflow-hidden bg-section mt-2">
-                        
-                        <!-- Reports Header -->
-                        <div class="border-bottom-qss p-2">
-                            <div class="row d-flex justify-content-between">
-                                <div class="col-lg-4">
-                                    <h5>Users</h5>
+                        <!-- Container for the stack -->
+                        <div class="d-flex flex-column flex-grow-1">
+
+                            <!-- Row 1: Pilots & Drones (25%) -->
+                            <div class="row  ">
+  
+                                <div class="col-12 col-sm-6 ">
+                                    <div class="card h-100  py-1">
+                                        <div class="card-body d-flex flex-column justify-content-between p-2 bg-section">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <img src="{{ asset('images/pilot-hat.png') }}" class="img-fluid" style="height: 22px;">
+                                                <p class="ps-2 mb-0" data-lang-key="pilots">Pilots</p>
+                                            </div>
+                                            <div class="text-end">
+                                                <h2 id="totalPilots" class="mb-0">{{ $pilot }}</h2>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-4 text-end search-container">
-                                    <img src="../images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
+                                
+                                
+                                <div class="col-12 col-sm-6 ps-0">
+                                    <div class="card h-100  py-1">
+                                        <div class="card-body d-flex flex-column justify-content-between p-2  bg-section">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 22px;">
+                                                <p class="ps-2 mb-0" data-lang-key="drones">Drones</p>
+                                            </div>
+                                            <div class="text-end">
+                                                <h2 id="totaldrones" class="mb-0">{{ $drones }}</h2>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                
+
+
                             </div>
-                        </div>
+                            
 
-                        <!-- Reports Table -->
-                        <div class="table-responsive flex-grow-1 overflow-auto">
-                            <table class="table table-text">
-                                <thead>
-                                    <tr>
+                            <!-- Row 2: Missions (25%) -->
+                            <div class="row my-1" >
+
+                                <div class="col-12 col-sm-12 ">
+                                    <div class="card h-100 ">
+                                        <div class="card-body d-flex flex-column justify-content-between p-2 py-3 bg-section">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <img src="{{ asset('images/missions.png') }}" class="img-fluid" style="height: 24px;">
+                                                <p class="ps-2 mb-0"data-lang-key="missions">Missions</p>
+                                            </div>
+                                            <div class="text-end">
+                                                <h2 id="totalMissions" class="mb-0">{{ $missions }}</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+
+                            <!-- Row 3: Regions & Locations (25%) -->
+                            <div class="row " >
+
+
+                                <div class="col-12 col-sm-6 mb-1">
+                                    <div class="card h-100  py-1">
+                                        <div class="card-body d-flex flex-column justify-content-between p-2 bg-section">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 20px;">
+                                                <p class="ps-2 mb-0"data-lang-key="reigons">Reigons</p>
+                                            </div>
+                                            <div class="text-end">
+                                                <h2 id="totalRegions" class="mb-0">{{ $regions-1 }}</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-6 mb-1 ps-0">
+                                    <div class="card h-100  py-1">
+                                        <div class="card-body d-flex flex-column justify-content-between p-2 bg-section">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 20px;">
+                                                <p class="ps-2 mb-0"data-lang-key="locations">Locations</p>
+                                            </div>
+                                            <div class="text-end">
+                                                <h2 id="totalLocations" class="mb-0">{{ $locations }}</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Row 4: Chart (25%) -->
+                            <div class="row" style="flex-grow: 1; min-height: 0;">
+                                <div class="col-lg-12 chartSection d-flex flex-column h-100">
+                                    <div class="card bg-section flex-grow-1">
+                                       
+                                        <p class="mb-0 card-title p-2"data-lang-key="missionAnaltyics">Missions Analytics</p>
                                         
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Type</th> 
-                                        <th>Region</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="userTableBody" class="">
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div> <!-- End Left Column -->
-
-            <!-- Right Column (Mission Analytics & Create New Mission) -->
-            <div class="col-lg-3 d-flex p-0 flex-column">
-                
-                <!-- Mission Analytics -->
-
-
-                <!-- Create New Mission -->
-                <div class="d-flex flex-column bg-section p-3 flex-grow-1 mx-2 my-1">
-                    
-                    
-                    <div class="row">
-                        <div class="col-lg-8">
-                            <h6 class="form-title">Create New User</h6>
-                        </div>
-                        <div class="col-lg-4  text-end">
-                            <button type="button" class="btn btn-danger cancel-btn btn-sm d-none px-2">
-                                ✖
-                            </button>
-                        </div>
-                    </div>
-                    <form id="signupForm">
-                        @csrf
-                        <div class="row">
-
-
-                            <div class="col-md-6">
-                                <input type="hidden" name="userId" id="userId">
-                            </div>
-                            <!-- Date Inputs -->
-                            <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text pt-2">Full Name</label>
-                                <input type="text" class="form-control dateInput" id="fullname" name="fullname" value="z" >
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text pt-2">Email</label>
-                                <input type="email" class="form-control dateInput"  id="email" name="email" value="z@gmail.com" >
-                            </div>
-
-                            <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text pt-2">Password</label>
-                                <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" >
-                            </div>
-                            <div class="col-md-12 col-sm-12">
-                               
-                                <label for="region" class="form-label pt-2">Region</label>
-                                <select class="form-select  dateInput" id="region" name="region" >
-                                    <option value="">Select Region</option>
-                                    @foreach($regions as $region)
-                                        <option value="{{ $region->id }}">{{ $region->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="text-danger" id="region_error"></span>
-                            </div>
-
-
-
-                            {{-- notes textarea --}}
-                            <div class="col-md-12 col-sm-12">
-                                <label for="user_type" class="form-label pt-2">Type</label>
-                                <select class="form-select dateInput" id="user_type" name="user_type" >
-                                    <option value="">Select User Type</option>
-                                    @foreach($userTypes as $userType)
-                                        <option value="{{ $userType->id }}">{{ $userType->name }}</option>
-                                    @endforeach
-                                </select>
-                                <span class="text-danger" id="user_type_error"></span>
-
-                            </div>
-                            <div class="col-12 my-1  text-danger  d-none" id="users-validation-errors" >
-                                All fields are required.
-                            </div>
-                               <!-- Button (Update or Create) -->
-                                <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
-                                    <button class="btn mission-btn btn-sm d-flex align-items-center " type="submit">
-                                        Create User
-                                    </button>
+                                        <div class="card-body flex-grow-1 position-relative d-flex justify-content-center text-center" style="height: 30vh" >
+                                            <canvas id="regionMissionChart" class="text-capitalize " ></canvas>
+                                            <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-white fw-bold d-none" data-lang-key="noDataFound">
+                                                No data found
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                            </div>
 
-                           
-                        </div>
-                    </form>
+                        </div> <!-- End stack -->
+                    </div>
                 </div>
+            </div>
+             <!-- first Right Column -->
 
-            </div> <!-- End Right Column -->
+
+            <!-- second Column (Mission Analytics & Create New Mission) -->
+
+
+            
+            <div class="col-lg-3 d-flex flex-column p-0">
+                <div class="d-flex flex-column flex-grow-1 mx-2 ">
+              
+                  <!-- Fixed-height header (Latest Missions) -->
+                  {{-- <div class="bg-section mb-2" style="flex: 0 0 auto;">
+                    <p class="mb-2 pt-2 p-2"data-lang-key="latestMissions">Latest Missions</p>
+                    <div class="latestMissionPanel p-2" style="max-height: 150px; overflow-y:auto;">
+
+                        <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d" <div="">
+                            <div class="col-10 d-flex flex-column justify-content-center">
+                                <h6 class="mb-0 text-truncate heartbeat text-capitalize">
+                                   Loading...
+                                </h6>
+                                <p class="mb-0 text-capitalize">Region:  Loading... | Status:  Loading...</p>
+                            </div>
+                        </div>
+                        <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d" <div="">
+                            <div class="col-10 d-flex flex-column justify-content-center">
+                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="loading...">
+                                    Loading...
+                                </h6>
+                                <p class="mb-0 text-capitalize">Region:  Loading... | Status:  Loading...</p>
+                            </div>
+                        </div>
+
+                    </div>
+                  </div> --}}
+                  <div class="card bg-section mb-1">
+                    <div class="card-body p-2">
+                        <p class="mb-2 pt-2 ps-2" data-lang-key="latestMissions">Latest Missions</p>
+                
+                        <div class="latestMissionPanel p-2" style="overflow-y: auto;">
+                            <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d">
+                                <div class="col-10 d-flex flex-column justify-content-center">
+                                    <h6 class="mb-0 text-truncate heartbeat text-capitalize">
+                                        Loading...
+                                    </h6>
+                                    <p class="mb-0 text-capitalize">Region: Loading... | Status: Loading...</p>
+                                </div>
+                            </div>
+                
+                            <div class="incidentDiv p-2 my-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-title="d">
+                                <div class="col-10 d-flex flex-column justify-content-center">
+                                    <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="loading...">
+                                        Loading...
+                                    </h6>
+                                    <p class="mb-0 text-capitalize">Region: Loading... | Status: Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+              
+                    <!-- Flexible and scrollable body -->
+
+                    <div class="card bg-section flex-grow-1 d-flex flex-column" style="min-height: 0; overflow: hidden;">
+                        <div class="card-body d-flex flex-column p-2" style="min-height: 0; overflow: hidden;">
+                            <p class="mb-2 pt-2 ps-2" data-lang-key="latestIncidents">Latest Incidents</p>
+                            <div class="flex-grow-1 IncidentPanel overflow-y-auto px-2" style=""> </div>
+                        </div>
+                    </div>
+                
+                
+                </div>
+              </div>
+              
+            
+
+             <!-- End second Column -->
+
+
+                         {{-- third column start --}}
+            <div class="col-lg-6 d-flex p-0 flex-column h-lg-100  mobile-65vh">
+                <div class="d-flex flex-column  flex-lg-grow-1 ">
+            
+                
+                    <!-- === Pilot Tracking Card === -->
+                            <div class="mb-1">
+                                <div class="card bg-section d-flex flex-column">
+                                    <div class="card-body d-flex flex-column p-2">
+                                        <!-- Header -->
+                                        <div class="d-flex align-items-center justify-content-between mb-3 px-2">
+                                            <p class="mb-0" data-lang-key="pilotTracking">Pilot Tracking</p>
+
+                                            <div class="col-lg-4 text-end datePanel-container">
+                                                <div class="date-fields-wrapper">
+                                                    <div class="date-wrapper">
+                                                        <label for="start-date" class="date-label" data-lang-key="startDate">Start Date</label>
+                                                        <input type="date" id="start-date" class="datePanel-input start-date">
+                                                    </div>
+                                                    <div class="date-wrapper">
+                                                        <label for="end-date" class="date-label" data-lang-key="endDate">End Date</label>
+                                                        <input type="date" id="end-date" class="datePanel-input end-date">
+                                                    </div>
+                                                </div>
+
+                                                <img src="./images/calendar.png" alt="Search" class="img-fluid datePanel-icon pt-2 imghover">
+                                                <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 mt-2 imghover custImg refreshIcon">
+                                            </div>
+                                        </div>
+
+                                        <!-- Pilot Grid -->
+                                        <div class="px-2 pb-2">
+                                            <div class="row flex-nowrap overflow-auto" id="missionsPanel" style="white-space: nowrap; min-height: 0;">
+                                                <div class="col-lg-6 pb-1">
+                                                    
+                                                    <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100">
+                                                        <div class="d-flex align-items-end mb-2">
+                                                            <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
+                                                            <div>
+                                                                <p class="px-2 mb-0 lh-1" id="pilotname" data-lang-key="loading...">Loading...</p>
+                                                                <small class="cont-btn px-2 mb-0 lh-1" data-lang-key="loading">Loading</small>
+                                                            </div>
+                                                        </div>
+                                                    
+                                                        <!-- Row: Pending, Finished, Rejected -->
+                                                        <div class="d-flex justify-content-between gap-2">
+                                                            <!-- Pending -->
+                                                            <div class="flex-fill p-2">
+                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                    <label class="form-check-label mb-0" data-lang-key="pending">Pending</label>
+                                                                    <p class="mb-0 fw-bold" id="pendingCount">0</p>
+                                                                </div>
+                                                                <div class="progress">
+                                                                    <div class="progress-bar bg-danger" style="width: 0%" id="pendingProgress"></div>
+                                                                </div>
+                                                            </div>
+                                                    
+                                                            <!-- Finished -->
+                                                            <div class="flex-fill p-2">
+                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                    <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
+                                                                    <p class="mb-0 fw-bold" id="finishedCount">0</p>
+                                                                </div>
+                                                                <div class="progress">
+                                                                    <div class="progress-bar bg-success" style="width: 0%" id="finishedProgress"></div>
+                                                                </div>
+                                                            </div>
+                                                    
+                                                            <!-- Rejected -->
+                                                            <div class="flex-fill p-2">
+                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                    <label class="form-check-label mb-0" data-lang-key="rejected">Rejected</label>
+                                                                    <p class="mb-0 fw-bold" id="rejectedCount">0</p>
+                                                                </div>
+                                                                <div class="progress">
+                                                                    <div class="progress-bar bg-secondary" style="width: 0%" id="rejectedProgress"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    
+                                                        <!-- Row: Total Missions -->
+                                                        <div class="p-2 mt-2">
+                                                            <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                                <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
+                                                                <p class="mb-0 fw-bold" id="totalCount">0</p>
+                                                            </div>
+                                                            <div class="progress">
+                                                                <div class="progress-bar bg-warning text-white" style="width: 100%" id="totalProgress"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div>
+                                                <!-- More pilot cards can dynamically load here -->
+                                            </div>
+                                        </div>
+
+                                    </div> <!-- card-body -->
+                                </div> <!-- card -->
+                            </div> <!-- mb-3 -->
+
+            
+                    <!-- === Second Half: Incident Chart === -->
+                    
+                    <div class=" flex-grow-1 d-flex flex-column">
+                        
+
+                        <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-2 bg-section gap-2 stack-on-mobile " style="min-height: 0;">
+
+                            <div class="card-body d-flex flex-column p-2 " style="min-height: 0; overflow: hidden;">
+                                
+                                <!-- Header Row -->
+                                <div class="d-flex justify-content-between align-items-center px-2 mb-2">
+                                    <p class="mb-0 py-2" data-lang-key="map">Map</p>
+                                </div>
+                    
+                                <!-- Content: Regions and Map -->
+                                <div class="d-flex flex-grow-1 px-2 pb-2 gap-2" style="min-height: 0;">
+                                    
+                                    <!-- Regions Column -->
+                                    <div class="d-flex flex-column justify-content-evenly bg-modon w-50 w-sm-100 p-2 rounded overflow-auto" style="min-height: 0;">
+                                      
+                                        
+                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="center" data-centercolorcode="">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="centeralRegion">Central Region</h6>
+                                                <p class="mb-0 text-capitalize">
+                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="centremissionVal">0</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                    
+                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="east" data-eastcolorcode="">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="easternRegion">Eastern Region</h6>
+                                                <p class="mb-0 text-capitalize">
+                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="eastmissionVal">0</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                    
+                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="west" data-westcolorcode="">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="WesternRegion">Western Region</h6>
+                                                <p class="mb-0 text-capitalize">
+                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="westmissionVal">0</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                    
+                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="all" data-allcolorcode="">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="restView">Reset View</h6>
+                                                <p class="mb-0 text-capitalize">
+                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="totalmissionVal">0</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                    
+                                    </div>
+                    
+                                    <!-- Map Column -->
+                                    <div class="d-flex flex-grow-1 bg-modon rounded p-2 overflow-hidden" style="min-height: 0;">
+                                        <div class="map-wrapper position-relative w-100 h-100">
+                                            <img src="{{ asset('images/map/map.jpg') }}" id="mainBgmap" alt="Saudi Map" class="img-fluid w-100 h-100">
+                                            <img src="" alt="Center" id="center" class="position-absolute">
+                                            <img src="" alt="West" id="west" class="position-absolute">
+                                            <img src="" alt="East" id="east" class="position-absolute">
+                                        </div>
+                                    </div>
+                    
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+
+                    
+            
+                </div>
+            </div>
+            
+            <!-- End  third Column -->
             
         </div> 
         <!-- End Main Panel -->
+        <script>
 
+        </script>
 @endsection
 @push('scripts')
-<script src="{{ asset('js/script.js') }}"></script>
+
+<script src="{{ asset('js/adminusers.js') }}"></script>
+
+
 @endpush
+
+
+

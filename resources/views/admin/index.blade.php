@@ -54,10 +54,10 @@
                             
 
                             <!-- Row 2: Missions (25%) -->
-                            <div class="row my-2" >
+                            <div class="row my-1" >
 
                                 <div class="col-12 col-sm-12 ">
-                                    <div class="card h-100  py-1">
+                                    <div class="card h-100 ">
                                         <div class="card-body d-flex flex-column justify-content-between p-2 py-3 bg-section">
                                             <div class="d-flex align-items-center mb-2">
                                                 <img src="{{ asset('images/missions.png') }}" class="img-fluid" style="height: 24px;">
@@ -163,7 +163,7 @@
 
                     </div>
                   </div> --}}
-                  <div class="card bg-section mb-2">
+                  <div class="card bg-section mb-1">
                     <div class="card-body p-2">
                         <p class="mb-2 pt-2 ps-2" data-lang-key="latestMissions">Latest Missions</p>
                 
@@ -211,7 +211,7 @@
 
                          {{-- third column start --}}
             <div class="col-lg-6 d-flex p-0 flex-column h-lg-100  mobile-65vh">
-                <div class="d-flex flex-column  flex-lg-grow-1 mx-1 my-1">
+                <div class="d-flex flex-column  flex-lg-grow-1 ">
             
                 
                     <!-- === Pilot Tracking Card === -->
@@ -240,108 +240,43 @@
                                         </div>
 
                                         <!-- Pilot Grid -->
-                                        <div class="px-2 pb-2">
-                                            <div class="row flex-nowrap overflow-auto" id="missionsPanel" style="white-space: nowrap; min-height: 0;">
-                                                <div class="col-lg-6 pb-1">
-                                                    {{-- <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100">
-                                                        <div class="d-flex align-items-end mb-2">
-                                                            <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
-                                                            <div>
-                                                                <p class="px-2 mb-0 lh-1" id="pilotname" data-lang-key="loading...">Loading...</p>
-                                                                <small class="cont-btn px-2 mb-0 lh-1" data-lang-key="loading">Loading</small>
-                                                            </div>
-                                                        </div>
+                                        <div class="px-2 pb-2 ">
 
-                                                        <div class="p-2">
-                                                            <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                                <label class="form-check-label mb-0" data-lang-key="pending">Pending</label>
-                                                                <p class="mb-0 fw-bold">0</p>
+                                            <div class="row">
+                                                <div class="col-lg-12 ">
+                                                    <div class="row gy-2 gx-3  flex-nowrap overflow-x-auto" style="white-space: nowrap;" id="locationsAnalytics">
+                                                        @foreach($regionNames as $region)
+                                                            @if(strtolower($region) !== 'all')
+                                                                <div class="col-lg-2 col-md-4 col-sm-6" style="min-width: 110px;">
+                                                                    <button class="btn btn-sm modon-btn w-100 text-capitalize" style="font-size:12px">{{ $region }}</button>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row flex-nowrap overflow-auto  py-2 px-1" style="white-space: nowrap; min-height: 0;">
+                                                
+                                                <div class="col-lg-3 col-md-3 col-sm-4 col-6">
+                                                    <div class="card shadow-sm p-2 text-center   " style="background-color: #0A415B; color: #d1d5db; border-radius: 8px;border-bottom:2px solid #25D366">
+                                                        <div class="d-flex flex-column justify-content-center align-items-center gap-2 " style="min-height: 150px;">
+                                                            <!-- Number -->
+                                                            <div class="fw-bold text-white p-3 rounded" style="background: linear-gradient(to bottom, #105A7E, #082D3F); font-size: 15px;">
+                                                                259
                                                             </div>
-                                                            <div class="progress">
-                                                                <div class="progress-bar bg-danger" style="width: 0%"></div>
-                                                            </div>
+                                                        <div>
+                                                           <small>Jeddah Second <br>Industrial City</small>
                                                         </div>
-
-                                                        <div class="p-2">
-                                                            <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                                <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
-                                                                <p class="mb-0 fw-bold">0</p>
-                                                            </div>
-                                                            <div class="progress">
-                                                                <div class="progress-bar bg-success" style="width: 0%"></div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="p-2 mb-2">
-                                                            <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                                <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
-                                                                <p class="mb-0 fw-bold">0</p>
-                                                            </div>
-                                                            <div class="progress">
-                                                                <div class="progress-bar bg-warning text-white" style="width: 100%"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div> --}}
-                                                    <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100">
-                                                        <div class="d-flex align-items-end mb-2">
-                                                            <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
-                                                            <div>
-                                                                <p class="px-2 mb-0 lh-1" id="pilotname" data-lang-key="loading...">Loading...</p>
-                                                                <small class="cont-btn px-2 mb-0 lh-1" data-lang-key="loading">Loading</small>
-                                                            </div>
-                                                        </div>
-                                                    
-                                                        <!-- Row: Pending, Finished, Rejected -->
-                                                        <div class="d-flex justify-content-between gap-2">
-                                                            <!-- Pending -->
-                                                            <div class="flex-fill p-2">
-                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                                    <label class="form-check-label mb-0" data-lang-key="pending">Pending</label>
-                                                                    <p class="mb-0 fw-bold" id="pendingCount">0</p>
-                                                                </div>
-                                                                <div class="progress">
-                                                                    <div class="progress-bar bg-danger" style="width: 0%" id="pendingProgress"></div>
-                                                                </div>
-                                                            </div>
-                                                    
-                                                            <!-- Finished -->
-                                                            <div class="flex-fill p-2">
-                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                                    <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
-                                                                    <p class="mb-0 fw-bold" id="finishedCount">0</p>
-                                                                </div>
-                                                                <div class="progress">
-                                                                    <div class="progress-bar bg-success" style="width: 0%" id="finishedProgress"></div>
-                                                                </div>
-                                                            </div>
-                                                    
-                                                            <!-- Rejected -->
-                                                            <div class="flex-fill p-2">
-                                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                                    <label class="form-check-label mb-0" data-lang-key="rejected">Rejected</label>
-                                                                    <p class="mb-0 fw-bold" id="rejectedCount">0</p>
-                                                                </div>
-                                                                <div class="progress">
-                                                                    <div class="progress-bar bg-secondary" style="width: 0%" id="rejectedProgress"></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    
-                                                        <!-- Row: Total Missions -->
-                                                        <div class="p-2 mt-2">
-                                                            <div class="d-flex justify-content-between align-items-center label-text p-1">
-                                                                <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
-                                                                <p class="mb-0 fw-bold" id="totalCount">0</p>
-                                                            </div>
-                                                            <div class="progress">
-                                                                <div class="progress-bar bg-warning text-white" style="width: 100%" id="totalProgress"></div>
-                                                            </div>
                                                         </div>
                                                     </div>
-                                                    
                                                 </div>
-                                                <!-- More pilot cards can dynamically load here -->
+
+
+                                                
+                                                <!-- Repeat for more cards -->
                                             </div>
+                                            
                                         </div>
 
                                     </div> <!-- card-body -->
@@ -351,60 +286,106 @@
             
                     <!-- === Second Half: Incident Chart === -->
                     
-                    <div class=" flex-grow-1 d-flex flex-column">
-                        
-                        <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-2 bg-section gap-2 stack-on-mobile" style="min-height: 0;">
+                    <div class=" flex-grow-1 d-flex gap-2">
 
-                            <div class="card-body d-flex flex-column p-2" style="min-height: 0; overflow: hidden;">
+
+                        <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-2 bg-section gap-2 stack-on-mobile w-50 firstDiv" style="min-height: 0;">
+                            <div class="card-body d-flex flex-column p-2 " style="min-height: 0; overflow: hidden;">  
+                                <p class="mb-0 py-2" data-lang-key="pilotTracking">Pilot Tracking</p>   
+                                <div  class="flex-nowrap overflow-auto" id="missionsPanel" style="white-space: nowrap; min-height: 0;">
+                                    <div class="col-lg-12 h-100 pt-2 rounded">
+                                        <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100 ">
+                                            <div class="d-flex align-items-end mb-2">
+                                                <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
+                                                <div>
+                                                    <p class="px-2 mb-0 lh-1" id="pilotname" data-lang-key="loading...">Loading...</p>
+                                                    <small class="cont-btn px-2 mb-0 lh-1" data-lang-key="loading">Loading</small>
+                                                </div>
+                                            </div>
+                                        
+                                            <!-- Row: Pending, Finished, Rejected -->
+                                            <div class="justify-content-between gap-2">
+                                                <!-- Pending -->
+                                                <div class="flex-fill p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0" data-lang-key="pending">Pending</label>
+                                                        <p class="mb-0 fw-bold" id="pendingCount">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-danger" style="width: 0%" id="pendingProgress"></div>
+                                                    </div>
+                                                </div>
+                                        
+                                                <!-- Finished -->
+                                                <div class="flex-fill p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
+                                                        <p class="mb-0 fw-bold" id="finishedCount">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-success" style="width: 0%" id="finishedProgress"></div>
+                                                    </div>
+                                                </div>
+                                        
+                                                <!-- Rejected -->
+                                                <div class="flex-fill p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0" data-lang-key="rejected">Rejected</label>
+                                                        <p class="mb-0 fw-bold" id="rejectedCount">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-secondary" style="width: 0%" id="rejectedProgress"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        
+                                            <!-- Row: Total Missions -->
+                                            <div class="p-2 mt-2">
+                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                    <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
+                                                    <p class="mb-0 fw-bold" id="totalCount">0</p>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-warning text-white" style="width: 100%" id="totalProgress"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                           
                                 
+                            </div>
+                        </div>
+
+{{-- 
+                        <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-2 bg-section gap-2 stack-on-mobile w-50 firstDiv" style="min-height: 0;">
+                            <div class="card-body d-flex flex-column p-2 " style="min-height: 0; overflow: hidden;">                                
+                                <!-- Header Row -->
+                                <div class=" justify-content-between align-items-center px-2 mb-2 ">
+                                    <p class="mb-0 py-2" data-lang-key="Missions">Missions </p>
+                                    <div class="row gy-2 gx-3  flex-nowrap overflow-x-auto" style="white-space: nowrap;" id="locationsAnalytics">
+                                        @foreach($regionNames as $region)
+                                            @if(strtolower($region) !== 'all')
+                                                <div class="col-lg-3 col-md-4 col-sm-6" style="min-width: 110px;">
+                                                    <button class="btn btn-sm modon-btn w-100 text-capitalize" style="font-size:12px">{{ $region }}</button>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                        
+                                    </div>
+                                </div>                    
+                                <!-- Content: Regions and Map -->
+                                <div class="d-flex flex-grow-1 px-2 pb-2 gap-2 border" style="min-height: 0;">     
+                                </div>
+                            </div>
+                        </div> --}}
+                        <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-2 bg-section gap-2 stack-on-mobile w-50 secondDiv" style="min-height: 0;">
+                            <div class="card-body d-flex flex-column p-2 " style="min-height: 0; overflow: hidden;">                                
                                 <!-- Header Row -->
                                 <div class="d-flex justify-content-between align-items-center px-2 mb-2">
                                     <p class="mb-0 py-2" data-lang-key="map">Map</p>
-                                </div>
-                    
+                                </div>                    
                                 <!-- Content: Regions and Map -->
-                                <div class="d-flex flex-grow-1 px-2 pb-2 gap-2" style="min-height: 0;">
-                                    
-                                    <!-- Regions Column -->
-                                    <div class="d-flex flex-column justify-content-evenly bg-modon w-50 w-sm-100 p-2 rounded overflow-auto" style="min-height: 0;">
-                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="center" data-centercolorcode="">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="centeralRegion">Central Region</h6>
-                                                <p class="mb-0 text-capitalize">
-                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="centremissionVal">0</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                    
-                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="east" data-eastcolorcode="">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="easternRegion">Eastern Region</h6>
-                                                <p class="mb-0 text-capitalize">
-                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="eastmissionVal">0</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                    
-                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="west" data-westcolorcode="">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="WesternRegion">Western Region</h6>
-                                                <p class="mb-0 text-capitalize">
-                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="westmissionVal">0</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                    
-                                        <div class="regionsDiv p-2 my-2 selectRegion" data-region="all" data-allcolorcode="">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-truncate heartbeat text-capitalize" data-lang-key="restView">Reset View</h6>
-                                                <p class="mb-0 text-capitalize">
-                                                    <span data-lang-key="missions:">Missions</span> <span class="text-white" id="totalmissionVal">0</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                    
-                                    </div>
-                    
+                                <div class="d-flex flex-grow-1 px-2 pb-2 gap-2" style="min-height: 0;">                   
                                     <!-- Map Column -->
                                     <div class="d-flex flex-grow-1 bg-modon rounded p-2 overflow-hidden" style="min-height: 0;">
                                         <div class="map-wrapper position-relative w-100 h-100">
@@ -414,10 +395,10 @@
                                             <img src="" alt="East" id="east" class="position-absolute">
                                         </div>
                                     </div>
-                    
                                 </div>
                             </div>
                         </div>
+
                     </div>
                     
 

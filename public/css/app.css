@@ -1062,8 +1062,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     color: white;
     background-color: #10597C;
 }
-.divider{
-
-   
-  
-  }
+.modon-btn{
+    background: #0A415B;
+    color:white;
+}
+.modon-btn:hover{
+    background: #082D3F;
+   cursor: pointer;
+}

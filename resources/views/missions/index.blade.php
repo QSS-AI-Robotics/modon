@@ -12,7 +12,7 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-2 bg-section d-flex flex-column align-items-start">
-                        <p class="bluishtext" data-lang-key="{{ $userType }}">{{ ucwords(str_replace('_', ' ', $userType)) }} Panel</p>
+                        <p class="bluishtext" data-lang-key="{{ $userType }}">{{ $userType}}</p>
                         <h3 class="fw-bold" data-lang-key="missionControl">Mission Control</h3>
                     </div>
                 </div>
@@ -235,7 +235,7 @@
                                 
 
 
-                            <div class="col-md-5 col-sm-12 p-2">
+                            <div class="col-md-6 col-sm-12 p-2">
                                 <label for="pilot_id" class="form-check-label label-text py-1" data-lang-key="pilot"> Pilot</label>
                             
                                 @if($pilots->count() === 1)
@@ -263,11 +263,11 @@
                                 @endif
                             </div>
                             
-                            <div class="col-md-7 col-sm-6">
+                            <div class="col-md-6 col-sm-6">
                                 <label class="form-label label-text" data-lang-key="latitude">Latitude</label>
                                 <input type="text" class="form-control dateInput" id="latitude" name="latitude" value="2" required>
                             </div>
-                            <div class="col-md-5 col-sm-6 ">
+                            <div class="col-md-6 col-sm-6 ">
                                 <label class="form-label label-text" data-lang-key="longitude">Longitude</label>
                                 <input type="text" class="form-control dateInput" id="longitude" name="longitude" value="2" required>
                             </div>

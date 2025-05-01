@@ -1477,83 +1477,85 @@ $('#addMissionForm').on('submit', function (e) {
     //     });
     // });
     
-    $(document).on('click', '.downloadReportbtn', function(e) {
-        e.preventDefault();
+    // $(document).on('click', '.downloadReportbtn', function(e) {
+    //     e.preventDefault();
     
-        // Fetch the information
-        const missionOwner   = $("#viewOwnerInfo").text().trim();
-        const pilot          = $("#viewpilotInfo").text().trim();
-        const region         = $("#viewregionInfo").text().trim();
-        const program        = $("#viewprogramInfo").text().trim();
-        const location       = $("#viewlocationInfo").text().trim();
-        const geoCoordinates = $("#viewgeoInfo").text().trim();
-        const missiondate    = $("#viewmissionDateInfo").text().trim();
-        const description    = $("#description").text().trim();
+    //     // Fetch the information
+    //     const missionOwner   = $("#viewOwnerInfo").text().trim();
+    //     const pilot          = $("#viewpilotInfo").text().trim();
+    //     const region         = $("#viewregionInfo").text().trim();
+    //     const program        = $("#viewprogramInfo").text().trim();
+    //     const location       = $("#viewlocationInfo").text().trim();
+    //     const geoCoordinates = $("#viewgeoInfo").text().trim();
+    //     const missiondate    = $("#viewmissionDateInfo").text().trim();
+    //     const description    = $("#description").text().trim();
     
-        // 📸 Fetch all image URLs inside #missionReportImages
-        const images = [];
-        $("#missionReportImages img.report-image").each(function() {
-            const imgSrc = $(this).attr('src');
-            if (imgSrc) {
-                images.push(imgSrc);
-            }
-        });
+    //     // 📸 Fetch all image URLs inside #missionReportImages
+    //     const images = [];
+    //     $("#missionReportImages img.report-image").each(function() {
+    //         const imgSrc = $(this).attr('src');
+    //         if (imgSrc) {
+    //             images.push(imgSrc);
+    //         }
+    //     });
     
-        // Prepare data object
-        const missionData = {
-            owner: missionOwner,
-            pilot: pilot,
-            region: region,
-            program: program,
-            location: location,
-            geo: geoCoordinates,
-            description: description,
-            images: images,
-            missiondate:missiondate,
-        };
+    //     // Prepare data object
+    //     const missionData = {
+    //         owner: missionOwner,
+    //         pilot: pilot,
+    //         region: region,
+    //         program: program,
+    //         location: location,
+    //         geo: geoCoordinates,
+    //         description: description,
+    //         images: images,
+    //         missiondate:missiondate,
+    //     };
     
-        console.log(missionData);
+    //     console.log(missionData);
     
-        // 🚨 Show SweetAlert loading
-        Swal.fire({
-            title: 'Generating PDF...',
-            text: 'Please wait while your report is being created.',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+    //     // 🚨 Show SweetAlert loading
+    //     Swal.fire({
+    //         title: 'Generating PDF...',
+    //         text: 'Please wait while your report is being created.',
+    //         allowOutsideClick: false,
+    //         allowEscapeKey: false,
+    //         didOpen: () => {
+    //             Swal.showLoading();
+    //         }
+    //     });
     
-        // Send data to backend
-        $.ajax({
-            url: '/download-mission-pdf',
-            method: 'POST',
-            data: JSON.stringify(missionData),
-            xhrFields: {
-                responseType: 'blob'
-            },
-            contentType: 'application/json',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response, status, xhr) {
-                Swal.close(); // ✅ Close the loader on success
+    //     // Send data to backend
+    //     $.ajax({
+    //         url: '/download-mission-pdf',
+    //         method: 'POST',
+    //         data: JSON.stringify(missionData),
+    //         xhrFields: {
+    //             responseType: 'blob'
+    //         },
+    //         contentType: 'application/json',
+    //         headers: {
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //         },
+    //         success: function(response, status, xhr) {
+    //             Swal.close(); // ✅ Close the loader on success
     
-                const blob = new Blob([response], { type: 'application/pdf' });
-                const link = document.createElement('a');
-                link.href = window.URL.createObjectURL(blob);
-                link.download = 'Mission_Report.pdf';
-                link.click();
-            },
-            error: function(xhr) {
-                Swal.close(); // Close loading
-                Swal.fire('Failed!', 'PDF download failed. Please try again.', 'error');
-                console.error('PDF download failed');
-            }
-        });
-    });
+    //             const blob = new Blob([response], { type: 'application/pdf' });
+    //             const link = document.createElement('a');
+    //             link.href = window.URL.createObjectURL(blob);
+    //             link.download = 'Mission_Report.pdf';
+    //             link.click();
+    //         },
+    //         error: function(xhr) {
+    //             Swal.close(); // Close loading
+    //             Swal.fire('Failed!', 'PDF download failed. Please try again.', 'error');
+    //             console.error('PDF download failed');
+    //         }
+    //     });
+    // });
     
-    
+    // $(".search-icon-mission").click(function () {
+    //     $(".search-input-mission").toggleClass("active").show().focus();
+    // });
 
 });

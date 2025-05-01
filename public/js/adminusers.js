@@ -204,19 +204,7 @@ $(document).ready(function () {
                 // Assign color based on logic
                 const colorMap = {};
                 
-                // if (allSame) {
-                //     // All values are the same → assign green
-                //     regionData.forEach(item => {
-                //         colorMap[item.region] = 'green';
-                //     });
-                // } else {
-                //     // Normal ranking: red → orange → green
-                //     sorted.forEach((item, index) => {
-                //         if (index === 0) colorMap[item.region] = 'red';      // Highest
-                //         else if (index === 1) colorMap[item.region] = 'orange'; // Mid
-                //         else colorMap[item.region] = 'green';                // Lowest
-                //     });
-                // }
+
                 if (allSame) {
                     regionData.forEach(item => {
                         colorMap[item.region] = 'green';
@@ -457,7 +445,7 @@ function updateInspectionChart(chart, response) {
                     const completedPercent = total ? Math.round((completed / total) * 100) : 0;
                     const rejectedPercent  = total ? Math.round((rejected / total) * 100) : 0;
                     const card = `
-                    <div class="col-lg-6 h-100 rounded">
+                    <div class="col-lg-12 h-100 rounded">
                         <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
                             <div class="d-flex align-items-end mb-2">
                                 <img src="/storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
@@ -473,7 +461,7 @@ function updateInspectionChart(chart, response) {
                             </div>
                 
                             <!-- Row: Pending, Finished, Rejected -->
-                            <div class="d-flex justify-content-between gap-2">
+                            <div class="d-flex justify-content-between gap-2 py-3 mb-1">
                                 <!-- Pending -->
                                 <div class="flex-fill p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
@@ -509,7 +497,7 @@ function updateInspectionChart(chart, response) {
                             </div>
                 
                             <!-- Row: Total Missions -->
-                            <div class="p-2 mt-2">
+                            <div class="p-2 ">
                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
                                     <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
                                     <p class="mb-0 fw-bold">${total}</p>

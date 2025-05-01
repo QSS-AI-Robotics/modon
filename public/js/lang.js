@@ -156,8 +156,8 @@ qss_admin: {
         ar: "مسؤول QSS",
     },
 modon_admin: {
-        en: "MODON Admin",
-        ar: "مسؤول MODON",
+        en: "Modon Admin",
+        ar: "مسؤول Modon",
     },
 region_manager: {
         en: "Region Manager",

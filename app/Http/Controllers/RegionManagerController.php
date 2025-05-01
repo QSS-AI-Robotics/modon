@@ -493,7 +493,6 @@ Log::info('✈ Pilot Email:', ['pilot_email' => $pilotEmail]);
 $allUsers = $adminUsers
     ->merge($cityManagers)
     ->merge($regionusers)
-    ->merge([$pilotEmail])
     ->unique('email')
     ->values();
     //return response()->json(['allemails' => $allUsers]);

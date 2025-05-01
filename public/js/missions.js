@@ -274,7 +274,7 @@ $(document).ready(function () {
             console.log("🚀 Mission Decision Response:", response);
 
             // Extract necessary values from the response
-            const { approval_details, users_associated_with_region, pilot_email, admin_emails, user_type, current_user_email } = response;
+            const { approval_details, users_associated_with_region, pilot_email, admin_emails, user_type, current_user_email,all_emails} = response;
             const regionManagerApproved = approval_details.region_manager_approved;
             const modonAdminApproved = approval_details.modon_admin_approved;
 
@@ -286,12 +286,12 @@ $(document).ready(function () {
 
             // Fetch emails from "users_associated_with_region" but skip the current user if they are "region_manager"
             if (user_type === "region_manager") {
-                recipients = users_associated_with_region
+                recipients = all_emails
                     .filter(user => user.user_type_name !== "region_manager") // Exclude region_manager
                     .map(user => user.email); // Extract emails
                 console.log("✅ Recipients after excluding region_manager:", recipients);
             } else {
-                recipients = users_associated_with_region.map(user => user.email); // Include all if not region_manager
+                recipients = all_emails.map(user => user.email); // Include all if not region_manager
                 console.log("✅ Recipients without exclusion:", recipients);
             }
 
@@ -1282,7 +1282,7 @@ $('#addMissionForm').on('submit', function (e) {
         pilot: "Pilot",
         city_manager: "City Manager"
     };
-
+    console.log("real recipients",recipients);
     // Get the formatted user type
     const formattedUserType = userTypeMap[mission.user_type] || "Unknown User";
         // Determine the action and email content based on the decision

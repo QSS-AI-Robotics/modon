@@ -220,7 +220,7 @@
                                     <div class="card-body d-flex flex-column p-2">
                                         <!-- Header -->
                                         <div class="d-flex align-items-center justify-content-between mb-3 px-2">
-                                            <p class="mb-0" data-lang-key="pilotTracking">Pilot Tracking</p>
+                                            <p class="mb-0" data-lang-key="completedMissions">Completed Missions</p>
 
                                             <div class="col-lg-4 text-end datePanel-container">
                                                 <div class="date-fields-wrapper">
@@ -240,7 +240,7 @@
                                         </div>
 
                                         <!-- Pilot Grid -->
-                                        <div class="px-2 pb-2 ">
+                                        {{-- <div class="px-2 pb-2 ">
 
                                             <div class="row">
                                                 <div class="col-lg-12 ">
@@ -277,6 +277,30 @@
                                                 <!-- Repeat for more cards -->
                                             </div>
                                             
+                                        </div> --}}
+                                        <div class="px-2 pb-2">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="row gy-2 gx-3 flex-nowrap overflow-x-auto" style="white-space: nowrap;" id="locationsAnalytics">
+                                                        @foreach($regionNames as $region)
+                                                            @if(strtolower($region->name) !== 'all')
+                                                                <div class="col-lg-2 col-md-4 col-sm-6" style="min-width: 110px;">
+                                                                    <button 
+                                                                        class="btn btn-sm modon-btn w-100 text-capitalize region-button" 
+                                                                        style="font-size:12px" 
+                                                                        data-region-id="{{ $region->id }}" {{-- Assuming $region is an object with 'id' --}}
+                                                                    >
+                                                                        {{ $region->name }} {{-- Assuming $region has a 'name' property --}}
+                                                                    </button>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row flex-nowrap overflow-auto py-2 px-1" style="white-space: nowrap; min-height: 0;" id="cityCards">
+                                                <!-- Cards will be dynamically populated here -->
+                                            </div>
                                         </div>
 
                                     </div> <!-- card-body -->
@@ -291,7 +315,7 @@
 
                         <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-2 bg-section gap-2 stack-on-mobile w-50 firstDiv" style="min-height: 0;">
                             <div class="card-body d-flex flex-column p-2 " style="min-height: 0; overflow: hidden;">  
-                                <p class="mb-0 py-2" data-lang-key="pilotTracking">Pilot Tracking</p>   
+                                <p class="mb-2 py-2" data-lang-key="pilotTracking">Pilot Tracking</p>   
                                 <div  class="flex-nowrap overflow-auto" id="missionsPanel" style="white-space: nowrap; min-height: 0;">
                                     <div class="col-lg-12 h-100 pt-2 rounded">
                                         <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100 ">

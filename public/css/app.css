@@ -1070,3 +1070,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background: #082D3F;
    cursor: pointer;
 }
+.text-wrap {
+    word-wrap: break-word; /* Break long words to the next line */
+    white-space: normal;   /* Allow text to wrap to the next line */
+}
+
+.text-truncate {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis (...) for overflowing text */
+    max-height: 2.5em;       /* Limit the height to two lines */
+    line-height: 1.2em;      /* Set line height */
+}
+.region-button.active {
+    background-color: #25D366 !important; /* Highlight color for active button */
+    color: white !important;
+    border: 1px solid #1B9F4E; /* Optional: Add a border for better visibility */
+}

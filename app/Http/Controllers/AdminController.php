@@ -37,7 +37,11 @@ class AdminController extends Controller
         $missions = Mission::count();
         $locations = Location::count();
         $regions = Region::count();
-        $regionNames = Region::pluck('name');
+        $regionNames = Region::select('id', 'name')->get(); // Fetch as a collection of objects
+        // return response()->json([
+        //     'regionNames' => $regionNames
+        // ]);
+        // $regionNames = Region::pluck('name');
     
         return view('admin.index', [
             'pilot' => $pilot,
@@ -1096,7 +1100,38 @@ public function updateUser(Request $request, $id)
         return response()->json(['message' => '✅ Location deleted successfully!']);
     }
     
-    
+    public function getCompletedMissionsByRegion($region_id)
+{
+    // Step 1: Get all location IDs for the given region
+    $locationIds = DB::table('location_assignments')
+        ->where('region_id', $region_id)
+        ->pluck('location_id');
+
+    // Step 2: Get city names from the `locations` table
+    $cities = DB::table('locations')
+        ->whereIn('id', $locationIds)
+        ->get(['id', 'name']);
+
+    // Step 3: Get completed missions for each city
+    $completedMissions = DB::table('mission_location')
+        ->join('missions', 'mission_location.mission_id', '=', 'missions.id')
+        ->whereIn('mission_location.location_id', $locationIds)
+        ->where('missions.status', 'Completed')
+        ->select('mission_location.location_id', DB::raw('COUNT(missions.id) as completed_count'))
+        ->groupBy('mission_location.location_id')
+        ->get();
+
+    // Step 4: Combine city names with completed mission counts
+    $result = $cities->map(function ($city) use ($completedMissions) {
+        $completed = $completedMissions->firstWhere('location_id', $city->id);
+        return [
+            'city_name' => $city->name,
+            'completed_count' => $completed->completed_count ?? 0,
+        ];
+    });
+
+    return response()->json($result);
+}
     
 
 }

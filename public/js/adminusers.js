@@ -113,6 +113,88 @@ $(document).ready(function () {
     //     }
     // });
 
+    // $('.region-button').on('click', function () {
+    //     const regionId = $(this).data('region-id');
+
+    //     // Fetch completed missions for the selected region
+    //     $.ajax({
+    //         url: `/region/${regionId}/completed-missions`,
+    //         method: 'GET',
+    //         success: function (data) {
+    //             // Clear existing cards
+    //             $('#cityCards').empty();
+
+    //             // Populate cards dynamically
+    //             data.forEach(city => {
+    //                 const card = `
+    //                     <div class="col-lg-3 col-md-3 col-sm-4 col-6">
+    //                     <div class="card shadow-sm p-2 text-center" style="background-color: #0A415B; color: #d1d5db; border-radius: 8px; border-bottom: 2px solid #25D366;">
+    //                     <div class="d-flex flex-column justify-content-center align-items-center gap-2" style="min-height: 150px;">
+    //                     <div class="fw-bold text-white p-3 rounded" style="background: linear-gradient(to bottom, #105A7E, #082D3F); font-size: 15px;">
+    //                         ${city.completed_count}
+    //                     </div>
+    //                     <div>
+    //             <small class="text-wrap text-truncate" style="max-width: 100px;">${city.city_name}</small>
+    //                 </div>
+    //                 </div>
+    //                 </div>
+    //                 </div>
+    //                 `;
+    //                 $('#cityCards').append(card);
+    //             });
+    //         },
+    //         error: function (err) {
+    //             console.error('Error fetching completed missions:', err);
+    //         }
+    //     });
+    // });
+    function loadRegionData(regionId) {
+        // Highlight the active button
+        $('.region-button').removeClass('active'); // Remove active class from all buttons
+        $(`.region-button[data-region-id="${regionId}"]`).addClass('active'); // Add active class to the clicked button
+
+        // Fetch completed missions for the selected region
+        $.ajax({
+            url: `/region/${regionId}/completed-missions`,
+            method: 'GET',
+            success: function (data) {
+                // Clear existing cards
+                $('#cityCards').empty();
+
+                // Populate cards dynamically
+                data.forEach(city => {
+                    const card = `
+                        <div class="col-lg-3 col-md-3 col-sm-4 col-6">
+                            <div class="card shadow-sm p-2 text-center" style="background-color: #0A415B; color: #d1d5db; border-radius: 8px; border-bottom: 2px solid #25D366;">
+                                <div class="d-flex flex-column justify-content-center align-items-center gap-2" style="min-height: 150px;">
+                                    <div class="fw-bold text-white p-3 rounded" style="background: linear-gradient(to bottom, #105A7E, #082D3F); font-size: 15px;">
+                                        ${city.completed_count}
+                                    </div>
+                                    <div>
+                                        <small class="text-wrap text-truncate" style="max-width: 100px;">${city.city_name}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $('#cityCards').append(card);
+                });
+            },
+            error: function (err) {
+                console.error('Error fetching completed missions:', err);
+            }
+        });
+    }
+ // Handle region button click
+ $('.region-button').on('click', function () {
+    const regionId = $(this).data('region-id');
+    loadRegionData(regionId); // Load data for the selected region
+});
+
+// Trigger click on the first region button by default
+const defaultRegionId = $('.region-button').first().data('region-id');
+loadRegionData(defaultRegionId);
+
     $('.datePanel-input').on('change', function () {
         const startDate = $('#start-date').val();
         const endDate = $('#end-date').val();
@@ -461,7 +543,7 @@ function updateInspectionChart(chart, response) {
                             </div>
                 
                             <!-- Row: Pending, Finished, Rejected -->
-                            <div class="d-flex justify-content-between gap-2 py-3 mb-1">
+                            <div class="justify-content-between gap-2 py-3 mb-1">
                                 <!-- Pending -->
                                 <div class="flex-fill p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">

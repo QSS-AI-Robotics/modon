@@ -12,7 +12,7 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-2 bg-section d-flex flex-column align-items-start">
-                        <p class="bluishtext" data-lang-key="{{ $userType }}">{{ $userType}}</p>
+                        <p class="bluishtext" data-lang-key="{{ $userType }}" id="userTypeFront"> {{ ucwords(str_replace('_', ' ', $userType)) }}</p>
                         <h3 class="fw-bold" data-lang-key="missionControl">Mission Control</h3>
                     </div>
                 </div>
@@ -180,7 +180,7 @@
                             <div class="col-md-6 col-sm-12 p-2">
                                 <label class="form-check-label label-text py-1" data-lang-key="location">Location</label>
                             
-                                @if($userType === 'region_manager' || $userType === 'qss_admin' || $userType === 'modon_admin')
+                                @if($userType === 'region_manager' || $userType === 'qss_admin' || $userType === 'modon_admin'|| $userType === 'general_manager')
                                     @if($locations->isNotEmpty())
                                         @php
                                             $selectedLocationId = old('location_id', $locationData['id'] ?? $locations->first()->id);

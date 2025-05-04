@@ -1,9 +1,14 @@
 $(document).ready(function () {
     // CSRF Token Setup for AJAX
-
+    const rolesToDisable = ['modon_admin', 'region_manager', 'general_manager'];
+    const userRole =  $('#userTypeFront').attr('data-lang-key');
+    if (rolesToDisable.includes(userRole)) {
+        $('.mission-btn').prop('disabled', true);
+    }
 
     getRegionManagerMissions();
     
+
     $(".refreshIcon").on('click', function(){
 
         window.location.reload();
@@ -234,29 +239,8 @@ $(document).ready(function () {
         });
     });
     
-    // ✅ Old Function to submit approval or rejection with optional note
-    function submitApprovalOld(missionId, decision, rejectionNote = null,) {
-        $.ajax({
-            url: `/missions/${missionId}/decision`,
-            method: 'POST',
-            data: {
-                mission_id: missionId,
-                decision: decision,
-                rejection_note: rejectionNote,
-            },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                console.log("🚀 Mission Decision Response:", response);
-                Swal.fire('Success', response.message || 'Decision updated!', 'success');
-                getRegionManagerMissions();
-            },
-            error: function (xhr) {
-                Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
-            }
-        });
-    }
+
+
  // ✅  Function to submit approval or rejection with optional note
  function submitApproval(missionId, decision, rejectionNote = null, mission_info=null) {
     $.ajax({
@@ -278,47 +262,14 @@ $(document).ready(function () {
             const regionManagerApproved = approval_details.region_manager_approved;
             const modonAdminApproved = approval_details.modon_admin_approved;
 
-            // Initialize recipients array
-            let recipients = [];
+  
 
             // Log the initial response for debugging
             console.log("🚀 Initial Response:", response);
 
-            // Fetch emails from "users_associated_with_region" but skip the current user if they are "region_manager"
-            if (user_type === "region_manager") {
-                recipients = all_emails
-                    .filter(user => user.user_type_name !== "region_manager") // Exclude region_manager
-                    .map(user => user.email); // Extract emails
-                console.log("✅ Recipients after excluding region_manager:", recipients);
-            } else {
-                recipients = all_emails.map(user => user.email); // Include all if not region_manager
-                console.log("✅ Recipients without exclusion:", recipients);
-            }
+            let recipients = [...new Set(response.allmails.map(user => user.email))];
 
-            // Add pilot email only if both approvals are 1
-            if (regionManagerApproved === 1 && modonAdminApproved === 1) {
-                recipients.push(pilot_email);
-                console.log("✅ Pilot email added as both approvals are 1:", pilot_email);
-            } else {
-                console.log("❌ Pilot email not added as approvals are not both 1.");
-            }
-
-            // Always include admin emails
-            const adminEmails = admin_emails.map(admin => admin.email);
-            recipients = recipients.concat(adminEmails);
-            console.log("✅ Admin emails added:", adminEmails);
-
-            // Remove duplicates from recipients
-            recipients = [...new Set(recipients)];
-            console.log("✅ Final Recipients after removing duplicates:", recipients);
-
-            // Skip sending email to the current user
-            console.log("✅ Current User Email:", current_user_email);
-            if (current_user_email) {
-                recipients = recipients.filter(email => email !== current_user_email);
-                console.log("✅ Recipients after excluding current user's email:", recipients);
-            }
-
+            console.log("Now ",response.user_type)
             // Call the new sendApprovalNotification function
             sendApprovalNotification({
                 mission: response,
@@ -491,9 +442,11 @@ $(document).ready(function () {
                     }
     
                     const modonApproved  = mission.approval_status?.modon_admin_approved;
+                  
                     const regionApproved = mission.approval_status?.region_manager_approved;
                     const pilotApproved = mission.approval_status?.pilot_approved;
-    
+                    const gmanagerApproved	 = mission.approval_status?.general_manager_approved;
+                   
                     const getStatusBadge = value => {
                         switch (value) {
                             case 1: return `<strong class="text-success">Approved</strong>`;
@@ -505,30 +458,27 @@ $(document).ready(function () {
                     const modonManagerStatus  = getStatusBadge(modonApproved);
                     const regionManagerStatus = getStatusBadge(regionApproved);
                     const pilotApprovedStatus = getStatusBadge(pilotApproved);
-    
+                    const gmanagerApprovedStatus = getStatusBadge(gmanagerApproved);
+               
                     // ✅ Conditional edit/delete buttons (modon_admin only)
                     let editButton = '';
                     let deleteButton = '';
                     let viewReportButton = '';
-                    if (userType === 'modon_admin' || userType === 'region_manager') {
+                    if (userType === 'modon_admin' || userType === 'region_manager'|| userType === 'general_manager') {
                         const reportSubmitted = mission.report_submitted;
                         const pilotApproved = mission.approval_status?.pilot_approved;
                     
-                        const shouldDisable = reportSubmitted === 1 || reportSubmitted === 2 || pilotApproved === 1 || pilotApproved === 2;
+                      
                     
-                        if (shouldDisable) {
-                            // editButton = `<img src="./images/edit.png" alt="Edit Disabled" class="img-fluid actions disabled-edit" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be edited">`;
-                            // deleteButton = `<img src="./images/delete.png" alt="Delete Disabled" class="img-fluid actions disabled-delete" style="opacity:0.5;cursor:not-allowed" title="Mission cannot be deleted">`;
-                          
-                        }else {
+                     
                             if (mission.status !== 'Rejected') {
                                 editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
                             }
                         
-                            if ((userType === 'modon_admin' || userType === 'region_manager') && mission.status !== 'Rejected') {
+                            if ((userType === 'modon_admin' || userType === 'region_manager'|| userType === 'general_manager') && mission.status !== 'Rejected' && modonApproved === 0 ) {
                                 deleteButton = `<img src="./images/delete.png" alt="Delete" class="delete-mission img-fluid actions" data-id="${mission.id}">`;
                             }
-                        }
+                        
                     }
                     
 
@@ -539,30 +489,58 @@ $(document).ready(function () {
                         viewReportButton = `<img src="./images/view-report.png" alt="Delete" class="viewMissionReport img-fluid actions" data-id="${mission.id}">`;
                       
                     }
-    
-                    // ✅ Conditional Approve/Reject buttons
+
                     let approvalButtons = '';
-                    if (
-                        mission.status === "Pending" &&
-                        (
-                            (userType === 'modon_admin' && modonApproved === 0) ||
-                            (userType === 'region_manager' && regionApproved === 0)
-                        )
-                    ) {
-                        approvalButtons = `
-                            <strong class="text-end">
-                                <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMission"
-                                    data-mission-decision="approve" data-mission-id="${mission.id}">
-                                    Approve
-                                </span>
-                                <span class="badge p-2 px-3 hoverbtn bg-danger approvalMission"
-                                    data-mission-decision="reject" data-mission-id="${mission.id}">
-                                    Reject
-                                </span>
-                            </strong>
-                        `;
+
+                    if (mission.status === "Pending") {
+                      
+                        if (userType === 'general_manager' && gmanagerApproved === 0  && regionApproved === 1) {
+                           console.log("m ",userType)
+                            approvalButtons = `
+                                <strong class="text-end">
+                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMission"
+                                        data-mission-decision="approve" data-mission-id="${mission.id}">
+                                        Approve
+                                    </span>
+                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMission"
+                                        data-mission-decision="reject" data-mission-id="${mission.id}">
+                                        Reject
+                                    </span>
+                                </strong>
+                            `;
+                           
+                        } else if (userType === 'region_manager' &&  regionApproved === 0) {
+                      
+                            approvalButtons = `
+                                <strong class="text-end">
+                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMission"
+                                        data-mission-decision="approve" data-mission-id="${mission.id}">
+                                        Approve
+                                    </span>
+                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMission"
+                                        data-mission-decision="reject" data-mission-id="${mission.id}">
+                                        Reject
+                                    </span>
+                                </strong>
+                            `;
+                        } else if (userType === 'modon_admin' && gmanagerApproved === 1 && regionApproved === 1 &&  modonApproved === 0 ) {
+                        
+                            console.log("m in",userType)
+                            approvalButtons = `
+                                <strong class="text-end">
+                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMission"
+                                        data-mission-decision="approve" data-mission-id="${mission.id}">
+                                        Approve
+                                    </span>
+                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMission"
+                                        data-mission-decision="reject" data-mission-id="${mission.id}">
+                                        Reject
+                                    </span>
+                                </strong>
+                            `;
+                        }
                     }
-    
+                    
                     // ✅ Final row HTML
                     const row = `
                         <div class="accordion-item" id="missionRow-${mission.id}" data-pilot-id="${mission.pilot_id}">
@@ -615,9 +593,11 @@ $(document).ready(function () {
                                         <div class="col-lg-12">
                                             <div class="row w-100 align-items-center">
                                                 <strong data-lang-key="missionApproval">Mission Approval</strong><br>
-                                                <div class="col-4 label-text" ><p data-lang-key="test"><span data-lang-key="modonAdmin">Modon Admin:</span> ${modonManagerStatus}</p></div>
-                                                <div class="col-4 label-text"><p><span data-lang-key="regionManager">Region Manager:</span> ${regionManagerStatus}</p></div>
-                                                <div class="col-4 label-text"><p><span data-lang-key="pilot">Pilot:</span> ${pilotApprovedStatus}</p></div>
+                                                <div class="col-3 label-text" ><p data-lang-key="test"><span data-lang-key="modonAdmin">Modon Admin:</span> ${modonManagerStatus}</p></div>
+                                                <div class="col-3 label-text"><p><span data-lang-key="generalManager">General Manager:</span> ${gmanagerApprovedStatus}</p></div>
+                                                <div class="col-3 label-text"><p><span data-lang-key="regionManager">Region Manager:</span> ${regionManagerStatus}</p></div>
+                                                
+                                                <div class="col-3 label-text"><p><span data-lang-key="pilot">Pilot:</span> ${pilotApprovedStatus}</p></div>
                                             </div>
                                         </div>                         
                                     </div>    
@@ -830,7 +810,9 @@ $('#addMissionForm').on('submit', function (e) {
             $form.removeAttr("data-mission-id");
             $("h6").text("Create New Mission");
             $(".mission-btn span").text("New Mission");
-            console.log("Mission Response Data",response)
+            console.log("Mission Created Data",response)
+      
+
             if (Array.isArray(response.mission.allmails)) {
           
                 const actionType = missionId ? 'Updated':'Created'
@@ -1009,15 +991,15 @@ $('#addMissionForm').on('submit', function (e) {
                             recipients: response.mission.allmails,
                             action: 'deleted'
                         });
-                        // Swal.fire({
-                        //     icon: 'success',
-                        //     title: 'Deleted!',
-                        //     text: response.message || 'Mission has been deleted.',
-                        //     timer: 2000,
-                        //     showConfirmButton: false,
-                        //     background: '#101625',
-                        //     color: '#ffffff'
-                        // });
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message || 'Mission has been deleted.',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            background: '#101625',
+                            color: '#ffffff'
+                        });
     
                         $('#missionRow-' + missionId).remove(); // Remove mission row
                         // getMissionStats();
@@ -1046,7 +1028,7 @@ $('#addMissionForm').on('submit', function (e) {
         // Handle Edit Mission Button Click
         $(document).on("click", ".edit-mission", function () {
             $(".cancel-btn").removeClass("d-none");
-        
+            $('.mission-btn').prop('disabled', false);
             const missionId = $(this).data("id");
             const row = $(`#missionRow-${missionId}`);
         
@@ -1095,12 +1077,16 @@ $('#addMissionForm').on('submit', function (e) {
                 $('#region_id').val(regionId).trigger('change');
         
                 // Wait for region change filter to complete
+                
                 setTimeout(() => {
                     $('#location_id option').each(function () {
                         const locId = $(this).val();
                         $(this).prop("selected", locationIds.includes(locId));
                     });
+
+                    $('#location_id').prop('disabled', true);
                 }, 150);
+
             }
         
             // ✅ Location checkboxes (if present)
@@ -1124,7 +1110,8 @@ $('#addMissionForm').on('submit', function (e) {
       
         function resetValues(){
             $("#addMissionForm")[0].reset();
-        
+            $('#location_id').prop('disabled', false);
+            $('.mission-btn').prop('disabled', true);
             // ✅ Uncheck All Checkboxes
             $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
         
@@ -1171,11 +1158,11 @@ $('#addMissionForm').on('submit', function (e) {
                 }else{
                     console.log("array",response.allmails)
                 }
-                // sendMissionNotification({
-                //     mission: response.mission,
-                //     recipients: response.allmails,
-                //     action: 'Updated'
-                // });
+                sendMissionNotification({
+                    mission: response.mission,
+                    recipients: response.allmails,
+                    action: 'Updated'
+                });
                 $("#editMissionModal").modal("hide");
                 getRegionManagerMissions();
                 // getMissionStats();
@@ -1211,8 +1198,8 @@ $('#addMissionForm').on('submit', function (e) {
                 <li>
                     <strong style="font-size: 1.1em; color: #007bff;">Geo Location:</strong>
                     <ul style="margin-top: 4px; margin-bottom: 4px; padding-left: 18px;">
-                        <li><span style="font-weight:600;">Latitude:</span> <span style="color:#333;">${mission.latitude || 'N/A'}</span></li>
-                        <li><span style="font-weight:600;">Longitude:</span> <span style="color:#333;">${mission.longitude || 'N/A'}</span></li>
+                        <li><span style="font-weight:600;">Latitude:</span> <span style="color:#333;">${mission.locations?.[0]?.latitude || 'N/A'}</span></li>
+                        <li><span style="font-weight:600;">Longitude:</span> <span style="color:#333;">${mission.locations?.[0]?.longitude || 'N/A'}</span></li>
                     </ul>
                 </li>
                 ${
@@ -1275,85 +1262,88 @@ $('#addMissionForm').on('submit', function (e) {
 
     function sendApprovalNotification({ mission, recipients, decision,missioninfo }) {
             // Map user types to formatted strings
-    const userTypeMap = {
-        qss_admin: "QSS Admin",
-        modon_admin: "Modon Admin",
-        region_manager: "Region Manager",
-        pilot: "Pilot",
-        city_manager: "City Manager"
-    };
-    console.log("real recipients",recipients);
-    // Get the formatted user type
-    const formattedUserType = userTypeMap[mission.user_type] || "Unknown User";
-        // Determine the action and email content based on the decision
-        const action = decision == "approve" ? 'approved' : 'rejected';
-        const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
-        //console.log("🚀 ~ file: missions.js:1 ~ sendApprovalNotification ~ missioninfo:", missioninfo)
-      const content = `
-    <p>Hello,</p>
+        const userTypeMap = {
+            qss_admin: "QSS Admin",
+            modon_admin: "Modon Admin",
+            region_manager: "Region Manager",
+            general_manager: "General Manager",
+            pilot: "Pilot",
+            city_manager: "City Manager"
+        };
+        console.log("real recipients",recipients);
+        // Get the formatted user type
+        const formattedUserType = userTypeMap[mission.user_type] || "Unknown User";
+            // Determine the action and email content based on the decision
+            const action = decision == "approve" ? 'approved' : 'rejected';
+            const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+            //console.log("🚀 ~ file: missions.js:1 ~ sendApprovalNotification ~ missioninfo:", missioninfo)
+        const content = `
+        <p>Hello,</p>
 
-     <p>A mission has been <strong style="color:${action === 'approved' ? 'green' : 'red'}">${action}</strong> by <strong>${formattedUserType}</strong> in the dashboard.
-    Please log in to your account to view the latest details.</p>
+       <p>A mission has been <strong style="color:${action === 'approved' ? 'green' : 'red'}">${action}</strong> 
+            ${mission.user_name ? `<strong>${mission.user_name} (${formattedUserType})</strong>` : ''} 
+            in the dashboard
+        Please log in to your account to view the latest details.</p>
 
-    <hr>
+        <hr>
 
-    <h3 style="margin-bottom: 5px;">📋 <u>Mission Details:</u></h3>
-    <ul style="line-height: 1.6;">
-        <li><strong>Program:</strong> ${missioninfo.program || 'N/A'}</li>
-        <li><strong>Region:</strong> ${missioninfo.location.region || 'N/A'}</li>
-        <li><strong>City:</strong> ${missioninfo.location.city || 'N/A'}</li>
-        <li><strong>Geolocation:</strong>
-            <ul>
-                <li><strong>Longitude:</strong> ${missioninfo.geoCoordinates.longitude || 'N/A'}</li>
-                <li><strong>Latitude:</strong> ${missioninfo.geoCoordinates.latitude || 'N/A'}</li>
-            </ul>
-        </li>
-        ${action === 'rejected' ? `<li><strong>Rejection Reason:</strong> ${mission.rejection_note || 'No reason provided'}</li>` : ''}
-    </ul>
+        <h3 style="margin-bottom: 5px;">📋 <u>Mission Details:</u></h3>
+        <ul style="line-height: 1.6;">
+            <li><strong>Program:</strong> ${missioninfo.program || 'N/A'}</li>
+            <li><strong>Region:</strong> ${missioninfo.location.region || 'N/A'}</li>
+            <li><strong>City:</strong> ${missioninfo.location.city || 'N/A'}</li>
+            <li><strong>Geolocation:</strong>
+                <ul>
+                    <li><strong>Longitude:</strong> ${missioninfo.geoCoordinates.longitude || 'N/A'}</li>
+                    <li><strong>Latitude:</strong> ${missioninfo.geoCoordinates.latitude || 'N/A'}</li>
+                </ul>
+            </li>
+            ${action === 'rejected' ? `<li><strong>Rejection Reason:</strong> ${mission.rejection_note || 'No reason provided'}</li>` : ''}
+        </ul>
 
-    <p>For more information, please visit the mission dashboard.</p>
+        <p>For more information, please visit the mission dashboard.</p>
 
-    <br>
+        <br>
 
-    <p>Best regards,<br>
-    <strong>Admin Team</strong></p>
-`;
+        <p>Best regards,<br>
+        <strong>Admin Team</strong></p>
+    `;
 
-        // ✅ Show loading modal
-        Swal.fire({
-            title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
-            html: 'Please wait while emails are being sent...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
-        const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-        // ✅ Send email request
-        fetch('/send-email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            body: JSON.stringify({ recipients: dummyRecipients, subject, content })
-        })
-        .then(res => res.json())
-        .then(data => {
+            // ✅ Show loading modal
             Swal.fire({
-                icon: 'success',
-                title: 'Email Sent!',
-                text: data.message || `Mission ${action} notification sent successfully.`,
-                timer: 2000,
-                showConfirmButton: false
+                title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+                html: 'Please wait while emails are being sent...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
             });
-        })
-        .catch(error => {
-            console.error('Email send error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Email Error!',
-                text: 'An error occurred while sending the email.'
+            const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+            // ✅ Send email request
+            fetch('/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+            })
+            .then(res => res.json())
+            .then(data => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Email Sent!',
+                    text: data.message || `Mission ${action} notification sent successfully.`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            })
+            .catch(error => {
+                console.error('Email send error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Email Error!',
+                    text: 'An error occurred while sending the email.'
+                });
             });
-        });
     }
     
     // function sendMissionNotification(response, recipients) {

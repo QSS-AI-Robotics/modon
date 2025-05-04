@@ -13,6 +13,7 @@ class MissionApproval extends Model
         'mission_id',
         'region_manager_approved',
         'modon_admin_approved',
+        'general_manager_approved',
         'pilot_approved',
         'is_fully_approved',
         'rejected_by',      

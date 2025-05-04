@@ -45,7 +45,7 @@ Route::middleware('auth')->group(function () {
 // ✅ Protected Routes for Region Manager
 
 
-Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,region_manager'])->group(function () {
+Route::middleware(['auth', 'checkUserType:modon_admin,qss_admin,city_manager,region_manager,general_manager'])->group(function () {
 
     
     Route::get('/missions', [RegionManagerController::class, 'index'])->name('missions.index');
@@ -123,6 +123,8 @@ Route::middleware(['auth', 'checkUserType:qss_admin,modon_admin'])->group(functi
     Route::post('/delete-drone/{id}', [DroneController::class, 'destroy'])->name('drone.delete');
     
     Route::get('/pilot/reports', [PilotController::class, 'getReports'])->name('pilot.reports');
+
+    Route::get('/region/{region_id}/completed-missions', [AdminController::class, 'getCompletedMissionsByRegion']);
 
 });
 Route::middleware(['auth'], [AdminController::class, 'region_manager'])->group(function () {

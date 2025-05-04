@@ -365,28 +365,7 @@ $(document).ready(function () {
                 }
             });
         });
-        // function submitPilotApprovalOld(missionId, decision, rejectionNote = null, missionInfo = null) {
-        //     $.ajax({
-        //         url: `/pilot/${missionId}/pilot-decision`,
-        //         method: 'POST',
-        //         data: {
-        //             mission_id: missionId,
-        //             decision: decision,
-        //             rejection_note: rejectionNote,
-        //         },
-        //         headers: {
-        //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        //         },
-        //         success: function (response) {
-        //             console.log("🚀 Mission Decision Updated:", response);
-        //             Swal.fire('Success', response.message || 'Decision updated!', 'success');
-        //             getPilotMissions();
-        //         },
-        //         error: function (xhr) {
-        //             Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
-        //         }
-        //     });
-        // }
+
 
         function submitPilotApproval(missionId, decision, rejectionNote = null, missioninfo = null) {
             $.ajax({
@@ -402,40 +381,22 @@ $(document).ready(function () {
                 },
                 success: function (response) {
                     console.log("🚀 Mission Decision Updated:", response);
-                    const { users_associated_with_region, admin_emails, current_user_email,pilot_name } = response;
-                    // Initialize recipients array
-                    let recipients = [];
-                    recipients = users_associated_with_region.map(user => user.email); // Include all if not region_manager
-                    console.log("✅ Recipients without exclusion:", recipients);
-                  
+          
+                    let recipients = [...new Set(response.allmails.map(user => user.email))];
+
                    
 
-                    // Always include admin emails
-                    const adminEmails = admin_emails.map(admin => admin.email);
-                    recipients = recipients.concat(adminEmails);
-                    console.log("✅ Admin emails added:", adminEmails);
-
-                    // Remove duplicates from recipients
-                    recipients = [...new Set(recipients)];
-                    console.log("✅ Final Recipients after removing duplicates:", recipients);
-
-                    // Skip sending email to the current user
-                    console.log("✅ Current User Email:", current_user_email);
-                    if (current_user_email) {
-                        recipients = recipients.filter(email => email !== current_user_email);
-                        console.log("✅ Recipients after excluding current user's email:", recipients);
-                    }
 
                     Swal.fire('Success', response.message || 'Decision updated!', 'success');
                     getPilotMissions();
 
-                    // Call the new sendApprovalNotification function
-            sendApprovalNotification({
-                mission: response,
-                recipients: recipients,
-                decision: decision,
-                missioninfo: missioninfo
-            });
+                  
+                    sendApprovalNotification({
+                        mission: response,
+                        recipients: recipients,
+                        decision: decision,
+                        missioninfo: missioninfo
+                    });
 
                 },
                 error: function (xhr) {
@@ -1563,80 +1524,80 @@ $(document).ready(function () {
     // Determine the action and email content based on the decision
     const action = decision == "approve" ? 'approved' : 'rejected';
     const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
-    //console.log("🚀 ~ file: missions.js:1 ~ sendApprovalNotification ~ missioninfo:", missioninfo)
-  const content = `
-<p>Hello,</p>
 
- <p>A mission has been <strong style="color:${action === 'approved' ? 'green' : 'red'}">${action}</strong> by  <strong>${mission.pilot_name}</strong> (Pilot) in the Modon dashboard.
-Please log in to your account to view the latest details.</p>
+    const content = `
+            <p>Hello,</p>
 
-<hr>
+            <p>A mission has been <strong style="color:${action === 'approved' ? 'green' : 'red'}">${action}</strong> by  <strong>${mission.pilot_name}</strong> (Pilot) in the Modon dashboard.
+            Please log in to your account to view the latest details.</p>
 
-<h3 style="margin-bottom: 5px;">📋 <u>Mission Details:</u></h3>
-<ul style="line-height: 1.6;">
-    <li><strong>Mission Date:</strong> ${missioninfo.missionDate || 'N/A'}</li>
-    <li><strong>Program:</strong> ${missioninfo.program || 'N/A'}</li>
-    <li><strong>Region:</strong> ${missioninfo.location.region || 'N/A'}</li>
-    <li><strong>City:</strong> ${missioninfo.location.city || 'N/A'}</li>
-    <li><strong>Mission was createted by:</strong>
-        <ul>
-            <li><strong>Name:</strong> ${missioninfo.createdBy.name || 'N/A'}</li>
-            <li><strong>Role:</strong> ${missioninfo.createdBy.role || 'N/A'}</li>
-        </ul>
-    </li>
-    <li><strong>Geolocation:</strong>
-        <ul>
-            <li><strong>Longitude:</strong> ${missioninfo.geolocation.longitude || 'N/A'}</li>
-            <li><strong>Latitude:</strong> ${missioninfo.geolocation.latitude || 'N/A'}</li>
-        </ul>
-    </li>
-    ${action === 'rejected' ? `<li><strong>Rejection Reason:</strong> ${mission.rejection_note || 'No reason provided'}</li>` : ''}
-</ul>
+            <hr>
 
-<p>For more information, please visit the mission dashboard.</p>
+            <h3 style="margin-bottom: 5px;">📋 <u>Mission Details:</u></h3>
+            <ul style="line-height: 1.6;">
+                <li><strong>Mission Date:</strong> ${missioninfo.missionDate || 'N/A'}</li>
+                <li><strong>Program:</strong> ${missioninfo.program || 'N/A'}</li>
+                <li><strong>Region:</strong> ${missioninfo.location.region || 'N/A'}</li>
+                <li><strong>City:</strong> ${missioninfo.location.city || 'N/A'}</li>
+                <li><strong>Mission was createted by:</strong>
+                    <ul>
+                        <li><strong>Name:</strong> ${missioninfo.createdBy.name || 'N/A'}</li>
+                        <li><strong>Role:</strong> ${missioninfo.createdBy.role || 'N/A'}</li>
+                    </ul>
+                </li>
+                <li><strong>Geolocation:</strong>
+                    <ul>
+                        <li><strong>Longitude:</strong> ${missioninfo.geolocation.longitude || 'N/A'}</li>
+                        <li><strong>Latitude:</strong> ${missioninfo.geolocation.latitude || 'N/A'}</li>
+                    </ul>
+                </li>
+                ${action === 'rejected' ? `<li><strong>Rejection Reason:</strong> ${mission.rejection_note || 'No reason provided'}</li>` : ''}
+            </ul>
 
-<br>
+            <p>For more information, please visit the mission dashboard.</p>
 
-<p>Best regards,<br>
-<strong>Admin Team</strong></p>
-`;
+            <br>
 
-    // ✅ Show loading modal
-    Swal.fire({
-        title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
-        html: 'Please wait while emails are being sent...',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-    });
-    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-    // ✅ Send email request
-    fetch('/send-email', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        body: JSON.stringify({ recipients: dummyRecipients, subject, content })
-    })
-    .then(res => res.json())
-    .then(data => {
+            <p>Best regards,<br>
+            <strong>Admin Team</strong></p>
+            `;
+
+        // ✅ Show loading modal
         Swal.fire({
-            icon: 'success',
-            title: 'Email Sent!',
-            text: data.message || `Mission ${action} notification sent successfully.`,
-            timer: 2000,
-            showConfirmButton: false
+            title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+            html: 'Please wait while emails are being sent...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
         });
-    })
-    .catch(error => {
-        console.error('Email send error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Email Error!',
-            text: 'An error occurred while sending the email.'
+        const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+        // ✅ Send email request
+        fetch('/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+        })
+        .then(res => res.json())
+        .then(data => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Email Sent!',
+                text: data.message || `Mission ${action} notification sent successfully.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        })
+        .catch(error => {
+            console.error('Email send error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Email Error!',
+                text: 'An error occurred while sending the email.'
+            });
         });
-    });
-}
+    }
 function sendReportNotification({ action, missionData, recipients, report, callback }) {
     // Capitalize action for subject
     const actionText = action.charAt(0).toUpperCase() + action.slice(1);

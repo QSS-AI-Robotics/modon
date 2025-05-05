@@ -839,11 +839,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background: #555;
 }
 .missionReportImages img {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     object-fit: contain; /* ← Ensures full image is visible */
-    background-color: #0A415B; /* Optional: helps contrast transparent images */
-    padding: 2px;
+    background-color: #10597C; /* Optional: helps contrast transparent images */
+   
    
     border-radius: 8px;
     cursor: pointer;

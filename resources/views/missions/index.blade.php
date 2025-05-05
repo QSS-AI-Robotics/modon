@@ -379,7 +379,7 @@
                                     <div class="col-lg-6">
                                         <div class="mb-3">
                                             <label for="description" class="form-label"  data-lang-key="images">Images</label>
-                                            <div id="missionReportImages" class="d-flex flex-wrap gap-2"></div>
+                                            <div id="missionReportImages" class="missionReportImages d-flex flex-wrap gap-2"></div>
         
                                             <!-- Fullscreen Modal -->
                                             <div id="fullscreenImageModal" class="fullscreen-image-modal d-none">

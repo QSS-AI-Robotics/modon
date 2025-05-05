@@ -290,7 +290,7 @@
                                             </div>
                                         </div>
                                         <div class="col-lg-12">
-                                            <button class="btn mission-btn btn-sm d-flex align-items-center gap-1 w-100 " type="submit">
+                                            <button class="btn mission-btn btn-sm d-flex align-items-center gap-1 w-100 " id="CreateMissionBtn" type="submit">
                                                
                                                 <span data-lang-key="createMission">Create Mission</span>
                                             </button>

@@ -3,7 +3,7 @@ $(document).ready(function () {
     const rolesToDisable = ['modon_admin', 'region_manager', 'general_manager'];
     const userRole =  $('#userTypeFront').attr('data-lang-key');
     if (rolesToDisable.includes(userRole)) {
-        $('.mission-btn').prop('disabled', true);
+        $('#CreateMissionBtn').prop('disabled', true);
     }
 
     getRegionManagerMissions();
@@ -1031,7 +1031,7 @@ $('#addMissionForm').on('submit', function (e) {
         // Handle Edit Mission Button Click
         $(document).on("click", ".edit-mission", function () {
             $(".cancel-btn").removeClass("d-none");
-            $('.mission-btn').prop('disabled', false);
+            $('#CreateMissionBtn').prop('disabled', false);
             const missionId = $(this).data("id");
             const row = $(`#missionRow-${missionId}`);
         
@@ -1114,7 +1114,7 @@ $('#addMissionForm').on('submit', function (e) {
         function resetValues(){
             $("#addMissionForm")[0].reset();
             $('#location_id').prop('disabled', false);
-            $('.mission-btn').prop('disabled', true);
+            
             // ✅ Uncheck All Checkboxes
             $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
         
@@ -1133,6 +1133,7 @@ $('#addMissionForm').on('submit', function (e) {
         $(document).on("click", ".cancel-btn", function () {
             // ✅ Reset Form Fields
             resetValues();
+            $('#CreateMissionBtn').prop('disabled', true);
         });
         
     

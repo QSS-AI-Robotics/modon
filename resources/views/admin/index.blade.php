@@ -238,46 +238,6 @@
                                                 <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 mt-2 imghover custImg refreshIcon">
                                             </div>
                                         </div>
-
-                                        <!-- Pilot Grid -->
-                                        {{-- <div class="px-2 pb-2 ">
-
-                                            <div class="row">
-                                                <div class="col-lg-12 ">
-                                                    <div class="row gy-2 gx-3  flex-nowrap overflow-x-auto" style="white-space: nowrap;" id="locationsAnalytics">
-                                                        @foreach($regionNames as $region)
-                                                            @if(strtolower($region) !== 'all')
-                                                                <div class="col-lg-2 col-md-4 col-sm-6" style="min-width: 110px;">
-                                                                    <button class="btn btn-sm modon-btn w-100 text-capitalize" style="font-size:12px">{{ $region }}</button>
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row flex-nowrap overflow-auto  py-2 px-1" style="white-space: nowrap; min-height: 0;">
-                                                
-                                                <div class="col-lg-3 col-md-3 col-sm-4 col-6">
-                                                    <div class="card shadow-sm p-2 text-center   " style="background-color: #0A415B; color: #d1d5db; border-radius: 8px;border-bottom:2px solid #25D366">
-                                                        <div class="d-flex flex-column justify-content-center align-items-center gap-2 " style="min-height: 150px;">
-                                                            <!-- Number -->
-                                                            <div class="fw-bold text-white p-3 rounded" style="background: linear-gradient(to bottom, #105A7E, #082D3F); font-size: 15px;">
-                                                                259
-                                                            </div>
-                                                        <div>
-                                                           <small>Jeddah Second <br>Industrial City</small>
-                                                        </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                                
-                                                <!-- Repeat for more cards -->
-                                            </div>
-                                            
-                                        </div> --}}
                                         <div class="px-2 pb-2">
                                             <div class="row">
                                                 <div class="col-lg-12">
@@ -289,10 +249,8 @@
                                                                     <button 
                                                                         class="btn btn-sm modon-btn w-100 text-capitalize region-button" 
                                                                         style="font-size:12px" 
-                                                                        data-region-id="{{ $region->id }}" 
-                                                                    >
-                                                                        {{ $region->name }} 
-                                                                    </button>
+                                                                        data-region-id="{{ $region->id }}"
+                                                                        data-lang-key="{{ $region->name }}">{{$region->name}}</button>
                                                                 </div>
                                                             @endif
                                                         @endforeach

@@ -137,7 +137,7 @@ $(document).ready(function () {
                                         ${city.completed_count}
                                     </div>
                                     <div>
-                                        <small class="text-wrap text-truncate" style="max-width: 100px;">${city.city_name}</small>
+                                        <small class="text-wrap text-truncate" data-lang-key="${city.city_name}" style="max-width: 100px;">${city.city_name}</small>
                                     </div>
                                 </div>
                             </div>
@@ -145,6 +145,8 @@ $(document).ready(function () {
                     `;
                     $('#cityCards').append(card);
                 });
+                let currentLang = localStorage.getItem("selectedLang") || "ar";
+                updateLanguageTexts(currentLang);
             },
             error: function (err) {
                 console.error('Error fetching completed missions:', err);

@@ -1524,6 +1524,7 @@ $(document).ready(function () {
     // Determine the action and email content based on the decision
     const action = decision == "approve" ? 'approved' : 'rejected';
     const subject = `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+    console.log("real recipients: ", recipients);
 
     const content = `
             <p>Hello,</p>

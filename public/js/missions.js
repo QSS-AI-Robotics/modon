@@ -169,12 +169,15 @@ $(document).ready(function () {
         const $geoEl = $container.find('strong[data-latitude]');
         const latitude = $geoEl.data('latitude');
         const longitude = $geoEl.data('longitude');
+        // Mission Date
+    const missionDate = $container.find('span[data-mission-date]').data('mission-date');
     
       
     // Construct JSON object
     const missionData = {
         missionId: missionId,
         decision: decision,
+        missionDate: missionDate,
         program: program,
         location: {
             region: regionName,
@@ -1270,6 +1273,7 @@ $('#addMissionForm').on('submit', function (e) {
             pilot: "Pilot",
             city_manager: "City Manager"
         };
+        console.log("Mission data for sending email", missioninfo);
         console.log("real recipients",recipients);
         // Get the formatted user type
         const formattedUserType = userTypeMap[mission.user_type] || "Unknown User";
@@ -1292,6 +1296,7 @@ $('#addMissionForm').on('submit', function (e) {
             <li><strong>Program:</strong> ${missioninfo.program || 'N/A'}</li>
             <li><strong>Region:</strong> ${missioninfo.location.region || 'N/A'}</li>
             <li><strong>City:</strong> ${missioninfo.location.city || 'N/A'}</li>
+             <li><strong>Mission Date:</strong> ${missioninfo.missionDate || 'N/A'}</li>
             <li><strong>Geolocation:</strong>
                 <ul>
                     <li><strong>Longitude:</strong> ${missioninfo.geoCoordinates.longitude || 'N/A'}</li>

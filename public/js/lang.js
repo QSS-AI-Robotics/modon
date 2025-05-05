@@ -151,23 +151,22 @@ const languageFile = {
         en: "Actions",
         ar: "الإجراءات",
     },
-qss_admin: {
+    qss_admin: {
         en: "QSS Admin",
         ar: "مسؤول QSS",
     },
-modon_admin: {
+    modon_admin: {
         en: "Modon Admin",
         ar: "مسؤول Modon",
     },
-region_manager: {
+    region_manager: {
         en: "Region Manager",
         ar: "مدير المنطقة",
     },
-pilot: {
+    pilot: {
         en: "Pilot",
         ar: "طيار",
     },
-
     city_manager: {
         en: "City Manager",
         ar: "مدير المدينة",
@@ -340,6 +339,22 @@ pilot: {
     createLocation: {
         en: "Create Location",
         ar: "إنشاء موقع",
+    },
+    completedMissions: {
+        en: "Completed Missions",
+        ar: "المهام المكتملة",
+    },
+    central: { // Added this key
+        en: "Central",
+        ar: "المركزي",
+    },
+    eastern: { // Added this key
+        en: "Eastern",
+        ar: "الشرقي",
+    },
+    western: { // Added this key
+        en: "Western",
+        ar: "الغربي",
     },
 };
 

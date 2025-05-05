@@ -891,7 +891,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .badge {
-    min-width: 120px;
+    /* min-width: 120px; */
     display: inline-block;
   }
 

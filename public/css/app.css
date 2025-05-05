@@ -107,7 +107,16 @@ body{
     gap: 10px;
     position: relative;
 }
-
+.start-date-wrapper{
+    position: absolute;
+    right: 150px;
+    top: -20px;
+}
+.end-date-wrapper{
+    position: absolute;
+    right: 0px;
+    top: -20px;
+}
 .date-fields-wrapper {
     display: flex;
     gap: 10px;
@@ -237,7 +246,29 @@ body{
 .textsuccess{
     color: #81FF76 !important;;
 }
+/* For customizing the scrollbar in the whole page */
+::-webkit-scrollbar {
+    width: 2px; /* Change the width of the scrollbar */
+    height: 7px; /* Change the height of horizontal scrollbar */
+}
 
+/* For the scrollbar track (background of the scrollbar) */
+::-webkit-scrollbar-track {
+    background-color: #092B3B; /* Change to your desired background color */
+    border-radius: 10px;
+}
+
+/* For the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+    background-color: #226D91; /* Change to your desired color */
+    border-radius: 10px;
+}
+
+/* On hover, change the thumb color */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #25D366; 
+    cursor: pointer;
+}
 /* For customizing the scrollbar in the whole page */
 ::-webkit-scrollbar {
     width: 2px; /* Change the width of the scrollbar */

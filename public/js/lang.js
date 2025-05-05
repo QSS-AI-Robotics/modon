@@ -357,7 +357,8 @@ function updateLanguageTexts(lang) {
 $(document).ready(function () {
    
     // Get language from localStorage, fallback to English
-    let currentLang = localStorage.getItem("selectedLang") || "en";
+    let currentLang = localStorage.getItem("selectedLang") || "ar";
+    localStorage.setItem("selectedLang", currentLang);
     // Flag map to set correct flag on page load
     const flagMap = {
         en: "./images/en.png",
@@ -372,7 +373,7 @@ $(document).ready(function () {
     function updateTextDirection(lang) {
         $("body").attr("dir", lang === "ar" ? "rtl" : "ltr");
     }
-
+    console.log("currentLang: ", currentLang);
     // Initialize language texts and direction
     updateLanguageTexts(currentLang);
     // updateTextDirection(currentLang);

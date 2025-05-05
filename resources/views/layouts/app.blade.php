@@ -11,6 +11,7 @@
 
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <link rel="stylesheet" href="{{ asset('css/missions.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/slider.css') }}">
     
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -82,10 +83,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-    
+    <script src='https://css-tricks.com/examples/HorzScrolling/jquery.mousewheel.js'></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/lang.js') }}"></script>
     <script src="{{ asset('js/notification.js') }}"></script>
+    <script src="{{ asset('js/slider.js') }}"></script>
 
   
 

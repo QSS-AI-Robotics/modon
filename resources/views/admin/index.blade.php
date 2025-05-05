@@ -281,26 +281,40 @@
                                         <div class="px-2 pb-2">
                                             <div class="row">
                                                 <div class="col-lg-12">
-                                                    <div class="row gy-2 gx-3 flex-nowrap overflow-x-auto" style="white-space: nowrap;" id="locationsAnalytics">
+                                                    <div class="row gy-2 gx-3 flex-nowrap overflow-x-auto " style="white-space: nowrap;" id="locationsAnalytics">
+                                                       
                                                         @foreach($regionNames as $region)
                                                             @if(strtolower($region->name) !== 'all')
                                                                 <div class="col-lg-2 col-md-4 col-sm-6" style="min-width: 110px;">
                                                                     <button 
                                                                         class="btn btn-sm modon-btn w-100 text-capitalize region-button" 
                                                                         style="font-size:12px" 
-                                                                        data-region-id="{{ $region->id }}" {{-- Assuming $region is an object with 'id' --}}
+                                                                        data-region-id="{{ $region->id }}" 
                                                                     >
-                                                                        {{ $region->name }} {{-- Assuming $region has a 'name' property --}}
+                                                                        {{ $region->name }} 
                                                                     </button>
                                                                 </div>
                                                             @endif
                                                         @endforeach
                                                     </div>
+                                                    {{-- <div class="row gy-2 gx-3 flex-nowrap overflow-x-auto " style="white-space: nowrap;" id="locationsAnalyticss">
+                                                        <div class="slider-wrapper">
+                                                            <div class="slider-container">
+                                                                <div class="slider-box"></div>
+                                                                <div class="slider-box"></div>
+                                                                <div class="slider-box"></div>
+                                                                <div class="slider-box"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div> --}}
+                                             
                                                 </div>
                                             </div>
-                                            <div class="row flex-nowrap overflow-auto py-2 px-1" style="white-space: nowrap; min-height: 0;" id="cityCards">
-                                                <!-- Cards will be dynamically populated here -->
-                                            </div>
+                                            {{-- <div class="row flex-nowrap overflow-auto py-2 px-1" style="white-space: nowrap; min-height: 0;" id="cityCards"> --}}
+                                                <div class="slider-wrapper">
+                                                    <div class="slider-container"  id="cityCards"></div>
+                                                </div>
+                                            {{-- </div> --}}
                                         </div>
 
                                     </div> <!-- card-body -->

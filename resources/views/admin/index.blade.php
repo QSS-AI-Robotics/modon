@@ -297,22 +297,26 @@
                                                             @endif
                                                         @endforeach
                                                     </div>
-                                                    {{-- <div class="row gy-2 gx-3 flex-nowrap overflow-x-auto " style="white-space: nowrap;" id="locationsAnalyticss">
-                                                        <div class="slider-wrapper">
-                                                            <div class="slider-container">
-                                                                <div class="slider-box"></div>
-                                                                <div class="slider-box"></div>
-                                                                <div class="slider-box"></div>
-                                                                <div class="slider-box"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div> --}}
+                                                  
                                              
                                                 </div>
                                             </div>
                                             {{-- <div class="row flex-nowrap overflow-auto py-2 px-1" style="white-space: nowrap; min-height: 0;" id="cityCards"> --}}
                                                 <div class="slider-wrapper">
-                                                    <div class="slider-container"  id="cityCards"></div>
+                                                    <div class="slider-container"  id="cityCards">
+                                                        <div class="slider-box">
+                                                            <div class="card shadow-sm p-2 text-center" style="background-color: #0A415B; color: #d1d5db; border-radius: 8px; border-bottom: 2px solid #25D366;">
+                                                                <div class="d-flex flex-column justify-content-center align-items-center gap-2" style="min-height: 150px;">
+                                                                    <div class="fw-bold text-white p-3 rounded" style="background: linear-gradient(to bottom, #105A7E, #082D3F); font-size: 15px;">
+                                                                        0
+                                                                    </div>
+                                                                    <div>
+                                                                        <small class="text-wrap text-truncate" style="max-width: 100px;">Loading...</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             {{-- </div> --}}
                                         </div>

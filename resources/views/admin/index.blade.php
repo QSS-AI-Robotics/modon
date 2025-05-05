@@ -224,17 +224,17 @@
 
                                             <div class="col-lg-4 text-end datePanel-container">
                                                 <div class="date-fields-wrapper">
-                                                    <div class="date-wrapper">
+                                                    <div class="date-wrapper start-date-wrapper">
                                                         <label for="start-date" class="date-label" data-lang-key="startDate">Start Date</label>
                                                         <input type="date" id="start-date" class="datePanel-input start-date">
                                                     </div>
-                                                    <div class="date-wrapper">
+                                                    <div class="date-wrapper end-date-wrapper">
                                                         <label for="end-date" class="date-label" data-lang-key="endDate">End Date</label>
                                                         <input type="date" id="end-date" class="datePanel-input end-date">
                                                     </div>
                                                 </div>
 
-                                                <img src="./images/calendar.png" alt="Search" class="img-fluid datePanel-icon pt-2 imghover">
+                                                <img src="./images/calendar.png" alt="Search" class="img-fluid datePanel-icon pt-2 imghover" style="cursor: pointer">
                                                 <img src="{{ asset('images/refresh.png') }}" class="img-fluid mx-1 p-1 mt-2 imghover custImg refreshIcon">
                                             </div>
                                         </div>

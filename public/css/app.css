@@ -260,14 +260,14 @@ body{
 
 /* For the scrollbar thumb (the draggable part) */
 ::-webkit-scrollbar-thumb {
-    background-color: #226D91; /* Change to your desired color */
+    background-color: #226D91 !important; /* Change to your desired color */
     border-radius: 10px;
 }
 
 /* On hover, change the thumb color */
 ::-webkit-scrollbar-thumb:hover {
-    background-color: #25D366; 
-    cursor: pointer;
+    background-color: #25D366 !important; 
+    cursor:pointer;
 }
 /* For customizing the scrollbar in the whole page */
 ::-webkit-scrollbar {

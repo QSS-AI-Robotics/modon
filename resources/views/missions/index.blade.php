@@ -33,7 +33,7 @@
                                     <input type="date" placeholder="" class="dateInput" id="filterMission">
                                     <img src="./images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg refreshIcon">
                                 </div>
-                                {{-- <div class="col-lg-5">
+                                <div class="col-lg-5">
                                     <div class="row py-2 gap-2">
                                         <div class="col-lg-2 col-2">
                                             <span class="badge p-2  mstatus activeStatus" id="allMissions">All </span>
@@ -48,7 +48,7 @@
                                             <span class="badge p-2  mstatus" id="completed">Completed</span>
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
                             </div>
                         </div>
 

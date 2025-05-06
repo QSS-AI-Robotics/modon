@@ -28,9 +28,14 @@
                                         <div class="col-lg-4">
                                             <p>Detailed Summery</p>
                                         </div>
-                                        <div class="col-lg-4 text-end search-container">
+                                        {{-- <div class="col-lg-4 text-end search-container">
                                             <img src="./images/search.png" alt="Search" class="img-fluid search-icon">
                                             <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
+                                        </div> --}}
+                                        <div class="col-lg-4 text-end ">
+                                    
+                                            <input type="date" placeholder="" class="dateInput" id="filterPilotMission">
+                                            <img src="./images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg refreshIcon">
                                         </div>
                                     </div>
                                 </div>

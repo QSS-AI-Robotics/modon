@@ -23,6 +23,25 @@ $(document).ready(function () {
             }
         });
         getPilotMissions()
+        $("#filterPilotMission").on("change", function () {
+            const date = $(this).val();
+        
+            // ✅ Show loading SweetAlert
+            Swal.fire({
+                title: 'Loading Missions...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        
+            getPilotMissions({ date });
+            Swal.close();
+
+            // ✅ Optional: If your getPilotMissions already closes SweetAlert on success, you're done.
+            // If not, you can also close it after the AJAX call completes.
+        });
+        
         function renderMissionPagination(response) {
             const paginationWrapper = $('#paginationWrapper');
             paginationWrapper.empty();
@@ -68,6 +87,10 @@ $(document).ready(function () {
         }
      
 
+        $(".refreshIcon").on('click', function(){
+
+            window.location.reload();
+        })
         
         function getPilotMissions({ status = null, date = null, page = 1 } = {}) {
             $(".mission-btn svg").attr({ "width": "16", "height": "16" });
@@ -79,6 +102,7 @@ $(document).ready(function () {
             $.ajax({
                 url: "/pilot/missions",
                 type: "GET",
+                data: data,
                 success: function (response) {
                     console.log("mission details", response.data);
                     $('#pilotTableBody').empty();
@@ -572,34 +596,17 @@ $(document).ready(function () {
         for (let pair of formData.entries()) {
             console.log(`${pair[0]}:`, pair[1]);
         }
+        // ✅ Show loading SweetAlert before AJAX starts
+        Swal.fire({
+            title: 'Submitting Report...',
+            text: 'Please wait while your report is being submitted.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
-        // $.ajax({
-        //     url: '/pilot/reports/store',
-        //     type: 'POST',
-        //     data: formData,
-        //     processData: false,
-        //     contentType: false,
-        //     success: function (response) {
-        //         Swal.fire({
-        //             icon: 'success',
-        //             title: 'Report Submitted!',
-        //             text: response.message || 'The report has been successfully submitted.',
-        //             timer: 2000,
-        //             showConfirmButton: false,
-        //             background: '#101625',
-        //             color: '#ffffff'
-        //         });
-    
-        //         $('#addReportModal').modal('hide');
-        //         $('#addReportForm')[0].reset();
-        //         $('.image-preview').empty();
-        //         getPilotMissions();
-        //     },
-        //     error: function (xhr) {
-        //         const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
-        //         $errorDiv.removeClass('d-none').text(errorMessage);
-        //     }
-        // });
         $.ajax({
             url: '/pilot/reports/store',
             type: 'POST',

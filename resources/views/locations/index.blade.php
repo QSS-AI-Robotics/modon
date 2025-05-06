@@ -86,10 +86,10 @@
                                 <input type="hidden" name="locationId" id="locationId">
                             </div>
                             <!-- Date Inputs -->
-                            <div class="col-md-12 col-sm-12">
+                            {{-- <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text" data-lang-key="region">Region</label>
                                 <select class="form-select dateInput" id="region_id">
-                                    <option value="">Select Regions</option>
+                                    <option data-lang-key="selectRegions" value="">Select Regions</option>
                                     @foreach($regions as $region)
                                     @if($region->name !== 'all' && $region->id !== 1)
                                         <option value="{{ $region->id }}">
@@ -100,7 +100,23 @@
                                 
                                 </select>
                                 
+                            </div> --}}
+                            <div class="col-md-12 col-sm-12">
+                                <label class="form-label label-text" data-lang-key="region">Region</label>
+                                <select class="form-select dateInput" id="region_id">
+                                    <option data-lang-key="selectRegions" value="">Select Regions</option>
+                                    @foreach($regions as $region)
+                                        @if($region->name !== 'all' && $region->id !== 1)
+                                            <option 
+                                                value="{{ $region->id }}" 
+                                                data-lang-key="{{ strtolower($region->name) }}">
+                                                {{ ucwords(str_replace('_', ' ', $region->name)) }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
                             </div>
+                            
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text" data-lang-key="locationName">Location Name</label>
                                 <input type="text" class="form-control dateInput" id="name" name="start_datetime" >

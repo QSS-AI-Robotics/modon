@@ -472,6 +472,38 @@ const languageFile = {
         en: "View",
         ar: "عرض",
     },
+    editProfile: {
+        en: "Edit Profile",
+        ar: "تعديل الملف الشخصي",
+    },
+    logout: {
+        en: "Logout",
+        ar: "تسجيل الخروج",
+    },
+    resetPassword: {
+        en: "Reset Password",
+        ar: "إعادة تعيين كلمة المرور",
+    },
+    currentPassword: {
+        en: "Current Password",
+        ar: "كلمة المرور الحالية",
+    },
+    newPassword: {
+        en: "New Password",
+        ar: "كلمة المرور الجديدة",
+    },
+    confirmNewPassword: {
+        en: "Confirm New Password",
+        ar: "تأكيد كلمة المرور الجديدة",
+    },
+    updatePassword: {
+        en: "Update Password",
+        ar: "تحديث كلمة المرور",
+    },
+    selectRegions: {
+        en: "Select Regions",
+        ar: "اختر المناطق",
+    },
 };
 
 function updateLanguageTexts(lang) {

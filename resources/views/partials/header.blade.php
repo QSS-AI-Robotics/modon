@@ -98,11 +98,11 @@
                         </button>
                         <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover" id="editProfileButton" style="background: #105A7E">
                             <img src="{{ asset('images/people.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
-                            <span>Edit Profile</span>
+                            <span data-lang-key="editProfile">Edit Profile</span>
                         </button>
                         <button type="submit" class="btn btn-sm btn-danger w-100 text-start langhover d-flex align-items-center justify-content-between" id="logoutButton">
                             <img src="{{ asset('images/logout.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
-                            <span>Logout</span>
+                            <span data-lang-key="logout">Logout</span>
                         </button>
                            
                             
@@ -119,25 +119,25 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" style="background: #105A7E">
                         <div class="modal-header text-white" >
-                            <h5 class="modal-title text-white" id="passwordResetModalLabel">Reset Password</h5>
+                            <h5 class="modal-title text-white" data-lang-key="resetPassword" id="passwordResetModalLabel">Reset Password</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body text-white">
                             <form id="passwordResetForm">
                                 @csrf
                                 <div class="mb-3">
-                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                    <label for="currentPassword" data-lang-key="currentPassword" class="form-label">Current Password</label>
                                     <input type="password" class="form-control  dateInput" id="currentPassword" name="currentPassword" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <label for="newPassword" data-lang-key="newPassword" class="form-label">New Password</label>
                                     <input type="password" class="form-control e dateInput" id="newPassword" name="newPassword" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                                    <label for="confirmNewPassword" data-lang-key="confirmNewPassword" class="form-label">Confirm New Password</label>
                                     <input type="password" class="form-control  dateInput" id="confirmNewPassword" name="newPassword_confirmation" required>
                                 </div>
-                                <button type="submit" class="btn text-center passbtn mission-btn " >Update Password</button>
+                                <button type="submit" class="btn text-center passbtn mission-btn " data-lang-key="updatePassword" >Update Password</button>
                             </form>
                         </div>
                     </div>

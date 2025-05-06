@@ -147,6 +147,10 @@ const languageFile = {
         en: "Status",
         ar: "الحالة",
     },
+    "status:": {
+        en: "Status:",
+        ar: "الحالة:",
+    },
     actions: {
         en: "Actions",
         ar: "الإجراءات",
@@ -206,6 +210,10 @@ const languageFile = {
     region: {
         en: "Region",
         ar: "المنطقة",
+    },
+    "region:": {
+        en: "Region: ",
+        ar: "المنطقة:  ",
     },
     location:{
         en: "Location",
@@ -275,7 +283,15 @@ const languageFile = {
         en: "Approved",
         ar: "موافق عليه",
     },
+    Approved: {
+        en: "Approved",
+        ar: "موافق عليه",
+    },
     rejected: {
+        en: "Rejected",
+        ar: "مرفوض",
+    },
+    Rejected: {
         en: "Rejected",
         ar: "مرفوض",
     },
@@ -283,7 +299,15 @@ const languageFile = {
         en: "Pending",
         ar: "قيد الانتظار",
     },
+    Pending: {
+        en: "Pending",
+        ar: "قيد الانتظار",
+    },
     completed: {
+        en: "Completed",
+        ar: "مكتمل",
+    },
+    Completed: {
         en: "Completed",
         ar: "مكتمل",
     },
@@ -291,7 +315,15 @@ const languageFile = {
         en: "Awaiting Report",
         ar: "في انتظار التقرير",
     },
+    Awaiting_Report: {
+        en: "Awaiting Report",
+        ar: "في انتظار التقرير",
+    },
     inProgress: {
+        en: "In Progress",
+        ar: "قيد التقدم",
+    },
+    In_Progress: {
         en: "In Progress",
         ar: "قيد التقدم",
     },
@@ -344,17 +376,77 @@ const languageFile = {
         en: "Completed Missions",
         ar: "المهام المكتملة",
     },
-    central: { // Added this key
+    central: {
         en: "Central",
         ar: "المركزي",
     },
-    eastern: { // Added this key
+    eastern: {
         en: "Eastern",
         ar: "الشرقي",
     },
-    western: { // Added this key
+    western: {
         en: "Western",
         ar: "الغربي",
+    },
+    Jeddah_First_Industrial_City: { // Added this key
+        en: "Jeddah First Industrial City",
+        ar: "مدينة جدة الصناعية الأولى",
+    },
+    Jeddah_Second_Industrial_City: { // Added this key
+        en: "Jeddah Second Industrial City",
+        ar: "مدينة جدة الصناعية الثانية",
+    },
+    Waha_Jeddah: { // Added this key
+        en: "Waha Jeddah",
+        ar: "واحة جدة",
+    },
+    Makkah: { // Added this key
+        en: "Makkah",
+        ar: "مكة",
+    },
+    Jeddah_Third_Industrial_City: { // Added this key
+        en: "Jeddah Third Industrial City",
+        ar: "مدينة جدة الصناعية الثالثة",
+    },
+    Riyadh_First_Industrial_City: { // Added this key
+        en: "Riyadh First Industrial City",
+        ar: "مدينة الرياض الصناعية الأولى",
+    },
+    Riyadh_Second_Industrial_City: { // Added this key
+        en: "Riyadh Second Industrial City",
+        ar: "مدينة الرياض الصناعية الثانية",
+    },
+    "Al-Kharj": { // Added this key
+        en: "Al-Kharj",
+        ar: "الخرج",
+    },
+    Sudair: { // Added this key
+        en: "Sudair",
+        ar: "سدير",
+    },
+    Dammam_First_Industrial_City: { // Added this key
+        en: "Dammam First Industrial City",
+        ar: "مدينة الدمام الصناعية الأولى",
+    },
+    Dammam_Second_Industrial_City: { // Added this key
+        en: "Dammam Second Industrial City",
+        ar: "مدينة الدمام الصناعية الثانية",
+    },
+    Dammam_Third_Industrial_City: { // Added this key
+        en: "Dammam Third Industrial City",
+        ar: "مدينة الدمام الصناعية الثالثة",
+    },
+    "Al-Ahsa": { // Added this key
+        en: "Al-Ahsa",
+        ar: "الأحساء",
+    },
+    "Hafar-Al-Batin": { // Added this key
+        en: "Hafar Al-Batin",
+        ar: "حفر الباطن",
+    },
+    missionDescription: {
+        en: "Mission Description",
+        ar: "وصف المهمة",
     },
 };
 

@@ -53,7 +53,17 @@ $(document).ready(function () {
         plugins: [ChartDataLabels] // 👈 Register the plugin
     });
     
-    
+    function formatCityNames(text) {
+        return text.trim().replace(/\s+/g, '_');
+    }
+    function toLangKey(str) {
+        return str
+            .trim()
+            .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
+            .replace(/3/g, 'three')          // Replace any 3 with 'three'
+            .replace(/&/g, 'and')            // Replace & with and
+            .replace(/\s+/g, '_');           // Replace spaces with underscores
+    }
 
       // const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
     // const regionChart = new Chart(regionChartMissions, {
@@ -137,7 +147,8 @@ $(document).ready(function () {
                                         ${city.completed_count}
                                     </div>
                                     <div>
-                                        <small class="text-wrap text-truncate" data-lang-key="${city.city_name}" style="max-width: 100px;">${city.city_name}</small>
+                                        <small class="text-wrap text-truncate" data-lang-key="${formatCityNames(city.city_name)}" style="max-width: 100px;">${city.city_name}</small>
+
                                     </div>
                                 </div>
                             </div>
@@ -494,6 +505,17 @@ function updateInspectionChart(chart, response) {
                     const pendingPercent = total ? Math.round((pending / total) * 100) : 0;
                     const completedPercent = total ? Math.round((completed / total) * 100) : 0;
                     const rejectedPercent  = total ? Math.round((rejected / total) * 100) : 0;
+
+                    // ✅ Build region badges with data-lang-key
+                    const regions = pilot.region.split(',').map(r => r.trim());
+                    const regionBadges = regions.map(region => `
+                        <small 
+                            class="cont-btn px-2 mb-0 lh-1 text-capitalize text-truncate me-1"
+                            data-lang-key="${region}"
+                        >
+                            ${region}
+                        </small>
+                    `).join('');
                     const card = `
                     <div class="col-lg-12 h-100 rounded">
                         <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
@@ -501,12 +523,9 @@ function updateInspectionChart(chart, response) {
                                 <img src="/storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
                                 <div>
                                     <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
-                                    <small 
-                                        class="cont-btn px-2 mb-0 lh-1 text-capitalize text-truncate"
-      
-                                    >
-                                        ${pilot.region.split(',')}
-                                    </small>
+                                    <div class="my-1 d-flex flex-wrap  align-items-center">
+                                        ${regionBadges}
+                                    </div>
                                 </div>
                             </div>
                 
@@ -558,7 +577,7 @@ function updateInspectionChart(chart, response) {
                             </div>
                         </div>
                     </div>
-                `;
+                    `;
                 
                    
                     $('#missionsPanel').append(card);
@@ -596,8 +615,8 @@ function updateInspectionChart(chart, response) {
                                     <img src="${item.image_path}" class="img-fluid rounded-circle" style="height: 30px; width:30px">
                                 </div>
                                 <div class="col-10 d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0">${item.inspection_name}</h6>
-                                    <p class="mb-0">Region: <span class="text-capitalize">${item.region_name}</span > <br> <span class="text-capitalize">${item.location}</span></p>
+                                    <h6 class="mb-0" data-lang-key="${toLangKey(item.inspection_name)}">${item.inspection_name}</h6>
+                                    <p class="mb-0"><span data-lang-key="region:">Region:</span><span class="text-capitalize" data-lang-key="${item.region_name.trim().toLowerCase()}">${item.region_name}</span> <br> <span class="text-capitalize" data-lang-key="${formatCityNames(item.location)}">${item.location}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -605,6 +624,8 @@ function updateInspectionChart(chart, response) {
     
                     container.append(html);
                 });
+                let currentLang = localStorage.getItem("selectedLang") || "ar";
+                updateLanguageTexts(currentLang);
             },
             error: function(err) {
                 console.error('Failed to load inspections:', err);
@@ -639,28 +660,31 @@ function updateInspectionChart(chart, response) {
                                     <h6 class="mb-0 text-truncate heartbeat text-capitalize">
                                         ${mission.note.split(' ')[0] || 'No title'}
                                     </h6>
-                                    <p class="mb-0 text-capitalize">Region: ${mission.region} | Status: ${mission.status}</p>
+                                    <p class="mb-0 text-capitalize"><span data-lang-key="region:">Region:</span><span data-lang-key="${mission.region}">${mission.region}</span> | <span data-lang-key="status:">Status:</span> <span data-lang-key="${toLangKey(mission.status)}">${mission.status}<span/></p>
                                 </div>
                             </div>
                         </div>
+                        <span></span>
 
 
                     `;
                 });
     
                 $('.latestMissionPanel').html(html);
-
+                
                 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 
                 tooltipTriggerList.forEach(el => {
                     const content = el.getAttribute('data-title'); // Get content from custom attr
                     new bootstrap.Tooltip(el, {
                         html: true,
-                        title: `<strong class="text-dark">Mission Description:</strong><br>${content}`,
+                        title: `<strong class="text-dark"><span data-lang-key="missionDescription">Mission Description:</span></strong><br>${content}`,
                         customClass: 'custom-tooltip'
                     });
                 });
-                
+                let currentLang = localStorage.getItem("selectedLang") || "ar";
+                updateLanguageTexts(currentLang);
+
             },
             error: function (err) {
                 console.error("❌ Failed to fetch missions:", err);

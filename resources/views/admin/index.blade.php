@@ -294,7 +294,7 @@
                                 <p class="mb-2 py-2" data-lang-key="pilotTracking">Pilot Tracking</p>   
                                 <div  class="flex-nowrap overflow-auto" id="missionsPanel" style="white-space: nowrap; min-height: 0;">
                                     <div class="col-lg-12 h-100 pt-2 rounded">
-                                        <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100 ">
+                                        {{-- <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100 ">
                                             <div class="d-flex align-items-end mb-1">
                                                 <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
                                                 <div class="">
@@ -347,6 +347,67 @@
                                                 </div>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-warning text-white" style="width: 100%" id="totalProgress"></div>
+                                                </div>
+                                            </div>
+                                        </div> --}}
+                                        <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
+                                            <div class="d-flex align-items-end mb-0">
+                                                <img src="/images/default-user.png" alt="Search" class="imghover rounded" style="width:50px; height:50px">
+                                                <div>
+                                                    <p class="px-2 mb-0 lh-1 text-capitalize" id="loading">Loading</p>
+                                                    <div class="my-1 d-flex flex-wrap  align-items-center">
+                                                        
+                                                         <small class="cont-btn px-2 mb-0 lh-1 text-capitalize text-truncate me-1" data-lang-key="Loading">Loading</small>
+                                    
+                                    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                
+                                            <!-- Row: Pending, Finished, Rejected -->
+                                            <div class="justify-content-between gap-1 py-0">
+                                                <!-- Pending -->
+                                                <div class="flex-fill p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0" data-lang-key="pending">Pending</label>
+                                                        <p class="mb-0 fw-bold">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-warning" style="width: 40%"></div>
+                                                    </div>
+                                                </div>
+                                
+                                                <!-- Finished -->
+                                                <div class="flex-fill p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0" data-lang-key="finished">Finished</label>
+                                                        <p class="mb-0 fw-bold">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-success" style="width: 40%"></div>
+                                                    </div>
+                                                </div>
+                                
+                                                <!-- Rejected -->
+                                                <div class="flex-fill p-2">
+                                                    <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                        <label class="form-check-label mb-0" data-lang-key="rejected">Rejected</label>
+                                                        <p class="mb-0 fw-bold">0</p>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-danger" style="width: 0%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                
+                                            <!-- Row: Total Missions -->
+                                            <div class="p-2">
+                                                <div class="d-flex justify-content-between align-items-center label-text p-1">
+                                                    <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
+                                                    <p class="mb-0 fw-bold">0</p>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-info text-white" style="width: 100%"></div>
                                                 </div>
                                             </div>
                                         </div>

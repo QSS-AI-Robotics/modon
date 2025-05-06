@@ -80,106 +80,130 @@ class AdminController extends Controller
         ]);
     }
 
-
+    public function getAllUsers(Request $request)
+    {
+        $authUser = Auth::user();
     
-public function getAllUsers(Request $request)
-{
-    $authUser = Auth::user();
-
-    if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
-        $perPage = $request->query('per_page', 8); // Default 10 users per page
-        $page = $request->query('page', 1);
-
-        $allUsers = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get();
-
-        $formattedUsers = $allUsers->map(function ($user) {
-            $userType = strtolower($user->userType?->name);
-
-            $region = $userType === 'pilot'
-                ? $user->regions->pluck('name')->toArray()
-                : optional($user->regions->first())->name;
-
-            $locations = in_array($userType, ['city_supervisor', 'city_manager'])
-                ? $user->assignedLocations->map(function ($loc) {
-                    return [
-                        'id' => $loc->id,
-                        'name' => $loc->name,
-                    ];
-                })->toArray()
-                : [];
-
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'region' => $region,
-                'locations' => $locations,
-                'user_type' => $user->userType?->name,
-                'image' => $user->image,
-                'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
-                'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
-            ];
-        });
-
-        // 🔁 Paginate the collection manually
-        $pagedUsers = new LengthAwarePaginator(
-            $formattedUsers->forPage($page, $perPage),
-            $formattedUsers->count(),
-            $perPage,
-            $page,
-            ['path' => url()->current()]
-        );
-
-        return response()->json($pagedUsers);
+        if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
+    
+            $perPage = $request->query('per_page', 8); // Default 8 users per page
+            $page = $request->query('page', 1);
+    
+            // ✅ Check if region filter is applied
+            $regionFilter = $request->query('status'); // "status" from your AJAX
+    
+            $allUsers = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])
+                ->when($regionFilter, function ($query, $regionFilter) {
+                    $query->whereHas('regions', function ($q) use ($regionFilter) {
+                        $q->where('name', $regionFilter);
+                    });
+                })
+                ->get();
+    
+            $formattedUsers = $allUsers->map(function ($user) {
+                $userType = strtolower($user->userType?->name);
+    
+                $region = $userType === 'pilot'
+                    ? $user->regions->pluck('name')->toArray()
+                    : optional($user->regions->first())->name;
+    
+                $locations = in_array($userType, ['city_supervisor', 'city_manager'])
+                    ? $user->assignedLocations->map(function ($loc) {
+                        return [
+                            'id' => $loc->id,
+                            'name' => $loc->name,
+                        ];
+                    })->toArray()
+                    : [];
+    
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'region' => $region,
+                    'locations' => $locations,
+                    'user_type' => $user->userType?->name,
+                    'image' => $user->image,
+                    'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
+                    'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
+                ];
+            });
+    
+            // 🔁 Paginate manually
+            $pagedUsers = new LengthAwarePaginator(
+                $formattedUsers->forPage($page, $perPage),
+                $formattedUsers->count(),
+                $perPage,
+                $page,
+                ['path' => url()->current()]
+            );
+    
+            return response()->json($pagedUsers);
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'users' => []
+        ]);
     }
+    
+    
+    // public function getAllUsers(Request $request)
+    // {
+    //     $authUser = Auth::user();
 
-    return response()->json([
-        'status' => 'success',
-        'users' => []
-    ]);
-}
-//     public function getAllUsers()
-// {
-//     $authUser = Auth::user();
+    //     if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
+    //         $perPage = $request->query('per_page', 8); // Default 10 users per page
+    //         $page = $request->query('page', 1);
 
-//     if ($authUser && $authUser->userType && $authUser->userType->name === 'qss_admin') {
-//         $users = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get()->map(function ($user) {
-//             $userType = strtolower($user->userType?->name);
+    //         $allUsers = User::with(['userType', 'regions', 'pilot', 'assignedLocations'])->get();
 
-//             $region = $userType === 'pilot'
-//                 ? $user->regions->pluck('name')->toArray()
-//                 : optional($user->regions->first())->name;
+    //         $formattedUsers = $allUsers->map(function ($user) {
+    //             $userType = strtolower($user->userType?->name);
 
-//             $locations = in_array($userType, ['city_supervisor', 'city_manager'])
-//                 ? $user->assignedLocations->map(function ($loc) {
-//                     return [
-//                         'id' => $loc->id,
-//                         'name' => $loc->name,
-//                     ];
-//                 })->toArray()
-//                 : [];
+    //             $region = $userType === 'pilot'
+    //                 ? $user->regions->pluck('name')->toArray()
+    //                 : optional($user->regions->first())->name;
 
-//             return [
-//                 'id' => $user->id,
-//                 'name' => $user->name,
-//                 'email' => $user->email,
-//                 'region' => $region,
-//                 'locations' => $locations, // ✅ Includes id + name now
-//                 'user_type' => $user->userType?->name,
-//                 'image' => $user->image,
-//                 'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
-//                 'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
-//             ];
-//         });
-//     } else {
-//         $users = collect(); // Empty collection for non-admins
-//     }
+    //             $locations = in_array($userType, ['city_supervisor', 'city_manager'])
+    //                 ? $user->assignedLocations->map(function ($loc) {
+    //                     return [
+    //                         'id' => $loc->id,
+    //                         'name' => $loc->name,
+    //                     ];
+    //                 })->toArray()
+    //                 : [];
 
-//     return response()->json([
-//         'status' => 'success',
-//         'users' => $users
-//     ]);
-// }
+    //             return [
+    //                 'id' => $user->id,
+    //                 'name' => $user->name,
+    //                 'email' => $user->email,
+    //                 'region' => $region,
+    //                 'locations' => $locations,
+    //                 'user_type' => $user->userType?->name,
+    //                 'image' => $user->image,
+    //                 'license_no' => $userType === 'pilot' ? $user->pilot?->license_no : null,
+    //                 'license_expiry' => $userType === 'pilot' ? $user->pilot?->license_expiry : null,
+    //             ];
+    //         });
+
+    //         // 🔁 Paginate the collection manually
+    //         $pagedUsers = new LengthAwarePaginator(
+    //             $formattedUsers->forPage($page, $perPage),
+    //             $formattedUsers->count(),
+    //             $perPage,
+    //             $page,
+    //             ['path' => url()->current()]
+    //         );
+
+    //         return response()->json($pagedUsers);
+    //     }
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'users' => []
+    //     ]);
+    // }
 
     
     

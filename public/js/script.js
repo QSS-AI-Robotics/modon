@@ -154,7 +154,17 @@ $(document).ready(function () {
             }
         });
     }
- 
+    $(".Userstatus").on("click", function () {
+        $(".Userstatus").removeClass("activeStatus");
+        $(this).addClass("activeStatus");
+
+        const status = $(this).data("lang-key");
+        getAllusers({ status});
+    });
+
+    $(".refreshIcon").on('click', function(){
+        window.location.reload();
+    })
     function getAllusers({ status = null,  page = 1 } = {}) {
         resetForm();
         const data = { page }; // ✅ Include page number

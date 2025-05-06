@@ -27,9 +27,25 @@
                                 <div class="col-lg-4">
                                     <h5>Users</h5>
                                 </div>
-                                <div class="col-lg-4 text-end search-container">
-                                    <img src="../images/search.png" alt="Search" class="img-fluid search-icon">
-                                    <input type="search" placeholder="Search Reports Here" class="search-input dateInput">
+                                <div class="col-lg-4 text-end px-4 py-2">
+                                    <img src="./images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg2 refreshIcon">
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="row py-2 gap-2">
+                                       
+                                        @foreach($regions as $region)
+                                            @if(strtolower($region->name) !== 'all')
+                                                <div class="col-lg-2 col-2">
+                                                    <span class="badge p-2 mstatus Userstatus" 
+                                                        data-lang-key="{{ $region->name }}" 
+                                                        id="{{ $region->name }}">
+                                                        {{ ucwords(str_replace('_', ' ', $region->name)) }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                        
+                                    </div>
                                 </div>
                             </div>
                         </div>

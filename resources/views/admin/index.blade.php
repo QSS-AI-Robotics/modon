@@ -34,7 +34,7 @@
                                 </div>
                                 
                                 
-                                <div class="col-12 col-sm-6 ps-0">
+                                <div class="col-12 col-sm-6"  style="padding-inline-start: 0;">
                                     <div class="card h-100  py-1">
                                         <div class="card-body d-flex flex-column justify-content-between p-2  bg-section">
                                             <div class="d-flex align-items-center mb-2">
@@ -92,7 +92,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 col-sm-6 mb-1 ps-0">
+                                <div class="col-12 col-sm-6 mb-1"  style="padding-inline-start: 0;">
                                     <div class="card h-100  py-1">
                                         <div class="card-body d-flex flex-column justify-content-between p-2 bg-section">
                                             <div class="d-flex align-items-center mb-2">
@@ -295,9 +295,9 @@
                                 <div  class="flex-nowrap overflow-auto" id="missionsPanel" style="white-space: nowrap; min-height: 0;">
                                     <div class="col-lg-12 h-100 pt-2 rounded">
                                         <div class="bg-modon d-flex flex-column p-2 me-2 rounded h-100 ">
-                                            <div class="d-flex align-items-end mb-2">
+                                            <div class="d-flex align-items-end mb-1">
                                                 <img src="./images/default-user.png" alt="Pilot" class="imghover rounded" style="width:50px; height:50px;">
-                                                <div>
+                                                <div class="">
                                                     <p class="px-2 mb-0 lh-1" id="pilotname" data-lang-key="loading...">Loading...</p>
                                                     <small class="cont-btn px-2 mb-0 lh-1" data-lang-key="loading">Loading</small>
                                                 </div>
@@ -340,7 +340,7 @@
                                             </div>
                                         
                                             <!-- Row: Total Missions -->
-                                            <div class="p-2 mt-2">
+                                            <div class="p-2">
                                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
                                                     <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
                                                     <p class="mb-0 fw-bold" id="totalCount">0</p>

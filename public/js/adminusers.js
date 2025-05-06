@@ -497,7 +497,7 @@ function updateInspectionChart(chart, response) {
                     const card = `
                     <div class="col-lg-12 h-100 rounded">
                         <div class="bg-modon h-100 d-flex flex-column p-2 me-2">
-                            <div class="d-flex align-items-end mb-2">
+                            <div class="d-flex align-items-end mb-0">
                                 <img src="/storage/users/${pilot.image}" alt="Search" class="imghover rounded" style="width:50px; height:50px">
                                 <div>
                                     <p class="px-2 mb-0 lh-1 text-capitalize" id="pilotname">${pilot.name}</p>
@@ -511,7 +511,7 @@ function updateInspectionChart(chart, response) {
                             </div>
                 
                             <!-- Row: Pending, Finished, Rejected -->
-                            <div class="justify-content-between gap-2 py-3 mb-1">
+                            <div class="justify-content-between gap-1 py-0">
                                 <!-- Pending -->
                                 <div class="flex-fill p-2">
                                     <div class="d-flex justify-content-between align-items-center label-text p-1">
@@ -547,7 +547,7 @@ function updateInspectionChart(chart, response) {
                             </div>
                 
                             <!-- Row: Total Missions -->
-                            <div class="p-2 ">
+                            <div class="p-2">
                                 <div class="d-flex justify-content-between align-items-center label-text p-1">
                                     <label class="form-check-label mb-0" data-lang-key="totalMissions">Total Missions</label>
                                     <p class="mb-0 fw-bold">${total}</p>

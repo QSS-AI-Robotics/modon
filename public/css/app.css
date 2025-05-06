@@ -692,7 +692,7 @@ iframe {
 .profile-dropdown {
     position: absolute;
     top: 100%;
-    right: 0;
+    inset-inline-end: 0; 
     width: 200px;
     background: #092B3B;
     border: 1px solid #444;
@@ -701,7 +701,7 @@ iframe {
     opacity: 0;
     max-height: 0;
     overflow: hidden;
-    /* pointer-events: none; */
+
     transition: all 0.3s ease;
 }
 
@@ -994,7 +994,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .lang-dropdown, .notification-dropdown, .profile-dropdown {
     position: absolute;
     top: 100%;
-    right: 0;
+  
     min-width: 180px;
     background: #092B3B;
     border-radius: 6px;

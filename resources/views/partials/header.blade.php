@@ -43,13 +43,13 @@
                         <div class="lang-dropdown p-3" id="langDropdown">
 
 
-                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover lang-option" data-lang="ar" style="border-bottom:2px solid #73AF00;">
+                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover lang-option" data-lang="ar" style="border-bottom:2px solid #73AF00;">
                                 <span>Arabic</span>
-                                <img src="{{ asset('images/ar.png') }}" alt="Profile Icon" class="ms-4" style="width: 30px; height: 30px;">
+                                <img src="{{ asset('images/ar.png') }}" alt="Profile Icon" class="" style="width: 30px; height: 30px; margin-inline-start: 2rem;">
                             </button>
-                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover lang-option" data-lang="en" style="border-bottom:2px solid #D90D32;">
+                            <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover lang-option" data-lang="en" style="border-bottom:2px solid #D90D32;">
                                 <span>English</span>
-                                <img src="{{ asset('images/en.png') }}" alt="Profile Icon" class="ms-4" style="width: 30px; height: 30px;">
+                                <img src="{{ asset('images/en.png') }}" alt="Profile Icon" class="" style="width: 30px; height: 30px; margin-inline-start: 2rem;">
                             </button>
                         </div>
                     </div>
@@ -96,11 +96,11 @@
                             <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div>
                            
                         </button>
-                        <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center langhover" id="editProfileButton" style="background: #105A7E">
+                        <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover" id="editProfileButton" style="background: #105A7E">
                             <img src="{{ asset('images/people.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
                             <span>Edit Profile</span>
                         </button>
-                        <button type="submit" class="btn btn-sm btn-danger w-100 text-start langhover" id="logoutButton">
+                        <button type="submit" class="btn btn-sm btn-danger w-100 text-start langhover d-flex align-items-center justify-content-between" id="logoutButton">
                             <img src="{{ asset('images/logout.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
                             <span>Logout</span>
                         </button>

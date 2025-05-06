@@ -265,7 +265,7 @@
                                                         <div class="slider-box">
                                                             <div class="card shadow-sm p-2 text-center" style="background-color: #0A415B; color: #d1d5db; border-radius: 8px; border-bottom: 2px solid #25D366;">
                                                                 <div class="d-flex flex-column justify-content-center align-items-center gap-2" style="min-height: 150px;">
-                                                                    <div class="fw-bold text-white p-3 rounded" style="background: linear-gradient(to bottom, #105A7E, #082D3F); font-size: 15px;">
+                                                                    <div class="fw-bold text-white  p-2 px-3  rounded" style="background: linear-gradient(to bottom, #105A7E, #082D3F); font-size: 15px;">
                                                                         0
                                                                     </div>
                                                                     <div>

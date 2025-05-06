@@ -1126,12 +1126,24 @@ $('#addMissionForm').on('submit', function (e) {
                 const labelText = $(this).siblings("label").text().trim().toLowerCase();
                 $(this).prop("checked", locationNames.includes(labelText));
             });
-        
+            let currentLang = localStorage.getItem("selectedLang") || "ar";
             // ✅ Set form into “edit” mode
             $("#addMissionForm").attr("data-mission-id", missionId);
-            $(".form-title").text("Edit Mission");
-            $(".mission-btn span").text("Update Mission");
-            $(".mission-btn svg").attr({ "width": "30", "height": "30" });
+            if (currentLang === "ar") {
+                //alert("ar");
+                $(".form-title-mission").text("تحديث المهمة");
+                $(".mission-btn span").text("تحديث المهمة");
+            } else {
+                $(".form-title").text("Update Mission");
+                $(".mission-btn span").text("Update Mission");
+                $(".mission-btn svg").attr({ "width": "30", "height": "30" });
+            }
+        
+            // Get language
+           
+            // $(".form-title").text("Edit Mission");
+            // $(".mission-btn span").text("Update Mission");
+            // $(".mission-btn svg").attr({ "width": "30", "height": "30" });
         });
         
       
@@ -1148,12 +1160,22 @@ $('#addMissionForm').on('submit', function (e) {
             $(".inspection-type-checkbox, .location-checkbox").prop("checked", false);
         
             // ✅ Restore Title & Button Text
-            $(".form-title").text("Create New Mission");
-            $(".mission-btn span").text("Create Mission");
+            let currentLang = localStorage.getItem("selectedLang") || "ar";
+            if (currentLang === "ar") {
+                $(".form-title-mission").text("إنشاء مهمة");
+                $(".mission-btn span").text("إنشاء مهمة");
+            } else {
+                $(".form-title").text("Create Mission");
+                $(".mission-btn span").text("Create Mission");
+                $(".mission-btn svg").attr({ "width": "30", "height": "30" });
+            }
+            
+            // $(".form-title").text("Create New Mission");
+            // $(".mission-btn span").text("Create Mission");
         
             // ✅ Remove Cancel Button
           
-            $(".mission-btn svg").attr({ "width": "16", "height": "16" });
+            //$(".mission-btn svg").attr({ "width": "16", "height": "16" });
             // ✅ Clear Mission ID
             $("#addMissionForm").removeAttr("data-mission-id");
             $(".cancel-btn").addClass("d-none");

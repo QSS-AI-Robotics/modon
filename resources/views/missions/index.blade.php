@@ -118,7 +118,7 @@
                     
                     <div class="row">
                         <div class="col-lg-8">
-                            <h6 class="form-title" data-lang-key="create_new_Mission">Create New Missiocn</h6>
+                            <h6 class="form-title form-title-mission" data-lang-key="create_new_Mission">Create New Mission</h6>
                         </div>
                         <div class="col-lg-4  text-end">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none p-1">

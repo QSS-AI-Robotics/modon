@@ -360,6 +360,10 @@ const languageFile = {
         en: "Create New Location",
         ar: "إنشاء موقع جديد",
     },
+    createNewMission: {
+        en: "Create New Mission",
+        ar: "إنشاء مهمة جديدة",
+    },
     locationName: {
         en: "Location Name",
         ar: "اسم الموقع",
@@ -368,9 +372,17 @@ const languageFile = {
         en: "Update Location",
         ar: "تحديث الموقع",
     },
+    updateMission: {
+        en: "Update Mission",
+        ar: "تحديث المهمة",
+    },
     createLocation: {
         en: "Create Location",
         ar: "إنشاء موقع",
+    },
+    createMission: {
+        en: "Create Mission",
+        ar: "إنشاء مهمة",
     },
     completedMissions: {
         en: "Completed Missions",
@@ -510,10 +522,10 @@ $(document).ready(function () {
 
         updateLanguageTexts(selectedLang);
         if ($('#locationId').val()) {
-            $(".form-title").text(languageFile.updateLocation[selectedLang]);
+            $(".form-title-mission").text(languageFile.updateLocation[selectedLang]);
             $(".mission-btn span").text(languageFile.updateLocation[selectedLang]);
         } else {
-            $(".form-title").text(languageFile.createNewLocation[selectedLang]);
+            $(".form-title-mission").text(languageFile.createNewMission[selectedLang]);
             $(".mission-btn span").text(languageFile.createLocation[selectedLang]);
         }
    

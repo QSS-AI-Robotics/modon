@@ -1,4 +1,17 @@
 $(document).ready(function () {
+
+    function toLangKey(str) {
+        return str
+            .trim()
+            .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
+            .replace(/3/g, 'three')          // Replace any 3 with 'three'
+            .replace(/&/g, 'and')            // Replace & with and
+            .replace(/\s+/g, '_');           // Replace spaces with underscores
+    }
+
+    function formatCityNames(text) {
+        return text.trim().replace(/\s+/g, '_');
+    }
     // CSRF Token Setup for AJAX
     $.ajaxSetup({
         headers: {
@@ -35,10 +48,10 @@ $(document).ready(function () {
                     let row = `
                         <tr data-id="${location.id}">
                             <td>${index + 1}</td>
-                            <td>${location.name}</td>
+                            <td data-lang-key="${formatCityNames(location.name)}">${location.name}</td>
 
-                            <td class="text-capitalize">${regionDisplay}</td>
-                            <td>${location.map_url ? `<a href="${location.map_url}" target="_blank">View</a>` : 'N/A'}</td>
+                            <td class="text-capitalize" data-lang-key="${regionDisplay.toLowerCase()}">${regionDisplay}</td>
+                            <td>${location.map_url ? `<a href="${location.map_url}" target="_blank"><span data-lang-key="view">View</span></a>` : 'N/A'}</td>
                             <td>${location.description || 'N/A'}</td>
                             <td>
                                 <img src="./images/edit.png" alt="Edit" class="edit-location img-fluid actions" data-id="${location.id}">

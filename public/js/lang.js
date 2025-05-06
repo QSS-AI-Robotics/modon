@@ -468,6 +468,10 @@ const languageFile = {
         en: "General Manager",
         ar: "المدير العام",
     },
+    view: {
+        en: "View",
+        ar: "عرض",
+    },
 };
 
 function updateLanguageTexts(lang) {

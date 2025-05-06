@@ -448,6 +448,14 @@ const languageFile = {
         en: "Mission Description",
         ar: "وصف المهمة",
     },
+    all: {
+        en: "All",
+        ar: "الكل",
+    },
+    generalManager: {
+        en: "General Manager",
+        ar: "المدير العام",
+    },
 };
 
 function updateLanguageTexts(lang) {
@@ -484,7 +492,7 @@ $(document).ready(function () {
     // Initialize language texts and direction
     updateLanguageTexts(currentLang);
     // updateTextDirection(currentLang);
-
+    updateTextDirection(currentLang);
     // Update language on dropdown click
     $(".lang-option").on("click", function (e) {
         e.preventDefault();
@@ -511,7 +519,7 @@ $(document).ready(function () {
    
         
         $('#langDropdown').removeClass('active');
-        
+        updateTextDirection(selectedLang);
     });
 
     

@@ -5,7 +5,18 @@ $(document).ready(function () {
     if (rolesToDisable.includes(userRole)) {
         $('#CreateMissionBtn').prop('disabled', true);
     }
+    function toLangKey(str) {
+        return str
+            .trim()
+            .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
+            .replace(/3/g, 'three')          // Replace any 3 with 'three'
+            .replace(/&/g, 'and')            // Replace & with and
+            .replace(/\s+/g, '_');           // Replace spaces with underscores
+    }
 
+    function formatCityNames(text) {
+        return text.trim().replace(/\s+/g, '_');
+    }
     getRegionManagerMissions();
     
 
@@ -335,7 +346,7 @@ $(document).ready(function () {
         $(".mstatus").removeClass("activeStatus");
         $(this).addClass("activeStatus");
 
-        const status = $(this).text().trim().toLowerCase(); // get text like "pending"
+        const status = $(this).data("lang-key");// get text like "pending"
         const date = $("#filterMission").val(); // get date if selected
 
         getRegionManagerMissions({ status, date });
@@ -445,12 +456,12 @@ $(document).ready(function () {
     
                     let statusBadge = "";
                     switch (mission.status) {
-                        case "Approved":        statusBadge = `<span class="badge p-2 bg-success" data-lang-key="approved">Approved</span>`; break;
-                        case "Pending":         statusBadge = `<span class="badge p-2 bg-danger" data-lang-key="pending">Pending</span>`; break;
-                        case "Rejected":        statusBadge = `<span class="badge p-2 bg-warning" data-lang-key="rejected">Rejected</span>`; break;
-                        case "In Progress":     statusBadge = `<span class="badge p-2 bg-info text-dark" data-lang-key="inProgress">In Progress</span>`; break;
-                        case "Awaiting Report":statusBadge = `<span class="badge p-2 bg-primary" data-lang-key="awaitingReport">Awaiting Report</span>`; break;
-                        case "Completed":       statusBadge = `<span class="badge p-2 bg-success" data-lang-key="completed">Completed</span>`; break;
+                        case "Approved":        statusBadge = `<span class="badge p-2 bg-success d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="approved">Approved</span>`; break;
+                        case "Pending":         statusBadge = `<span class="badge p-2 bg-danger d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="pending">Pending</span>`; break;
+                        case "Rejected":        statusBadge = `<span class="badge p-2 bg-warning d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="rejected">Rejected</span>`; break;
+                        case "In Progress":     statusBadge = `<span class="badge p-2 bg-info text-dark d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="inProgress">In Progress</span>`; break;
+                        case "Awaiting Report":statusBadge = `<span class="badge p-2 bg-primary d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="awaitingReport">Awaiting Report</span>`; break;
+                        case "Completed":       statusBadge = `<span class="badge p-2 bg-success d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="completed">Completed</span>`; break;
                     }
     
                     const modonApproved  = mission.approval_status?.modon_admin_approved;
@@ -566,9 +577,9 @@ $(document).ready(function () {
                                    
                                    ${approvalIndicator}
                                     <div class="row w-100 justify-content-between label-text">
-                                        <div class="col-3 ps-2" data-name="${inspectionName}" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                        <div class="col-3 ps-2" data-lang-key="${toLangKey(inspectionName)}" data-name="${inspectionName}" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
                                         <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
-                                        <div class="col-3 text-center" data-location-name="${locations}">${locations}</div>
+                                        <div class="col-3 text-center" data-lang-key ="${formatCityNames(locations)}" data-location-name="${locations}">${locations}</div>
                                         <div class="col-2 text-center ps-5">${statusBadge}</div>
                                         <div class="col-2 text-center ps-5">
                                             ${editButton}
@@ -584,14 +595,14 @@ $(document).ready(function () {
                                     <div class="row ">
                                         <div class="col-lg-6">
                                              <strong class="py-1" data-lang-key="program">Program<br></strong> 
-                                             <span class="grayishytext">${inspectionName}</span>
+                                             <span class="grayishytext" data-lang-key="${toLangKey(inspectionName)}">${inspectionName}</span>
                                         </div>
                                         <div class="col-lg-6 text-end">
                                              ${approvalButtons}
                                         </div>
                                         <div class="col-lg-4 ">
                                             <strong class="py-3" data-location-id="${firstLocation.id}" data-region-id="${regionId}" data-region-name="${regionName}" data-lang-key="locations"> Locations </strong><br>
-                                            <span class="grayishytext"> ${locations} ( ${regionName} )</span>       
+                                            <span class="grayishytext"><span data-lang-key="${formatCityNames(locations)}">${locations}</span> ( <span data-lang-key="${regionName}">${regionName} </span> )</span>       
                                         </div>                                        
                                         <div class="col-lg-4 ">
                                          <strong class="py-3" data-lang-key="missionDate">Mission Date</strong><br><span  class="grayishytext" data-mission-date="${mission.mission_date}">${mission.mission_date}</span>
@@ -604,7 +615,7 @@ $(document).ready(function () {
                                             <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}" data-lang-key="pilotName"> Pilot Name</strong><br> <span class="grayishytext" data-pilot-name="${mission.pilot_info?.name}">${mission.pilot_info?.name || 'N/A'}</span>
                                         </div> 
                                         <div class="col-lg-4 "> 
-                                            <strong class="py-3"data-lang-key="missionCreatedBy">Mission Created By<br></strong> <span class="text-capitalize grayishytext" data-mission-created-by-name="${mission.created_by.name}">${mission.created_by.name}</span>(${mission.created_by.user_type}) 
+                                            <strong class="py-3"data-lang-key="missionCreatedBy">Mission Created By<br></strong> <span class="text-capitalize grayishytext" data-mission-created-by-name="${mission.created_by.name}">${mission.created_by.name}</span>(<span data-lang-key="${mission.created_by.user_type}">${mission.created_by.user_type}</span>) 
                                         </div>
                                         <div class="col-lg-12 border-bottom"> 
                                             <strong class="py-3" data-lang-key="note">Note</strong><br><span class="grayishtext" data-mission-note="${fullNote}"> ${fullNote}
@@ -655,9 +666,9 @@ $(document).ready(function () {
         const geolocationinfo = missionRow.find("[data-geolocationinfo]").data("geolocationinfo");
     
         // Update display areas
-        $("#viewprogramInfo").text(inspectionName);
-        $("#viewregionInfo").text(regionName);
-        $("#viewlocationInfo").text(locationName);
+        $("#viewprogramInfo").text(inspectionName).attr("data-lang-key", formatCityNames(inspectionName));
+        $("#viewregionInfo").text(regionName).attr("data-lang-key",regionName);
+        $("#viewlocationInfo").text(locationName).attr("data-lang-key", toLangKey(inspectionName));
         $("#viewOwnerInfo").text(missionCreatedName);
         $("#viewgeoInfo").text(geolocationinfo);
         $("#viewpilotInfo").text(pilotname);
@@ -708,6 +719,8 @@ $(document).ready(function () {
         });
     
         $('#viewMissionReportModal').modal('show');
+        let currentLang = localStorage.getItem("selectedLang") || "ar";
+        updateLanguageTexts(currentLang);
     });
   
     $(document).on('click', '#missionReportImages img', function () {

@@ -36,16 +36,16 @@
                                 <div class="col-lg-5">
                                     <div class="row py-2 gap-2">
                                         <div class="col-lg-2 col-2">
-                                            <span class="badge p-2  mstatus activeStatus" id="allMissions">All </span>
+                                            <span class="badge p-2  mstatus activeStatus" data-lang-key="all" id="allMissions">All </span>
                                         </div>
                                         <div class="col-lg-2 col-2">
-                                            <span class="badge p-2  mstatus" id="pending">Pending</span>
+                                            <span class="badge p-2  mstatus" data-lang-key="pending" id="pending">Pending</span>
                                         </div>
                                         <div class="col-lg-2 col-2">
-                                            <span class="badge p-2  mstatus" id="rejected">Rejected</span>
+                                            <span class="badge p-2  mstatus" data-lang-key="rejected" id="rejected">Rejected</span>
                                         </div>
                                         <div class="col-lg-2 col-2">
-                                            <span class="badge p-2  mstatus" id="completed">Completed</span>
+                                            <span class="badge p-2  mstatus" data-lang-key="completed" id="completed">Completed</span>
                                         </div>
                                     </div>
                                 </div>
@@ -329,7 +329,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="start_datetime" class="form-label " data-lang-key="missioncreated">Mission Created By</label>
+                                                    <label for="start_datetime" class="form-label " data-lang-key="missionCreatedBy">Mission Created By</label>
                                                     <p id="viewOwnerInfo" class="whiteText text-capitlaize"></p>
                                                     <label for="start_datetime" class="form-label" data-lang-key="pilot">Pilot</label>
                                                     <p id="viewpilotInfo" class="whiteText text-capitalize"></p>
@@ -345,7 +345,7 @@
                                                     <p id="viewprogramInfo" class="whiteText text-capitlaize"></p>
                                                     <label for="start_datetime" class="form-label " data-lang-key="location">Location</label>
                                                     <p id="viewlocationInfo" class="whiteText text-capitalize"></p>
-                                                    <label for="start_datetime" class="form-label " data-lang-key="geo">Geo Coordinated</label>
+                                                    <label for="start_datetime" class="form-label " data-lang-key="geoCoordinates">Geo Coordinates</label>
                                                     <p id="viewgeoInfo" class="whiteText text-capitalize"></p>
                                                     <p id="viewmissionDateInfo" class="whiteText text-capitalize d-none"></p>
                                                 </div>

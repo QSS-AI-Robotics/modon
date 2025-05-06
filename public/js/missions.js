@@ -343,8 +343,17 @@ $(document).ready(function () {
     $("#filterMission").on("change", function () {
         const date = $(this).val();
         const status = $(".mstatus.activeStatus").text().trim().toLowerCase();
-  
+        Swal.fire({
+            title: 'Loading Missions...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
         getRegionManagerMissions({ status, date });
+
+    
+        Swal.close();
     });
    
     function renderMissionPagination(response) {
@@ -543,12 +552,19 @@ $(document).ready(function () {
                             `;
                         }
                     }
-                    
+                    let approvalIndicator = approvalButtons ? `
+                        <span class="position-absolute top-25 start-0 translate-middle p-1 bg-danger rounded-circle">
+                            <span class="visually-hidden">New alerts</span>
+                        </span>
+                    ` : '';
                     // ✅ Final row HTML
                     const row = `
                         <div class="accordion-item" id="missionRow-${mission.id}" data-pilot-id="${mission.pilot_id}">
-                            <h2 class="accordion-header" id="heading-${mission.id}">
-                                <button class="accordion-button collapsed d-flex px-3 py-2" type="button">
+
+                            <h2 class="accordion-header  position-relative" id="heading-${mission.id}">
+                                <button class="accordion-button collapsed d-flex px-3 py-2 " type="button">
+                                   
+                                   ${approvalIndicator}
                                     <div class="row w-100 justify-content-between label-text">
                                         <div class="col-3 ps-2" data-name="${inspectionName}" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
                                         <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>

@@ -577,8 +577,8 @@ $(document).ready(function () {
                                    
                                    ${approvalIndicator}
                                     <div class="row w-100 justify-content-between label-text">
-                                        <div class="col-3 ps-2" data-lang-key="${toLangKey(inspectionName)}" data-name="${inspectionName}" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
-                                        <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
+                                        <div class="col-3 ps-2  d-flex align-items-center justify-content-start" data-lang-key="${toLangKey(inspectionName)}" data-name="${inspectionName}" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                        <div class="col-2 ps-4  d-flex align-items-center justify-content-start mission_date">${mission.mission_date}</div>
                                         <div class="col-3 text-center" data-lang-key ="${formatCityNames(locations)}" data-location-name="${locations}">${locations}</div>
                                         <div class="col-2 text-center ps-5">${statusBadge}</div>
                                         <div class="col-2 text-center ps-5">

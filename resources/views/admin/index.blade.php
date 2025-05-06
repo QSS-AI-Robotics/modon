@@ -24,7 +24,7 @@
                                         <div class="card-body d-flex flex-column justify-content-between p-2 bg-section">
                                             <div class="d-flex align-items-center mb-2">
                                                 <img src="{{ asset('images/pilot-hat.png') }}" class="img-fluid" style="height: 22px;">
-                                                <p class="ps-2 mb-0" data-lang-key="pilots">Pilots</p>
+                                                <p class="px-2 mb-0" data-lang-key="pilots">Pilots</p>
                                             </div>
                                             <div class="text-end">
                                                 <h2 id="totalPilots" class="mb-0">{{ $pilot }}</h2>
@@ -39,7 +39,7 @@
                                         <div class="card-body d-flex flex-column justify-content-between p-2  bg-section">
                                             <div class="d-flex align-items-center mb-2">
                                                 <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 22px;">
-                                                <p class="ps-2 mb-0" data-lang-key="drones">Drones</p>
+                                                <p class="px-2 mb-0" data-lang-key="drones">Drones</p>
                                             </div>
                                             <div class="text-end">
                                                 <h2 id="totaldrones" class="mb-0">{{ $drones }}</h2>
@@ -61,7 +61,7 @@
                                         <div class="card-body d-flex flex-column justify-content-between p-2 py-3 bg-section">
                                             <div class="d-flex align-items-center mb-2">
                                                 <img src="{{ asset('images/missions.png') }}" class="img-fluid" style="height: 24px;">
-                                                <p class="ps-2 mb-0"data-lang-key="missions">Missions</p>
+                                                <p class="px-2 mb-0"data-lang-key="missions">Missions</p>
                                             </div>
                                             <div class="text-end">
                                                 <h2 id="totalMissions" class="mb-0">{{ $missions }}</h2>
@@ -82,8 +82,8 @@
                                     <div class="card h-100  py-1">
                                         <div class="card-body d-flex flex-column justify-content-between p-2 bg-section">
                                             <div class="d-flex align-items-center mb-2">
-                                                <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 20px;">
-                                                <p class="ps-2 mb-0"data-lang-key="reigons">Reigons</p>
+                                                <img src="{{ asset('images/regions.png') }}" class="img-fluid" style="height: 20px;">
+                                                <p class="px-2 mb-0"data-lang-key="reigons">Reigons</p>
                                             </div>
                                             <div class="text-end">
                                                 <h2 id="totalRegions" class="mb-0">{{ $regions-1 }}</h2>
@@ -96,8 +96,8 @@
                                     <div class="card h-100  py-1">
                                         <div class="card-body d-flex flex-column justify-content-between p-2 bg-section">
                                             <div class="d-flex align-items-center mb-2">
-                                                <img src="{{ asset('images/drones.png') }}" class="img-fluid" style="height: 20px;">
-                                                <p class="ps-2 mb-0"data-lang-key="locations">Locations</p>
+                                                <img src="{{ asset('images/locations.png') }}" class="img-fluid" style="height: 20px;">
+                                                <p class="px-2 mb-0"data-lang-key="locations">Locations</p>
                                             </div>
                                             <div class="text-end">
                                                 <h2 id="totalLocations" class="mb-0">{{ $locations }}</h2>
@@ -378,7 +378,7 @@
                                 </div>
                             </div>
                         </div> --}}
-                        <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-2 bg-section gap-2 stack-on-mobile w-50 secondDiv" style="min-height: 0;">
+                        <div class="d-flex flex-grow-0 flex-lg-grow-1 px-2 pb-1 bg-section gap-2 stack-on-mobile w-50 secondDiv" style="min-height: 0;">
                             <div class="card-body d-flex flex-column p-2 " style="min-height: 0; overflow: hidden;">                                
                                 <!-- Header Row -->
                                 <div class="d-flex justify-content-between align-items-center px-2 mb-2">

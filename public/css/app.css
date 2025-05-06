@@ -570,7 +570,11 @@ iframe {
     background: #092B3B;
      border-radius: 6px;
 }
-
+.custImg2{
+    height: 31px; 
+    background: #092B3B;
+     border-radius: 6px;
+}
 .imghover:hover {
     transform: scale(1.5); /* increase or decrease as needed */
 }

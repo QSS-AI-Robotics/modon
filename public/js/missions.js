@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // CSRF Token Setup for AJAX
-    const rolesToDisable = ['modon_admin', 'region_manager', 'general_manager'];
+    const rolesToDisable = ['modon_admin', 'region_manager', 'general_manager','qss_admin'];
     const userRole =  $('#userTypeFront').attr('data-lang-key');
     if (rolesToDisable.includes(userRole)) {
         $('#CreateMissionBtn').prop('disabled', true);

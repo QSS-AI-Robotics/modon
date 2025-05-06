@@ -28,7 +28,10 @@
                                     <h5>Users</h5>
                                 </div>
                                 <div class="col-lg-4 text-end px-4 py-2">
-                                    <img src="./images/refresh.png" class="img-fluid mx-1 p-1  imghover custImg2 refreshIcon">
+                                   
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32" class=" mx-1 p-1  imghover custImg2 refreshIcon">
+                                        <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA5RJREFUWEfFl02oVlUUhp9XJLLCQiukwkFSaFJk2H9hJCWVg7LQTCEaBBeFSiWooLQiaGBkFIXQwEmSUd6JltifRGEZZVSXIgcFqQT9mFQmUb3uJftevu/cs885d3TX5Ps4e62137PWu36OGGfRON/PmAHYPgO4HpgDTAEmA/uB79PzDyR9NZaX6gzA9rXJ8TrgOmBCwyXfAhuBFyX90wamFYDt0NkK3NrmrHK+D1gh6Z0mu64AfgamZke/59/TOgD6F7hP0ksl3VoAtk8Bnsw5HbQ9CzgH2Cvpl3BmO3J/FbAcWAJMbAC0StKGuvMSgE2JVHcDkcMrJO1telvbM4EtKVUXFfQiEjdI2lU9HwXA9iLgjR7FIWCupKMtICZlu5sKegeA8yUd6T3vA2B7GhBldHrFyQZJq9pybjt4sQc4r6D7sKSnawFktm9LDm6uMf4fuFHSux1ALEhp21HQ+wE4V5KHz0ciYHsAKLIV+DFyLGm4CmrvyC/yNXBBAcSVkj7uA2B7RqrzL4Bgf5NslrSsQxSiYa0t6PVVhGxH+XwIXN7mOJ/fKSkYXxTbSxPhNhcUXpZ070gEbD8GPN7x8lD7LaciWF1Kwy2pcoJPdTIoKSrtuEQEDgHB3iDG38BJBcO/gJPz2Sg2514Qzet94CAwWPCzE3gIuB8YCgAPArOB53L3C/R1chtwVrpgHvCopO96lWw/AjyVn/WCrfqKPhA9IwrgULUPvJ76wO0FAAslbW8I+9nAl3lEd83o2iqAF4CVBeulkl5t8mw7ZkKjTo/9J8A1VQCrgWcKl6yT1EpW268Ad7WEIFI0J5X0viqAucCnBeOYCRf2drE6Pdun5lRMbwAxICmWlv6VLHexWK+CbHWyQFKwuFFszwfervrPRm8Cwafj7bhuGq5JHXF94YbYci5ra8dhmyLxLPBAxU/sEhHFn4af1wGIEomLgtV18hZwR3WsVhVtnwh8VpkJiyT19YfSQhKLZ4SwtOXEyF4sKRbQoti+BNgNnABsknRPVbm4E9qO8EUYSxJbzmtp9gfrP0r7wuEc+jOBi2N6SvrGdjSwq9NZVNGfnQFkZzGin2/Z94Z9/gHE3hBVEPKrpOpiM+plumzFwejYE0pbTilCW9NHSqmrjti0AsiRiByuAGKMlhaNUP0PeC99uDwhKUZ8q3QC0OvFduT30hyR6BeR1xjRn8flkuJ/ZxkzgM6eOyqOO4BjEpokCapKKsoAAAAASUVORK5CYII=" x="0" y="0" width="32" height="32"/>
+                                      </svg>
                                 </div>
                                 <div class="col-lg-5">
                                     <div class="row py-2 gap-2">

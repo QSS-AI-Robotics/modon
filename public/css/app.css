@@ -683,7 +683,9 @@ iframe {
     width: 40px;
     border-radius: 50%;
 }
-
+.text-inline-end {
+    text-align: inline-end !important;
+}
 .profile-info {
     display: flex;
     flex-direction: column;

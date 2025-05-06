@@ -1148,3 +1148,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         background-position: -200% 0;
     }
 }
+
+
+.resetPasswordHeader .btn-close {
+    margin-inline-start: 1rem; /* Works for both LTR and RTL */
+}

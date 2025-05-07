@@ -113,7 +113,7 @@
                 </div> --}}
 
                 <!-- Create New Mission -->
-                <div class="d-flex flex-column bg-section p-3 flex-grow-1 mx-2 ">
+                <div class="d-flex flex-column bg-section p-3 flex-grow-1 " style="margin-inline-start:0.5rem">
                     
                     
                     <div class="row">

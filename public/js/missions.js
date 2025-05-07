@@ -493,7 +493,7 @@ $(document).ready(function () {
                       
                     
                      
-                            if ((userType === 'modon_admin' || userType === 'region_manager'|| userType === 'general_manager') && mission.status === 'Pending') {
+                            if ((userType === 'modon_admin' || userType === 'region_manager'|| userType === 'general_manager') && mission.status === 'Pending' && modonApproved === 0 ) {
                                 editButton = `<img src="./images/edit.png" alt="Edit" class="edit-mission img-fluid actions" data-id="${mission.id}">`;
                             }
                         

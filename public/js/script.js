@@ -125,7 +125,7 @@ $(document).ready(function () {
         // Previous Button
         paginationHTML += `
             <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                <a class="page-link" href="#" data-page="${currentPage - 1}" data-lang-key="previous">Previous</a>
             </li>`;
     
         // Page numbers (optional: simplify with only nearby pages)
@@ -139,7 +139,7 @@ $(document).ready(function () {
         // Next Button
         paginationHTML += `
             <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
-                <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                <a class="page-link" href="#" data-page="${currentPage + 1}" data-lang-key="next">Next</a>
             </li>`;
     
         paginationHTML += `</ul></nav>`;
@@ -288,6 +288,9 @@ $(document).ready(function () {
                 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
                 tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
                 renderMissionPagination(response);
+                let currentLang = localStorage.getItem("selectedLang") || "ar";
+            //console.log('Calling updateLanguageTexts with:', currentLang);
+            updateLanguageTexts(currentLang);
             },
             error: function (xhr) {
                 console.error("❌ Error fetching users:", xhr.responseText);

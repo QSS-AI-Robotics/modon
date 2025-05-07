@@ -71,7 +71,7 @@
                         <div class="col-lg-8">
                             <h6 class="form-title" data-lang-key="createNewLocation">Create New Location</h6>
                         </div>
-                        <div class="col-lg-4  text-end">
+                        <div class="col-lg-4  rtl-align-start">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none p-1">
                                 ✖
                             </button>

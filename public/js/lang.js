@@ -504,6 +504,54 @@ const languageFile = {
         en: "Select Regions",
         ar: "اختر المناطق",
     },
+    qssAdminPanel: {
+        en: "QSS Admin Panel",
+        ar: "لوحة تحكم QSS",
+    },
+    adminControl: {
+        en: "Admin Control",
+        ar: "تحكم المشرف",
+    },
+    avatar: {
+        en: "Avatar",
+        ar: "الصورة",
+    },
+    name: {
+        en: "Name",
+        ar: "الاسم",
+    },
+    email: {
+        en: "Email",
+        ar: "البريد الإلكتروني",
+    },
+    type: {
+        en: "Type",
+        ar: "النوع",
+    },
+    fullName: {
+        en: "Full Name",
+        ar: "الاسم الكامل",
+    },
+    selectUserType: {
+        en: "Select User Type",
+        ar: "اختر نوع المستخدم",
+    },
+    assignedRegions: {
+        en: "Assigned Regions",
+        ar: "المناطق المخصصة",
+    },
+    profileImage: {
+        en: "Profile Image",
+        ar: "صورة الملف الشخصي",
+    },
+    createNewUser: {
+        en: "Create New User",
+        ar: "إنشاء مستخدم جديد",
+    },
+    createUser: {
+        en: "Create User",
+        ar: "إنشاء مستخدم",
+    },
 };
 
 function updateLanguageTexts(lang) {

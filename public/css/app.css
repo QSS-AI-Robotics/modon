@@ -1191,3 +1191,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 1;
     max-height: 500px; /* Or whatever height */
 }
+
+[dir="rtl"] .rtl-align-start {
+    text-align: end !important;
+}
+
+[dir="ltr"] .rtl-align-start {
+    text-align: end !important;
+}

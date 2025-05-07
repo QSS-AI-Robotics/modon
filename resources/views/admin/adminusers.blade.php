@@ -12,8 +12,8 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                        <p class="gray-text">Qss Admin Panel</p>
-                        <h3 class="fw-bold">Admin Control</h3>
+                        <p class="gray-text"data-lang-key="qssAdminPanel">Qss Admin Panel</p>
+                        <h3 class="fw-bold" data-lang-key="adminControl">Admin Control</h3>
                     </div>
                 </div>
 
@@ -25,9 +25,9 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Users</h5>
+                                    <h5 data-lang-key="users">Users</h5>
                                 </div>
-                                <div class="col-lg-4 text-end px-4 py-2">
+                                <div class="col-lg-4 rtl-align-start px-4 py-2">
                                    
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32" class=" mx-1 p-1  imghover custImg2 refreshIcon">
                                         <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA5RJREFUWEfFl02oVlUUhp9XJLLCQiukwkFSaFJk2H9hJCWVg7LQTCEaBBeFSiWooLQiaGBkFIXQwEmSUd6JltifRGEZZVSXIgcFqQT9mFQmUb3uJftevu/cs885d3TX5Ps4e62137PWu36OGGfRON/PmAHYPgO4HpgDTAEmA/uB79PzDyR9NZaX6gzA9rXJ8TrgOmBCwyXfAhuBFyX90wamFYDt0NkK3NrmrHK+D1gh6Z0mu64AfgamZke/59/TOgD6F7hP0ksl3VoAtk8Bnsw5HbQ9CzgH2Cvpl3BmO3J/FbAcWAJMbAC0StKGuvMSgE2JVHcDkcMrJO1telvbM4EtKVUXFfQiEjdI2lU9HwXA9iLgjR7FIWCupKMtICZlu5sKegeA8yUd6T3vA2B7GhBldHrFyQZJq9pybjt4sQc4r6D7sKSnawFktm9LDm6uMf4fuFHSux1ALEhp21HQ+wE4V5KHz0ciYHsAKLIV+DFyLGm4CmrvyC/yNXBBAcSVkj7uA2B7RqrzL4Bgf5NslrSsQxSiYa0t6PVVhGxH+XwIXN7mOJ/fKSkYXxTbSxPhNhcUXpZ070gEbD8GPN7x8lD7LaciWF1Kwy2pcoJPdTIoKSrtuEQEDgHB3iDG38BJBcO/gJPz2Sg2514Qzet94CAwWPCzE3gIuB8YCgAPArOB53L3C/R1chtwVrpgHvCopO96lWw/AjyVn/WCrfqKPhA9IwrgULUPvJ76wO0FAAslbW8I+9nAl3lEd83o2iqAF4CVBeulkl5t8mw7ZkKjTo/9J8A1VQCrgWcKl6yT1EpW268Ad7WEIFI0J5X0viqAucCnBeOYCRf2drE6Pdun5lRMbwAxICmWlv6VLHexWK+CbHWyQFKwuFFszwfervrPRm8Cwafj7bhuGq5JHXF94YbYci5ra8dhmyLxLPBAxU/sEhHFn4af1wGIEomLgtV18hZwR3WsVhVtnwh8VpkJiyT19YfSQhKLZ4SwtOXEyF4sKRbQoti+BNgNnABsknRPVbm4E9qO8EUYSxJbzmtp9gfrP0r7wuEc+jOBi2N6SvrGdjSwq9NZVNGfnQFkZzGin2/Z94Z9/gHE3hBVEPKrpOpiM+plumzFwejYE0pbTilCW9NHSqmrjti0AsiRiByuAGKMlhaNUP0PeC99uDwhKUZ8q3QC0OvFduT30hyR6BeR1xjRn8flkuJ/ZxkzgM6eOyqOO4BjEpokCapKKsoAAAAASUVORK5CYII=" x="0" y="0" width="32" height="32"/>
@@ -59,12 +59,12 @@
                                 <thead>
                                     <tr>
                                         
-                                        <th>Avatar</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Type</th> 
-                                        <th>Region</th>
-                                        <th>Actions</th>
+                                        <th data-lang-key="avatar">Avatar</th>
+                                        <th data-lang-key="name">Name</th>
+                                        <th data-lang-key="email">Email</th>
+                                        <th data-lang-key="type">Type</th> 
+                                        <th data-lang-key="region">Region</th>
+                                        <th data-lang-key="actions">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="userTableBody" class="text-left">
@@ -91,9 +91,9 @@
                     
                     <div class="row">
                         <div class="col-lg-8">
-                            <h6 class="form-title">Create New User</h6>
+                            <h6 class="form-title" data-lang-key="createNewUser">Create New User</h6>
                         </div>
-                        <div class="col-lg-4  text-end">
+                        <div class="col-lg-4  rtl-align-start">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none px-2">
                                 ✖
                             </button>
@@ -109,22 +109,22 @@
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text pt-2">Full Name</label>
+                                <label class="form-label label-text pt-2" data-lang-key="fullName">Full Name</label>
                                 <input type="text" class="form-control dateInput" id="name" name="name" value="" >
 
 
                             </div>
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text pt-2">Email</label>
+                                <label class="form-label label-text pt-2" data-lang-key="email">Email</label>
                                 <input type="email" class="form-control dateInput"  id="email" name="email" value="@qltyss.com" >
                             </div>
 
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text pt-2">Password</label>
+                                <label class="form-label label-text pt-2"data-lang-key="password">Password</label>
                                 <input type="password" class="form-control dateInput" id="password" name="password" value="admin1234" >
                             </div>
                             <div class="col-md-12 col-sm-12">
-                                <label for="user_type_id" class="form-label label-text pt-2">Type</label>
+                                <label for="user_type_id" class="form-label label-text pt-2" data-lang-key="type">Type</label>
                                 <select class="form-select dateInput" id="user_type_id" name="user_type_id" >
                                     <option value="">Select User Type</option>
                                     @foreach($userTypes as $userType)
@@ -139,13 +139,13 @@
  
                             
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label pt-2 label-text">Assigned Region(s)</label>
+                                <label class="form-label pt-2 label-text" data-lang-key="assignedRegions">Assigned Region(s)</label>
                                 <div id="regionCheckboxes" class="d-flex flex-wrap gap-2">
                                     @foreach($regions as $region)
                                         <div class="form-check">
                                             <input class="form-check-input region-checkbox" type="checkbox" 
                                                    value="{{ $region->id }}" id="region_{{ $region->id }}">
-                                            <label class="form-check-label text-capitalize label-text" for="region_{{ $region->id }}">
+                                            <label class="form-check-label text-capitalize label-text" data-lang-key="{{ $region->name }}" for="region_{{ $region->id }}">
                                                 {{ $region->name === 'all' ? 'Headquarter' : ucwords(str_replace('_', ' ', $region->name)) }}
                                             </label>
                                         </div>
@@ -170,7 +170,7 @@
                             </div>
                             <div  class="col-md-12 d-none" id="LocationsFields">
                                 <div class="col-md-12 col-sm-12">
-                                    <label for="location_id" class="form-label label-text pt-2">Locations</label>
+                                    <label for="location_id" class="form-label label-text pt-2" data-lang-key="location">Locations</label>
                                     <select class="form-select dateInput" id="location_id" name="location_id">
                                         <option value="">Select Location</option>
                                         @foreach($locations as $location)
@@ -197,7 +197,7 @@
                                 </div>
                             </div>
                             <div class="col-md-12 col-sm-12">
-                                <label for="image" class="form-label pt-2">Profile Image</label>
+                                <label for="image" class="form-label pt-2" data-lang-key="profileImage">Profile Image</label>
                                 <input type="file" class="form-control dateInput" id="user_image" name="image" accept="image/*">
                                 <img id="imagePreview" src="#" alt="Preview" class="img-fluid mt-2 d-none" style="max-height: 100px;">
                             </div>
@@ -211,7 +211,7 @@
                             </div>
                                <!-- Button (Update or Create) -->
                                 <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
-                                    <button class="btn mission-btn btn-sm d-flex align-items-center " type="submit">
+                                    <button class="btn mission-btn btn-sm d-flex align-items-center" data-lang-key="createUser" type="submit">
                                         Create User
                                     </button>
                                 </div>

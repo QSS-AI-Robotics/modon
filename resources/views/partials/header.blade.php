@@ -84,11 +84,11 @@
                         <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover" id="editProfileButton" style="background: #105A7E">
                             
                             <span data-lang-key="editProfile">Edit Profile</span>
-                            <img src="{{ asset('images/people.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
+                            <img src="{{ asset('images/people.png') }}" alt="Profile Icon" class="" style="width: 20px; height: 20px;">
                         </button>
                         <button type="submit" class="btn btn-sm btn-danger w-100 text-start langhover d-flex align-items-center justify-content-between" id="logoutButton">
                             <span data-lang-key="logout">Logout</span>
-                            <img src="{{ asset('images/logout.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
+                            <img src="{{ asset('images/logout.png') }}" alt="Profile Icon" class="" style="width: 20px; height: 20px;">
                             
                         </button>
                            

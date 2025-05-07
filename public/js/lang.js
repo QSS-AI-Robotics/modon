@@ -552,6 +552,38 @@ const languageFile = {
         en: "Create User",
         ar: "إنشاء مستخدم",
     },
+    droneControl: {
+        en: "Drone Control",
+        ar: "التحكم في الطائرات بدون طيار",
+    },
+    drones: {
+        en: "Drones",
+        ar: "الطائرات بدون طيار",
+    },
+    serialNumber: {
+        en: "Serial Number",
+        ar: "الرقم التسلسلي",
+    },
+    assignedTo: {
+        en: "Assigned To",
+        ar: "مخصص لـ",
+    },
+    model: {
+        en: "Model",
+        ar: "الطراز",
+    },
+    selectPilot: {
+        en: "Select Pilot",
+        ar: "اختر الطيار",
+    },
+    addDrone: {
+        en: "Add Drone",
+        ar: "إضافة طائرة بدون طيار",
+    },
+    addNewDrone: {
+        en: "Add New Drone",
+        ar: "إضافة طائرة جديدة بدون طيار",
+    },
 };
 
 function updateLanguageTexts(lang) {

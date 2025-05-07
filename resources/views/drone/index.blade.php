@@ -12,8 +12,8 @@
                 <!-- Mission Control Header -->
                 <div class="row">
                     <div class="col-lg-12 p-3 bg-section d-flex flex-column align-items-start">
-                        <p class="gray-text">Qss Admin Panel</p>
-                        <h3 class="fw-bold">Drone Control</h3>
+                        <p class="gray-text" data-lang-key="qssAdminPanel">Qss Admin Panel</p>
+                        <h3 class="fw-bold" data-lang-key="droneControl">Drone Control</h3>
                     </div>
                 </div>
 
@@ -25,7 +25,7 @@
                         <div class="border-bottom-qss p-2">
                             <div class="row d-flex justify-content-between">
                                 <div class="col-lg-4">
-                                    <h5>Drones</h5>
+                                    <h5 data-lang-key="drones">Drones</h5>
                                 </div>
                                 <div class="col-lg-4 text-end search-container">
                                     <img src="../images/search.png" alt="Search" class="img-fluid search-icon">
@@ -40,10 +40,10 @@
                                 <thead>
                                     <tr>
                                         <th>#</th> <!-- Serial number column -->
-                                        <th>Model</th>
-                                        <th>Serial No</th>
-                                        <th>Assigned To</th> 
-                                        <th>Actions</th> 
+                                        <th data-lang-key="model">Model</th>
+                                        <th data-lang-key="serialNumber">Serial No</th>
+                                        <th data-lang-key="assignedTo">Assigned To</th> 
+                                        <th data-lang-key="actions">Actions</th> 
                                     </tr>
                                 </thead>
                                 <tbody id="DroneTableBody">
@@ -85,9 +85,9 @@
                     
                     <div class="row">
                         <div class="col-lg-8">
-                            <h6 class="form-title">Add New Drone</h6>
+                            <h6 class="form-title" data-lang-key="addNewDrone">Add New Drone</h6>
                         </div>
-                        <div class="col-lg-4  text-end">
+                        <div class="col-lg-4 rtl-align-start">
                             <button type="button" class="btn btn-danger cancel-btn btn-sm d-none px-2">
                                 ✖
                             </button>
@@ -103,18 +103,18 @@
                             </div>
                             <!-- Date Inputs -->
                             <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text pt-2">Modal</label>
+                                <label class="form-label label-text pt-2" data-lang-key="model">Model</label>
                                 <input type="text" class="form-control dateInput" id="modal" name="modal" value="Dji Mavic 4" disabled>
                             </div>
                             <div class="col-md-6 col-sm-12">
-                                <label class="form-label label-text pt-2">Serial No</label>
+                                <label class="form-label label-text pt-2" data-lang-key="serialNumber">Serial No</label>
                                 <input type="text" class="form-control dateInput"  id="srno" name="srno"  >
                             </div>
 
                            
                             {{-- notes textarea --}}
                             <div class="col-md-12 col-sm-12">
-                                <label for="user_type" class="form-label pt-2">Select Pilot</label>
+                                <label for="user_type" class="form-label pt-2" data-lang-key="selectPilot">Select Pilot</label>
                                 <select class="form-select dateInput" id="user_type" name="user_type">
                                     <option value="">Select Pilot</option>
                                     @foreach($pilots as $pilot)
@@ -128,7 +128,7 @@
                             </div>
                                <!-- Button (Update or Create) -->
                                 <div class="col-lg-6 d-flex  align-items-end text-center mt-4">
-                                    <button class="btn mission-btn btn-sm d-flex align-items-center" id="submitDroneBtn" type="submit">
+                                    <button class="btn mission-btn btn-sm d-flex align-items-center" data-lang-key="addDrone" id="submitDroneBtn" type="submit">
                                         Add Drone
                                     </button>
                                 </div>

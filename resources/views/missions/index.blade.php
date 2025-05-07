@@ -155,6 +155,7 @@
                                             @if($regions->count() === 1) disabled @endif required>
                                         @foreach($regions as $reg)
                                             <option value="{{ $reg->id }}"
+                                                data-lang-key="{{ $reg->name }}"
                                                 @if($selectedRegionId == $reg->id) selected @endif>
                                                 {{ $reg->name }}
                                             </option>

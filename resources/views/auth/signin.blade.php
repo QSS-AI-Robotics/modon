@@ -54,7 +54,7 @@
           
               <!-- Moved link outside the d-flex container -->
               <div class="text-start mt-3">
-                <a href="#" id="forgetPasswordLink" style="color: #43839E;">هل نسيت كلمة السر؟</a>
+                <a href="#" id="forgetPasswordLink" style="color: #eceef0;">هل نسيت كلمة السر؟</a>
                 {{-- <a href="#" id="forgetPasswordLink" style="color: #43839E;">Forgot Password?</a> --}}
               </div>
             </form>

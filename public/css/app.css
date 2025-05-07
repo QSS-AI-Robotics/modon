@@ -107,7 +107,7 @@ body{
     gap: 10px;
     position: relative;
 }
-.start-date-wrapper{
+/* .start-date-wrapper{
     position: absolute;
     right: 150px;
     top: -20px;
@@ -116,6 +116,30 @@ body{
     position: absolute;
     right: 0px;
     top: -20px;
+} */
+.start-date-wrapper {
+    position: absolute;
+    top: -20px;
+}
+
+.end-date-wrapper {
+    position: absolute;
+    top: -20px;
+}
+/* Styles for LTR direction */
+:dir(ltr) .start-date-wrapper {
+    right: 150px;
+}
+
+:dir(ltr) .end-date-wrapper {
+    right: 0px;
+}
+:dir(rtl) .start-date-wrapper {
+    right: -265px;
+}
+
+:dir(rtl) .end-date-wrapper {
+    right: -130px;
 }
 .date-fields-wrapper {
     display: flex;

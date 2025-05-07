@@ -118,9 +118,11 @@
             <div class="modal fade" id="passwordResetModal" tabindex="-1" aria-labelledby="passwordResetModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" style="background: #105A7E">
-                        <div class="modal-header text-white" >
-                            <h5 class="modal-title text-white" data-lang-key="resetPassword" id="passwordResetModalLabel">Reset Password</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-header text-white d-flex justify-content-between align-items-center" id="passwordModalHeader">
+                            <h5 class="modal-title text-white" data-lang-key="resetPassword" id="passwordResetModalLabel">
+                                إعادة تعيين كلمة المرور
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="passwordCloseHeaderBtn"></button>
                         </div>
                         <div class="modal-body text-white">
                             <form id="passwordResetForm">

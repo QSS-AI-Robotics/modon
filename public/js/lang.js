@@ -541,6 +541,8 @@ $(document).ready(function () {
     updateLanguageTexts(currentLang);
     // updateTextDirection(currentLang);
     updateTextDirection(currentLang);
+
+    adjustModalHeaderDirection(currentLang);
     // Update language on dropdown click
     $(".lang-option").on("click", function (e) {
         e.preventDefault();
@@ -568,6 +570,19 @@ $(document).ready(function () {
         
         $('#langDropdown').removeClass('active');
         updateTextDirection(selectedLang);
+        adjustModalHeaderDirection(selectedLang);
+        function adjustModalHeaderDirection(selectedLang) {
+     
+        
+            if (selectedLang === 'ar') {
+                $('#passwordCloseHeaderBtn').css('margin', '0');
+            } else {
+            
+               
+                $('#passwordCloseHeaderBtn').removeAttr('style');
+            }
+            
+        }
     });
 
     

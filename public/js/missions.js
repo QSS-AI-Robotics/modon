@@ -18,7 +18,6 @@ $(document).ready(function () {
         return text.trim().replace(/\s+/g, '_');
     }
     getRegionManagerMissions();
-    
 
     $(".refreshIcon").on('click', function(){
 

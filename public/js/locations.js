@@ -38,7 +38,7 @@ $(document).ready(function () {
                     `);
                     return;
                 }
-    
+                const offset = (response.current_page - 1) * response.per_page;
                 // ✅ Loop through locations and append to table
                 $.each(response.data, function (index, location) {
                     let regionDisplay = location.region 
@@ -47,7 +47,7 @@ $(document).ready(function () {
     
                     let row = `
                         <tr data-id="${location.id}">
-                            <td>${index + 1}</td>
+                           <td>${offset + index + 1}</td>
                             <td data-lang-key="${formatCityNames(location.name)}">${location.name}</td>
 
                             <td class="text-capitalize" data-lang-key="${regionDisplay.toLowerCase()}">${regionDisplay}</td>

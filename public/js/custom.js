@@ -96,27 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.error-message').forEach(el => el.remove());
     }
 
-    const langToggle = document.getElementById("langToggle");
-    const langDropdown = document.getElementById("langDropdown");
 
-    if (langToggle && langDropdown) {
-        langToggle.addEventListener("click", function (e) {
-            e.stopPropagation();
-            langDropdown.classList.toggle("active");
-        });
-
-        document.addEventListener("click", function (e) {
-            if (!langDropdown.contains(e.target) && !langToggle.contains(e.target)) {
-                langDropdown.classList.remove("active");
-            }
-        });
-    }
-    // Close dropdown when clicking anywhere else
-    document.addEventListener('click', function (e) {
-        if (!langDropdown.contains(e.target) && !langToggle.contains(e.target)) {
-            langDropdown.classList.remove('active');
-        }
-    });
     
     
 });

@@ -64,7 +64,7 @@
 
 
                 <!-- Create New Mission -->
-                <div class="d-flex flex-column bg-section p-3 flex-grow-1 mx-2 my-1">
+                <div class="d-flex flex-column bg-section p-3 flex-grow-1 "  style="margin-inline-start: 0.5rem;">
                     
                     
                     <div class="row">
@@ -85,22 +85,7 @@
                             <div class="col-md-6">
                                 <input type="hidden" name="locationId" id="locationId">
                             </div>
-                            <!-- Date Inputs -->
-                            {{-- <div class="col-md-12 col-sm-12">
-                                <label class="form-label label-text" data-lang-key="region">Region</label>
-                                <select class="form-select dateInput" id="region_id">
-                                    <option data-lang-key="selectRegions" value="">Select Regions</option>
-                                    @foreach($regions as $region)
-                                    @if($region->name !== 'all' && $region->id !== 1)
-                                        <option value="{{ $region->id }}">
-                                            {{ ucwords(str_replace('_', ' ', $region->name)) }}
-                                        </option>
-                                    @endif
-                                @endforeach
-                                
-                                </select>
-                                
-                            </div> --}}
+                           
                             <div class="col-md-12 col-sm-12">
                                 <label class="form-label label-text" data-lang-key="region">Region</label>
                                 <select class="form-select dateInput" id="region_id">

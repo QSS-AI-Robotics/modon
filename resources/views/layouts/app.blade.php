@@ -95,15 +95,22 @@
 
 
    <script>
-
     document.addEventListener("DOMContentLoaded", function () {
+
         const toggle = document.getElementById("profileToggle");
         const dropdown = document.getElementById("profileDropdown");
 
+        const langToggle = document.getElementById("langToggle");
+        const langDropdown = document.getElementById("langDropdown");
+
+        // Profile Toggle
         if (toggle && dropdown) {
             toggle.addEventListener("click", function (e) {
                 e.stopPropagation();
                 dropdown.classList.toggle("active");
+
+                // ✅ Close lang dropdown when profile opens
+                langDropdown.classList.remove("active");
             });
 
             document.addEventListener("click", function (e) {
@@ -112,7 +119,77 @@
                 }
             });
         }
+
+        // Language Toggle
+        if (langToggle && langDropdown) {
+            langToggle.addEventListener("click", function (e) {
+                e.stopPropagation();
+                langDropdown.classList.toggle("active");
+
+                // ✅ Close profile dropdown when lang opens
+                dropdown.classList.remove("active");
+            });
+
+            document.addEventListener("click", function (e) {
+                if (!langDropdown.contains(e.target) && !langToggle.contains(e.target)) {
+                    langDropdown.classList.remove("active");
+                }
+            });
+        }
+
+        // Optional: clicking anywhere closes both
+        document.addEventListener('click', function (e) {
+            if (!langDropdown.contains(e.target) && !langToggle.contains(e.target)) {
+                langDropdown.classList.remove('active');
+            }
+            if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
     });
+
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     const toggle = document.getElementById("profileToggle");
+    //     const dropdown = document.getElementById("profileDropdown");
+
+    //     if (toggle && dropdown) {
+    //         toggle.addEventListener("click", function (e) {
+    //             e.stopPropagation();
+    //             dropdown.classList.toggle("active");
+    //         });
+
+    //         document.addEventListener("click", function (e) {
+    //             if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
+    //                 dropdown.classList.remove("active");
+    //             }
+    //         });
+    //     }
+    // });
+
+    // const langToggle = document.getElementById("langToggle");
+    // const langDropdown = document.getElementById("langDropdown");
+
+    // if (langToggle && langDropdown) {
+    //     langToggle.addEventListener("click", function (e) {
+    //         e.stopPropagation();
+    //         langDropdown.classList.toggle("active");
+    //     });
+
+    //     document.addEventListener("click", function (e) {
+    //         if (!langDropdown.contains(e.target) && !langToggle.contains(e.target)) {
+    //             langDropdown.classList.remove("active");
+    //         }
+    //     });
+    // }
+    // // Close dropdown when clicking anywhere else
+    // document.addEventListener('click', function (e) {
+    //     if (!langDropdown.contains(e.target) && !langToggle.contains(e.target)) {
+    //         langDropdown.classList.remove('active');
+    //     }
+    // });
+
+
     $(document).on('click', '#logoutButton', function (e) {
     e.preventDefault();
 

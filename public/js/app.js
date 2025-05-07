@@ -49,15 +49,7 @@ $(document).ready(function () {
         }
     });
     
-        // const currentUrl = window.location.pathname;
-        //hi
-        // $('.nav-link-btn').each(function () {
-        //     const linkUrl = $(this).attr('href');
 
-        //     if (currentUrl === linkUrl || currentUrl.startsWith(linkUrl + '/')) {
-        //         $(this).addClass('selected');
-        //     }
-        // });
         setTimeout(function () {
             const getuserValue = $("#passwordResetEnable").val();
             
@@ -71,4 +63,8 @@ $(document).ready(function () {
             }
         }, 2000);
     
+
+
+
+
 });

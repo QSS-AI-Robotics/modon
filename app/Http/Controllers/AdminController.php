@@ -884,7 +884,7 @@ public function updateUser(Request $request, $id)
         // ✅ Paginate locations and eager load their region
         $locations = Location::with(['locationAssignments.region'])
                             ->orderBy('id', 'desc')
-                            ->paginate(9); // Customize per-page as needed
+                            ->paginate(8); // Customize per-page as needed
 
         // Transform paginated results
         $locations->getCollection()->transform(function ($location) {

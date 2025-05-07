@@ -3,7 +3,7 @@
             $navLinks = Auth::user()?->userType?->navigationLinks()->orderBy('sort_order')->get();
         @endphp
         <!-- Header -->
-        {{-- <div class="row header shadows bg-section p-1 mb-2 align-items-center sticky-top shadow-lg "> --}}
+    
          <div class="row header shadows bg-section p-1 mb-2 align-items-center sticky-top shadow-lg">
             <div class="col-2 d-flex align-items-center">
                 <img src="{{ asset('images/qss.png') }}" alt="Logo" class="w-50">
@@ -54,26 +54,11 @@
                         </div>
                     </div>
                 </div>
-                {{-- <div class=" d-flex align-items-center px-3">
 
-                   //hi
-                    <div class="notification-wrapper">
-                        <div class="notification-toggle" id="notificationToggle">
-                            <img src="{{ asset('images/bell.png') }}" alt="">
-                            <span class="notification-count"></span>
-                        </div>
-                        
-                    
-                        <div class="notification-dropdown p-2" id="notificationDropdown">
-                            <div id="notificationFeed"></div>
-                        </div>
-                    </div>
-                </div> --}}
                 <div class="profile-wrapper ">
                     <div class="profile-toggle" id="profileToggle">
                         <div class="profile-info">
-                            {{-- <div class="fw-bold text-capitalize">{{ Auth::user()->name ?? 'Admin' }}</div>
-                            <div class="small text-white">{{ Auth::user()->email ?? 'email@example.com' }}</div> --}}
+
                             <input type="hidden" id="passwordResetEnable" value="{{ Auth::user()->force_password_reset }}"/>
                             
                         </div>
@@ -97,12 +82,14 @@
                            
                         </button>
                         <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover" id="editProfileButton" style="background: #105A7E">
-                            <img src="{{ asset('images/people.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
+                            
                             <span data-lang-key="editProfile">Edit Profile</span>
+                            <img src="{{ asset('images/people.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
                         </button>
                         <button type="submit" class="btn btn-sm btn-danger w-100 text-start langhover d-flex align-items-center justify-content-between" id="logoutButton">
-                            <img src="{{ asset('images/logout.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
                             <span data-lang-key="logout">Logout</span>
+                            <img src="{{ asset('images/logout.png') }}" alt="Profile Icon" class="me-4" style="width: 20px; height: 20px;">
+                            
                         </button>
                            
                             

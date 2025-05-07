@@ -1177,3 +1177,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .resetPasswordHeader .btn-close {
     margin-inline-start: 1rem; /* Works for both LTR and RTL */
 }
+
+.lang-dropdown,
+.profile-dropdown {
+    opacity: 0;
+    max-height: 0;
+    transition: all 0.3s ease;
+}
+
+/* When visible */
+.lang-dropdown.open,
+.profile-dropdown.open {
+    opacity: 1;
+    max-height: 500px; /* Or whatever height */
+}

@@ -1,7 +1,7 @@
 const languageFile = {
     pilots: {
         en: "Pilots",
-        ar: "الطيار",
+        ar: "الطيارين",
     },
     drones:{
         en: "Drones",
@@ -21,7 +21,7 @@ const languageFile = {
     },
     missionAnaltyics: {
         en: "Missions Analytics",
-        ar: "تحليل المهام",
+        ar: "تحليلات المهام",
     },
     noDataFound: {
         en: "No data found",
@@ -57,7 +57,7 @@ const languageFile = {
     },
     finished: {
         en: "Finished",
-        ar: "منتهية ",
+        ar: "منتهي",
     },
     totalMissions: {
         en: "Total Missions",
@@ -109,7 +109,7 @@ const languageFile = {
     },
     Missions: {
         en: "Missions",
-        ar: "المهام",
+        ar: "البعثات",
     },
     Locations: {
         en: "Locations",
@@ -161,7 +161,7 @@ const languageFile = {
     },
     modon_admin: {
         en: "Modon Admin",
-        ar: "مسؤول مدن",
+        ar: "مسؤول Modon",
     },
     region_manager: {
         en: "Region Manager",
@@ -181,19 +181,19 @@ const languageFile = {
     },
     threeD_Mappings: {
         en: "3D Mappings",
-        ar: " الخرائط ثلاثية الأبعاد ",
+        ar: "خرائط ثلاثية الأبعاد",
     },
     Gas_Emission_Analysis: {
         en: "Gas Emission Analysis",
-        ar: "تحليل انبعاثات الغازات",
+        ar: "تحليل انبعاث الغاز",
     },
     Road_Damage_Monitoring: {
         en: "Road Damage Monitoring",
-        ar: "مراقبة أضرار الطرق ",
+        ar: "مراقبة تلف الطريق",
     },
     Remote_Security_Inspections: {
         en: "Remote Security Inspections",
-        ar: " فحوصات أمنية عن بُعد ",
+        ar: "عمليات التفتيش الأمني عن بعد",
     },
     Emergency_Response_Support: {
         en: "Emergency Response Support",
@@ -249,7 +249,7 @@ const languageFile = {
     },
     missionCreatedBy: {
         en: "Mission Created By",
-        ar: " تم انشاء المهمة بواسطة ",
+        ar: "المهمة التي أنشأها",
     },
     note:{
         en: "Note",
@@ -554,7 +554,7 @@ const languageFile = {
     },
     droneControl: {
         en: "Drone Control",
-        ar: "التحكم في الطائرة  ",
+        ar: "التحكم في الطائرات بدون طيار",
     },
     drones: {
         en: "Drones",
@@ -570,7 +570,7 @@ const languageFile = {
     },
     model: {
         en: "Model",
-        ar: "موديل",
+        ar: "الطراز",
     },
     selectPilot: {
         en: "Select Pilot",
@@ -578,11 +578,11 @@ const languageFile = {
     },
     addDrone: {
         en: "Add Drone",
-        ar: "إضافة طائرة  ",
+        ar: "إضافة طائرة بدون طيار",
     },
     addNewDrone: {
         en: "Add New Drone",
-        ar: "إضافة طائرة جديدة  ",
+        ar: "إضافة طائرة جديدة بدون طيار",
     },
 };
 

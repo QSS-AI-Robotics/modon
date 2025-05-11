@@ -41,7 +41,7 @@
                 <input type="password" name="password" class="form-control input-dark-blue" id="password" value="admin1234" placeholder="**********" required />
               </div>
               <div class="d-grid p-2 d-flex">
-                <button type="submit" class="p-2 signInbtn w-25 fw-semibold d-flex align-items-center justify-content-center" id="signInBtn">
+                <button type="submit" class="p-2 signInbtn  fw-semibold d-flex align-items-center justify-content-center" id="signInBtn">
                   <span id="signInText">تسجيل الدخول</span>
                   {{-- <span id="signInText">Log In</span> --}}
                   <div id="spinner" class="spinner-border spinner-border-sm text-dark ms-2 d-none p-2" role="status">

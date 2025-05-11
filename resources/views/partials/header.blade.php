@@ -44,7 +44,7 @@
 
 
                             <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover lang-option" data-lang="ar" style="border-bottom:2px solid #73AF00;">
-                                <span>Arabic</span>
+                                <span>العربية</span>
                                 <img src="{{ asset('images/ar.png') }}" alt="Profile Icon" class="" style="width: 30px; height: 30px; margin-inline-start: 2rem;">
                             </button>
                             <button type="button" class="btn btn-sm text-white w-100 mb-2 d-flex align-items-center justify-content-between langhover lang-option" data-lang="en" style="border-bottom:2px solid #D90D32;">

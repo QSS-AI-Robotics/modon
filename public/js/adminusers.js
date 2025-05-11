@@ -1,12 +1,212 @@
+// Define regionChart globally
+let regionChart;
+// Define the function globally
+function updateChartLanguage(selectedLang) {
+    // Fetch and update the chart with the selected language
+    
+    fetchMissionsByRegion(regionChart, selectedLang);
+}
+function updateRegionMapFromValues(values) {
+    const regionImages = ['center', 'east', 'west'];
 
+    // Hide all images first
+    regionImages.forEach(r => $(`#${r}`).hide());
+
+    // Loop over the provided values (like "centergreen")
+    values.forEach(val => {
+        const match = val.match(/(center|east|west)(green|red|orange)/);
+        if (match) {
+            const region = match[1];
+            const color = match[2];
+
+            // Show the matched region image
+            $(`#${region}`).show();
+
+            // Update the src for that region's image
+            const newSrc = `./images/map/heatmap/${region}${color}.png`;
+            $(`#${region}`).attr('src', newSrc);
+        }
+    });
+
+    // If it's a reset (3 values), we assume full map view
+    if (values.length > 1) {
+        $('#mainBgmap').attr('src', './images/map/map.jpg');
+    } else if (values.length === 1) {
+        const match = values[0].match(/(center|east|west)/);
+        if (match) {
+            const region = match[1];
+            $('#mainBgmap').attr('src', `./images/map/${region}map.jpg`);
+        }
+    }
+}
+function updateChart(chart, response, selectedLang) {
+    const chartData = (response.data || []).filter(item => item.region !== 'all');
+
+    const regionNames = {
+        en: { eastern: "Eastern", western: "Western", central: "Central" },
+        ar: { eastern: "الشرقي", western: "الغربي", central: "المركزي" }
+    };
+
+    const labels = chartData.map(item => regionNames[selectedLang][item.region.toLowerCase()] || item.region);
+    const values = chartData.map(item => item.missions);
+
+    const totalMissions = values.reduce((sum, val) => sum + val, 0);
+    $("#totalMissions").text(totalMissions);
+
+    const hasData = values.some(value => value > 0);
+
+    const colorMap = {
+        'eastern': '#AD2727',
+        'western': '#C6B40D',
+        'central': '#80FE76'
+    };
+
+    const backgroundColors = chartData.map(item => colorMap[item.region.toLowerCase()] || '#ccc');
+
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = values;
+    chart.data.datasets[0].backgroundColor = backgroundColors;
+
+    chart.update();
+
+    if (hasData) {
+        $('#noDataMessage').addClass('d-none');
+        $('#regionMissionChart').removeClass('d-none');
+    } else {
+        $('#noDataMessage').removeClass('d-none');
+        $('#regionMissionChart').addClass('d-none');
+    }
+}
+// Define fetchMissionsByRegion globally
+function fetchMissionsByRegion(chartInstance, selectedLang, startDate, endDate) {
+    // Validate: Start should not be after End
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+        alert("Start date cannot be after end date.");
+        return;
+    }
+
+    // Log the selected date range
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+
+
+    $.ajax({
+        url: '/missions-by-region',
+        type: 'GET',
+        data: {
+            start_date: startDate || null,
+            end_date: endDate || null
+        },
+        dataType: 'json',
+        success: function (data) {
+            console.log('✅ Missions by Region:', data);
+            //updateChart(chartInstance, data);
+            updateChart(chartInstance, data, selectedLang); // Pass selectedLang to updateChart
+            const regionData = data.data.filter(item => item.region !== 'all');
+
+            // Set mission values to corresponding elements
+            let totalMissions = 0;
+            
+            regionData.forEach(item => {
+                let regionKey = item.region;
+                const missionCount = item.missions;
+            
+                totalMissions += missionCount;
+            
+                if (regionKey === 'central') {
+                    $('#centremissionVal').text(missionCount);
+                } else if (regionKey === 'eastern') {
+                    $('#eastmissionVal').text(missionCount);
+                } else if (regionKey === 'western') {
+                    $('#westmissionVal').text(missionCount);
+                }
+            });
+            
+            // Set total
+            $('#totalmissionVal').text(totalMissions);
+            
+            // Sort by missions count descending
+            const sorted = [...regionData].sort((a, b) => b.missions - a.missions);
+            
+            // Check if all mission values are equal
+            const allSame = sorted.every(item => item.missions === sorted[0].missions);
+            
+            // Assign color based on logic
+            const colorMap = {};
+            
+
+            if (allSame) {
+                regionData.forEach(item => {
+                    colorMap[item.region] = 'green';
+                });
+            } else {
+                const values = sorted.map(item => item.missions);
+                const [first, second, third] = values;
+            
+                sorted.forEach(item => {
+                    const count = item.missions;
+            
+                    if (count === first && count === second && count === third) {
+                        colorMap[item.region] = 'green'; // all equal
+                    } else if (count === first && first !== second) {
+                        colorMap[item.region] = 'red'; // only one highest
+                    } else if (count === first && first === second && second !== third) {
+                        colorMap[item.region] = 'red'; // two tied for highest
+                    } else if (count === second && second === third && first !== second) {
+                        colorMap[item.region] = 'green'; // two tied for lowest
+                    } else if (count === second && first !== second && second !== third) {
+                        colorMap[item.region] = 'orange'; // true middle
+                    } else {
+                        colorMap[item.region] = 'green';
+                    }
+                });
+            }
+            
+            // Build result array like ['centerred', 'eastorange', 'westgreen']
+            const colorValues = regionData.map(item => {
+                let regionKey = item.region;
+            
+                // Normalize region to match image IDs
+                if (regionKey === 'central') regionKey = 'center';
+                else if (regionKey === 'eastern') regionKey = 'east';
+                else if (regionKey === 'western') regionKey = 'west';
+            
+                const color = colorMap[item.region];
+                return `${regionKey}${color}`;
+            });
+            
+            console.log('🎨 Region Color Values:', colorValues);
+            
+            // Pass to map update function
+            updateRegionMapFromValues(colorValues);
+            
+            // Store in data attributes for later use
+            $('.selectRegion').attr('data-centercolorcode', colorValues.find(v => v.startsWith('center')) || '');
+            $('.selectRegion').attr('data-eastcolorcode', colorValues.find(v => v.startsWith('east')) || '');
+            $('.selectRegion').attr('data-westcolorcode', colorValues.find(v => v.startsWith('west')) || '');
+            $('.selectRegion').attr('data-allcolorcode', colorValues.join(','));
+            
+            
+        },
+        error: function (xhr, status, error) {
+            console.error('❌ Error fetching missions by region:', error);
+        }
+    });
+}
 $(document).ready(function () {
-
-
-
     let currentLang = localStorage.getItem("selectedLang") || "en";
+
+    const startDate = $('#start-date').val();
+    const endDate = $('#end-date').val();
+
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+     // Fetch and update the chart on page load
+    // fetchMissionsByRegion(regionChart, currentLang);
+    
     const regionChartMissions = document.getElementById('regionMissionChart').getContext('2d');
 
-    const regionChart = new Chart(regionChartMissions, {
+     regionChart = new Chart(regionChartMissions, {
         type: 'doughnut',
         data: {
             labels: [],
@@ -52,7 +252,9 @@ $(document).ready(function () {
         },
         plugins: [ChartDataLabels] // 👈 Register the plugin
     });
-    
+    // Fetch and update the chart on page load
+    //fetchMissionsByRegion(regionChart, currentLang);
+    fetchMissionsByRegion(regionChart, currentLang, startDate, endDate);
     function formatCityNames(text) {
         return text.trim().replace(/\s+/g, '_');
     }
@@ -196,8 +398,9 @@ loadRegionData(defaultRegionId);
         }
     
         // Fetch chart data regardless of date presence
-        fetchMissionsByRegion(regionChart);
-        // fetchInspectionsByRegion(regionBarChart);
+        //fetchMissionsByRegion(regionChart, currentLang);
+        //fetchMissionsByRegion(regionChart);
+        fetchMissionsByRegion(regionChart, currentLang, startDate, endDate);
         fetchPilotMissionSummary();
     });
     
@@ -207,9 +410,12 @@ loadRegionData(defaultRegionId);
 
     // ✅ Call after chart is created
     // fetchMissionsByRegion();
-    fetchMissionsByRegion(regionChart);
+    console.log('Current Language:', currentLang);
+     //fetchMissionsByRegion(regionChart, currentLang);
+     fetchMissionsByRegion(regionChart, currentLang, startDate, endDate);
+    //fetchMissionsByRegion(regionChart);
 
-    function fetchMissionsByRegion(chartInstance) {
+    function fetchMissionsByRegionbkp(chartInstance, selectedLang) {
         const startDate = $('#start-date').val();
         const endDate = $('#end-date').val();
     
@@ -324,9 +530,126 @@ loadRegionData(defaultRegionId);
             }
         });
     }
+    // function fetchMissionsByRegion(chartInstance, selectedLang) {
+    //     const startDate = $('#start-date').val();
+    //     const endDate = $('#end-date').val();
+    //     console.log('Selected Language:', selectedLang);
+    //     console.log('Start Date:', startDate);
+    //     console.log('End Date:', endDate);
+    //     // Validate: Start should not be after End
+    //     if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+    //         alert("Start date cannot be after end date.");
+    //         return;
+    //     }
     
+    //     // Log the selected date range
+
     
-    function updateChart(chart, response) {
+    //     $.ajax({
+    //         url: '/missions-by-region',
+    //         type: 'GET',
+    //         data: {
+    //             start_date: startDate || null,
+    //             end_date: endDate || null
+    //         },
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             console.log('✅ Missions by Region:', data);
+    //             //updateChart(chartInstance, data);
+    //             updateChart(chartInstance, data, selectedLang); // Pass selectedLang to updateChart
+    //             const regionData = data.data.filter(item => item.region !== 'all');
+
+    //             // Set mission values to corresponding elements
+    //             let totalMissions = 0;
+                
+    //             regionData.forEach(item => {
+    //                 let regionKey = item.region;
+    //                 const missionCount = item.missions;
+                
+    //                 totalMissions += missionCount;
+                
+    //                 if (regionKey === 'central') {
+    //                     $('#centremissionVal').text(missionCount);
+    //                 } else if (regionKey === 'eastern') {
+    //                     $('#eastmissionVal').text(missionCount);
+    //                 } else if (regionKey === 'western') {
+    //                     $('#westmissionVal').text(missionCount);
+    //                 }
+    //             });
+                
+    //             // Set total
+    //             $('#totalmissionVal').text(totalMissions);
+                
+    //             // Sort by missions count descending
+    //             const sorted = [...regionData].sort((a, b) => b.missions - a.missions);
+                
+    //             // Check if all mission values are equal
+    //             const allSame = sorted.every(item => item.missions === sorted[0].missions);
+                
+    //             // Assign color based on logic
+    //             const colorMap = {};
+                
+
+    //             if (allSame) {
+    //                 regionData.forEach(item => {
+    //                     colorMap[item.region] = 'green';
+    //                 });
+    //             } else {
+    //                 const values = sorted.map(item => item.missions);
+    //                 const [first, second, third] = values;
+                
+    //                 sorted.forEach(item => {
+    //                     const count = item.missions;
+                
+    //                     if (count === first && count === second && count === third) {
+    //                         colorMap[item.region] = 'green'; // all equal
+    //                     } else if (count === first && first !== second) {
+    //                         colorMap[item.region] = 'red'; // only one highest
+    //                     } else if (count === first && first === second && second !== third) {
+    //                         colorMap[item.region] = 'red'; // two tied for highest
+    //                     } else if (count === second && second === third && first !== second) {
+    //                         colorMap[item.region] = 'green'; // two tied for lowest
+    //                     } else if (count === second && first !== second && second !== third) {
+    //                         colorMap[item.region] = 'orange'; // true middle
+    //                     } else {
+    //                         colorMap[item.region] = 'green';
+    //                     }
+    //                 });
+    //             }
+                
+    //             // Build result array like ['centerred', 'eastorange', 'westgreen']
+    //             const colorValues = regionData.map(item => {
+    //                 let regionKey = item.region;
+                
+    //                 // Normalize region to match image IDs
+    //                 if (regionKey === 'central') regionKey = 'center';
+    //                 else if (regionKey === 'eastern') regionKey = 'east';
+    //                 else if (regionKey === 'western') regionKey = 'west';
+                
+    //                 const color = colorMap[item.region];
+    //                 return `${regionKey}${color}`;
+    //             });
+                
+    //             console.log('🎨 Region Color Values:', colorValues);
+                
+    //             // Pass to map update function
+    //             updateRegionMapFromValues(colorValues);
+                
+    //             // Store in data attributes for later use
+    //             $('.selectRegion').attr('data-centercolorcode', colorValues.find(v => v.startsWith('center')) || '');
+    //             $('.selectRegion').attr('data-eastcolorcode', colorValues.find(v => v.startsWith('east')) || '');
+    //             $('.selectRegion').attr('data-westcolorcode', colorValues.find(v => v.startsWith('west')) || '');
+    //             $('.selectRegion').attr('data-allcolorcode', colorValues.join(','));
+                
+                
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error('❌ Error fetching missions by region:', error);
+    //         }
+    //     });
+    // }
+    
+    function updateChartbkp(chart, response) {
         const chartData = (response.data || []).filter(item => item.region !== 'all');
     
         const labels = chartData.map(item =>
@@ -367,7 +690,44 @@ loadRegionData(defaultRegionId);
         }
     }
     
+    // function updateChart(chart, response, selectedLang) {
+    //     const chartData = (response.data || []).filter(item => item.region !== 'all');
     
+    //     const regionNames = {
+    //         en: { eastern: "Eastern", western: "Western", central: "Central" },
+    //         ar: { eastern: "الشرقي", western: "الغربي", central: "المركزي" }
+    //     };
+    
+    //     const labels = chartData.map(item => regionNames[selectedLang][item.region.toLowerCase()] || item.region);
+    //     const values = chartData.map(item => item.missions);
+    
+    //     const totalMissions = values.reduce((sum, val) => sum + val, 0);
+    //     $("#totalMissions").text(totalMissions);
+    
+    //     const hasData = values.some(value => value > 0);
+    
+    //     const colorMap = {
+    //         'eastern': '#AD2727',
+    //         'western': '#C6B40D',
+    //         'central': '#80FE76'
+    //     };
+    
+    //     const backgroundColors = chartData.map(item => colorMap[item.region.toLowerCase()] || '#ccc');
+    
+    //     chart.data.labels = labels;
+    //     chart.data.datasets[0].data = values;
+    //     chart.data.datasets[0].backgroundColor = backgroundColors;
+    
+    //     chart.update();
+    
+    //     if (hasData) {
+    //         $('#noDataMessage').addClass('d-none');
+    //         $('#regionMissionChart').removeClass('d-none');
+    //     } else {
+    //         $('#noDataMessage').removeClass('d-none');
+    //         $('#regionMissionChart').addClass('d-none');
+    //     }
+    // }
 
 
     
@@ -671,17 +1031,33 @@ function updateInspectionChart(chart, response) {
                 });
     
                 $('.latestMissionPanel').html(html);
-                
                 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 
                 tooltipTriggerList.forEach(el => {
                     const content = el.getAttribute('data-title'); // Get content from custom attr
+                    const selectedLang = localStorage.getItem("selectedLang") || "en"; // Get selected language from localStorage
+
+                    // Set the tooltip title based on the selected language
+                    const tooltipTitle = selectedLang === "ar" 
+                        ? `<strong class="text-dark"><span data-lang-key="missionDescription">وصف المهمة:</span></strong><br>${content}`
+                        : `<strong class="text-dark"><span data-lang-key="missionDescription">Mission Description:</span></strong><br>${content}`;
+
                     new bootstrap.Tooltip(el, {
                         html: true,
-                        title: `<strong class="text-dark"><span data-lang-key="missionDescription">Mission Description:</span></strong><br>${content}`,
+                        title: tooltipTitle,
                         customClass: 'custom-tooltip'
                     });
                 });
+                // const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+
+                // tooltipTriggerList.forEach(el => {
+                //     const content = el.getAttribute('data-title'); // Get content from custom attr
+                //     new bootstrap.Tooltip(el, {
+                //         html: true,
+                //         title: `<strong class="text-dark"><span data-lang-key="missionDescription">Mission Description:</span></strong><br>${content}`,
+                //         customClass: 'custom-tooltip'
+                //     });
+                // });
                 let currentLang = localStorage.getItem("selectedLang") || "ar";
                 updateLanguageTexts(currentLang);
 
@@ -695,39 +1071,39 @@ function updateInspectionChart(chart, response) {
 
 
 
-    function updateRegionMapFromValues(values) {
-        const regionImages = ['center', 'east', 'west'];
+    // function updateRegionMapFromValues(values) {
+    //     const regionImages = ['center', 'east', 'west'];
 
-        // Hide all images first
-        regionImages.forEach(r => $(`#${r}`).hide());
+    //     // Hide all images first
+    //     regionImages.forEach(r => $(`#${r}`).hide());
 
-        // Loop over the provided values (like "centergreen")
-        values.forEach(val => {
-            const match = val.match(/(center|east|west)(green|red|orange)/);
-            if (match) {
-                const region = match[1];
-                const color = match[2];
+    //     // Loop over the provided values (like "centergreen")
+    //     values.forEach(val => {
+    //         const match = val.match(/(center|east|west)(green|red|orange)/);
+    //         if (match) {
+    //             const region = match[1];
+    //             const color = match[2];
 
-                // Show the matched region image
-                $(`#${region}`).show();
+    //             // Show the matched region image
+    //             $(`#${region}`).show();
 
-                // Update the src for that region's image
-                const newSrc = `./images/map/heatmap/${region}${color}.png`;
-                $(`#${region}`).attr('src', newSrc);
-            }
-        });
+    //             // Update the src for that region's image
+    //             const newSrc = `./images/map/heatmap/${region}${color}.png`;
+    //             $(`#${region}`).attr('src', newSrc);
+    //         }
+    //     });
 
-        // If it's a reset (3 values), we assume full map view
-        if (values.length > 1) {
-            $('#mainBgmap').attr('src', './images/map/map.jpg');
-        } else if (values.length === 1) {
-            const match = values[0].match(/(center|east|west)/);
-            if (match) {
-                const region = match[1];
-                $('#mainBgmap').attr('src', `./images/map/${region}map.jpg`);
-            }
-        }
-    }
+    //     // If it's a reset (3 values), we assume full map view
+    //     if (values.length > 1) {
+    //         $('#mainBgmap').attr('src', './images/map/map.jpg');
+    //     } else if (values.length === 1) {
+    //         const match = values[0].match(/(center|east|west)/);
+    //         if (match) {
+    //             const region = match[1];
+    //             $('#mainBgmap').attr('src', `./images/map/${region}map.jpg`);
+    //         }
+    //     }
+    // }
 
     $('.selectRegion').on('click', function () {
         const region = $(this).data('region'); 

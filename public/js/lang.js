@@ -597,11 +597,38 @@ function updateLanguageTexts(lang) {
         }
     });
 }
+// Function to initialize or update tooltips
+function initializeTooltips(selectedLang) {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(el => {
+        const content = el.getAttribute('data-title'); // Get content from custom attr
+
+        // Set the tooltip title based on the selected language
+        const tooltipTitle = selectedLang === "ar" 
+            ? `<strong class="text-dark"><span data-lang-key="missionDescription">${languageFile.missionDescription.ar}</span></strong><br>${content}`
+            : `<strong class="text-dark"><span data-lang-key="missionDescription">${languageFile.missionDescription.en}</span></strong><br>${content}`;
+
+        // Destroy existing tooltip instance if any
+        if (el._tooltipInstance) {
+            el._tooltipInstance.dispose();
+        }
+
+        // Reinitialize the tooltip with the updated title
+        el._tooltipInstance = new bootstrap.Tooltip(el, {
+            html: true,
+            title: tooltipTitle,
+            customClass: 'custom-tooltip'
+        });
+    });
+}
+
 $(document).ready(function () {
    
     // Get language from localStorage, fallback to English
     let currentLang = localStorage.getItem("selectedLang") || "ar";
     localStorage.setItem("selectedLang", currentLang);
+     // Initialize tooltips on page load
+     initializeTooltips(currentLang);
     // Flag map to set correct flag on page load
     const flagMap = {
         en: "./images/en.png",
@@ -652,6 +679,14 @@ $(document).ready(function () {
         updateTextDirection(selectedLang);
         adjustModalHeaderDirection(selectedLang);
 
+      
+        // Call the tooltip initialization function
+        initializeTooltips(selectedLang);
+
+         // Notify adminusers.js to update the chart
+    if (typeof updateChartLanguage === "function") {
+        updateChartLanguage(selectedLang); // Call the function from adminusers.js
+    }
 
     });
 

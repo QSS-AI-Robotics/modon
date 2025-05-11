@@ -44,7 +44,7 @@
                 <button type="submit" class="p-2 signInbtn  fw-semibold d-flex align-items-center justify-content-center" id="signInBtn">
                   <span id="signInText">تسجيل الدخول</span>
                   {{-- <span id="signInText">Log In</span> --}}
-                  <div id="spinner" class="spinner-border spinner-border-sm text-dark ms-2 d-none p-2" role="status">
+                  <div id="spinner" class="spinner-border spinner-border-sm text-dark  d-none p-2" role="status">
                     <span class="visually-hidden">تحميل...</span>
                
                   </div>

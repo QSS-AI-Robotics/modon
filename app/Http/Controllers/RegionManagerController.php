@@ -1093,7 +1093,7 @@ public function storeMissionOldBilal(Request $request)
             'mission_id'       => 'required|exists:missions,id',
             'region_id' => 'required|exists:regions,id',
             'inspection_type'  => 'required|exists:inspection_types,id',
-            'mission_date'     => 'required|date',
+            'mission_date'     => ['required', 'date', 'after_or_equal:today'],
             'note'             => 'nullable|string',
             'locations'        => 'required|array',
             'locations.*'      => 'exists:locations,id',

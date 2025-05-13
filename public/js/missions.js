@@ -1,3 +1,151 @@
+// Define translations for backend validation and exception errors
+const backendErrorTranslations = {
+    en: {
+        inspection_type_required: "Inspection type is required.",
+        inspection_type_exists: "The selected inspection type does not exist.",
+        mission_date_required: "Mission date is required.",
+        mission_date_invalid: "Mission date must be a valid date.",
+        mission_date_future: "Mission date must be today or a future date.",
+        note_invalid: "Note must be a valid string.",
+        locations_required: "At least one location is required.",
+        locations_exists: "One or more selected locations do not exist.",
+        pilot_id_required: "Pilot is required.",
+        pilot_id_exists: "The selected pilot does not exist.",
+        latitude_required: "Latitude is required.",
+        latitude_invalid: "Latitude must be a number between -90 and 90.",
+        longitude_required: "Longitude is required.",
+        longitude_invalid: "Longitude must be a number between -180 and 180.",
+        region_id_required: "Region is required.",
+        region_id_exists: "The selected region does not exist.",
+        mission_creation_failed: "Failed to create mission.",
+        something_went_wrong: "Something went wrong.",
+        server_error: "Error!",
+        unauthorized_delete: "You are not authorized to delete this mission.",
+        mission_already_approved: "This mission has already been approved. Only the region manager or modon admin can delete it.",
+        delete_reason_required: "Please provide a reason for deleting this mission.",
+        something_went_wrong: "Something went wrong.",
+    },
+    ar: {
+        inspection_type_required: "نوع التفتيش مطلوب.",
+        inspection_type_exists: "نوع التفتيش المحدد غير موجود.",
+        mission_date_required: "تاريخ المهمة مطلوب.",
+        mission_date_invalid: "يجب أن يكون تاريخ المهمة تاريخًا صالحًا.",
+        mission_date_future: "يجب أن يكون تاريخ المهمة اليوم أو تاريخًا مستقبليًا.",
+        note_invalid: "يجب أن تكون الملاحظة نصًا صالحًا.",
+        locations_required: "مطلوب تحديد موقع واحد على الأقل.",
+        locations_exists: "واحد أو أكثر من المواقع المحددة غير موجود.",
+        pilot_id_required: "الطيار مطلوب.",
+        pilot_id_exists: "الطيار المحدد غير موجود.",
+        latitude_required: "خط العرض مطلوب.",
+        latitude_invalid: "يجب أن يكون خط العرض رقمًا بين -90 و 90.",
+        longitude_required: "خط الطول مطلوب.",
+        longitude_invalid: "يجب أن يكون خط الطول رقمًا بين -180 و 180.",
+        region_id_required: "المنطقة مطلوبة.",
+        region_id_exists: "المنطقة المحددة غير موجودة.",
+        mission_creation_failed: "فشل في إنشاء المهمة.",
+        something_went_wrong: "حدث خطأ ما.",
+         server_error: "خطأ!",
+        unauthorized_delete: "غير مصرح لك بحذف هذه المهمة.",
+        mission_already_approved: "تمت الموافقة على هذه المهمة بالفعل. يمكن فقط لمدير المنطقة أو مدير مدن حذفها.",
+        delete_reason_required: "يرجى تقديم سبب لحذف هذه المهمة.",
+        something_went_wrong: "حدث خطأ ما."
+    }
+};
+  function normalizeDescription(desc) {
+    return desc.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim().toLowerCase();
+}
+   function toLangKey(str) {
+        return str
+            .trim()
+            .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
+            .replace(/3/g, 'three')          // Replace any 3 with 'three'
+            .replace(/&/g, 'and')            // Replace & with and
+            .replace(/\s+/g, '_');           // Replace spaces with underscores
+    }
+
+// Function to translate backend error keys
+function translateBackendError(errorKey) {
+
+    // Get the selected language from localStorage
+const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+// Use the selected language for backend error messages
+const backendLang = backendErrorTranslations[selectedLang] || backendErrorTranslations.en;
+    return backendLang[errorKey] || backendLang.something_went_wrong;
+}
+function loadInspectionTypes(selectedLang) {
+    // Define translations for descriptions
+    const descriptionTranslations = {
+        en: {
+            "Detecting violations in the external yards of factories": "Detecting violations in the external yards of factories",
+            "Security inspection of hard-to-reach areas": "Security inspection of hard-to-reach areas",
+            "Update photos of the industrial city and cover events and activities": "Update photos of the industrial city and cover events and activities",
+            "Monitoring road safety and detecting damages in industrial cities": "Monitoring road safety and detecting damages in industrial cities",
+            "Imaging and analyzing harmful gases and emissions and their levels in industrial cities": "Imaging and analyzing harmful gases and emissions and their levels in industrial cities",
+            "Preparing a 3D map of the industrial city": "Preparing a 3D map of the industrial city",
+            "Responding to emergency cases reported to the specialized emergency call center": "Responding to emergency cases reported to the specialized emergency call center"
+        },
+        ar: {
+            "Detecting violations in the external yards of factories": "رصد المخالفات في الساحات الخارجية للمصانع",
+            "Security inspection of hard-to-reach areas": "التفتيش الأمني على المناطق التي يصعب الوصول إليها.",
+            "Update photos of the industrial city and cover events and activities": "تحديث صور المدينة الصناعية وتغطية الأحداث والأنشطة.",
+            "Monitoring road safety and detecting damages in industrial cities": "مراقبة سلامة الطرق ورصد الأضرار في المدن الصناعية.",
+            "Imaging and analyzing harmful gases and emissions and their levels in industrial cities": "تصوير وتحليل الغازات الضارة والانبعاثات ومستوياتها في المدن الصناعية.",
+            "Preparing a 3D map of the industrial city": "إعداد خريطة ثلاثية الأبعاد للمدينة الصناعية.",
+            "Responding to emergency cases reported to the specialized emergency call center": "الاستجابة للحالات الطارئة المبلغ عنها إلى مركز الاتصال الطارئ المتخصص."
+        }
+    };
+
+    // Fetch inspection data
+    $.get('/missions/inspection-data', function (res) {
+        const container = $('#inspectionTypesContainer');
+        container.empty();
+
+        const translations = descriptionTranslations[selectedLang] || descriptionTranslations.en;
+
+        res.inspectionTypes.forEach(type => {
+            const langKey = toLangKey(type.name);
+
+            const normalizedDescription = normalizeDescription(type.description);
+            const translatedDescription = Object.keys(translations).find(key =>
+                normalizeDescription(key) === normalizedDescription
+            );
+
+            const finalDescription = translatedDescription ? translations[translatedDescription] : type.description;
+
+            container.append(`
+                <div class="col-md-12 col-sm-12">
+                    <div class="form-check"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="bottom"
+                        data-bs-custom-class="custom-tooltip"
+                        data-title="${finalDescription.replace(/&nbsp;/g, '').trim()}">
+                        <input type="radio" class="form-check-input" name="inspection_type" value="${type.id}" id="inspection_${type.id}">
+                        <label class="form-check-label checkbox-text" data-lang-key="${langKey}" for="inspection_${type.id}">${type.name}</label>
+                    </div>
+                </div>
+            `);
+        });
+
+        // Enable tooltips
+        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltips.forEach(el => {
+            const content = el.getAttribute('data-title');
+            const tooltipTitle = selectedLang === "ar"
+                ? `<strong class="text-dark"><span data-lang-key="missionDescription">وصف المهمة:</span></strong><br>${content}`
+                : `<strong class="text-dark"><span data-lang-key="missionDescription">Mission Description:</span></strong><br>${content}`;
+            new bootstrap.Tooltip(el, {
+                html: true,
+                title: tooltipTitle,
+                customClass: 'custom-tooltip',
+                trigger: 'hover focus'
+            });
+        });
+
+        // Translate the container
+        updateLanguageTexts(selectedLang);
+    });
+}
 $(document).ready(function () {
     // CSRF Token Setup for AJAX
     const rolesToDisable = ['modon_admin', 'region_manager', 'general_manager','qss_admin'];
@@ -33,7 +181,8 @@ $(document).ready(function () {
     if (userType !== 'pilot') {
         $('.report-buttons').addClass('d-none');
     }
-    loadInspectionTypes();
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+    loadInspectionTypes(selectedLang);
 
    
  
@@ -42,103 +191,158 @@ $(document).ready(function () {
     //     updateLanguageTexts(currentLang);
     // }
        // Utility function to generate lang key
-       function toLangKey(str) {
-        return str
-            .trim()
-            .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
-            .replace(/3/g, 'three')          // Replace any 3 with 'three'
-            .replace(/&/g, 'and')            // Replace & with and
-            .replace(/\s+/g, '_');           // Replace spaces with underscores
-    }
+    //    function toLangKey(str) {
+    //     return str
+    //         .trim()
+    //         .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
+    //         .replace(/3/g, 'three')          // Replace any 3 with 'three'
+    //         .replace(/&/g, 'and')            // Replace & with and
+    //         .replace(/\s+/g, '_');           // Replace spaces with underscores
+    // }
 
 
 
-    function loadInspectionTypes() {
-        $.get('/missions/inspection-data', function (res) {
-            const container = $('#inspectionTypesContainer');
-            container.empty();
-        
-            res.inspectionTypes.forEach(type => {
-                const langKey = toLangKey(type.name);
-                container.append(`
-                    <div class="col-md-12 col-sm-12">
-                        <div class="form-check"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            data-bs-custom-class="custom-tooltip"
-                            data-title="${type.description || ''}">
-                            <input type="radio" class="form-check-input" name="inspection_type" value="${type.id}" id="inspection_${type.id}">
-                            <label class="form-check-label checkbox-text" data-lang-key="${langKey}" for="inspection_${type.id}">${type.name}</label>
-                        </div>
-                    </div>
-                `);
-            });
-        
-            // ✅ Enable tooltips
-            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-            tooltips.forEach(el => {
-                const content = el.getAttribute('data-title');
-                new bootstrap.Tooltip(el, {
-                    html: true,
-                    title: `<strong class="text-dark">Mission Description:</strong><br>${content}`,
-                    customClass: 'custom-tooltip',
-                    trigger: 'hover focus' 
-                });
-            });
-        
-            // ✅ Container is fully ready now, so translate immediately
-            let currentLang = localStorage.getItem("selectedLang") || "ar";
-            //console.log('Calling updateLanguageTexts with:', currentLang);
-            updateLanguageTexts(currentLang);
-        });
-        
 
-    }
-
-    
-    
-    function filterLocationsByRegionId(regionId) {
-        const locationSelect = document.getElementById('location_id');
-        if (!locationSelect) return;
-    
-        // Clone all original options on first call and store in DOM for reuse
-        if (!locationSelect.dataset.originalOptionsStored) {
-            const allOptions = Array.from(locationSelect.options).map(opt => opt.cloneNode(true));
-            locationSelect.dataset.originalOptionsStored = 'true';
-            locationSelect.dataset.allOptions = JSON.stringify(allOptions.map(opt => ({
-                value: opt.value,
-                text: opt.text,
-                regionId: opt.getAttribute('data-region-id') || '',
-                selected: opt.selected
-            })));
+//     function normalizeDescription(desc) {
+//     return desc.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim().toLowerCase();
+// }
+function loadInspectionTypesOld() {
+    // Define translations for descriptions
+    const descriptionTranslations = {
+        en: {
+            "Detecting violations in the external yards of factories": "Detecting violations in the external yards of factories",
+            "Security inspection of hard-to-reach areas": "Security inspection of hard-to-reach areas",
+            "Update photos of the industrial city and cover events and activities": "Update photos of the industrial city and cover events and activities",
+            "Monitoring road safety and detecting damages in industrial cities": "Monitoring road safety and detecting damages in industrial cities",
+            "Imaging and analyzing harmful gases and emissions and their levels in industrial cities": "Imaging and analyzing harmful gases and emissions and their levels in industrial cities",
+            "Preparing a 3D map of the industrial city": "Preparing a 3D map of the industrial city",
+            "Responding to emergency cases reported to the specialized emergency call center": "Responding to emergency cases reported to the specialized emergency call center"
+        },
+        ar: {
+            "Detecting violations in the external yards of factories": "رصد المخالفات في الساحات الخارجية للمصانع",
+            "Security inspection of hard-to-reach areas": "التفتيش الأمني على المناطق التي يصعب الوصول إليها.",
+            "Update photos of the industrial city and cover events and activities": "تحديث صور المدينة الصناعية وتغطية الأحداث والأنشطة.",
+            "Monitoring road safety and detecting damages in industrial cities": "مراقبة سلامة الطرق ورصد الأضرار في المدن الصناعية.",
+            "Imaging and analyzing harmful gases and emissions and their levels in industrial cities": "تصوير وتحليل الغازات الضارة والانبعاثات ومستوياتها في المدن الصناعية.",
+            "Preparing a 3D map of the industrial city": "إعداد خريطة ثلاثية الأبعاد للمدينة الصناعية.",
+            "Responding to emergency cases reported to the specialized emergency call center": "الاستجابة للحالات الطارئة المبلغ عنها إلى مركز الاتصال الطارئ المتخصص."
         }
-    
-        const allOptions = JSON.parse(locationSelect.dataset.allOptions);
-    
-        // Clear current options
-        locationSelect.innerHTML = '';
-    
-        // Filter and re-add options that match the region ID
-        let hasMatch = false;
-        allOptions.forEach(opt => {
-            if (opt.regionId === regionId) {
-                const newOption = document.createElement('option');
-                newOption.value = opt.value;
-                newOption.text = opt.text;
-                newOption.setAttribute('data-region-id', opt.regionId);
-                locationSelect.appendChild(newOption);
-                hasMatch = true;
-            }
+    };
+
+    $.get('/missions/inspection-data', function (res) {
+        const container = $('#inspectionTypesContainer');
+        container.empty();
+
+        const selectedLang = localStorage.getItem("selectedLang") || "en"; // Get selected language
+        const translations = descriptionTranslations[selectedLang] || descriptionTranslations.en;
+        
+res.inspectionTypes.forEach(type => {
+    const langKey = toLangKey(type.name);
+
+    const normalizedDescription = normalizeDescription(type.description);
+    const translatedDescription = Object.keys(translations).find(key => 
+        normalizeDescription(key) === normalizedDescription
+    );
+
+    const finalDescription = translatedDescription ? translations[translatedDescription] : type.description;
+
+    container.append(`
+        <div class="col-md-12 col-sm-12">
+            <div class="form-check"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                data-bs-custom-class="custom-tooltip"
+                data-title="${finalDescription.replace(/&nbsp;/g,'').trim()}">
+                <input type="radio" class="form-check-input" name="inspection_type" value="${type.id}" id="inspection_${type.id}">
+                <label class="form-check-label checkbox-text" data-lang-key="${langKey}" for="inspection_${type.id}">${type.name}</label>
+            </div>
+        </div>
+    `);
+});
+
+        // Enable tooltips
+        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltips.forEach(el => {
+            const content = el.getAttribute('data-title');
+            const tooltipTitle = selectedLang === "ar" 
+                ? `<strong class="text-dark"><span data-lang-key="missionDescription">وصف المهمة:</span></strong><br>${content}`
+                : `<strong class="text-dark"><span data-lang-key="missionDescription">Mission Description:</span></strong><br>${content}`;
+            new bootstrap.Tooltip(el, {
+                html: true,
+                title: tooltipTitle,
+                customClass: 'custom-tooltip',
+                trigger: 'hover focus'
+            });
         });
+
+        // Translate the container
+        let currentLang = localStorage.getItem("selectedLang") || "ar";
+        updateLanguageTexts(currentLang);
+    });
+}
+
     
-        // Disable if no matching locations
-        locationSelect.disabled = !hasMatch;
-    
-        // Auto-select the first matching option (optional)
-        if (hasMatch && locationSelect.options.length > 0) {
-            locationSelect.selectedIndex = 0;
-        }
+(function() {
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+        originalSetItem.apply(this, arguments);
+        window.dispatchEvent(new CustomEvent("localStorageModified", {
+            detail: { key, value }
+        }));
+    };
+})();
+
+window.addEventListener("localStorageModified", function(e) {
+    if (e.detail.key === "selectedLang") {
+        let regionid = document.getElementById('region_id').value;
+        console.log("Selected region ID:", regionid);
+        filterLocationsByRegionId(regionid);
+        console.log("Detected selectedLang change:", e.detail.value);
+        updateLanguageTexts(e.detail.value);
     }
+});
+function filterLocationsByRegionId(regionId) {
+    const locationSelect = document.getElementById('location_id');
+    if (!locationSelect) return;
+
+    // Clone all original options on first call and store in DOM for reuse
+    if (!locationSelect.dataset.originalOptionsStored) {
+        const allOptions = Array.from(locationSelect.options).map(opt => opt.cloneNode(true));
+        locationSelect.dataset.originalOptionsStored = 'true';
+        locationSelect.dataset.allOptions = JSON.stringify(allOptions.map(opt => ({
+            value: opt.value,
+            "data-lang-key": opt.getAttribute('data-lang-key') || '',
+            text: opt.text,
+            regionId: opt.getAttribute('data-region-id') || '',
+            selected: opt.selected
+        })));
+    }
+
+    const allOptions = JSON.parse(locationSelect.dataset.allOptions);
+
+    // Clear current options
+    locationSelect.innerHTML = '';
+
+    let hasMatch = false;
+    allOptions.forEach(opt => {
+        if (opt.regionId === regionId) {
+            const newOption = document.createElement('option');
+            newOption.value = opt.value;
+            newOption.text = opt.text;
+            newOption.setAttribute('data-region-id', opt.regionId);
+            newOption.setAttribute('data-lang-key', opt["data-lang-key"]);
+            locationSelect.appendChild(newOption);
+            hasMatch = true;
+        }
+    });
+
+    locationSelect.disabled = !hasMatch;
+
+    if (hasMatch && locationSelect.options.length > 0) {
+        locationSelect.selectedIndex = 0;
+    }
+}
+
 
     $('#region_id').on('change', function () {
         let selectedRegionId = $(this).val();
@@ -203,59 +407,164 @@ $(document).ready(function () {
         if (!missionId || !decision) {
             return Swal.fire('Error', 'Missing mission ID or decision', 'error');
         }
-    
-        const isApproval = decision === 'approve';
-        const actionText = isApproval ? 'Approve' : 'Reject';
-        const confirmButtonColor = isApproval ? '#28a745' : '#dc3545';
-    
-        Swal.fire({
-            title: `${actionText} Mission?`,
-            text: `Are you sure you want to ${actionText.toLowerCase()} this mission?`,
-            icon: isApproval ? 'success' : 'warning',
-            showCancelButton: true,
-            confirmButtonColor: confirmButtonColor,
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: `Yes, ${actionText}`,
-        }).then((result) => {
-            if (!result.isConfirmed) return;
-    
-            // ✅ If approving, go straight to AJAX
-            if (isApproval) {
-                //alert("🚀 Mission Data:");
-                submitApproval(missionId, decision,null, missionData);
+    // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            approve_title: "Approve Mission?",
+            approve_text: "Are you sure you want to approve this mission?",
+            reject_title: "Reject Mission?",
+            reject_text: "Are you sure you want to reject this mission?",
+            rejection_reason_title: "Rejection Reason",
+            rejection_reason_label: "Please explain why you’re rejecting this mission",
+            rejection_reason_placeholder: "Enter reason here...",
+            rejection_reason_required: "Rejection reason is required!",
+            confirm_button: "Yes, Approve",
+            reject_button: "Yes, Reject",
+            cancel_button: "Cancel"
+        },
+        ar: {
+            approve_title: "الموافقة على المهمة؟",
+            approve_text: "هل أنت متأكد أنك تريد الموافقة على هذه المهمة؟",
+            reject_title: "رفض المهمة؟",
+            reject_text: "هل أنت متأكد أنك تريد رفض هذه المهمة؟",
+            rejection_reason_title: "سبب الرفض",
+            rejection_reason_label: "يرجى توضيح سبب رفض هذه المهمة",
+            rejection_reason_placeholder: "أدخل السبب هنا...",
+            rejection_reason_required: "سبب الرفض مطلوب!",
+            confirm_button: "نعم، موافقة",
+            reject_button: "نعم، رفض",
+            cancel_button: "إلغاء"
+        }
+    };
 
-            } else {
-                // ❌ If rejecting, ask for reason
-                Swal.fire({
-                    title: 'Rejection Reason',
-                    input: 'textarea',
-                    inputLabel: 'Please explain why you’re rejecting this mission',
-                    inputPlaceholder: 'Enter reason here...',
-                    inputAttributes: {
-                        'aria-label': 'Rejection reason'
-                    },
-                    inputValidator: (value) => {
-                        if (!value) {
-                            return 'Rejection reason is required!';
-                        }
-                    },
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit Rejection',
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                }).then((rejectResult) => {
-                    if (rejectResult.isConfirmed) {
-                        submitApproval(missionId, decision, rejectResult.value,missionData);
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
+
+
+        // const isApproval = decision === 'approve';
+        // const actionText = isApproval ? 'Approve' : 'Reject';
+        // const confirmButtonColor = isApproval ? '#28a745' : '#dc3545';
+
+        const isApproval = decision === 'approve';
+    const actionText = isApproval ? swalLang.approve_title : swalLang.reject_title;
+    const actionTextBody = isApproval ? swalLang.approve_text : swalLang.reject_text;
+    const confirmButtonText = isApproval ? swalLang.confirm_button : swalLang.reject_button;
+    const confirmButtonColor = isApproval ? '#28a745' : '#dc3545';
+    Swal.fire({
+        title: actionText,
+        text: actionTextBody,
+        icon: isApproval ? 'success' : 'warning',
+        showCancelButton: true,
+        confirmButtonColor: confirmButtonColor,
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: confirmButtonText,
+        cancelButtonText: swalLang.cancel_button
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        // If approving, go straight to AJAX
+        if (isApproval) {
+            submitApproval(missionId, decision, null, missionData);
+        } else {
+            // If rejecting, ask for reason
+            Swal.fire({
+                title: swalLang.rejection_reason_title,
+                input: 'textarea',
+                inputLabel: swalLang.rejection_reason_label,
+                inputPlaceholder: swalLang.rejection_reason_placeholder,
+                inputAttributes: {
+                    'aria-label': swalLang.rejection_reason_label
+                },
+                inputValidator: (value) => {
+                    if (!value) {
+                        return swalLang.rejection_reason_required;
                     }
-                });
-            }
-        });
+                },
+                showCancelButton: true,
+                confirmButtonText: swalLang.reject_button,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                cancelButtonText: swalLang.cancel_button
+            }).then((rejectResult) => {
+                if (rejectResult.isConfirmed) {
+                    submitApproval(missionId, decision, rejectResult.value, missionData);
+                }
+            });
+        }
+    });
+        // Swal.fire({
+        //     title: `${actionText} Mission?`,
+        //     text: `Are you sure you want to ${actionText.toLowerCase()} this mission?`,
+        //     icon: isApproval ? 'success' : 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonColor: confirmButtonColor,
+        //     cancelButtonColor: '#6c757d',
+        //     confirmButtonText: `Yes, ${actionText}`,
+        // }).then((result) => {
+        //     if (!result.isConfirmed) return;
+    
+        //     // ✅ If approving, go straight to AJAX
+        //     if (isApproval) {
+        //         //alert("🚀 Mission Data:");
+        //         submitApproval(missionId, decision,null, missionData);
+
+        //     } else {
+        //         // ❌ If rejecting, ask for reason
+        //         Swal.fire({
+        //             title: 'Rejection Reason',
+        //             input: 'textarea',
+        //             inputLabel: 'Please explain why you’re rejecting this mission',
+        //             inputPlaceholder: 'Enter reason here...',
+        //             inputAttributes: {
+        //                 'aria-label': 'Rejection reason'
+        //             },
+        //             inputValidator: (value) => {
+        //                 if (!value) {
+        //                     return 'Rejection reason is required!';
+        //                 }
+        //             },
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Submit Rejection',
+        //             confirmButtonColor: '#dc3545',
+        //             cancelButtonColor: '#6c757d',
+        //         }).then((rejectResult) => {
+        //             if (rejectResult.isConfirmed) {
+        //                 submitApproval(missionId, decision, rejectResult.value,missionData);
+        //             }
+        //         });
+        //     }
+        // });
     });
     
 
 
  // ✅  Function to submit approval or rejection with optional note
  function submitApproval(missionId, decision, rejectionNote = null, mission_info=null) {
+    // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            success_title: "Success",
+            success_message: "Decision updated!",
+            error_title: "Error",
+            error_message: "Something went wrong",
+        },
+        ar: {
+            success_title: "نجاح",
+            success_message: "تم تحديث القرار!",
+            error_title: "خطأ",
+            error_message: "حدث خطأ ما",
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
+
     $.ajax({
         url: `/missions/${missionId}/decision`,
         method: 'POST',
@@ -291,11 +600,26 @@ $(document).ready(function () {
                 missioninfo: mission_info
             });
 
-            Swal.fire('Success', response.message || 'Decision updated!', 'success');
+        //     Swal.fire('Success', response.message || 'Decision updated!', 'success');
+        //     getRegionManagerMissions();
+        // },
+        // error: function (xhr) {
+        //     Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+        // }
+        Swal.fire({
+                icon: 'success',
+                title: swalLang.success_title,
+                text: swalLang.success_message,
+            });
+
             getRegionManagerMissions();
         },
         error: function (xhr) {
-            Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+            Swal.fire({
+                icon: 'error',
+                title: swalLang.error_title,
+                text: swalLang.error_message,
+            });
         }
     });
 }
@@ -432,9 +756,13 @@ $(document).ready(function () {
                 const missions=response.data;
                 if (!missions.length) {
                     $('#missionsAccordion').append(`
-                        <div class="col-12 text-center my-4">No Missions Found !!!</div>
+                        <div class="col-12 text-center my-4" data-lang-key="noMissionsFound">No Missions Found</div>
                     `);
+                    let currentLang = localStorage.getItem("selectedLang") || "ar";
+                    //console.log('Calling updateLanguageTexts with:', currentLang);
+                    updateLanguageTexts(currentLang);
                     return;
+                   
                 }
     
                 $.each(missions, function (index, mission) {
@@ -471,9 +799,9 @@ $(document).ready(function () {
                    
                     const getStatusBadge = value => {
                         switch (value) {
-                            case 1: return `<strong class="text-success">Approved</strong>`;
-                            case 2: return `<strong class="text-danger">Rejected</strong>`;
-                            default: return `<strong class="text-warning">Pending</strong>`;
+                            case 1: return `<strong class="text-success" data-lang-key="Approved">Approved</strong>`;
+                            case 2: return `<strong class="text-danger" data-lang-key="Rejected">Rejected</strong>`;
+                            default: return `<strong class="text-warning" data-lang-key="Pending">Pending</strong>`;
                         }
                     };
     
@@ -622,10 +950,9 @@ $(document).ready(function () {
                                         <div class="col-lg-12">
                                             <div class="row w-100 align-items-center">
                                                 <strong data-lang-key="missionApproval">Mission Approval</strong><br>
-                                                <div class="col-3 label-text" ><p data-lang-key="test"><span data-lang-key="modonAdmin">Modon Admin:</span> ${modonManagerStatus}</p></div>
+                                                <div class="col-3 label-text"><p data-lang-key="test"><span data-lang-key="modonAdmin">Modon Admin:</span> ${modonManagerStatus}</p></div>
                                                 <div class="col-3 label-text"><p><span data-lang-key="generalManager">General Manager:</span> ${gmanagerApprovedStatus}</p></div>
                                                 <div class="col-3 label-text"><p><span data-lang-key="regionManager">Region Manager:</span> ${regionManagerStatus}</p></div>
-                                                
                                                 <div class="col-3 label-text"><p><span data-lang-key="pilot">Pilot:</span> ${pilotApprovedStatus}</p></div>
                                             </div>
                                         </div>                         
@@ -781,28 +1108,57 @@ $('#addMissionForm').on('submit', function (e) {
         region_id:region_id
     };
     
-    // ✅ Validation - collect missing fields
     let errors = [];
-    
-    if (!formData.mission_date) errors.push("Mission date is required.");
-    if (!inspectionType) errors.push("Please select an inspection type.");
-    if (!region_id) errors.push("Please select an Region ");
-    if (!pilotId) errors.push("Please select a pilot.");
-    if (!latitude) errors.push("Please Enter a latitude.");
-    if (!longitude) errors.push("Please Enter a longitude.");
-    if (selectedLocations.length === 0) errors.push("Please select at least one location.");
-    
-    if (errors.length > 0) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Missing Information!',
-            html: `<ul style="text-align:left;">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`,
-            background: '#101625',
-            color: '#ffffff',
-            confirmButtonColor: '#d33'
-        });
-        return;
+
+// Define translations for error messages
+const translations = {
+    en: {
+        mission_date_required: "Mission date is required.",
+        inspection_type_required: "Please select an inspection type.",
+        region_required: "Please select a Region.",
+        pilot_required: "Please select a pilot.",
+        latitude_required: "Please Enter a latitude.",
+        longitude_required: "Please Enter a longitude.",
+        location_required: "Please select at least one location.",
+        missing_information: "Missing Information!"
+    },
+    ar: {
+        mission_date_required: "تاريخ المهمة مطلوب.",
+        inspection_type_required: "يرجى اختيار نوع التفتيش.",
+        region_required: "يرجى اختيار منطقة.",
+        pilot_required: "يرجى اختيار طيار.",
+        latitude_required: "يرجى إدخال خط العرض.",
+        longitude_required: "يرجى إدخال خط الطول.",
+        location_required: "يرجى اختيار موقع واحد على الأقل.",
+        missing_information: "معلومات مفقودة!"
     }
+};
+
+// Get the selected language from localStorage
+const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+// Use the selected language for error messages
+const lang = translations[selectedLang] || translations.en;
+
+if (!formData.mission_date) errors.push(lang.mission_date_required);
+if (!inspectionType) errors.push(lang.inspection_type_required);
+if (!region_id) errors.push(lang.region_required);
+if (!pilotId) errors.push(lang.pilot_required);
+if (!latitude) errors.push(lang.latitude_required);
+if (!longitude) errors.push(lang.longitude_required);
+if (selectedLocations.length === 0) errors.push(lang.location_required);
+
+if (errors.length > 0) {
+    Swal.fire({
+        icon: 'error',
+        title: lang.missing_information,
+        html: `<ul style="text-align:start;">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`,
+        background: '#101625',
+        color: '#ffffff',
+        confirmButtonColor: '#d33'
+    });
+    return;
+}
     
     // ✅ UI feedback during request
     const buttonText = missionId ? "Updating..." : "Creating...";
@@ -823,16 +1179,47 @@ $('#addMissionForm').on('submit', function (e) {
         type: method,
         data: formData,
         success: function (response) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Mission Saved!',
-                text: response.message || 'Mission has been successfully created or updated.',
-                timer: 2000,
-                showConfirmButton: false,
-                background: '#101625',
-                color: '#ffffff'
-            });
+            const rolesToDisable = ['modon_admin', 'region_manager', 'general_manager','qss_admin'];
+                const userRole =  $('#userTypeFront').attr('data-lang-key');
+        
+                if (rolesToDisable.includes(userRole)) {
+                    $('#CreateMissionBtn').prop('disabled', true);
+                }
+            // Define translations for success messages
+    const successTranslations = {
+        en: {
+            mission_saved: "Mission Saved!",
+            mission_created: "Mission created successfully!",
+            mission_updated: "Mission updated successfully!"
+        },
+        ar: {
+            mission_saved: "تم حفظ المهمة!",
+            mission_created: "تم إنشاء المهمة بنجاح!",
+            mission_updated: "تم تحديث المهمة بنجاح!"
+        }
+    };
 
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for success messages
+    const successLang = successTranslations[selectedLang] || successTranslations.en;
+
+
+           // Determine the appropriate message based on the backend response
+    const successMessage = response.message.includes("created")
+        ? successLang.mission_created
+        : successLang.mission_updated;
+
+    Swal.fire({
+        icon: 'success',
+        title: successLang.mission_saved, // Use translated title
+        text: successMessage, // Use the appropriate translated message
+        timer: 2000,
+        showConfirmButton: false,
+        background: '#101625',
+        color: '#ffffff'
+    });
             // ✅ Reset form
             $form[0].reset();
             $('.location-checkbox').prop('checked', false);
@@ -861,14 +1248,63 @@ $('#addMissionForm').on('submit', function (e) {
             // getMissionStats();
         },
         error: function (xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: xhr.responseJSON?.message || 'Something went wrong while saving the mission.',
-                background: '#101625',
-                color: '#ffffff'
-            });
+    // Define translations for SweetAlert titles
+    const swalTitles = {
+        en: {
+            validation_error: "Validation Error!",
+            server_error: "Error!",
+            other_error: "Error!"
+        },
+        ar: {
+            validation_error: "خطأ في التحقق!",
+            server_error: "خطأ!",
+            other_error: "خطأ!"
         }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert titles
+    const swalLang = swalTitles[selectedLang] || swalTitles.en;
+
+    if (xhr.status === 422) {
+        // Handle validation errors
+        const errors = xhr.responseJSON?.errors || {};
+        const errorMessages = Object.keys(errors).map(key => {
+            const errorKey = key.replace('.', '_'); // Convert "locations.*" to "locations_*"
+            return translateBackendError(`${errorKey}_${errors[key][0].includes('required') ? 'required' : 'invalid'}`);
+        });
+
+        Swal.fire({
+            icon: 'error',
+            title: swalLang.validation_error, // Use translated title
+            html: `<ul style="text-align:start;">${errorMessages.map(err => `<li>${err}</li>`).join('')}</ul>`,
+            background: '#101625',
+            color: '#ffffff'
+        });
+    } else if (xhr.status === 500) {
+        // Handle server exceptions
+        const errorMessage = translateBackendError('mission_creation_failed');
+
+        Swal.fire({
+            icon: 'error',
+            title: swalLang.server_error, // Use translated title
+            text: errorMessage,
+            background: '#101625',
+            color: '#ffffff'
+        });
+    } else {
+        // Handle other errors
+        Swal.fire({
+            icon: 'error',
+            title: swalLang.other_error, // Use translated title
+            text: xhr.responseJSON?.message || translateBackendError('something_went_wrong'),
+            background: '#101625',
+            color: '#ffffff'
+        });
+    }
+}
     });
 });
 
@@ -989,67 +1425,176 @@ $('#addMissionForm').on('submit', function (e) {
     $(document).on('click', '.delete-mission', function () {
         const missionId = $(this).data('id');
         resetValues();
-    
+        // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            confirm_title: "Are you sure?",
+            confirm_text: "This mission will be permanently deleted.",
+            input_label: "Reason for Deletion",
+            input_placeholder: "Type reason here...",
+            confirm_button: "Yes, delete it!",
+            cancel_button: "Cancel",
+            success_title: "Deleted!",
+            success_text: "Mission has been deleted.",
+            error_title: "Error!",
+            error_text: "Something went wrong."
+        },
+        ar: {
+            confirm_title: "هل أنت متأكد؟",
+            confirm_text: "سيتم حذف هذه المهمة نهائيًا.",
+            input_label: "سبب الحذف",
+            input_placeholder: "اكتب السبب هنا...",
+            confirm_button: "نعم، احذفها!",
+            cancel_button: "إلغاء",
+            success_title: "تم الحذف!",
+            success_text: "تم حذف المهمة.",
+            error_title: "خطأ!",
+            error_text: "حدث خطأ ما."
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
+
         Swal.fire({
-            title: 'Are you sure?',
-            text: "This mission will be permanently deleted.",
-            icon: 'warning',
-            input: 'textarea',
-            inputLabel: 'Reason for Deletion',
-            inputPlaceholder: 'Type reason here...',
-            inputAttributes: {
-                'aria-label': 'Reason for deletion'
-            },
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const deleteReason = result.value?.trim();
-    
-                $.ajax({
-                    url: `/missions/${missionId}`,
-                    type: "POST",
-                    data: {
-                        delete_reason: deleteReason
-                    },
-                    success: function (response) {
-                        console.log(response)
-                        sendMissionNotification({
-                            mission: response.mission,
-                            recipients: response.mission.allmails,
-                            action: 'deleted'
-                        });
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: response.message || 'Mission has been deleted.',
-                            timer: 2000,
-                            showConfirmButton: false,
-                            background: '#101625',
-                            color: '#ffffff'
-                        });
-    
-                        $('#missionRow-' + missionId).remove(); // Remove mission row
-                        // getMissionStats();
-                    },
-                    error: function (xhr) {
-                        const errorMessage = xhr.responseJSON?.error || 'Something went wrong.';
-    
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: errorMessage,
-                            background: '#101625',
-                            color: '#ffffff',
-                            confirmButtonColor: '#d33'
-                        });
+        title: swalLang.confirm_title,
+        text: swalLang.confirm_text,
+        icon: 'warning',
+        input: 'textarea',
+        inputLabel: swalLang.input_label,
+        inputPlaceholder: swalLang.input_placeholder,
+        inputAttributes: {
+            'aria-label': swalLang.input_label
+        },
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: swalLang.confirm_button,
+        cancelButtonText: swalLang.cancel_button
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const deleteReason = result.value?.trim();
+
+            $.ajax({
+                url: `/missions/${missionId}`,
+                type: "POST",
+                data: {
+                    delete_reason: deleteReason
+                },
+                success: function (response) {
+                    console.log(response);
+                    sendMissionNotification({
+                        mission: response.mission,
+                        recipients: response.mission.allmails,
+                        action: 'deleted'
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: swalLang.success_title,
+                        text: swalLang.success_text,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#101625',
+                        color: '#ffffff'
+                    });
+
+                    $('#missionRow-' + missionId).remove(); // Remove mission row
+                },
+                error: function (xhr) {
+                    let errorMessage;
+
+                    // Handle specific backend error keys
+                    if (xhr.status === 403) {
+                        if (xhr.responseJSON?.error === "You are not authorized to delete this mission.") {
+                            errorMessage = translateBackendError("unauthorized_delete");
+                        } else if (xhr.responseJSON?.error === "❌ This mission has already been approved. Only the region manager or modon admin can delete it.") {
+                            errorMessage = translateBackendError("mission_already_approved");
+                        }
+                    } else if (xhr.status === 422) {
+                        if (xhr.responseJSON?.error === "Please provide a reason for deleting this mission.") {
+                            errorMessage = translateBackendError("delete_reason_required");
+                        }
+                    } else {
+                        errorMessage = translateBackendError("something_went_wrong");
                     }
-                });
-            }
-        });
+
+                    // Display the translated error message in SweetAlert
+                    Swal.fire({
+                        icon: 'error',
+                        title:backendErrorTranslations[localStorage.getItem("selectedLang") || "en"].server_error, // Always use the translated "Error" from backendLang
+                        text: errorMessage,
+                        background: '#101625',
+                        color: '#ffffff',
+                        confirmButtonColor: '#d33'
+                    });
+}
+            });
+        }
+    });
+    
+        // Swal.fire({
+        //     title: 'Are you sure?',
+        //     text: "This mission will be permanently deleted.",
+        //     icon: 'warning',
+        //     input: 'textarea',
+        //     inputLabel: 'Reason for Deletion',
+        //     inputPlaceholder: 'Type reason here...',
+        //     inputAttributes: {
+        //         'aria-label': 'Reason for deletion'
+        //     },
+        //     showCancelButton: true,
+        //     confirmButtonColor: '#d33',
+        //     cancelButtonColor: '#6c757d',
+        //     confirmButtonText: 'Yes, delete it!',
+        //     cancelButtonText: 'Cancel'
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //         const deleteReason = result.value?.trim();
+    
+        //         $.ajax({
+        //             url: `/missions/${missionId}`,
+        //             type: "POST",
+        //             data: {
+        //                 delete_reason: deleteReason
+        //             },
+        //             success: function (response) {
+        //                 console.log(response)
+        //                 sendMissionNotification({
+        //                     mission: response.mission,
+        //                     recipients: response.mission.allmails,
+        //                     action: 'deleted'
+        //                 });
+        //                 Swal.fire({
+        //                     icon: 'success',
+        //                     title: 'Deleted!',
+        //                     text: response.message || 'Mission has been deleted.',
+        //                     timer: 2000,
+        //                     showConfirmButton: false,
+        //                     background: '#101625',
+        //                     color: '#ffffff'
+        //                 });
+    
+        //                 $('#missionRow-' + missionId).remove(); // Remove mission row
+        //                 // getMissionStats();
+        //             },
+        //             error: function (xhr) {
+        //                 const errorMessage = xhr.responseJSON?.error || 'Something went wrong.';
+    
+        //                 Swal.fire({
+        //                     icon: 'error',
+        //                     title: 'Error!',
+        //                     text: errorMessage,
+        //                     background: '#101625',
+        //                     color: '#ffffff',
+        //                     confirmButtonColor: '#d33'
+        //                 });
+        //             }
+        //         });
+        //     }
+        // });
     });
     
 
@@ -1219,6 +1764,7 @@ $('#addMissionForm').on('submit', function (e) {
                 });
                 $("#editMissionModal").modal("hide");
                 getRegionManagerMissions();
+                
                 // getMissionStats();
             },
             error: function (xhr) {
@@ -1227,6 +1773,31 @@ $('#addMissionForm').on('submit', function (e) {
         });
     });
     function sendMissionNotification({ mission, recipients, action = 'created' }) {
+        // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            sending_title: `Mission ${action === 'Created' ? 'Created' : action === 'Updated' ? 'Updated' : 'Deleted'}...`,
+            sending_message: "Please wait while emails are being sent...",
+            success_title: "Email Sent!",
+            success_message: `Mission ${action === 'Created' ? 'created' : action === 'Updated' ? 'updated' : 'deleted'} notification sent successfully.`,
+            error_title: "Email Error!",
+            error_message: "An error occurred while sending the email."
+        },
+        ar: {
+            sending_title: `المهمة ${action === 'Created' ? 'تم إنشاؤها' : action === 'Updated' ? 'تم تحديثها' : 'تم حذفها'}...`,
+            sending_message: "يرجى الانتظار أثناء إرسال رسائل البريد الإلكتروني...",
+            success_title: "تم إرسال البريد الإلكتروني!",
+            success_message: `تم إرسال إشعار المهمة ${action === 'Created' ? 'تم إنشاؤها' : action === 'Updated' ? 'تم تحديثها' : 'تم حذفها'} بنجاح.`,
+            error_title: "خطأ في البريد الإلكتروني!",
+            error_message: "حدث خطأ أثناء إرسال البريد الإلكتروني."
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
         // ✅ Log recipients
         const realRecipients = recipients.map(r => r.email);
         console.log("Real email recipients:", realRecipients);
@@ -1268,45 +1839,82 @@ $('#addMissionForm').on('submit', function (e) {
             <p>Best regards,<br>
             <strong>Admin Team</strong></p>
         `;
+                // Show loading modal
+    Swal.fire({
+        title: swalLang.sending_title,
+        html: swalLang.sending_message,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
 
+    // Dummy recipients for testing
+    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+
+    // Send email request
+    fetch('/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+    })
+    .then(res => res.json())
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: swalLang.success_title,
+            text: swalLang.success_message,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    })
+    .catch(error => {
+        console.error('Email send error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: swalLang.error_title,
+            text: swalLang.error_message
+        });
+    });
             
-                // ✅ Show loading modal
-                Swal.fire({
-                    title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
-                    html: 'Please wait while emails are being sent...',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading()
-                });
-                const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-                // ✅ Send email request
-                fetch('/send-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    body: JSON.stringify({ recipients: dummyRecipients, subject, content })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Email Sent!',
-                        text: data.message || `Mission ${action} notification sent successfully.`,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                })
-                .catch(error => {
-                    console.error('Email send error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Email Error!',
-                        text: 'An error occurred while sending the email.'
-                    });
-                });
+                // // ✅ Show loading modal
+                // Swal.fire({
+                //     title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+                //     html: 'Please wait while emails are being sent...',
+                //     allowOutsideClick: false,
+                //     didOpen: () => Swal.showLoading()
+                // });
+                // const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+                // // ✅ Send email request
+                // fetch('/send-email', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                //     },
+                //     body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+                // })
+                // .then(res => res.json())
+                // .then(data => {
+                //     Swal.fire({
+                //         icon: 'success',
+                //         title: 'Email Sent!',
+                //         text: data.message || `Mission ${action} notification sent successfully.`,
+                //         timer: 2000,
+                //         showConfirmButton: false
+                //     });
+                // })
+                // .catch(error => {
+                //     console.error('Email send error:', error);
+                //     Swal.fire({
+                //         icon: 'error',
+                //         title: 'Email Error!',
+                //         text: 'An error occurred while sending the email.'
+                //     });
+                // });
             }
-            function formatType(type) {
+function formatType(type) {
                 if (!type) return 'N/A';
                 return type
                   .split('_')
@@ -1315,6 +1923,32 @@ $('#addMissionForm').on('submit', function (e) {
               }
 
     function sendApprovalNotification({ mission, recipients, decision,missioninfo }) {
+
+        const swalTranslations = {
+        en: {
+            sending_title: `Mission ${decision === 'approve' ? 'Approval' : 'Rejection'}...`,
+            sending_message: "Please wait while emails are being sent...",
+            success_title: "Email Sent!",
+            success_message: `Mission ${decision === 'approve' ? 'approved' : 'rejected'} notification sent successfully.`,
+            error_title: "Email Error!",
+            error_message: "An error occurred while sending the email."
+        },
+        ar: {
+            sending_title: `المهمة ${decision === 'approve' ? 'تمت الموافقة عليها' : 'تم رفضها'}...`,
+            sending_message: "يرجى الانتظار أثناء إرسال رسائل البريد الإلكتروني...",
+            success_title: "تم إرسال البريد الإلكتروني!",
+            success_message: `تم إرسال إشعار المهمة ${decision === 'approve' ? 'تمت الموافقة عليها' : 'تم رفضها'} بنجاح.`,
+            error_title: "خطأ في البريد الإلكتروني!",
+            error_message: "حدث خطأ أثناء إرسال البريد الإلكتروني."
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
+
             // Map user types to formatted strings
         const userTypeMap = {
             qss_admin: "QSS Admin",
@@ -1364,42 +1998,79 @@ $('#addMissionForm').on('submit', function (e) {
         <p>Best regards,<br>
         <strong>Admin Team</strong></p>
     `;
+        // Show loading modal
+    Swal.fire({
+        title: swalLang.sending_title,
+        html: swalLang.sending_message,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
 
-            // ✅ Show loading modal
+    // Dummy recipients for testing
+    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+
+    // Send email request
+    fetch('/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+    })
+        .then(res => res.json())
+        .then(data => {
             Swal.fire({
-                title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
-                html: 'Please wait while emails are being sent...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
+                icon: 'success',
+                title: swalLang.success_title,
+                text: swalLang.success_message,
+                timer: 2000,
+                showConfirmButton: false
             });
-            const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-            // ✅ Send email request
-            fetch('/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                body: JSON.stringify({ recipients: dummyRecipients, subject, content })
-            })
-            .then(res => res.json())
-            .then(data => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Email Sent!',
-                    text: data.message || `Mission ${action} notification sent successfully.`,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            })
-            .catch(error => {
-                console.error('Email send error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Email Error!',
-                    text: 'An error occurred while sending the email.'
-                });
+        })
+        .catch(error => {
+            console.error('Email send error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: swalLang.error_title,
+                text: swalLang.error_message
             });
+        });
+            // // ✅ Show loading modal
+            // Swal.fire({
+            //     title: `Mission ${action.charAt(0).toUpperCase() + action.slice(1)}...`,
+            //     html: 'Please wait while emails are being sent...',
+            //     allowOutsideClick: false,
+            //     didOpen: () => Swal.showLoading()
+            // });
+            // const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+            // // ✅ Send email request
+            // fetch('/send-email', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            //     },
+            //     body: JSON.stringify({ recipients: dummyRecipients, subject, content })
+            // })
+            // .then(res => res.json())
+            // .then(data => {
+            //     Swal.fire({
+            //         icon: 'success',
+            //         title: 'Email Sent!',
+            //         text: data.message || `Mission ${action} notification sent successfully.`,
+            //         timer: 2000,
+            //         showConfirmButton: false
+            //     });
+            // })
+            // .catch(error => {
+            //     console.error('Email send error:', error);
+            //     Swal.fire({
+            //         icon: 'error',
+            //         title: 'Email Error!',
+            //         text: 'An error occurred while sending the email.'
+            //     });
+            // });
     }
     
     // function sendMissionNotification(response, recipients) {

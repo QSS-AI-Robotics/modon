@@ -197,10 +197,11 @@
                                                 <option 
                                                     value="{{ $loc->id }}" 
                                                     data-region-id="{{ $region?->id }}" 
-                                                    data-region-name="{{ $region?->name }}"
+                                                    data-region-name="{{ $region?->name }}" 
+                                                    data-lang-key="{{ preg_replace('/\s+/', '_', trim($loc->name)) }}" 
                                                     @if($selectedLocationId == $loc->id) selected @endif>
                                                     {{ $loc->name }}
-                                                </option>
+                                                </option>>
                                             @endforeach
                                         </select>
                             

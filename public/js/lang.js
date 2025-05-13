@@ -584,10 +584,14 @@ const languageFile = {
         en: "Add New Drone",
         ar: "إضافة طائرة جديدة  ",
     },
+    noMissionsFound: {
+        en: "No Missions Found !!!",
+        ar: "لم يتم العثور على مهام !!!",
+    },
 };
 
 function updateLanguageTexts(lang) {
-    //alert("Iam here");
+
     $("[data-lang-key]").each(function () {
         const key = $(this).data("lang-key");
         //console.log(key);
@@ -623,7 +627,7 @@ function initializeTooltips(selectedLang) {
 }
 
 $(document).ready(function () {
-   
+
     // Get language from localStorage, fallback to English
     let currentLang = localStorage.getItem("selectedLang") || "ar";
     localStorage.setItem("selectedLang", currentLang);
@@ -682,6 +686,9 @@ $(document).ready(function () {
       
         // Call the tooltip initialization function
         initializeTooltips(selectedLang);
+        loadInspectionTypes(selectedLang);
+   
+      
 
          // Notify adminusers.js to update the chart
     if (typeof updateChartLanguage === "function") {

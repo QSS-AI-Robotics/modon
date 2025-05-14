@@ -986,7 +986,7 @@ public function updateUser(Request $request, $id)
          LocationAssignment::create([
              'user_id'     => $user->id,
              'location_id' => $location->id,
-             'region_id'   => $regionId,
+             'region_id'   => $request->region_id,
          ]);
      
          // ✅ Get all users for this region excluding pilots
@@ -1056,7 +1056,7 @@ public function updateUser(Request $request, $id)
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized access. Please log in.'], 401);
         }
-    
+    Log::info('UpdateLocation hit', $request->all());
         $user = Auth::user();
         $userType = strtolower($user->userType->name ?? '');
     

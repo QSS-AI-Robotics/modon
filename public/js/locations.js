@@ -189,6 +189,34 @@ $(document).ready(function () {
     // Submit Form (Create)
     $('#locationForm').on('submit', function (e) {
         e.preventDefault();
+
+            // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            success_add_title: "Success!",
+            success_add_message: "Location added successfully!",
+            success_update_title: "Success!",
+            success_update_message: "Location updated successfully!",
+            error_title: "Error!",
+            error_message: "Something went wrong.",
+            validation_error: "All required fields must be filled."
+        },
+        ar: {
+            success_add_title: "نجاح!",
+            success_add_message: "تمت إضافة الموقع بنجاح!",
+            success_update_title: "نجاح!",
+            success_update_message: "تم تحديث الموقع بنجاح!",
+            error_title: "خطأ!",
+            error_message: "حدث خطأ ما.",
+            validation_error: "يجب ملء جميع الحقول المطلوبة."
+        }
+    };
+
+      // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
     
         const $errorDiv = $('#location-validation-errors');
         $errorDiv.addClass('d-none').text(''); // Clear previous
@@ -212,31 +240,60 @@ $(document).ready(function () {
     
         const locationId = $('#locationId').val();
         const url = locationId ? `/locations/${locationId}/update` : `/locations/store`;
-    
         $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            success: function (response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: response.message || 'Location saved.',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                getLocations();
-                resetForm(); // Optional: reset form fields
-                $errorDiv.addClass('d-none').text('');
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.message || 'Something went wrong.',
-                });
-            }
-        });
+        url: url,
+        type: "POST",
+        data: formData,
+        success: function (response) {
+            // Determine the success message based on whether it's an add or update action
+            const isUpdate = !!locationId;
+            const successTitle = isUpdate ? swalLang.success_update_title : swalLang.success_add_title;
+            const successMessage = isUpdate ? swalLang.success_update_message : swalLang.success_add_message;
+
+            Swal.fire({
+                icon: 'success',
+                title: successTitle,
+                text: successMessage,
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            getLocations(); // Refresh the locations list
+            resetForm(); // Reset form fields
+            $errorDiv.addClass('d-none').text(''); // Clear validation errors
+        },
+        error: function (xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: swalLang.error_title,
+                text: xhr.responseJSON?.message || swalLang.error_message,
+            });
+        }
+    });
+        // $.ajax({
+        //     url: url,
+        //     type: "POST",
+        //     data: formData,
+        //     success: function (response) {
+        //         Swal.fire({
+        //             icon: 'success',
+        //             title: 'Success!',
+        //             text: response.message || 'Location saved.',
+        //             timer: 2000,
+        //             showConfirmButton: false
+        //         });
+        //         getLocations();
+        //         resetForm(); // Optional: reset form fields
+        //         $errorDiv.addClass('d-none').text('');
+        //     },
+        //     error: function (xhr) {
+        //         Swal.fire({
+        //             icon: 'error',
+        //             title: 'Error!',
+        //             text: xhr.responseJSON?.message || 'Something went wrong.',
+        //         });
+        //     }
+        // });
     });
     
 
@@ -247,42 +304,109 @@ $(document).ready(function () {
     // Delete Location
     $(document).on('click', '.delete-location', function () {
         let locationId = $(this).data('id');
+
+        // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            confirm_title: "Are you sure?",
+            confirm_text: "This location will be permanently deleted.",
+            confirm_button: "Yes, delete it!",
+            cancel_button: "Cancel",
+            success_title: "Deleted!",
+            success_message: "Location has been deleted successfully.",
+            error_title: "Error!",
+            error_message: "Something went wrong."
+        },
+        ar: {
+            confirm_title: "هل أنت متأكد؟",
+            confirm_text: "سيتم حذف هذا الموقع نهائيًا.",
+            confirm_button: "نعم، احذفه!",
+            cancel_button: "إلغاء",
+            success_title: "تم الحذف!",
+            success_message: "تم حذف الموقع بنجاح.",
+            error_title: "خطأ!",
+            error_message: "حدث خطأ ما."
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
+
     
+        // Swal.fire({
+        //     title: 'Are you sure?',
+        //     text: "This location will be permanently deleted.",
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonColor: '#d33',
+        //     cancelButtonColor: '#6c757d',
+        //     confirmButtonText: 'Yes, delete it!',
+        //     cancelButtonText: 'Cancel'
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //         $.ajax({
+        //             url: `/locations/${locationId}`,
+        //             type: "DELETE",
+        //             success: function (response) {
+        //                 Swal.fire({
+        //                     icon: 'success',
+        //                     title: 'Deleted!',
+        //                     text: response.message || 'Location has been deleted.',
+        //                     timer: 2000,
+        //                     showConfirmButton: false
+        //                 });
+    
+        //                 getLocations();
+        //             },
+        //             error: function (xhr) {
+        //                 Swal.fire({
+        //                     icon: 'error',
+        //                     title: 'Error!',
+        //                     text: xhr.responseJSON?.message || 'Something went wrong.',
+        //                 });
+        //             }
+        //         });
+        //     }
+        // });
         Swal.fire({
-            title: 'Are you sure?',
-            text: "This location will be permanently deleted.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: `/locations/${locationId}`,
-                    type: "DELETE",
-                    success: function (response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: response.message || 'Location has been deleted.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
+        title: swalLang.confirm_title,
+        text: swalLang.confirm_text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: swalLang.confirm_button,
+        cancelButtonText: swalLang.cancel_button
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/locations/${locationId}`,
+                type: "DELETE",
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: swalLang.success_title,
+                        text: swalLang.success_message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    getLocations(); // Refresh the locations list
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: swalLang.error_title,
+                        text: swalLang.error_message,
+                    });
+                }
+            });
+        }
+    });
     
-                        getLocations();
-                    },
-                    error: function (xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: xhr.responseJSON?.message || 'Something went wrong.',
-                        });
-                    }
-                });
-            }
-        });
     });
     
 });

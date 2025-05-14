@@ -92,7 +92,7 @@ function loadInspectionTypes(selectedLang) {
             "Monitoring road safety and detecting damages in industrial cities": "مراقبة سلامة الطرق ورصد الأضرار في المدن الصناعية.",
             "Imaging and analyzing harmful gases and emissions and their levels in industrial cities": "تصوير وتحليل الغازات الضارة والانبعاثات ومستوياتها في المدن الصناعية.",
             "Preparing a 3D map of the industrial city": "إعداد خريطة ثلاثية الأبعاد للمدينة الصناعية.",
-            "Responding to emergency cases reported to the specialized emergency call center": "الاستجابة للحالات الطارئة المبلغ عنها إلى مركز الاتصال الطارئ المتخصص."
+            "Responding to emergency cases reported to the specialized emergency call center": "الاستجابة للحالات الطارئة المُبلّغ عنها إلى مركز الطوارئ المتخصص."
         }
     };
 

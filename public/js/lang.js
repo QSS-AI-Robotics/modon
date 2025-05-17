@@ -171,6 +171,10 @@ const languageFile = {
         en: "Pilot",
         ar: "طيار",
     },
+    Pilot: {
+        en: "Pilot",
+        ar: "طيار",
+    },
     city_manager: {
         en: "City Manager",
         ar: "مدير المدينة",
@@ -390,15 +394,15 @@ const languageFile = {
     },
     central: {
         en: "Central",
-        ar: "المركزي",
+        ar: "الوسطى",
     },
     eastern: {
         en: "Eastern",
-        ar: "الشرقي",
+        ar: "الشرقية",
     },
     western: {
         en: "Western",
-        ar: "الغربي",
+        ar: "الغربية",
     },
     Jeddah_First_Industrial_City: { // Added this key
         en: "Jeddah First Industrial City",
@@ -588,6 +592,86 @@ const languageFile = {
         en: "No Missions Found !!!",
         ar: "لم يتم العثور على مهام !!!",
     },
+    pilotMissions: {
+        en: "Pilot Missions",
+        ar: "مهام الطيار",
+    },
+    "program:": {
+        en: "Program: ",
+        ar: "البرنامج: ",
+    },
+    "location:": {
+        en: "Location: ",
+        ar: "الموقع: ",
+    },
+    "geoCordinates:": {
+        en: "Geo Cordinates: ",
+        ar: "الإحداثيات الجغرافية: ",
+    },
+    "missionCreatedby:": {
+        en: "Mission Created by: ",
+        ar: "تم إنشاء المهمة بواسطة: ",
+    },
+    "note:": {
+        en: "Note: ",
+        ar: "ملاحظة: ",
+    },
+    detailedSummary: {
+    en: "Detailed Summary",
+    ar: "ملخص تفصيلي",
+    },
+    missionCreatedBy: {
+        en: "Mission Created By",
+        ar: "أنشأ المهمة",
+    },
+    videoLink: {
+        en: "Video Link",
+        ar: "رابط الفيديو",
+    },
+    reportDetail: {
+        en: "Report Detail",
+        ar: "تفاصيل التقرير",
+    },
+    clickToUploadImages: {
+    en: "Click to Upload Images",
+    ar: "انقر لتحميل الصور",
+    },
+    submitReport: {
+    en: "Submit Report",
+    ar: "إرسال التقرير",
+    },
+    submitANewReport: {
+        en: "Submit a New Report",
+        ar: "إرسال تقرير جديد",
+    },
+    updateReport: {
+    en: "Update Report",
+    ar: "تحديث التقرير",
+    },
+    allFieldsAreRequired: {
+        en: "All fields are required",
+        ar: "جميع الحقول مطلوبة",
+    },
+    currentImages: {
+        en: "Current Images",
+        ar: "الصور الحالية",
+    },
+    editReport: {
+    en: "Edit Report",
+    ar: "تعديل التقرير",
+    },
+    uploadNewImages: {
+        en: "Upload New Images",
+        ar: "تحميل صور جديدة",
+    },
+    approve: {
+        en: "Approve",
+        ar: "موافقة",
+    },
+    reject: {
+        en: "Reject",
+        ar: "رفض",
+    }
 };
 
 function updateLanguageTexts(lang) {

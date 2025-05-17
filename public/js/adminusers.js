@@ -40,8 +40,11 @@ function updateRegionMapFromValues(values) {
     }
 }
 function updateChart(chart, response, selectedLang) {
-    const chartData = (response.data || []).filter(item => item.region !== 'all');
+    //const chartData = (response.data || []).filter(item => item.region !== 'all');
+    const rawData = (response.data || []).filter(item => item.region !== 'all');
 
+    // 🔥 NEW: Filter out regions where missions === 0
+    const chartData = rawData.filter(item => item.missions > 0);
     const regionNames = {
         en: { eastern: "Eastern", western: "Western", central: "Central" },
         ar: { eastern: "الشرقي", western: "الغربي", central: "المركزي" }

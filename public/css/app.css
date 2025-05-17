@@ -592,7 +592,7 @@ iframe {
 
 }
 .custImg{
-    height: 28px; 
+    height: 31px; 
     background: #092B3B;
      border-radius: 6px;
 }
@@ -1178,6 +1178,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .resetPasswordHeader .btn-close {
     margin-inline-start: 1rem; /* Works for both LTR and RTL */
+}
+.reportModalHeader .btn-close {
+    margin-inline-end: 1rem; /* Works for both LTR and RTL */
 }
 
 .lang-dropdown,

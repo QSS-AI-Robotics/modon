@@ -1,3 +1,14 @@
+function toLangKey(str) {
+        return str
+            .trim()
+            .replace(/\b3\b/g, 'three')      // Replace standalone digit 3 with 'three'
+            .replace(/3/g, 'three')          // Replace any 3 with 'three'
+            .replace(/&/g, 'and')            // Replace & with and
+            .replace(/\s+/g, '_');           // Replace spaces with underscores
+    }
+    function formatCityNames(text) {
+        return text.trim().replace(/\s+/g, '_');
+    }
 $(document).ready(function () {
     $.ajaxSetup({
         headers: {
@@ -111,8 +122,10 @@ $(document).ready(function () {
         
                     if (!response.data.length) {
                         $('#pilotTableBody').append(`
-                            <div class="col-12 text-center my-4">No Missions Found !!!</div>
+                            <div class="col-12 text-center my-4" data-lang-key="noMissionsFound">No Missions Found !!!</div>
                         `);
+                        let currentLang = localStorage.getItem("selectedLang") || "ar";
+                        updateLanguageTexts(currentLang);
                         return;
                     }
         
@@ -134,12 +147,12 @@ $(document).ready(function () {
         
                         let statusBadge = "";
                         switch (mission.status) {
-                            case "Approved":        statusBadge = `<span class="badge p-2 bg-success">Approved</span>`; break;
-                            case "Pending":         statusBadge = `<span class="badge p-2 bg-danger">Pending</span>`; break;
-                            case "Rejected":        statusBadge = `<span class="badge p-2 bg-warning">Rejected</span>`; break;
-                            case "In Progress":     statusBadge = `<span class="badge p-2 bg-info text-dark">In Progress</span>`; break;
-                            case "Awaiting Report":statusBadge = `<span class="badge p-2 bg-primary">Awaiting Report</span>`; break;
-                            case "Completed":       statusBadge = `<span class="badge p-2 bg-success">Completed</span>`; break;
+                            case "Approved":        statusBadge = `<span class="badge p-2 bg-success d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="approved">Approved</span>`; break;
+                            case "Pending":         statusBadge = `<span class="badge p-2 bg-danger d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="pending">Pending</span>`; break;
+                            case "Rejected":        statusBadge = `<span class="badge p-2 bg-warning d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="rejected">Rejected</span>`; break;
+                            case "In Progress":     statusBadge = `<span class="badge p-2 bg-info text-dark d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="inProgress">In Progress</span>`; break;
+                            case "Awaiting Report":statusBadge = `<span class="badge p-2 bg-primary d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="awaitingReport">Awaiting Report</span>`; break;
+                            case "Completed":       statusBadge = `<span class="badge p-2 bg-success d-inline-block w-75 w-sm-75 w-md-50 w-lg-25" data-lang-key="completed">Completed</span>`; break;
                         }
         
                         const modonApproved  = mission.approval_status?.modon_admin_approved;
@@ -148,9 +161,9 @@ $(document).ready(function () {
         
                         const getStatusBadge = value => {
                             switch (value) {
-                                case 1: return `<strong class="text-success">Approved</strong>`;
-                                case 2: return `<strong class="text-danger">Rejected</strong>`;
-                                default: return `<strong class="text-warning">Pending</strong>`;
+                                case 1: return `<strong class="text-success" data-lang-key="Approved">Approved</strong>`;
+                                case 2: return `<strong class="text-danger" data-lang-key="Rejected">Rejected</strong>`;
+                                default: return `<strong class="text-warning" data-lang-key="Pending">Pending</strong>`;
                             }
                         };
         
@@ -180,11 +193,11 @@ $(document).ready(function () {
                         if (pilotApproved === 0) {
                             approvalButtons = `
                                 <strong class="text-end">
-                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMissionbyPilot"
+                                    <span class="badge p-2 px-3 me-2 hoverbtn bg-success approvalMissionbyPilot" data-lang-key="approve" 
                                         data-mission-decision="approve" data-mission-id="${mission.id}">
                                         Approve
                                     </span>
-                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMissionbyPilot"
+                                    <span class="badge p-2 px-3 hoverbtn bg-danger approvalMissionbyPilot" data-lang-key="reject"
                                         data-mission-decision="reject" data-mission-id="${mission.id}">
                                         Reject
                                     </span>
@@ -208,9 +221,9 @@ $(document).ready(function () {
                                 <h2 class="accordion-header" id="heading-${mission.id}">
                                     <button class="accordion-button collapsed d-flex px-3 py-2" type="button">
                                         <div class="row w-100 justify-content-between label-text">
-                                            <div class="col-3 ps-2" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
-                                            <div class="col-2 ps-4 mission_date">${mission.mission_date}</div>
-                                            <div class="col-3 text-center" data-location-name="${locations}">${locations}</div>
+                                            <div class="col-3 d-flex justify-content-start" data-lang-key="${toLangKey(inspectionName)}" data-incident-name="${inspectionName}" data-inspectiontype-id="${inspectionId}">${inspectionName}</div>
+                                            <div class="col-2 d-flex justify-content-start mission_date">${mission.mission_date}</div>
+                                            <div class="col-3 text-center" data-lang-key="${formatCityNames(locations)}" data-location-name="${locations}">${locations}</div>
                                             <div class="col-2 text-center ps-5">${statusBadge}</div>
                                             <div class="col-2 text-center ps-5">
                                              
@@ -225,33 +238,32 @@ $(document).ready(function () {
                                 <div id="collapse-${mission.id}" class="accordion-collapse collapse" aria-labelledby="heading-${mission.id}" data-bs-parent="#pilotTableBody">
                                     <div class="accordion-body px-4 py-2 label-text">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <strong class="py-1">Program: ${inspectionName}</strong> 
+                                            <strong class="py-1"><span data-lang-key="program:">Program:</span><span data-lang-key="${toLangKey(inspectionName)}">${inspectionName}</span></strong> 
                                             ${approvalButtons}
                                         </div>
-                                        <strong class="py-3" data-mission-date="${mission.mission_date}">Mission Date</strong>: ${mission.mission_date}<br>
+                                        <strong class="py-3" data-lang-key="missionDate" data-mission-date="${mission.mission_date}">Mission Date</strong>: ${mission.mission_date}<br>
         
                                         <strong class="py-3" 
                                             data-location-id="${firstLocation.id}" 
                                             data-region-id="${regionId}" 
                                             data-region-name="${regionName}">
-                                            Locations
-                                        </strong>: ${locations} ( ${regionName} )<br>
-        
+                                            <span  data-lang-key="location:">Location: </span>
+                                        </strong><span data-lang-key="${formatCityNames(locations)}">${locations}</span><span> (</span><span data-lang-key="${regionName}">${regionName}</span><span>) </span><br>
                                         <strong class="py-3"
                                             data-latitude="${latitude}" 
                                             data-longitude="${longitude}">
-                                            Geo
+                                             <span  data-lang-key="geoCordinates:">Geo Coordinates: </span>
                                         </strong>
                                         <span data-geo-locations="${latitude}-${longitude}">${latitude}, ${longitude}</span><br>
         
-                                        <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}" data-pilot-name="${mission.pilot_info?.name}"> Pilot Name</strong>: <span data-pilot-name="${mission.pilot_info?.name}"></span>${mission.pilot_info?.name || 'N/A'}<br>
-                                        <strong class="py-3">Mission Created By:</strong> <span class="text-capitalize" data-misison-created-by-name="${mission.created_by.name}">${mission.created_by.name}</span> (${mission.created_by.user_type})<br>
-                                        <strong class="py-3">Note:</strong> ${fullNote}<br><br>
+                                        <strong class="py-3" data-pilot-id="${mission.pilot_info?.id}" data-pilot-name="${mission.pilot_info?.name}" data-lang-key="pilotName"> Pilot Name</strong>: <span data-pilot-name="${mission.pilot_info?.name}"></span>${mission.pilot_info?.name || 'N/A'}<br>
+                                       <strong class="py-3" data-lang-key="missionCreatedby:">Mission Created By:</strong> <span class="text-capitalize" data-misison-created-by-name="${mission.created_by.name}">${mission.created_by.name}</span><span> (</span><span data-lang-key="${mission.created_by.user_type}" data-user-type="${mission.created_by.user_type}">${mission.created_by.user_type}</span><span>)</span><br>
+                                        <strong class="py-3" data-lang-key="note:">Note:</strong> ${fullNote}<br><br>
                                         <div class="d-flex">
                                             <div class="row w-100 align-items-center">
-                                                <strong>Mission Approval</strong><br>
-                                                <div class="col-6 label-text"><p>Modon Admin: ${modonManagerStatus}</p></div>
-                                                <div class="col-6 label-text"><p>Region Manager: ${regionManagerStatus}</p></div>
+                                                <strong data-lang-key="missionApproval">Mission Approval</strong><br>
+                                                <div class="col-6 label-text"><p><span data-lang-key="modonAdmin">Modon Admin:</span>${modonManagerStatus}</p></div>
+                                                <div class="col-6 label-text"><p><span data-lang-key="regionManager">Region Manager:</span> ${regionManagerStatus}</p></div>
                                             </div>
                                         </div>
                                     </div>
@@ -261,6 +273,8 @@ $(document).ready(function () {
         
                         $('#pilotTableBody').append(row);
                     });
+                     let currentLang = localStorage.getItem("selectedLang") || "ar";
+                     updateLanguageTexts(currentLang);
                     renderMissionPagination(response);
                 },
                 error: function (xhr) {
@@ -270,6 +284,46 @@ $(document).ready(function () {
             });
         }
         $(document).on('click', '.approvalMissionbyPilot', function () {
+
+            // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            confirm_approve_title: "Approve Mission?",
+            confirm_approve_text: "Are you sure you want to approve this mission?",
+            confirm_reject_title: "Reject Mission?",
+            confirm_reject_text: "Are you sure you want to reject this mission?",
+            confirm_button: "Yes, proceed",
+            cancel_button: "Cancel",
+            rejection_reason_title: "Rejection Reason",
+            rejection_reason_label: "Please explain why you’re rejecting this mission",
+            rejection_reason_placeholder: "Enter reason here...",
+            rejection_reason_required: "Rejection reason is required!",
+            success_title: "Success",
+            error_title: "Error",
+            error_missing_data: "Missing mission ID or decision",
+        },
+        ar: {
+            confirm_approve_title: "الموافقة على المهمة؟",
+            confirm_approve_text: "هل أنت متأكد أنك تريد الموافقة على هذه المهمة؟",
+            confirm_reject_title: "رفض المهمة؟",
+            confirm_reject_text: "هل أنت متأكد أنك تريد رفض هذه المهمة؟",
+            confirm_button: "نعم، تابع",
+            cancel_button: "إلغاء",
+            rejection_reason_title: "سبب الرفض",
+            rejection_reason_label: "يرجى توضيح سبب رفض هذه المهمة",
+            rejection_reason_placeholder: "أدخل السبب هنا...",
+            rejection_reason_required: "سبب الرفض مطلوب!",
+            success_title: "نجاح",
+            error_title: "خطأ",
+            error_missing_data: "معرف المهمة أو القرار مفقود",
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
             const missionId = $(this).data("mission-id");
             const decision = $(this).data("mission-decision");
 
@@ -290,23 +344,48 @@ $(document).ready(function () {
 
             // Location (City and Region)
             const locationLabel = container.find("[data-location-id]");
-            const locationText = locationLabel[0].nextSibling?.nodeValue?.trim() || "";
-            const city = locationText.split("(")[0]?.trim();
-            const region = locationText.match(/\(([^)]+)\)/)?.[1]?.trim();
 
-            // Mission Created By
-            const createdBySpan = container
-                .find('strong:contains("Mission Created By:")')
-                .next("span");
-            const createdBy = createdBySpan.text().trim();
-            const createdByRole = createdBySpan[0].nextSibling?.nodeValue
-                ?.replace(/[()]/g, "")
-                .trim();
+            // Find city and region from the next sibling <span> elements
+            const citySpan = locationLabel.nextAll('span[data-lang-key]').first();
+            const regionSpan = locationLabel.nextAll('span[data-lang-key]').eq(1); // second span with data-lang-key
 
+            // const city = citySpan.text().trim();
+            // const region = regionSpan.text().trim();
+            const city = citySpan.attr("data-lang-key")?.trim() || "";
+            const region = regionSpan.attr("data-lang-key")?.trim() || "";
+
+
+          // Mission Created By
+            // Mission Created By (Name and Role)
+            // Get the "Mission Created By" block using its known label
+            const createdByBlock = container.find('strong[data-lang-key="missionCreatedby:"]').parent();
+
+            // Get the name from the span with the data attribute
+            const createdBy = createdByBlock.find('[data-misison-created-by-name]').data("misison-created-by-name") || '';
+
+            // Get the role from the next span with data-lang-key after the name
+            const createdByRoleRaw = createdByBlock.find('[data-user-type]').attr("data-user-type")?.trim() || "";
+            const createdByRole = createdByRoleRaw
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
+            // const createdByRoleSpan = createdByBlock.find('[data-misison-created-by-name]').nextAll('span[data-lang-key]').first();
+            // const createdByRole = createdByRoleSpan.text().trim() || '';
             // Note
-            const noteText = container
-                .find('strong:contains("Note:")')[0]
-                .nextSibling?.nodeValue?.trim();
+                const noteLabel = container.find('strong[data-lang-key="note:"]')[0];
+
+                // Walk through siblings until we find a text node
+                let noteText = '';
+                let currentNode = noteLabel?.nextSibling;
+
+                while (currentNode && currentNode.nodeType !== Node.TEXT_NODE) {
+                    currentNode = currentNode.nextSibling;
+                }
+
+                if (currentNode && currentNode.nodeType === Node.TEXT_NODE) {
+                    noteText = currentNode.nodeValue.trim();
+        }
             // Construct JSON object
             const missionDetails = {
                 missionId,
@@ -331,67 +410,138 @@ $(document).ready(function () {
             console.log(JSON.stringify(missionDetails, null, 4)); // Pretty print
 
             if (!missionId || !decision) {
-                return Swal.fire(
-                    "Error",
-                    "Missing mission ID or decision",
-                    "error"
-                );
-            }
+             return Swal.fire(
+            swalLang.error_title,
+            swalLang.error_missing_data,
+            "error"
+        );
+    }
+    const isApproval = decision === "approve";
+    const actionText = isApproval ? swalLang.confirm_approve_title : swalLang.confirm_reject_title;
+    const actionTextBody = isApproval ? swalLang.confirm_approve_text : swalLang.confirm_reject_text;
+    const confirmButtonColor = isApproval ? "#28a745" : "#dc3545";
+            // const isApproval = decision === "approve";
+            // const actionText = isApproval ? "Approve" : "Reject";
+            // const confirmButtonColor = isApproval ? "#28a745" : "#dc3545";
 
-            const isApproval = decision === "approve";
-            const actionText = isApproval ? "Approve" : "Reject";
-            const confirmButtonColor = isApproval ? "#28a745" : "#dc3545";
+            // Swal.fire({
+            //     title: `${actionText} Mission?`,
+            //     text: `Are you sure you want to ${actionText.toLowerCase()} this mission?`,
+            //     icon: isApproval ? "success" : "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: confirmButtonColor,
+            //     cancelButtonColor: "#6c757d",
+            //     confirmButtonText: `Yes, ${actionText}`,
+            // }).then((result) => {
+            //     if (!result.isConfirmed) return;
 
+            //     // ✅ If approving, go straight to AJAX
+            //     if (isApproval) {
+            //         submitPilotApproval(missionId, decision,null, missionDetails);
+            //     } else {
+            //         // ❌ If rejecting, ask for reason
+            //         Swal.fire({
+            //             title: "Rejection Reason",
+            //             input: "textarea",
+            //             inputLabel:
+            //                 "Please explain why you’re rejecting this mission",
+            //             inputPlaceholder: "Enter reason here...",
+            //             inputAttributes: {
+            //                 "aria-label": "Rejection reason",
+            //             },
+            //             inputValidator: (value) => {
+            //                 if (!value) {
+            //                     return "Rejection reason is required!";
+            //                 }
+            //             },
+            //             showCancelButton: true,
+            //             confirmButtonText: "Submit Rejection",
+            //             confirmButtonColor: "#dc3545",
+            //             cancelButtonColor: "#6c757d",
+            //         }).then((rejectResult) => {
+            //             if (rejectResult.isConfirmed) {
+            //                 submitPilotApproval(
+            //                     missionId,
+            //                     decision,
+            //                     rejectResult.value,
+            //                     missionDetails
+            //                 );
+            //             }
+            //         });
+            //     }
+            // });
+            
+        Swal.fire({
+        title: actionText,
+        text: actionTextBody,
+        icon: isApproval ? "success" : "warning",
+        showCancelButton: true,
+        confirmButtonColor: confirmButtonColor,
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: swalLang.confirm_button,
+        cancelButtonText: swalLang.cancel_button,
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        // ✅ If approving, go straight to AJAX
+        if (isApproval) {
+            submitPilotApproval(missionId, decision, null, missionDetails);
+        } else {
+            // ❌ If rejecting, ask for reason
             Swal.fire({
-                title: `${actionText} Mission?`,
-                text: `Are you sure you want to ${actionText.toLowerCase()} this mission?`,
-                icon: isApproval ? "success" : "warning",
+                title: swalLang.rejection_reason_title,
+                input: "textarea",
+                inputLabel: swalLang.rejection_reason_label,
+                inputPlaceholder: swalLang.rejection_reason_placeholder,
+                inputAttributes: {
+                    "aria-label": swalLang.rejection_reason_label,
+                },
+                inputValidator: (value) => {
+                    if (!value) {
+                        return swalLang.rejection_reason_required;
+                    }
+                },
                 showCancelButton: true,
-                confirmButtonColor: confirmButtonColor,
+                confirmButtonText: swalLang.confirm_button,
+                confirmButtonColor: "#dc3545",
                 cancelButtonColor: "#6c757d",
-                confirmButtonText: `Yes, ${actionText}`,
-            }).then((result) => {
-                if (!result.isConfirmed) return;
-
-                // ✅ If approving, go straight to AJAX
-                if (isApproval) {
-                    submitPilotApproval(missionId, decision,null, missionDetails);
-                } else {
-                    // ❌ If rejecting, ask for reason
-                    Swal.fire({
-                        title: "Rejection Reason",
-                        input: "textarea",
-                        inputLabel:
-                            "Please explain why you’re rejecting this mission",
-                        inputPlaceholder: "Enter reason here...",
-                        inputAttributes: {
-                            "aria-label": "Rejection reason",
-                        },
-                        inputValidator: (value) => {
-                            if (!value) {
-                                return "Rejection reason is required!";
-                            }
-                        },
-                        showCancelButton: true,
-                        confirmButtonText: "Submit Rejection",
-                        confirmButtonColor: "#dc3545",
-                        cancelButtonColor: "#6c757d",
-                    }).then((rejectResult) => {
-                        if (rejectResult.isConfirmed) {
-                            submitPilotApproval(
-                                missionId,
-                                decision,
-                                rejectResult.value,
-                                missionDetails
-                            );
-                        }
-                    });
+            }).then((rejectResult) => {
+                if (rejectResult.isConfirmed) {
+                    submitPilotApproval(
+                        missionId,
+                        decision,
+                        rejectResult.value,
+                        missionDetails
+                    );
                 }
             });
+        }
+    });
         });
 
 
         function submitPilotApproval(missionId, decision, rejectionNote = null, missioninfo = null) {
+             // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            success_title: "Success",
+            success_message: "Decision updated successfully!",
+            error_title: "Error",
+            error_message: "Something went wrong.",
+        },
+        ar: {
+            success_title: "نجاح",
+            success_message: "تم تحديث القرار بنجاح!",
+            error_title: "خطأ",
+            error_message: "حدث خطأ ما.",
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
             $.ajax({
                 url: `/pilot/${missionId}/pilot-decision`,
                 method: 'POST',
@@ -411,7 +561,14 @@ $(document).ready(function () {
                    
 
 
-                    Swal.fire('Success', response.message || 'Decision updated!', 'success');
+                    //Swal.fire('Success', response.message || 'Decision updated!', 'success');
+                    Swal.fire({
+                icon: 'success',
+                title: swalLang.success_title,
+                text: swalLang.success_message,
+                timer: 2000,
+                showConfirmButton: false
+            });
                     getPilotMissions();
 
                   
@@ -424,7 +581,12 @@ $(document).ready(function () {
 
                 },
                 error: function (xhr) {
-                    Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+                    Swal.fire({
+                    icon: 'error',
+                    title: swalLang.error_title,
+                    text: swalLang.error_message,
+            });
+                    //Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
                 }
             });
         }
@@ -447,9 +609,13 @@ $(document).ready(function () {
             $("#viewOwnerInfo").text(MissionCreatedName);
             $("#viewpilotInfo").text(PilotName);
  
-            $("#viewprogramInfo").text(inspectionName);
-            $("#viewregionInfo").text(regionName);
-            $("#viewlocationInfo").text(locationName);
+            // $("#viewprogramInfo").text(inspectionName).attr("data-lang-key", toLangKey(inspectionName));
+            $("#viewprogramInfo")
+                .text(inspectionName)
+                .attr("data-lang-key", toLangKey(inspectionName))
+                .attr("data-program", inspectionName);
+            $("#viewregionInfo").text(regionName).attr("data-lang-key",regionName);
+            $("#viewlocationInfo").text(locationName).attr("data-lang-key", formatCityNames(locationName));
             $("#viewgeoInfo").text(GeoLocation);
             
             $("#viewmissionDateInfo").text(missionDate);
@@ -489,6 +655,8 @@ $(document).ready(function () {
                     }
         
                     $('#viewReportModal').modal('show');
+                    let currentLang = localStorage.getItem("selectedLang") || "ar";
+                    updateLanguageTexts(currentLang);
                 },
                 error: function (err) {
                     console.error("Error fetching report:", err);
@@ -526,9 +694,11 @@ $(document).ready(function () {
         const MissionDate = missionRow.find("[data-mission-date]").data("mission-date");
        
         // Update display areas
-        $("#programInfo").text(inspectionName);
-        $("#regionInfo").text(regionName);
-        $("#locationInfo").text(locationName);
+        $("#programInfo").text(inspectionName)
+        .attr("data-lang-key", toLangKey(inspectionName))
+        .attr("data-program", inspectionName);
+        $("#regionInfo").text(regionName).attr("data-lang-key",regionName);
+        $("#locationInfo").text(locationName).attr("data-lang-key", formatCityNames(locationName));
 
         $("#missionCreatefInfos").val(MissionCreatedName);
         $("#pilotInfos").val(PilotName);
@@ -538,12 +708,42 @@ $(document).ready(function () {
         // Update hidden mission ID input
         $('#addReportModal #mission_id').val(missionId);
         $('#addReportModal').modal('show');
+        let currentLang = localStorage.getItem("selectedLang") || "ar";
+        updateLanguageTexts(currentLang);
     });
 
     // Updated JS handler for submitting pilot report
     $(document).on('submit', '#addReportForm', function (e) {
 
         e.preventDefault();
+
+           // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            submitting_title: "Submitting Report...",
+            submitting_text: "Please wait while your report is being submitted.",
+            success_title: "Report Submitted!",
+            success_message: "The report has been successfully submitted.",
+            error_title: "Error!",
+            error_message: "Something went wrong.",
+            validation_error: "All fields are required."
+        },
+        ar: {
+            submitting_title: "جارٍ إرسال التقرير...",
+            submitting_text: "يرجى الانتظار أثناء إرسال تقريرك.",
+            success_title: "تم إرسال التقرير!",
+            success_message: "تم إرسال التقرير بنجاح.",
+            error_title: "خطأ!",
+            error_message: "حدث خطأ ما.",
+            validation_error: "جميع الحقول مطلوبة."
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
     
         const $errorDiv = $('#report-validation-errors');
         $errorDiv.addClass('d-none').text('');
@@ -552,9 +752,12 @@ $(document).ready(function () {
         const videoUrl    = $('#addReportModal #video_url').val();
         const description = $('#addReportModal #description').val();
 
-        const programInfo = $('#addReportModal #programInfo').text();
-        const regionInfo = $('#addReportModal #regionInfo').text();
-        const locationInfo = $('#addReportModal #locationInfo').text();
+        // const programInfo = $('#addReportModal #programInfo').text();
+        // const regionInfo = $('#addReportModal #regionInfo').text();
+        // const locationInfo = $('#addReportModal #locationInfo').text();
+        const programInfo = $('#addReportModal #programInfo').attr('data-program');
+        const regionInfo = $('#addReportModal #regionInfo').attr('data-lang-key');
+        const locationInfo = $('#addReportModal #locationInfo').attr('data-lang-key');
         //hidden 
         const createdBy = $('#addReportModal #missionCreatefInfos').val();
         const geoLocations = $('#addReportModal #geolocationinfos').val();
@@ -597,15 +800,25 @@ $(document).ready(function () {
             console.log(`${pair[0]}:`, pair[1]);
         }
         // ✅ Show loading SweetAlert before AJAX starts
-        Swal.fire({
-            title: 'Submitting Report...',
-            text: 'Please wait while your report is being submitted.',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+           Swal.fire({
+        title: swalLang.submitting_title,
+        text: swalLang.submitting_text,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+        // Swal.fire({
+        //     title: 'Submitting Report...',
+        //     text: 'Please wait while your report is being submitted.',
+        //     allowOutsideClick: false,
+        //     allowEscapeKey: false,
+        //     didOpen: () => {
+        //         Swal.showLoading();
+        //     }
+        // });
 
         $.ajax({
             url: '/pilot/reports/store',
@@ -614,39 +827,73 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Report Submitted!',
-                    text: response.message || 'The report has been successfully submitted.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    background: '#101625',
-                    color: '#ffffff'
-                }).then(() => {
-                    $('#addReportModal').modal('hide');
-                    $('#addReportForm')[0].reset();
-                    $('.image-preview').empty();
-                    getPilotMissions();
+               
+            //     Swal.fire({
+            //         icon: 'success',
+            //         title: 'Report Submitted!',
+            //         text: response.message || 'The report has been successfully submitted.',
+            //         timer: 2000,
+            //         showConfirmButton: false,
+            //         background: '#101625',
+            //         color: '#ffffff'
+            //     }).then(() => {
+            //         $('#addReportModal').modal('hide');
+            //         $('#addReportForm')[0].reset();
+            //         $('.image-preview').empty();
+            //         getPilotMissions();
         
-                    // Prepare recipients from response.users_emails
-                    const realRecipients = (response.users_emails || []).map(u => u.email);
-                    console.log("Real recipients for report notification:", realRecipients);
+            //         // Prepare recipients from response.users_emails
+            //         const realRecipients = (response.users_emails || []).map(u => u.email);
+            //         console.log("Real recipients for report notification:", realRecipients);
         
-                    // Dummy recipients for testing
-                    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+            //         // Dummy recipients for testing
+            //         const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
         
-                    sendReportNotification({
-                        action: 'added',
-                        missionData: response.mission_data,
-                        recipients: dummyRecipients, // Use dummy for now
-                        report: response.report
-                    });
+            //         sendReportNotification({
+            //             action: 'added',
+            //             missionData: response.mission_data,
+            //             recipients: dummyRecipients, // Use dummy for now
+            //             report: response.report
+            //         });
+            //     });
+            // },
+            // error: function (xhr) {
+            //     const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
+            //     $errorDiv.removeClass('d-none').text(errorMessage);
+            // }
+            Swal.fire({
+                icon: 'success',
+                title: swalLang.success_title,
+                text: swalLang.success_message,
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#101625',
+                color: '#ffffff'
+            }).then(() => {
+                $('#addReportModal').modal('hide');
+                $('#addReportForm')[0].reset();
+                $('.image-preview').empty();
+                getPilotMissions();
+
+                // Prepare recipients from response.users_emails
+                const realRecipients = (response.users_emails || []).map(u => u.email);
+                console.log("Real recipients for report notification:", realRecipients);
+
+                // Dummy recipients for testing
+                const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+
+                sendReportNotification({
+                    action: 'added',
+                    missionData: response.mission_data,
+                    recipients: dummyRecipients, // Use dummy for now
+                    report: response.report
                 });
-            },
-            error: function (xhr) {
-                const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
-                $errorDiv.removeClass('d-none').text(errorMessage);
-            }
+            });
+        },
+        error: function (xhr) {
+            const errorMessage = swalLang.error_message;
+            $errorDiv.removeClass('d-none').text(errorMessage);
+        }
         });
     });
     
@@ -1324,7 +1571,26 @@ $(document).ready(function () {
     // Submit update form
     $('#editReportForm').on('submit', function (e) {
         e.preventDefault();
-    
+        
+         // Define translations for SweetAlert
+        const swalTranslations = {
+            en: {
+                success_title: "Report Updated!",
+                success_message: "The report has been successfully updated.",
+                error_title: "Error!",
+                error_message: "Something went wrong."
+            },
+            ar: {
+                success_title: "تم تحديث التقرير!",
+                success_message: "تم تحديث التقرير بنجاح.",
+                error_title: "خطأ!",
+                error_message: "حدث خطأ ما."
+            }
+        };
+        // Get the selected language from localStorage
+        const selectedLang = localStorage.getItem("selectedLang") || "en";
+        const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
+
         const formData = new FormData(this);
     
         // Append removed image IDs as a JSON string
@@ -1336,22 +1602,6 @@ $(document).ready(function () {
             console.log(pair[0] + ':', pair[1]);
         }
     
-        // $.ajax({
-        //     url: '/report/updatemissionreport', // ✅ NEW ENDPOINT
-        //     method: 'POST',
-        //     data: formData,
-        //     contentType: false,
-        //     processData: false,
-        //     success: function (res) {
-        //         $('#editReportModal').modal('hide');
-        //         imagesToRemove = [];
-        //         $('input[name="new_images[]"]').val('');
-        //         $('.new-image-preview').empty();
-        //     },
-        //     error: function (err) {
-        //         $('#edit-validation-errors').removeClass('d-none').text('Something went wrong!');
-        //     }
-        // });
         $.ajax({
             url: '/report/updatemissionreport', // or your actual update endpoint
             method: 'POST',
@@ -1360,51 +1610,97 @@ $(document).ready(function () {
             processData: false,
             success: function (response) {
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Report Updated!',
-                    text: response.message || 'The report has been successfully updated.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    background: '#101625',
-                    color: '#ffffff'
-                }).then(() => {
-                    $('#editReportModal').modal('hide');
-                    $('#editReportForm')[0].reset();
-                    $('.image-preview').empty();
-                    getPilotMissions();
-        
-                    // Prepare recipients from response.users_emails
-                    const realRecipients = (response.users_emails || []).map(u => u.email);
-                    console.log("Real recipients for report update notification:", realRecipients);
-        
-                    // Dummy recipients for testing
-                    const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-        
-                    // Prepare missionData for email content
-                    const missionData = {
-                        pilotname: response.mission_data.mission?.pilot_name || 'N/A',
-                        regionInfo: response.mission_data.region?.name || 'N/A',
-                        locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
-                        dateInfo: response.mission_data.mission?.mission_date || 'N/A',
-                        programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
-                        createdBy: response.mission_data.user?.name || 'N/A',
-                        geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
-                            ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
-                            : 'N/A'
-                    };
-        
-                    sendReportNotification({
-                        action: 'updated',
-                        missionData: missionData,
-                        recipients: dummyRecipients, // Use dummy for now
-                        report: response.report
-                    });
+                icon: 'success',
+                title: swalLang.success_title,
+                text: swalLang.success_message,
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#101625',
+                color: '#ffffff'
+            }).then(() => {
+                $('#editReportModal').modal('hide');
+                $('#editReportForm')[0].reset();
+                $('.image-preview').empty();
+                getPilotMissions();
+
+                // Prepare recipients from response.users_emails
+                const realRecipients = (response.users_emails || []).map(u => u.email);
+                console.log("Real recipients for report update notification:", realRecipients);
+
+                // Dummy recipients for testing
+                const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+
+                // Prepare missionData for email content
+                const missionData = {
+                    pilotname: response.mission_data.mission?.pilot_name || 'N/A',
+                    regionInfo: response.mission_data.region?.name || 'N/A',
+                    locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
+                    dateInfo: response.mission_data.mission?.mission_date || 'N/A',
+                    programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
+                    createdBy: response.mission_data.user?.name || 'N/A',
+                    geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
+                        ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
+                        : 'N/A'
+                };
+
+                sendReportNotification({
+                    action: 'updated',
+                    missionData: missionData,
+                    recipients: dummyRecipients, // Use dummy for now
+                    report: response.report
                 });
-            },
-            error: function (xhr) {
-                const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
-                $('#edit-validation-errors').removeClass('d-none').text(errorMessage);
-            }
+            });
+        },
+        error: function (xhr) {
+            const errorMessage = swalLang.error_message;
+            $('#edit-validation-errors').removeClass('d-none').text(errorMessage);
+        }
+            //     Swal.fire({
+            //         icon: 'success',
+            //         title: 'Report Updated!',
+            //         text: response.message || 'The report has been successfully updated.',
+            //         timer: 2000,
+            //         showConfirmButton: false,
+            //         background: '#101625',
+            //         color: '#ffffff'
+            //     }).then(() => {
+            //         $('#editReportModal').modal('hide');
+            //         $('#editReportForm')[0].reset();
+            //         $('.image-preview').empty();
+            //         getPilotMissions();
+        
+            //         // Prepare recipients from response.users_emails
+            //         const realRecipients = (response.users_emails || []).map(u => u.email);
+            //         console.log("Real recipients for report update notification:", realRecipients);
+        
+            //         // Dummy recipients for testing
+            //         const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+        
+            //         // Prepare missionData for email content
+            //         const missionData = {
+            //             pilotname: response.mission_data.mission?.pilot_name || 'N/A',
+            //             regionInfo: response.mission_data.region?.name || 'N/A',
+            //             locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
+            //             dateInfo: response.mission_data.mission?.mission_date || 'N/A',
+            //             programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
+            //             createdBy: response.mission_data.user?.name || 'N/A',
+            //             geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
+            //                 ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
+            //                 : 'N/A'
+            //         };
+        
+            //         sendReportNotification({
+            //             action: 'updated',
+            //             missionData: missionData,
+            //             recipients: dummyRecipients, // Use dummy for now
+            //             report: response.report
+            //         });
+            //     });
+            // },
+            // error: function (xhr) {
+            //     const errorMessage = xhr.responseJSON?.message || 'Something went wrong.';
+            //     $('#edit-validation-errors').removeClass('d-none').text(errorMessage);
+            // }
         });
         
     });
@@ -1453,21 +1749,67 @@ $(document).ready(function () {
         e.preventDefault();
         const reportId = $(this).data('report-id');
         const missionId = $(this).data('mission-id');
+
+        // Define translations for SweetAlert
+        const swalTranslations = {
+            en: {
+                error_title: "Error",
+                error_missing: "Missing report or mission ID.",
+                confirm_title: "Are you sure?",
+                confirm_text: "This report and its images will be permanently deleted.",
+                confirm_button: "Yes, delete it!",
+                cancel_button: "Cancel",
+                success_title: "Deleted!",
+                success_message: "Report deleted successfully.",
+                error_delete: "Failed to delete report."
+            },
+            ar: {
+                error_title: "خطأ",
+                error_missing: "معرف التقرير أو المهمة مفقود.",
+                confirm_title: "هل أنت متأكد؟",
+                confirm_text: "سيتم حذف هذا التقرير وصوره نهائيًا.",
+                confirm_button: "نعم، احذفه!",
+                cancel_button: "إلغاء",
+                success_title: "تم الحذف!",
+                success_message: "تم حذف التقرير بنجاح.",
+                error_delete: "فشل حذف التقرير."
+            }
+        };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
+
     
-        if (!reportId || !missionId) {
-            Swal.fire('Error', 'Missing report or mission ID.', 'error');
-            return;
-        }
+    if (!reportId || !missionId) {
+        Swal.fire(swalLang.error_title, swalLang.error_missing, 'error');
+        return;
+    }
     
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'This report and its images will be permanently deleted.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
+        // if (!reportId || !missionId) {
+        //     Swal.fire('Error', 'Missing report or mission ID.', 'error');
+        //     return;
+        // }
+    
+        // Swal.fire({
+        //     title: 'Are you sure?',
+        //     text: 'This report and its images will be permanently deleted.',
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonColor: '#d33',
+        //     cancelButtonColor: '#3085d6',
+        //     confirmButtonText: 'Yes, delete it!'
+        // }).then((result) => {
+              Swal.fire({
+        title: swalLang.confirm_title,
+        text: swalLang.confirm_text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: swalLang.confirm_button,
+        cancelButtonText: swalLang.cancel_button
+    }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
                     url: '/pilot/delMissionReport',
@@ -1479,47 +1821,86 @@ $(document).ready(function () {
                     },
                     success: function (response) {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: response.message || 'Report deleted successfully.',
-                            timer: 2000,
-                            showConfirmButton: false,
-                            background: '#101625',
-                            color: '#ffffff'
-                        }).then(() => {
-                            $('#viewReportModal').modal('hide');
-                            getPilotMissions();
-    
-                            // Prepare recipients from response.users_emails
-                            const realRecipients = (response.users_emails || []).map(u => u.email);
-                            console.log("Real recipients for report delete notification:", realRecipients);
-    
-                            // Dummy recipients for testing
-                            const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
-    
-                            // Prepare missionData for email content
-                            const missionData = {
-                                pilotname: response.mission_data.mission?.pilot_name || 'N/A',
-                                regionInfo: response.mission_data.region?.name || 'N/A',
-                                locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
-                                dateInfo: response.mission_data.mission?.mission_date || 'N/A',
-                                programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
-                                createdBy: response.mission_data.user?.name || 'N/A',
-                                geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
-                                    ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
-                                    : 'N/A'
-                            };
-    
-                            sendReportNotification({
-                                action: 'deleted',
-                                missionData: missionData,
-                                recipients: dummyRecipients, // Use dummy for now
-                                report: null // No report object on delete
-                            });
+                        icon: 'success',
+                        title: swalLang.success_title,
+                        text: swalLang.success_message,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#101625',
+                        color: '#ffffff'
+                    }).then(() => {
+                        $('#viewReportModal').modal('hide');
+                        getPilotMissions();
+
+                        // Prepare recipients from response.users_emails
+                        const realRecipients = (response.users_emails || []).map(u => u.email);
+                        console.log("Real recipients for report delete notification:", realRecipients);
+
+                        // Dummy recipients for testing
+                        const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+
+                        // Prepare missionData for email content
+                        const missionData = {
+                            pilotname: response.mission_data.mission?.pilot_name || 'N/A',
+                            regionInfo: response.mission_data.region?.name || 'N/A',
+                            locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
+                            dateInfo: response.mission_data.mission?.mission_date || 'N/A',
+                            programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
+                            createdBy: response.mission_data.user?.name || 'N/A',
+                            geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
+                                ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
+                                : 'N/A'
+                        };
+
+                        sendReportNotification({
+                            action: 'deleted',
+                            missionData: missionData,
+                            recipients: dummyRecipients, // Use dummy for now
+                            report: null // No report object on delete
                         });
+                    });
+                        // Swal.fire({
+                        //     icon: 'success',
+                        //     title: 'Deleted!',
+                        //     text: response.message || 'Report deleted successfully.',
+                        //     timer: 2000,
+                        //     showConfirmButton: false,
+                        //     background: '#101625',
+                        //     color: '#ffffff'
+                        // }).then(() => {
+                        //     $('#viewReportModal').modal('hide');
+                        //     getPilotMissions();
+    
+                        //     // Prepare recipients from response.users_emails
+                        //     const realRecipients = (response.users_emails || []).map(u => u.email);
+                        //     console.log("Real recipients for report delete notification:", realRecipients);
+    
+                        //     // Dummy recipients for testing
+                        //     const dummyRecipients = ["nabeelabbasix@gmail.com", "nabeelabbasi050@gmail.com"];
+    
+                        //     // Prepare missionData for email content
+                        //     const missionData = {
+                        //         pilotname: response.mission_data.mission?.pilot_name || 'N/A',
+                        //         regionInfo: response.mission_data.region?.name || 'N/A',
+                        //         locationInfo: Object.values(response.mission_data.locations || {}).join(', ') || 'N/A',
+                        //         dateInfo: response.mission_data.mission?.mission_date || 'N/A',
+                        //         programInfo: Object.values(response.mission_data.inspection_types || {}).join(', ') || 'N/A',
+                        //         createdBy: response.mission_data.user?.name || 'N/A',
+                        //         geoLocations: (response.mission_data.geo_locations && response.mission_data.geo_locations.length)
+                        //             ? response.mission_data.geo_locations.map(g => `${g.latitude},${g.longitude}`).join(' | ')
+                        //             : 'N/A'
+                        //     };
+    
+                        //     sendReportNotification({
+                        //         action: 'deleted',
+                        //         missionData: missionData,
+                        //         recipients: dummyRecipients, // Use dummy for now
+                        //         report: null // No report object on delete
+                        //     });
+                        // });
                     },
                     error: function (xhr) {
-                        Swal.fire('Error', xhr.responseJSON?.message || 'Failed to delete report.', 'error');
+                        Swal.fire(swalLang.error_title, swalLang.error_delete, 'error');
                     }
                 });
             }
@@ -1607,6 +1988,31 @@ $(document).ready(function () {
         });
     }
 function sendReportNotification({ action, missionData, recipients, report, callback }) {
+    // Define translations for SweetAlert
+    const swalTranslations = {
+        en: {
+            sending_title: `Mission Report ${action === 'added' ? 'Adding' : action === 'updated' ? 'Updating' : 'Deleting'}...`,
+            sending_text: "Please wait while emails are being sent...",
+            success_title: "Email Sent!",
+            success_message: `Mission report ${action} notification sent successfully.`,
+            error_title: "Email Error!",
+            error_message: "An error occurred while sending the email."
+        },
+        ar: {
+            sending_title: `${action === 'added' ? 'جارٍ اضافة' : action === 'updated' ? 'جارٍ تحديث' : 'جارٍ حذف'} تقرير المهمة ...`,
+            sending_text: "يرجى الانتظار أثناء إرسال رسائل البريد الإلكتروني...",
+            success_title: "تم إرسال البريد الإلكتروني!",
+            success_message: `تم إرسال إشعار تقرير المهمة ${action === 'added' ? 'تمت إضافته' : action === 'updated' ? 'تم تحديثه' : 'تم حذفه'} بنجاح.`,
+            error_title: "خطأ في البريد الإلكتروني!",
+            error_message: "حدث خطأ أثناء إرسال البريد الإلكتروني."
+        }
+    };
+
+    // Get the selected language from localStorage
+    const selectedLang = localStorage.getItem("selectedLang") || "en";
+
+    // Use the selected language for SweetAlert translations
+    const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
     // Capitalize action for subject
     const actionText = action.charAt(0).toUpperCase() + action.slice(1);
 
@@ -1634,12 +2040,19 @@ function sendReportNotification({ action, missionData, recipients, report, callb
     `;
 
     // Show loader while sending emails
-    Swal.fire({
-        title: `Mission Report ${actionText}`,
-        text: 'Please wait while emails are being sent...',
+       Swal.fire({
+        title: swalLang.sending_title,
+        text: swalLang.sending_text,
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
     });
+
+    // Swal.fire({
+    //     title: `Mission Report ${actionText}`,
+    //     text: 'Please wait while emails are being sent...',
+    //     allowOutsideClick: false,
+    //     didOpen: () => Swal.showLoading()
+    // });
 
     fetch('/send-email', {
         method: 'POST',
@@ -1653,8 +2066,8 @@ function sendReportNotification({ action, missionData, recipients, report, callb
     .then(data => {
         Swal.fire({
             icon: 'success',
-            title: 'Email Sent!',
-            text: data.message || `Mission report ${action} notification sent successfully.`,
+            title: swalLang.success_title,
+            text: swalLang.success_message,
             timer: 2000,
             showConfirmButton: false
         });
@@ -1663,27 +2076,65 @@ function sendReportNotification({ action, missionData, recipients, report, callb
     .catch(error => {
         Swal.fire({
             icon: 'error',
-            title: 'Email Error!',
-            text: 'An error occurred while sending the email.'
+            title: swalLang.error_title,
+            text: swalLang.error_message
         });
         if (typeof callback === 'function') callback(error);
     });
+    // .then(data => {
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: 'Email Sent!',
+    //         text: data.message || `Mission report ${action} notification sent successfully.`,
+    //         timer: 2000,
+    //         showConfirmButton: false
+    //     });
+    //     if (typeof callback === 'function') callback();
+    // })
+    // .catch(error => {
+    //     Swal.fire({
+    //         icon: 'error',
+    //         title: 'Email Error!',
+    //         text: 'An error occurred while sending the email.'
+    //     });
+    //     if (typeof callback === 'function') callback(error);
+    // });
 }
     
         $(document).on('click', '.downloadReportPilot', function(e) {
             e.preventDefault();
 
+            // Define translations for SweetAlert
+            const swalTranslations = {
+                en: {
+                    loading_title: "Generating PDF...",
+                    loading_text: "Please wait while your report is being created.",
+                    error_title: "Failed!",
+                    error_message: "PDF download failed. Please try again."
+                },
+                ar: {
+                    loading_title: "جاري إنشاء ملف PDF...",
+                    loading_text: "يرجى الانتظار أثناء إنشاء تقريرك.",
+                    error_title: "فشل!",
+                    error_message: "فشل تحميل ملف PDF. يرجى المحاولة مرة أخرى."
+                }
+            };
+
+            // Get the selected language from localStorage
+            const selectedLang = localStorage.getItem("selectedLang") || "en";
+            const swalLang = swalTranslations[selectedLang] || swalTranslations.en;
             // Fetch the information
             const missionOwner   = $("#viewOwnerInfo").text().trim();
             const pilot          = $("#viewpilotInfo").text().trim();
-            const region         = $("#viewregionInfo").text().trim();
-            const program        = $("#viewprogramInfo").text().trim();
-            const location       = $("#viewlocationInfo").text().trim();
+            const region  = $("#viewregionInfo").attr("data-lang-key")?.trim() || "";
+            const program = $("#viewprogramInfo").attr("data-program")?.trim() || "";
+            const location = $("#viewlocationInfo").attr("data-lang-key")?.trim() || "";
+            // const region         = $("#viewregionInfo").text().trim();
+            // const program        = $("#viewprogramInfo").text().trim();
+            // const location       = $("#viewlocationInfo").text().trim();
             const geoCoordinates = $("#viewgeoInfo").text().trim();
             const description    = $("#description").text().trim();
             const missiondate    = $("#viewmissionDateInfo").text().trim();
-         
- 
 
             // 📸 Fetch all image URLs inside #missionReportImages
             const images = [];
@@ -1710,15 +2161,25 @@ function sendReportNotification({ action, missionData, recipients, report, callb
             console.log(missionData);
 
             // 🚨 Show SweetAlert loading
+             // Show SweetAlert loading
             Swal.fire({
-                title: 'Generating PDF...',
-                text: 'Please wait while your report is being created.',
+                title: swalLang.loading_title,
+                text: swalLang.loading_text,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
             });
+            // Swal.fire({
+            //     title: 'Generating PDF...',
+            //     text: 'Please wait while your report is being created.',
+            //     allowOutsideClick: false,
+            //     allowEscapeKey: false,
+            //     didOpen: () => {
+            //         Swal.showLoading();
+            //     }
+            // });
 
             // Send data to backend
             $.ajax({
@@ -1743,7 +2204,8 @@ function sendReportNotification({ action, missionData, recipients, report, callb
                 },
                 error: function(xhr) {
                     Swal.close();
-                    Swal.fire('Failed!', 'PDF download failed. Please try again.', 'error');
+                    Swal.fire(swalLang.error_title, swalLang.error_message, 'error');
+                    //Swal.fire('Failed!', 'PDF download failed. Please try again.', 'error');
                     console.error('PDF download failed');
                 }
             });
